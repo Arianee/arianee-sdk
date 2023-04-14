@@ -10,6 +10,7 @@
     "test:wallet": "nx test wallet",
     "test:protocol-types": "nx test protocol-types",
     "test:core": "nx test core",
+    "test:all": "nx run-many --target=test --projects=wallet,core,protocol-types",
     "dev": "nx serve arianee-sdk-example"
   },
   "private": true,
