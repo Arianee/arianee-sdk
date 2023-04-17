@@ -1,0 +1,30 @@
+version: 2.1
+
+orbs:
+    node: circleci/node@5.1.0
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:18.16.0
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Build
+          command: npm run build:all
+  test-libraries:
+    docker:
+      - image: cimg/node:18.16.0
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Run tests
+          command: npm run test:all
+
+workflows:
+  test:
+    jobs:
+      - test-libraries
+      - build

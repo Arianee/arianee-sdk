@@ -1,7 +1,9 @@
-import { wallet } from './wallet';
+import { Wallet } from './wallet';
 
 describe('wallet', () => {
   it('should work', () => {
-    expect(wallet()).toEqual('wallet');
+    const wallet = new Wallet();
+
+    expect(wallet).toBeDefined();
   });
 });

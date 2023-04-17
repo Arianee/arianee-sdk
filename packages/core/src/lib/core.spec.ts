@@ -1,7 +1,7 @@
-import { core } from './core';
+import { Core } from './core';
 
 describe('core', () => {
   it('should work', () => {
-    expect(core()).toEqual('core');
+    expect(new Core()).toBeDefined();
   });
 });

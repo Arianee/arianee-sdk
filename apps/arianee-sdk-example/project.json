@@ -1,0 +1,81 @@
+{
+  "name": "arianee-sdk-example",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/arianee-sdk-example/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/arianee-sdk-example",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/arianee-sdk-example/src/main.ts",
+        "tsConfig": "apps/arianee-sdk-example/tsconfig.app.json",
+        "assets": ["apps/arianee-sdk-example/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {
+          "bundle": true
+        },
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      },
+      "dependsOn": ["^build"]
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "arianee-sdk-example:build:development",
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "arianee-sdk-example:build:development"
+        },
+        "production": {
+          "buildTarget": "arianee-sdk-example:build:production"
+        }
+      },
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/arianee-sdk-example/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/arianee-sdk-example/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}
