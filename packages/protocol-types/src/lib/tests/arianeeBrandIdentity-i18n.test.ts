@@ -22,7 +22,10 @@ const arianeeBrandIdentityPolygon: ArianeeBrandIdentityI18N = {
     country: 'France',
   },
   pictures: [
-    { type: 'brandLogoHeader', url: 'https://theseus.arianee.org/pub/-LvRQM23uL73ArIyshF0' },
+    {
+      type: 'brandLogoHeader',
+      url: 'https://theseus.arianee.org/pub/-LvRQM23uL73ArIyshF0',
+    },
     {
       type: 'brandLogoHeaderReversed',
       url: 'https://api.bdh-arianee-test.arianee.com/pub/1631629031152-BrandLogoHeaderblanc.png',
@@ -67,10 +70,17 @@ const breitlingBrandIdentityPreprod: ArianeeBrandIdentityI18N = {
   companyName: 'Breitling AG',
   description:
     'Breitling AG is a leading Swiss\nluxury watchmaker based in\nGrenchen, Switzerland. The\ncompany was founded in 1884 by\nLéon Breitling in Saint-Imier.',
-  externalContents: [{ type: 'website', title: 'Breitling.com', url: 'https://www.breitling.com' }],
+  externalContents: [
+    {
+      type: 'website',
+      title: 'Breitling.com',
+      url: 'https://www.breitling.com',
+    },
+  ],
   arianeeMembership: 'maison_member',
   address: {
-    street_address: 'Schlachthausstrasse 2 (as of 1.1.2020 “Léon Breitling-Strasse 2)',
+    street_address:
+      'Schlachthausstrasse 2 (as of 1.1.2020 “Léon Breitling-Strasse 2)',
     zipcode: '2540',
     city: 'Grenchen',
     country: 'Switzerland,',
@@ -113,7 +123,10 @@ const breitlingBrandIdentityPreprod: ArianeeBrandIdentityI18N = {
     { type: 'facebook', value: '132650476760454' },
     { type: 'instagram', value: 'breitling' },
     { type: 'twitter', value: 'breitling' },
-    { type: 'youtube', value: 'https://www.youtube.com/user/BreitlingOfficial' },
+    {
+      type: 'youtube',
+      value: 'https://www.youtube.com/user/BreitlingOfficial',
+    },
   ],
   rpcEndpoint: 'https://bdh-breitling.api.pre-production.arianee.com/rpc',
 };
@@ -178,4 +191,4 @@ const yslBeautyBrandIdentityProd: ArianeeBrandIdentityI18N = {
 
 it('should be valid', () => {
   expect(true).toBeTruthy(); // this test will fail if there is an issue in the typing
-})
+});

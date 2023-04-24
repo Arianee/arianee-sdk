@@ -74,7 +74,12 @@ export type MediaTypeEnum =
   | '3dModelAsset'
   | 'videoPreview'
   | 'videoSource';
-export type MaterialEnum = 'cashmere' | 'cotton' | 'denim-jeans' | 'gold' | 'silver';
+export type MaterialEnum =
+  | 'cashmere'
+  | 'cotton'
+  | 'denim-jeans'
+  | 'gold'
+  | 'silver';
 export type SizeTypeEnum = 'height' | 'width' | 'depth' | 'size';
 export type UnitEnum = 'in' | 'cm' | 'mm' | 'eu' | 'uk' | 'us';
 export type CertificationEnum = 'fairtrade' | 'wwf';
@@ -114,7 +119,10 @@ export interface ProductCertification {
   name: CertificationEnum;
 }
 export type TransparencyCategory = 'material' | 'assembly' | 'impact';
-export type TransparencyType = 'responsible_procurement' | 'eco_design' | 'packaging';
+export type TransparencyType =
+  | 'responsible_procurement'
+  | 'eco_design'
+  | 'packaging';
 export type TransparencySubtype =
   | 'material-responsible_procurement-ethical_purchasing'
   | 'material-responsible_procurement-organic organic';
@@ -157,7 +165,7 @@ export type SubDescription = {
   title: string;
   content: string;
   order?: number;
-}
+};
 
 export interface ParentCertificate {
   type: ParentCertificateType;
@@ -173,7 +181,7 @@ export interface I18n {
   description?: string;
   subDescription?: SubDescription[];
   medias?: Media[];
-  externalContents?:ExternalContent[];
+  externalContents?: ExternalContent[];
   customAttributes?: CustomAttribute[];
   transparencyItems?: TransparencyItem[];
 }
