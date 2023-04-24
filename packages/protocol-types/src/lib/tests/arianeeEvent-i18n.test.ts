@@ -32,4 +32,4 @@ const realEvent: ArianeeEventI18N = {
 
 it('should be valid', () => {
   expect(true).toBeTruthy(); // this test will fail if there is an issue in the typing
-})
+});
