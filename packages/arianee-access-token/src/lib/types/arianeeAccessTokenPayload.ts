@@ -1,10 +1,9 @@
 export interface ArianeeAccessTokenPayload {
   iss: string;
-  scope: 'wallet' | 'certificate';
   exp: number;
   iat: number;
   network?: string;
-  sub?: string;
+  sub?: 'wallet' | 'certificate';
   subId?: number;
   nbf?: number;
 }

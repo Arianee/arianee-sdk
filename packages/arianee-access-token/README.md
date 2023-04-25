@@ -1,13 +1,13 @@
 # @arianee-sdk/ArianeeAccessToken
 
-The ArianeeAccessToken class is a module that allows you to create and manage Arianee Access Tokens (AAT). This class requires the Core class from the @arianee-sdk/core module
+The ArianeeAccessToken class is a module that allows you to create and manage Arianee Access Tokens (AAT). This class requires the Core class from the @arianee/core module
 
 ## Usage
 
 You need to instanciate the class with a core instance and a wallet address.
 
 ```typescript
-const core = core.fromPrivateKey("0x...");
+const core = core.fromPrivateKey('0x...');
 const arianeeAccessToken = new ArianeeAccessToken(core);
 ```
 
@@ -27,7 +27,7 @@ This method creates a link with an Arianee Access Token (AAT) attached to it. It
 
 <br>
 
-If you only need to decode existing arianee access token, you don't need to instanciate the class. 
+If you only need to decode existing arianee access token, you don't need to instanciate the class.
 
 You can use the following static methods
 
@@ -38,4 +38,3 @@ This static method checks if an Arianee Access Token (AAT) is valid. It takes an
 ### `static decodeJwt(arianeeAccessToken: string): {header: JwtHeaderInterface, payload: ArianeeAccessTokenPayload, signature: string}`
 
 This static method decodes an Arianee Access Token (AAT). It takes an `arianeeAccessToken` parameter as a `string` and returns an object with the decoded AAT, containing the header, payload, and signature.
-

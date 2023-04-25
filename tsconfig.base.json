@@ -18,7 +18,10 @@
       "@arianee-sdk/arianee-access-token": [
         "packages/arianee-access-token/src/index.ts"
       ],
-      "@arianee-sdk/core": ["packages/core/src/index.ts"],
+      "@arianee-sdk/arianee-privacy-gateway-client": [
+        "packages/arianee-privacy-gateway-client/src/index.ts"
+      ],
+      "@arianee/core": ["packages/core/src/index.ts"],
       "@arianee-sdk/protocol-types": ["packages/protocol-types/src/index.ts"],
       "@arianee-sdk/wallet": ["packages/wallet/src/index.ts"]
     }
