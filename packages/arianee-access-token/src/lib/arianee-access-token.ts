@@ -1,4 +1,4 @@
-import { Core } from '@arianee-sdk/core';
+import { Core } from '@arianee/core';
 import { ArianeeAccessTokenPayload } from './types/arianeeAccessTokenPayload';
 import { JWTGeneric } from './helpers/jwtGeneric';
 import { ethers } from 'ethers';
@@ -38,7 +38,7 @@ export class ArianeeAccessToken {
   ): Promise<string> {
     return this.generateAAT({
       subId: certificateId,
-      scope: 'certificate',
+      sub: 'certificate',
       network: network,
       ...payloadOverride,
     });
@@ -93,7 +93,7 @@ export class ArianeeAccessToken {
     const now = Date.now();
     const basicPayload: ArianeeAccessTokenPayload = {
       iss: this.core.getAddress(),
-      scope: 'wallet',
+      sub: 'wallet',
       exp: now + 5 * 60 * 1000,
       iat: now,
       ...payload,

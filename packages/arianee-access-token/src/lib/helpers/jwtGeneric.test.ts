@@ -1,5 +1,5 @@
 import { JWTGeneric } from './jwtGeneric';
-import { Core } from '@arianee-sdk/core';
+import { Core } from '@arianee/core';
 import { ethers } from 'ethers';
 import { ArianeeAccessTokenPayload } from '../types/arianeeAccessTokenPayload';
 
@@ -17,12 +17,12 @@ describe('JWTGeneric', function () {
   const now = Date.now();
   const payload: ArianeeAccessTokenPayload = {
     iss: '0x74FE09Db23Df5c35d2969B666f7AA94621E11D30',
-    scope: 'wallet',
+    sub: 'wallet',
     exp: 0,
     iat: 0,
   };
   const expectedToken =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc0RkUwOURiMjNEZjVjMzVkMjk2OUI2NjZmN0FBOTQ2MjFFMTFEMzAiLCJzY29wZSI6IndhbGxldCIsImV4cCI6MCwiaWF0IjowfQ==.0x4367a69f695973c6d4ddf068ef5053926cd74c9158ca09c2c3de77b5b941e5b0712b8ec0a4a590da5f769e6887768af20bd9d39e13ed7160a6f4f7a2eb9af5c51c';
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc0RkUwOURiMjNEZjVjMzVkMjk2OUI2NjZmN0FBOTQ2MjFFMTFEMzAiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjAsImlhdCI6MH0=.0x5e6a861198682b3ab59a5be58dfa534affc7d2f7e9e93b0ca7e6c04493d5e9ea2e136d1c07f43b7e951f9d4a52c67ea89f44ceec9ea6a86e14b09eb427a82a591c';
 
   describe('basic methods', () => {
     test('it should create a token', async () => {
@@ -69,7 +69,7 @@ describe('JWTGeneric', function () {
         const exp = new Date();
         exp.setMinutes(exp.getMinutes() - 5);
         const payload: ArianeeAccessTokenPayload = {
-          scope: 'wallet',
+          sub: 'wallet',
           iss: pubKey,
           iat: now,
           exp: exp.getTime(),
@@ -87,7 +87,7 @@ describe('JWTGeneric', function () {
         const exp = new Date();
         exp.setMinutes(exp.getMinutes() + 5);
         const payload: ArianeeAccessTokenPayload = {
-          scope: 'wallet',
+          sub: 'wallet',
           iss: pubKey,
           iat: now,
           exp: exp.getTime(),
@@ -107,7 +107,7 @@ describe('JWTGeneric', function () {
         const nbf = new Date();
         nbf.setMinutes(nbf.getMinutes() + 5);
         const payload: ArianeeAccessTokenPayload = {
-          scope: 'wallet',
+          sub: 'wallet',
           iss: pubKey,
           iat: now,
           exp: now + 5 * 60 * 1000,
@@ -126,7 +126,7 @@ describe('JWTGeneric', function () {
         const nbf = new Date();
         nbf.setMinutes(nbf.getMinutes() - 5);
         const payload: ArianeeAccessTokenPayload = {
-          scope: 'wallet',
+          sub: 'wallet',
           iss: pubKey,
           iat: now,
           exp: now + 5 * 60 * 1000,
