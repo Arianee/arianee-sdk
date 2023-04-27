@@ -1,23 +1,23 @@
 {
-  "name": "protocol-types",
+  "name": "common-types",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/protocol-types/src",
+  "sourceRoot": "packages/common-types/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/protocol-types",
-        "main": "packages/protocol-types/src/index.ts",
-        "tsConfig": "packages/protocol-types/tsconfig.lib.json",
-        "assets": ["packages/protocol-types/*.md"]
+        "outputPath": "dist/packages/common-types",
+        "main": "packages/common-types/src/index.ts",
+        "tsConfig": "packages/common-types/tsconfig.lib.json",
+        "assets": ["packages/common-types/*.md"]
       }
     },
     "publish": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs protocol-types {args.ver} {args.tag}"
+        "command": "node tools/scripts/publish.mjs common-types {args.ver} {args.tag}"
       },
       "dependsOn": ["build"]
     },
@@ -25,14 +25,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/protocol-types/**/*.ts"]
+        "lintFilePatterns": ["packages/common-types/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/protocol-types/jest.config.ts",
+        "jestConfig": "packages/common-types/jest.config.ts",
         "passWithNoTests": true
       },
       "configurations": {

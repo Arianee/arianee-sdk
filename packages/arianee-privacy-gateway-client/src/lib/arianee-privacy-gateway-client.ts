@@ -4,7 +4,7 @@ import {
   ArianeeEventI18N,
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
-} from '@arianee/protocol-types';
+} from '@arianee/common-types';
 import { ArianeeAccessToken as ArianeeAccessTokenClass } from '@arianee-sdk/arianee-access-token';
 
 export type ArianeeAccessToken = string;
