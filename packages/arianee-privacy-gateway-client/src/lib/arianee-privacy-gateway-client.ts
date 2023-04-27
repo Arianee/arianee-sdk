@@ -5,7 +5,7 @@ import {
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
 } from '@arianee/common-types';
-import { ArianeeAccessToken as ArianeeAccessTokenClass } from '@arianee-sdk/arianee-access-token';
+import { ArianeeAccessToken as ArianeeAccessTokenClass } from '@arianee/arianee-access-token';
 
 export type ArianeeAccessToken = string;
 export type RpcUrl = NonNullable<ArianeeBrandIdentityI18N['rpcEndpoint']>;

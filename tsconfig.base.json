@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@arianee-sdk/arianee-access-token": [
+      "@arianee/arianee-access-token": [
         "packages/arianee-access-token/src/index.ts"
       ],
       "@arianee-sdk/arianee-privacy-gateway-client": [
