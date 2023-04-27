@@ -16,4 +16,5 @@ export interface BlockchainEvent {
   address: string;
   chainId: number;
   network: string;
+  timestamp: string;
 }
