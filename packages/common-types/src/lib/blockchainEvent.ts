@@ -1,3 +1,5 @@
+import { Protocol } from './protocol';
+
 export interface BlockchainEvent {
   returnValues: {
     [key: string]: unknown;
@@ -14,7 +16,6 @@ export interface BlockchainEvent {
   blockHash: string;
   blockNumber: number;
   address: string;
-  chainId: number;
-  network: string;
+  protocol: Protocol;
   timestamp: string;
 }

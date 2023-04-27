@@ -1,10 +1,10 @@
 /* eslint-disable */
 export default {
-  displayName: 'protocol-types',
+  displayName: 'common-types',
   preset: '../../jest.preset.js',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/protocol-types',
+  coverageDirectory: '../../coverage/packages/common-types',
 };
