@@ -5,3 +5,4 @@ export { ArianeeProductCertificateI18N } from './lib/arianeeProductCertificate-i
 export { BlockchainEvent } from './lib/blockchainEvent';
 export { Protocol } from './lib/protocol';
 export { SmartAsset } from './lib/smartAsset';
+export { Event } from './lib/event';
