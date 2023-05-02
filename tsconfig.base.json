@@ -15,15 +15,16 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@arianee/arianee-access-token": [
-        "packages/arianee-access-token/src/index.ts"
-      ],
       "@arianee-sdk/arianee-privacy-gateway-client": [
         "packages/arianee-privacy-gateway-client/src/index.ts"
       ],
-      "@arianee/core": ["packages/core/src/index.ts"],
+      "@arianee-sdk/wallet": ["packages/wallet/src/index.ts"],
+      "@arianee/arianee-access-token": [
+        "packages/arianee-access-token/src/index.ts"
+      ],
       "@arianee/common-types": ["packages/common-types/src/index.ts"],
-      "@arianee-sdk/wallet": ["packages/wallet/src/index.ts"]
+      "@arianee/core": ["packages/core/src/index.ts"],
+      "@arianee/wallet-api-client": ["packages/wallet-api-client/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
