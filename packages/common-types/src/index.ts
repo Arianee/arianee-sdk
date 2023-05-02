@@ -7,3 +7,4 @@ export { Protocol } from './lib/protocol';
 export { SmartAsset } from './lib/smartAsset';
 export { Event } from './lib/event';
 export { BrandIdentity } from './lib/brandIdentity';
+export { DecentralizedMessage } from './lib/decentralizedMessage';
