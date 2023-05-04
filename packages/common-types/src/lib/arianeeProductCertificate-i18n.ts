@@ -1,38 +1,38 @@
 export interface ArianeeProductCertificateI18N {
   $schema: string;
-  language?: LanguageCode;
+  language?: ProductLanguageCode;
   name?: string;
   sku?: string;
   gtin?: string;
   brandInternalId?: string;
-  category?: Category;
-  subCategory?: SubCategory;
-  intended?: Intended;
+  category?: ProductCategory;
+  subCategory?: ProductSubCategory;
+  intended?: ProductIntended;
   serialnumber?: Array<{
-    type: SerialNumberType;
+    type: ProductSerialNumberType;
     value: string;
   }>;
   subBrand?: string;
   model?: string;
   description?: string;
-  subDescription?: SubDescription[];
-  externalContents?: ExternalContent[];
+  subDescription?: ProductSubDescription[];
+  externalContents?: ProductExternalContent[];
   msrp?: Array<{
     msrp: string;
-    currency: Currency;
+    currency: ProductCurrency;
     msrpCountry: string;
   }>;
-  medias?: Media[];
-  customAttributes?: CustomAttribute[];
-  attributes?: AttributeType[];
-  materials?: Material[];
-  size?: Size[];
+  medias?: ProductMedia[];
+  customAttributes?: ProductCustomAttribute[];
+  attributes?: ProductAttributeType[];
+  materials?: ProductMaterial[];
+  size?: ProductSize[];
   manufacturingCountry?: string;
   facilityId?: string;
   productCertification?: ProductCertification[];
-  transparencyItems?: TransparencyItem[];
-  i18n?: I18n[];
-  parentCertificates?: ParentCertificate[];
+  transparencyItems?: ProductTransparencyItem[];
+  i18n?: ProductI18n[];
+  parentCertificates?: ProductParentCertificate[];
   image?: string;
   image_data?: string;
   external_url?: string;
@@ -41,7 +41,7 @@ export interface ArianeeProductCertificateI18N {
   youtube_url?: string;
 }
 
-export type LanguageCode =
+export type ProductLanguageCode =
   | 'fr-FR'
   | 'en-US'
   | 'zh-TW'
@@ -52,20 +52,20 @@ export type LanguageCode =
   | 'es'
   | 'it'
   | 'ru';
-export type Category = 'apparel' | 'accessory' | string;
-export type SubCategory = 'shirt' | 'dress' | 'watch';
-export type Intended = 'womens' | 'mens' | 'neutral';
-export type SerialNumberType =
+export type ProductCategory = 'apparel' | 'accessory' | string;
+export type ProductSubCategory = 'shirt' | 'dress' | 'watch';
+export type ProductIntended = 'womens' | 'mens' | 'neutral';
+export type ProductSerialNumberType =
   | 'serialnumber'
   | 'casenumber'
   | 'movementnumber'
   | 'vin'
   | 'pgeneve'
   | 'millesimation';
-export type SubDescriptionType = 'service' | 'recycling' | 'other';
-export type Currency = 'USD' | 'EUR' | 'GBP';
-export type MediaType = 'picture' | 'youtube' | '3dModel' | 'video';
-export type MediaTypeEnum =
+export type ProductSubDescriptionType = 'service' | 'recycling' | 'other';
+export type ProductCurrency = 'USD' | 'EUR' | 'GBP';
+export type ProductMediaType = 'picture' | 'youtube' | '3dModel' | 'video';
+export type ProductMediaTypeEnum =
   | 'product'
   | 'brandItemBackgroundPicture'
   | 'itemBackgroundPicture'
@@ -74,61 +74,61 @@ export type MediaTypeEnum =
   | '3dModelAsset'
   | 'videoPreview'
   | 'videoSource';
-export type MaterialEnum =
+export type ProductMaterialEnum =
   | 'cashmere'
   | 'cotton'
   | 'denim-jeans'
   | 'gold'
   | 'silver';
-export type SizeTypeEnum = 'height' | 'width' | 'depth' | 'size';
-export type UnitEnum = 'in' | 'cm' | 'mm' | 'eu' | 'uk' | 'us';
-export type CertificationEnum = 'fairtrade' | 'wwf';
+export type ProductSizeTypeEnum = 'height' | 'width' | 'depth' | 'size';
+export type ProductUnitEnum = 'in' | 'cm' | 'mm' | 'eu' | 'uk' | 'us';
+export type ProductCertificationEnum = 'fairtrade' | 'wwf';
 
-export interface Media {
-  mediaType: MediaType;
-  type: MediaTypeEnum;
+export interface ProductMedia {
+  mediaType: ProductMediaType;
+  type: ProductMediaTypeEnum;
   url: string;
   hash?: string;
   order?: number;
 }
 
-export interface CustomAttribute {
+export interface ProductCustomAttribute {
   type: string;
   value: string;
 }
 
-export type AttributeType = {
+export type ProductAttributeType = {
   trait_type?: string;
   type?: 'color' | 'printed' | 'complication';
   value: string;
 };
 
-export interface Material {
-  material: MaterialEnum;
+export interface ProductMaterial {
+  material: ProductMaterialEnum;
   value: string;
   pourcentage: string;
 }
 
-export interface Size {
-  type: SizeTypeEnum;
+export interface ProductSize {
+  type: ProductSizeTypeEnum;
   value: string;
-  unit: UnitEnum;
+  unit: ProductUnitEnum;
 }
 
 export interface ProductCertification {
-  name: CertificationEnum;
+  name: ProductCertificationEnum;
 }
-export type TransparencyCategory = 'material' | 'assembly' | 'impact';
-export type TransparencyType =
+export type ProductTransparencyCategory = 'material' | 'assembly' | 'impact';
+export type ProductTransparencyType =
   | 'responsible_procurement'
   | 'eco_design'
   | 'packaging';
-export type TransparencySubtype =
+export type ProductTransparencySubtype =
   | 'material-responsible_procurement-ethical_purchasing'
   | 'material-responsible_procurement-organic organic';
 
-export type TransparencyMediaTypeEnum = 'icon' | 'transparencyPicture';
-export type ExternalContentTypeEnum =
+export type ProductTransparencyMediaTypeEnum = 'icon' | 'transparencyPicture';
+export type ProductExternalContentTypeEnum =
   | 'website'
   | 'proofLinkAction'
   | 'transparency'
@@ -136,52 +136,52 @@ export type ExternalContentTypeEnum =
   | 'youtube'
   | 'authRedirectTo';
 
-export interface TransparencyMedia extends Omit<Media, 'type'> {
-  type: TransparencyMediaTypeEnum;
+export interface ProductTransparencyMedia extends Omit<ProductMedia, 'type'> {
+  type: ProductTransparencyMediaTypeEnum;
 }
 
-export interface ExternalContent {
-  type: ExternalContentTypeEnum;
+export interface ProductExternalContent {
+  type: ProductExternalContentTypeEnum;
   title: string;
   url: string;
   order?: number;
 }
 
-export interface TransparencyItem {
-  category: TransparencyCategory;
-  type: TransparencyType;
-  subtype: TransparencySubtype;
+export interface ProductTransparencyItem {
+  category: ProductTransparencyCategory;
+  type: ProductTransparencyType;
+  subtype: ProductTransparencySubtype;
   title: string;
   subtitle: string;
   description: string;
-  medias: TransparencyMedia[];
-  externalContents?: ExternalContent[];
+  medias: ProductTransparencyMedia[];
+  externalContents?: ProductExternalContent[];
 }
 
-export type ParentCertificateType = 'full' | 'Full';
+export type ProductParentCertificateType = 'full' | 'Full';
 
-export type SubDescription = {
-  type: SubDescriptionType;
+export type ProductSubDescription = {
+  type: ProductSubDescriptionType;
   title: string;
   content: string;
   order?: number;
 };
 
-export interface ParentCertificate {
-  type: ParentCertificateType;
+export interface ProductParentCertificate {
+  type: ProductParentCertificateType;
   arianeeLink: string;
   order?: number;
 }
 
-export interface I18n {
-  language: LanguageCode;
+export interface ProductI18n {
+  language: ProductLanguageCode;
   name?: string;
   model?: string;
   subBrand?: string;
   description?: string;
-  subDescription?: SubDescription[];
-  medias?: Media[];
-  externalContents?: ExternalContent[];
-  customAttributes?: CustomAttribute[];
-  transparencyItems?: TransparencyItem[];
+  subDescription?: ProductSubDescription[];
+  medias?: ProductMedia[];
+  externalContents?: ProductExternalContent[];
+  customAttributes?: ProductCustomAttribute[];
+  transparencyItems?: ProductTransparencyItem[];
 }

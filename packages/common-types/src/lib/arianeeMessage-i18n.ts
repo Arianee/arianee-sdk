@@ -1,14 +1,14 @@
 export interface ArianeeMessageI18N {
   $schema: string;
-  language?: LanguageCode;
+  language?: MessageLanguageCode;
   title?: string;
   content?: string;
-  i18n?: i18nContent[];
-  pictures?: Media[];
-  externalContents?: ExternalContent[];
+  i18n?: MessageI18nContent[];
+  pictures?: MessageMedia[];
+  externalContents?: MessageExternalContent[];
 }
 
-export type LanguageCode =
+export type MessageLanguageCode =
   | 'fr-FR'
   | 'en-US'
   | 'zh-TW'
@@ -19,31 +19,31 @@ export type LanguageCode =
   | 'es'
   | 'it';
 
-export type MediaType = 'picture' | 'youtube';
+export type MessageMediaType = 'picture' | 'youtube';
 
-export type ExternalContentType =
+export type MessageExternalContentType =
   | 'website'
   | 'proofLinkAction'
   | 'arianeeAccessTokenAuthLink'
   | 'actionButton';
 
-export interface ExternalContent {
-  type: ExternalContentType;
+export interface MessageExternalContent {
+  type: MessageExternalContentType;
   title: string;
   url: string;
   order?: number;
 }
 
-export interface Media {
-  mediaType: MediaType;
+export interface MessageMedia {
+  mediaType: MessageMediaType;
   type: 'product';
   url: string;
   hash?: string;
 }
 
-export interface i18nContent {
-  language: LanguageCode;
+export interface MessageI18nContent {
+  language: MessageLanguageCode;
   title?: string;
   content?: string;
-  externalContents?: ExternalContent[];
+  externalContents?: MessageExternalContent[];
 }
