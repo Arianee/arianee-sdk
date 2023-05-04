@@ -1,1 +1,1 @@
-export * from './lib/wallet-abstraction';
+export * from './lib/walletAbstraction';

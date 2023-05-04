@@ -1,1 +1,1 @@
-export * from './lib/wallet-api-client';
+export { default } from './lib/walletApiClient';
