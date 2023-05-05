@@ -1,6 +1,6 @@
 import { ethers, Mnemonic, SigningKey, TransactionLike } from 'ethers';
 
-export class Core {
+class Core {
   constructor(
     public signMessage: (
       message: string
@@ -72,3 +72,6 @@ export class Core {
     return Core.fromPrivateKey(privateKey);
   }
 }
+
+export { Core };
+export default Core;

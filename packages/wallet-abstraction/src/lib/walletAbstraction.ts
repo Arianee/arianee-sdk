@@ -13,7 +13,9 @@ export interface WalletAbstraction {
       id: SmartAsset['certificateId'];
       passphrase?: string;
     },
-    ...params: unknown[]
+    params?: {
+      preferredLanguages?: string[];
+    }
   ): SmartAsset | Promise<SmartAsset>;
 
   getSmartAssetEvents(
@@ -22,23 +24,28 @@ export interface WalletAbstraction {
       id: SmartAsset['certificateId'];
       passphrase?: string;
     },
-    ...params: unknown[]
+    params?: {
+      preferredLanguages?: string[];
+    }
   ): Event[] | Promise<Event[]>;
 
-  getOwnedSmartAssets(
-    ...params: unknown[]
-  ): SmartAsset[] | Promise<SmartAsset[]>;
+  getOwnedSmartAssets(params?: {
+    onlyFromBrands?: string[];
+    preferredLanguages?: string[];
+  }): SmartAsset[] | Promise<SmartAsset[]>;
 
-  getReceivedMessages(
-    ...params: unknown[]
-  ): DecentralizedMessage[] | Promise<DecentralizedMessage[]>;
+  getReceivedMessages(params?: {
+    preferredLanguages?: string[];
+  }): DecentralizedMessage[] | Promise<DecentralizedMessage[]>;
 
   getBrandIdentity(
     address: BrandIdentity['address'],
-    ...params: unknown[]
+    params?: {
+      preferredLanguages?: string[];
+    }
   ): BrandIdentity | Promise<BrandIdentity>;
 
-  getOwnedSmartAssetsBrandIdentities(
-    ...params: unknown[]
-  ): BrandIdentity[] | Promise<BrandIdentity[]>;
+  getOwnedSmartAssetsBrandIdentities(params?: {
+    preferredLanguages?: string[];
+  }): BrandIdentity[] | Promise<BrandIdentity[]>;
 }
