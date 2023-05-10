@@ -342,7 +342,10 @@ describe('WalletApiClient', () => {
     });
 
     it('should use window.fetch in browser environment as default fetch function', async () => {
-      const mockedWindowFetch = {} as unknown as typeof fetch;
+      const mockedWindowFetch = {
+        bind: jest.fn(() => global.window!.fetch),
+      } as unknown as typeof fetch;
+
       global.window = { fetch: mockedWindowFetch };
 
       const client = new WalletApiClient('testnet', core);
