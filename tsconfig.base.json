@@ -15,10 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@arianee-sdk/arianee-privacy-gateway-client": [
+      "@arianee/arianee-privacy-gateway-client": [
         "packages/arianee-privacy-gateway-client/src/index.ts"
       ],
-      "@arianee-sdk/wallet": ["packages/wallet/src/index.ts"],
+      "@arianee/wallet": ["packages/wallet/src/index.ts"],
       "@arianee/arianee-access-token": [
         "packages/arianee-access-token/src/index.ts"
       ],

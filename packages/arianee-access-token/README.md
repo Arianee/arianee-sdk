@@ -1,4 +1,4 @@
-# @arianee-sdk/ArianeeAccessToken
+# @arianee/ArianeeAccessToken
 
 The ArianeeAccessToken class is a module that allows you to create and manage Arianee Access Tokens (AAT). This class requires the Core class from the @arianee/core module
 
