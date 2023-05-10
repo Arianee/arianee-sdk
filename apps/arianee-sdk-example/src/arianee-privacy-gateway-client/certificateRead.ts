@@ -8,7 +8,7 @@
  * - from a signature by a wallet generated from the smart asset's passphrase
  */
 
-import { ArianeePrivacyGatewayClient } from '@arianee-sdk/arianee-privacy-gateway-client';
+import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import { Core } from '@arianee/core';
 
 export default async () => {

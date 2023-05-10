@@ -1,7 +1,7 @@
 /**
  * The following is an example of a minimalistic Arianee Wallet for node built with the @arianee/wallet library
  */
-import { Wallet } from '@arianee-sdk/wallet';
+import { Wallet } from '@arianee/wallet';
 
 export default async () => {
   const mnemonic =
