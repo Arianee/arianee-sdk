@@ -1,0 +1,96 @@
+{
+  "name": "arianee-react-wallet",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/arianee-react-wallet/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/arianee-react-wallet",
+        "index": "apps/arianee-react-wallet/src/index.html",
+        "baseHref": "/",
+        "main": "apps/arianee-react-wallet/src/main.tsx",
+        "tsConfig": "apps/arianee-react-wallet/tsconfig.app.json",
+        "assets": [
+          "apps/arianee-react-wallet/src/favicon.ico",
+          "apps/arianee-react-wallet/src/assets"
+        ],
+        "styles": ["apps/arianee-react-wallet/src/styles.css"],
+        "scripts": [],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/arianee-react-wallet/webpack.config.js"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/arianee-react-wallet/src/environments/environment.ts",
+              "with": "apps/arianee-react-wallet/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "arianee-react-wallet:build",
+        "hmr": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "arianee-react-wallet:build:development"
+        },
+        "production": {
+          "buildTarget": "arianee-react-wallet:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/arianee-react-wallet/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "arianee-react-wallet:build"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/arianee-react-wallet/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}
