@@ -1,2 +1,3 @@
 export * from './lib/core';
-export { default } from './lib/core';
+import Core from './lib/core';
+export default Core;

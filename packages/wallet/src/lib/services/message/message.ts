@@ -1,6 +1,5 @@
 import { ChainType } from '@arianee/common-types';
 
-class MessageService<T extends ChainType> {}
+export default class MessageService<T extends ChainType> {}
 
-export { MessageService as IdentityService };
-export default MessageService;
+export { MessageService };

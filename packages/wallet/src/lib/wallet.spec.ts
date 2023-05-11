@@ -7,6 +7,7 @@ import WalletApiClient from '@arianee/wallet-api-client';
 import IdentityService from './services/identity/identity';
 import SmartAssetService from './services/smartAsset/smartAsset';
 import MessageService from './services/message/message';
+import EventManager from './services/eventManager/eventManager';
 
 declare const global: {
   window: { fetch: typeof fetch } | undefined;
@@ -16,6 +17,7 @@ jest.mock('@arianee/core');
 jest.mock('./services/identity/identity');
 jest.mock('./services/message/message');
 jest.mock('./services/smartAsset/smartAsset');
+jest.mock('./services/eventManager/eventManager');
 
 describe('Wallet', () => {
   beforeEach(() => {
@@ -29,10 +31,16 @@ describe('Wallet', () => {
     });
 
     it('should use window.fetch in browser environment as default fetch function', () => {
-      global.window = { fetch: {} as unknown as typeof fetch };
+      const mockedFetch = {
+        bind: jest.fn(() => global.window!.fetch),
+      } as unknown as typeof fetch;
+
+      global.window = {
+        fetch: mockedFetch,
+      };
 
       const wallet = new Wallet();
-      expect(wallet['fetchLike']).toBe(global.window.fetch);
+      expect(wallet['fetchLike']).toBe(mockedFetch);
 
       delete global.window;
     });
@@ -131,9 +139,26 @@ describe('Wallet', () => {
     });
 
     it('should instantiate smartAssetService with the correct params and expose it in a getter', () => {
-      const wallet = new Wallet();
+      const wallet = new Wallet({
+        eventManagerParams: {
+          pullInterval: 1234,
+        },
+      });
       expect(wallet.smartAsset).toBeDefined();
-      expect(SmartAssetService).toHaveBeenCalledWith(); // add constructor params here
+
+      expect(EventManager).toHaveBeenCalledWith(
+        'testnet',
+        wallet['walletAbstraction'],
+        {
+          pullInterval: 1234,
+        }
+      );
+
+      expect(SmartAssetService).toHaveBeenCalledWith(
+        expect.any(WalletApiClient),
+        expect.any(EventManager),
+        'raw'
+      );
     });
   });
 });

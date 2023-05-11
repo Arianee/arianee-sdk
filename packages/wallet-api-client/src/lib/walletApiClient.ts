@@ -31,7 +31,7 @@ export default class WalletApiClient<T extends ChainType>
     if (typeof window === 'undefined') {
       this.fetchLike = fetchLike ?? require('node-fetch');
     } else {
-      this.fetchLike = fetchLike ?? window.fetch;
+      this.fetchLike = fetchLike ?? window.fetch.bind(window);
     }
 
     this.apiURL = removeTrailingSlash(options?.apiURL ?? WALLET_API_URL);

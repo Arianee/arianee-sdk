@@ -5,6 +5,10 @@ import WalletApiClient from '@arianee/wallet-api-client';
 import SmartAssetService from './services/smartAsset/smartAsset';
 import MessageService from './services/message/message';
 import IdentityService from './services/identity/identity';
+import { I18NStrategy } from './utils/i18n';
+import EventManager, {
+  EventManagerParams,
+} from './services/eventManager/eventManager';
 
 export type WalletParams<T extends ChainType> = {
   chainType?: T;
@@ -12,24 +16,30 @@ export type WalletParams<T extends ChainType> = {
   auth?: { core: Core } | { privateKey: string } | { mnemonic: string };
   i18nStrategy?: I18NStrategy;
   fetchLike?: typeof fetch;
+  eventManagerParams?: EventManagerParams;
 };
 
-export type I18NStrategy = 'raw' | { useLanguages: string[] };
-
-class Wallet<T extends ChainType = 'testnet'> {
+export default class Wallet<T extends ChainType = 'testnet'> {
   private _chainType: T;
   private walletAbstraction: WalletAbstraction;
   private core: Core;
   private i18nStrategy: I18NStrategy;
   private fetchLike: typeof fetch;
+  private eventManager: EventManager<T>;
 
   private _smartAsset: SmartAssetService<T>;
   private _identity: IdentityService<T>;
   private _message: MessageService<T>;
 
   constructor(params?: WalletParams<T>) {
-    const { chainType, walletAbstraction, auth, i18nStrategy, fetchLike } =
-      params ?? {};
+    const {
+      chainType,
+      walletAbstraction,
+      auth,
+      i18nStrategy,
+      fetchLike,
+      eventManagerParams,
+    } = params ?? {};
 
     this._chainType = chainType ?? ('testnet' as T);
     this.core = this.getCoreFromAuth(auth);
@@ -38,14 +48,24 @@ class Wallet<T extends ChainType = 'testnet'> {
     if (typeof window === 'undefined') {
       this.fetchLike = fetchLike ?? require('node-fetch');
     } else {
-      this.fetchLike = fetchLike ?? window.fetch;
+      this.fetchLike = fetchLike ?? window.fetch.bind(window);
     }
 
     this.walletAbstraction =
       walletAbstraction ??
       new WalletApiClient(this._chainType, this.core, {}, fetchLike);
 
-    this._smartAsset = new SmartAssetService<T>();
+    this.eventManager = new EventManager(
+      this._chainType,
+      this.walletAbstraction,
+      eventManagerParams
+    );
+
+    this._smartAsset = new SmartAssetService(
+      this.walletAbstraction,
+      this.eventManager,
+      this.i18nStrategy
+    );
     this._identity = new IdentityService<T>();
     this._message = new MessageService<T>();
   }
@@ -88,4 +108,3 @@ class Wallet<T extends ChainType = 'testnet'> {
 }
 
 export { Wallet };
-export default Wallet;
