@@ -152,6 +152,34 @@ export default class WalletApiClient<T extends ChainType>
     }
   }
 
+  async getMessage(
+    id: DecentralizedMessage['id'],
+    protocolName: Protocol['name'],
+    params?: {
+      preferredLanguages?: string[];
+    }
+  ): Promise<DecentralizedMessage> {
+    const { preferredLanguages } = params || {};
+
+    const query = generateQueryString({
+      languages: preferredLanguages,
+    });
+
+    try {
+      const response = await this.httpClient.authorizedGet({
+        url: `${this.apiURL}/arianee/message/${protocolName}/${id}${query}`,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error fetching message: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (e) {
+      throw new Error(`Failed to fetch message: ${(e as Error).message}`);
+    }
+  }
+
   async getReceivedMessages(params?: {
     preferredLanguages?: string[];
   }): Promise<DecentralizedMessage[]> {

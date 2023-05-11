@@ -267,6 +267,42 @@ describe('WalletApiClient', () => {
     });
   });
 
+  describe('getMessage', () => {
+    it.each([
+      {
+        expectedUrl: `https://mock/arianee/message/testnet/1`,
+        preferredLanguages: undefined,
+      },
+      {
+        expectedUrl: `https://mock/arianee/message/testnet/1?languages=["fr-FR"]`,
+        preferredLanguages: ['fr-FR'],
+      },
+    ])(
+      'should call the api with the right url and return the json (case %#)',
+      async ({ preferredLanguages, expectedUrl }) => {
+        const res = await walletApiClient.getMessage('1', 'testnet', {
+          preferredLanguages,
+        });
+
+        expect(mockedHttpClient.authorizedGet).toHaveBeenCalledWith({
+          url: expectedUrl,
+        });
+
+        expect(res).toMatchObject({ mock: 'mock' });
+      }
+    );
+
+    it('should throw if response is not ok', async () => {
+      mockedHttpClient.authorizedGet.mockResolvedValue({
+        ok: false,
+      } as unknown as Response);
+
+      expect(walletApiClient.getMessage('1', 'testnet')).rejects.toThrowError(
+        /error fetching/gi
+      );
+    });
+  });
+
   describe('getBrandIdentity', () => {
     it.each([
       {

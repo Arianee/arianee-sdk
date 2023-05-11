@@ -19,7 +19,7 @@ export default async () => {
 
   const certificateId = '31783760';
 
-  const [smartAsset, events, ownedSmartAssets, receivedMessages] =
+  const [smartAsset, events, ownedSmartAssets, receivedMessages, oneMessage] =
     await Promise.all([
       client.getSmartAsset('mainnet', {
         id: certificateId,
@@ -29,6 +29,7 @@ export default async () => {
       }),
       client.getOwnedSmartAssets(),
       client.getReceivedMessages(),
+      client.getMessage('1', 'testnet'),
     ]);
 
   console.log(
@@ -43,4 +44,8 @@ export default async () => {
 
   console.log('Owned smart assets (mainnet): ', ownedSmartAssets.length);
   console.log('Received messages (mainnet): ', receivedMessages.length);
+  console.log(
+    'Message #1 on testnet\n',
+    JSON.stringify(oneMessage, undefined, 2)
+  );
 };

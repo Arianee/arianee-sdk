@@ -38,6 +38,14 @@ export interface WalletAbstraction {
     preferredLanguages?: string[];
   }): DecentralizedMessage[] | Promise<DecentralizedMessage[]>;
 
+  getMessage(
+    id: DecentralizedMessage['id'],
+    protocolName: Protocol['name'],
+    params?: {
+      preferredLanguages?: string[];
+    }
+  ): DecentralizedMessage | Promise<DecentralizedMessage>;
+
   getBrandIdentity(
     address: BrandIdentity['address'],
     params?: {
