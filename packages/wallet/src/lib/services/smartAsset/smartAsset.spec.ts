@@ -1,10 +1,27 @@
 import { Core } from '@arianee/core';
-import SmartAssetService, { SmartAsset } from './smartAsset';
+import SmartAssetService from './smartAsset';
 import WalletApiClient from '@arianee/wallet-api-client';
 import EventManager from '../eventManager/eventManager';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');
+
+const mockSmartAssetUpdated = {} as any;
+const mockSmartAssetReceived = {} as any;
+const mockSmartAssetTransferred = {} as any;
+const mockArianeeEventReceived = {} as any;
+Object.defineProperty(EventManager.prototype, 'smartAssetUpdated', {
+  get: () => mockSmartAssetUpdated,
+});
+Object.defineProperty(EventManager.prototype, 'smartAssetReceived', {
+  get: () => mockSmartAssetReceived,
+});
+Object.defineProperty(EventManager.prototype, 'smartAssetTransferred', {
+  get: () => mockSmartAssetTransferred,
+});
+Object.defineProperty(EventManager.prototype, 'arianeeEventReceived', {
+  get: () => mockArianeeEventReceived,
+});
 
 const defaultI18nStrategy = {
   useLanguages: ['mo-CK'],
@@ -25,8 +42,8 @@ describe('SmartAssetService', () => {
 
   const getOwnedSmartAssetsSpy = jest
     .spyOn(walletApiClient, 'getOwnedSmartAssets')
-
     .mockImplementation();
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -36,6 +53,24 @@ describe('SmartAssetService', () => {
       defaultI18nStrategy
     );
   });
+
+  describe('events', () => {
+    it('should expose an updated event that is a reference to eventManager.smartAssetUpdated', () => {
+      expect(smartAssetService.updated).toBe(mockSmartAssetUpdated);
+    });
+    it('should expose a received event that is a reference to eventManager.smartAssetReceived', () => {
+      expect(smartAssetService.received).toBe(mockSmartAssetReceived);
+    });
+    it('should expose a transferred event that is a reference to eventManager.smartAssetTransferred', () => {
+      expect(smartAssetService.transferred).toBe(mockSmartAssetTransferred);
+    });
+    it('should expose a arianeeEventReceived event that is a reference to eventManager.arianeeEventReceived', () => {
+      expect(smartAssetService.arianeeEventReceived).toBe(
+        mockArianeeEventReceived
+      );
+    });
+  });
+
   describe('get', () => {
     it.each([
       {

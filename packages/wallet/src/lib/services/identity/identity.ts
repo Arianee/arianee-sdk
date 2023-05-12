@@ -1,5 +1,72 @@
-import { ChainType } from '@arianee/common-types';
+import { BrandIdentity, ChainType } from '@arianee/common-types';
+import { WalletAbstraction } from '@arianee/wallet-abstraction';
+import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
+import EventManager from '../eventManager/eventManager';
 
-export default class IdentityService<T extends ChainType> {}
+export type IdentityInstance = {
+  data: BrandIdentity;
+};
+
+export default class IdentityService<T extends ChainType> {
+  public readonly updated: EventManager<T>['identityUpdated'];
+
+  constructor(
+    private walletAbstraction: WalletAbstraction,
+    private eventManager: EventManager<T>,
+    private i18nStrategy: I18NStrategy
+  ) {
+    this.updated = this.eventManager.identityUpdated;
+  }
+
+  /**
+   * Returns an IdentityInstance for the identity whose address is issuer
+   * @param issuer identity's issuer (address)
+   * @param params additional parameters
+   * @returns an identity instance
+   */
+  async get(
+    issuer: string,
+    params?: {
+      i18nStrategy?: I18NStrategy;
+    }
+  ): Promise<IdentityInstance> {
+    const preferredLanguages = getPreferredLanguages(
+      params?.i18nStrategy ?? this.i18nStrategy
+    );
+
+    const identity = await this.walletAbstraction.getBrandIdentity(issuer, {
+      preferredLanguages,
+    });
+
+    return {
+      data: identity,
+    };
+  }
+
+  /**
+   * @param params additional parameters
+   * @returns all the identities of the smart assets owned by the user
+   */
+  async getOwnedSmartAssetsIdentities(params?: {
+    i18nStrategy?: I18NStrategy;
+  }): Promise<IdentityInstance[]> {
+    const { i18nStrategy } = params ?? {};
+
+    const preferredLanguages = getPreferredLanguages(
+      i18nStrategy ?? this.i18nStrategy
+    );
+
+    const identities =
+      await this.walletAbstraction.getOwnedSmartAssetsBrandIdentities({
+        preferredLanguages,
+      });
+
+    const identitiesInstances = identities.map((identity) => ({
+      data: identity,
+    }));
+
+    return identitiesInstances;
+  }
+}
 
 export { IdentityService };

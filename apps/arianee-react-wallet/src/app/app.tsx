@@ -1,12 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useCallback, useEffect, useState } from 'react';
-import styles from './app.module.css';
 
 import Wallet from '@arianee/wallet';
 import WalletHeader from './components/walletHeader';
 import WalletNfts from './components/walletNfts';
 import { ChainType } from '@arianee/common-types';
 import { wallets } from './utils/wallet';
+import WalletIdentities from './components/walletIdentities';
 
 export function App() {
   const [wallet, setWallet] = useState<Wallet<ChainType> | null>(null);
@@ -31,6 +31,7 @@ export function App() {
         <>
           <WalletHeader wallet={wallet} setChainType={setChainTypeCallback} />
           <WalletNfts wallet={wallet} />
+          <WalletIdentities wallet={wallet} />
         </>
       )}
     </>
