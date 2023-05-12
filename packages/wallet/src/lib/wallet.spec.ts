@@ -127,9 +127,26 @@ describe('Wallet', () => {
 
     /* TODO: update tests to add the constructor params once the services have been created */
     it('should instantiate identityService with the correct params and expose it in a getter', () => {
-      const wallet = new Wallet();
+      const wallet = new Wallet({
+        eventManagerParams: {
+          pullInterval: 1234,
+        },
+      });
       expect(wallet.identity).toBeDefined();
-      expect(IdentityService).toHaveBeenCalledWith(); // add constructor params here
+
+      expect(EventManager).toHaveBeenCalledWith(
+        'testnet',
+        wallet['walletAbstraction'],
+        {
+          pullInterval: 1234,
+        }
+      );
+
+      expect(IdentityService).toHaveBeenCalledWith(
+        expect.any(WalletApiClient),
+        expect.any(EventManager),
+        'raw'
+      );
     });
 
     it('should instantiate messageService with the correct params and expose it in a getter', () => {

@@ -66,7 +66,13 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       this.eventManager,
       this.i18nStrategy
     );
-    this._identity = new IdentityService<T>();
+
+    this._identity = new IdentityService<T>(
+      this.walletAbstraction,
+      this.eventManager,
+      this.i18nStrategy
+    );
+
     this._message = new MessageService<T>();
   }
 

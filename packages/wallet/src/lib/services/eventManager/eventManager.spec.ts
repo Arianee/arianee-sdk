@@ -52,10 +52,12 @@ describe('EventManager', () => {
 
   describe('pull', () => {
     let atLeastOneListenerSpy: jest.SpyInstance;
-    let pullSmartAssetEventsSpy: jest.SpyInstance;
+    let pullSmartAssetsEventsSpy: jest.SpyInstance;
     let pullArianeeEventsSpy: jest.SpyInstance;
-    let emitSmartAssetEventsSpy: jest.SpyInstance;
+    let pullIdentitiesEventsSpy: jest.SpyInstance;
+    let emitSmartAssetsEventsSpy: jest.SpyInstance;
     let emitArianeeEventsSpy: jest.SpyInstance;
+    let emitIdentitiesEventsSpy: jest.SpyInstance;
     let updatePullAfterSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -64,20 +66,28 @@ describe('EventManager', () => {
         'atLeastOneListener'
       );
 
-      pullSmartAssetEventsSpy = jest
-        .spyOn(eventManager as any, 'pullSmartAssetEvents')
+      pullSmartAssetsEventsSpy = jest
+        .spyOn(eventManager as any, 'pullSmartAssetsEvents')
         .mockImplementation();
 
       pullArianeeEventsSpy = jest
         .spyOn(eventManager as any, 'pullArianeeEvents')
         .mockImplementation();
 
-      emitSmartAssetEventsSpy = jest
-        .spyOn(eventManager as any, 'emitSmartAssetEvents')
+      pullIdentitiesEventsSpy = jest
+        .spyOn(eventManager as any, 'pullIdentitiesEvents')
+        .mockImplementation();
+
+      emitSmartAssetsEventsSpy = jest
+        .spyOn(eventManager as any, 'emitSmartAssetsEvents')
         .mockImplementation();
 
       emitArianeeEventsSpy = jest
         .spyOn(eventManager as any, 'emitArianeeEvents')
+        .mockImplementation();
+
+      emitIdentitiesEventsSpy = jest
+        .spyOn(eventManager as any, 'emitIdentitiesEvents')
         .mockImplementation();
 
       updatePullAfterSpy = jest
@@ -91,7 +101,7 @@ describe('EventManager', () => {
       await eventManager['pull']();
 
       expect(atLeastOneListenerSpy).toHaveBeenCalled();
-      expect(pullSmartAssetEventsSpy).not.toHaveBeenCalled();
+      expect(pullSmartAssetsEventsSpy).not.toHaveBeenCalled();
       expect(pullArianeeEventsSpy).not.toHaveBeenCalled();
     });
 
@@ -100,16 +110,19 @@ describe('EventManager', () => {
 
       const events = ['mock'];
 
-      pullSmartAssetEventsSpy.mockResolvedValue(events);
+      pullSmartAssetsEventsSpy.mockResolvedValue(events);
       pullArianeeEventsSpy.mockResolvedValue(events);
+      pullIdentitiesEventsSpy.mockResolvedValue(events);
 
       await eventManager['pull']();
 
       expect(atLeastOneListenerSpy).toHaveBeenCalled();
-      expect(pullSmartAssetEventsSpy).toHaveBeenCalled();
+      expect(pullSmartAssetsEventsSpy).toHaveBeenCalled();
       expect(pullArianeeEventsSpy).toHaveBeenCalled();
+      expect(pullIdentitiesEventsSpy).toHaveBeenCalled();
       expect(emitArianeeEventsSpy).toHaveBeenCalledWith(events);
-      expect(emitSmartAssetEventsSpy).toHaveBeenCalledWith(events);
+      expect(emitSmartAssetsEventsSpy).toHaveBeenCalledWith(events);
+      expect(emitIdentitiesEventsSpy).toHaveBeenCalledWith(events);
 
       expect(updatePullAfterSpy).toHaveBeenCalled();
     });

@@ -55,6 +55,11 @@ export default class EventManager<T extends ChainType>
     'arianeeEventReceived'
   );
 
+  public readonly identityUpdated = new WrappedEventEmitter(
+    this.arianee,
+    'identityUpdated'
+  );
+
   private updatePullAfter() {
     this.pullAfter = new Date();
   }
@@ -76,13 +81,16 @@ export default class EventManager<T extends ChainType>
   private async pull() {
     if (!this.atLeastOneListener()) return;
 
-    const [arianeeEvents, smartAssetEvents] = await Promise.all([
-      this.pullArianeeEvents(),
-      this.pullSmartAssetEvents(),
-    ]);
+    const [arianeeEvents, smartAssetEvents, identitiesEvents] =
+      await Promise.all([
+        this.pullArianeeEvents(),
+        this.pullSmartAssetsEvents(),
+        this.pullIdentitiesEvents(),
+      ]);
 
     this.emitArianeeEvents(arianeeEvents);
-    this.emitSmartAssetEvents(smartAssetEvents);
+    this.emitSmartAssetsEvents(smartAssetEvents);
+    this.emitIdentitiesEvents(identitiesEvents);
 
     this.updatePullAfter();
   }
@@ -92,8 +100,13 @@ export default class EventManager<T extends ChainType>
     return;
   }
 
-  private async pullSmartAssetEvents() {
-    // get smart asset events created after this.date using arianee-api-client
+  private async pullSmartAssetsEvents() {
+    // get smart assets events created after this.date using arianee-api-client
+    return;
+  }
+
+  private async pullIdentitiesEvents() {
+    // get identities events created after this.date using arianee-api-client
     return;
   }
 
@@ -101,7 +114,11 @@ export default class EventManager<T extends ChainType>
     return;
   }
 
-  private async emitSmartAssetEvents(smartAssetEvents: any) {
+  private async emitSmartAssetsEvents(smartAssetEvents: any) {
+    return;
+  }
+
+  private async emitIdentitiesEvents(identitiesEvents: any) {
     return;
   }
 }
