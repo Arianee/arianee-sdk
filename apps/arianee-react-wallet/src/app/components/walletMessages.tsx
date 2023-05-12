@@ -1,17 +1,19 @@
 import Wallet, {
-  IdentityInstance,
   IdentityUpdatedEvent,
+  MessageInstance,
+  MessageReadEvent,
+  MessageReceivedEvent,
 } from '@arianee/wallet';
 import { useEffect, useState } from 'react';
 import { ChainType } from '@arianee/common-types';
 import { getTime } from '../utils/misc';
 
-export interface WalletIdentitiesProps {
+export interface WalletMessagesProps {
   wallet: Wallet<ChainType>;
 }
 
-export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
-  const [identities, setIdentities] = useState<IdentityInstance[]>([]);
+export default function WalletMessages({ wallet }: WalletMessagesProps) {
+  const [messages, setMessages] = useState<MessageInstance[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [eventsLog, setEventsLog] = useState<string>('');
@@ -20,9 +22,17 @@ export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
     setEventsLog((oldEventsLog) => message + '\n' + oldEventsLog);
   };
 
-  const identityUpdated = (event: IdentityUpdatedEvent) => {
+  const messageReceived = (event: MessageReceivedEvent) => {
     pushToEventsLog(
-      `[${getTime()}] Identity (${event.issuer}) updated on ${
+      `[${getTime()}] Message (${event.messageId}) received on ${
+        event.protocol.name
+      }`
+    );
+  };
+
+  const messageRead = (event: MessageReadEvent) => {
+    pushToEventsLog(
+      `[${getTime()}] Message (${event.messageId}) read on ${
         event.protocol.name
       }`
     );
@@ -32,21 +42,23 @@ export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
     setLoading(true);
     setEventsLog('');
 
-    wallet.identity.updated.addListener(identityUpdated);
+    wallet.message.received.addListener(messageReceived);
+    wallet.message.read.addListener(messageRead);
 
-    wallet.identity.getOwnedSmartAssetsIdentities().then((identities) => {
-      setIdentities(identities);
+    wallet.message.getReceived().then((messages) => {
+      setMessages(messages);
       setLoading(false);
     });
 
     return () => {
-      wallet.identity.updated.removeAllListeners();
+      wallet.message.received.removeAllListeners();
+      wallet.message.read.removeAllListeners();
     };
   }, [wallet]);
 
   return (
-    <div id="identities">
-      <h3>Identities</h3>
+    <div id="messages">
+      <h3>Messages</h3>
       {loading ? (
         <div>Loading...</div>
       ) : (
@@ -64,26 +76,25 @@ export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
               value={eventsLog}
             ></textarea>
           </div>
-          {identities.map((identity, index) => {
-            const { data } = identity;
-            const issuer = data.address;
+          {messages.map((message, index) => {
+            const { data } = message;
+            const id = data.id;
 
             return (
               <div
-                id={'identity-' + issuer.toLowerCase()}
-                key={issuer}
+                key={id}
                 style={{
-                  background: index % 2 === 0 ? '#d2baff' : '#ede3ff',
+                  background: index % 2 === 0 ? '#cfe4ff' : '#e3efff',
                   padding: '16px',
                   margin: '8px',
                   borderRadius: '8px',
                 }}
               >
                 <div>
-                  <b>Issuer:</b> {issuer}
+                  <b>ID:</b> {id}
                 </div>
                 <div>
-                  <b>Name:</b> {data.content.name}
+                  <b>Title:</b> {data.content.title}
                 </div>
                 <div>
                   <b>Protocol:</b> {JSON.stringify(data.protocol, undefined, 2)}

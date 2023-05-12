@@ -7,6 +7,7 @@ import WalletNfts from './components/walletNfts';
 import { ChainType } from '@arianee/common-types';
 import { wallets } from './utils/wallet';
 import WalletIdentities from './components/walletIdentities';
+import WalletMessages from './components/walletMessages';
 
 export function App() {
   const [wallet, setWallet] = useState<Wallet<ChainType> | null>(null);
@@ -32,6 +33,7 @@ export function App() {
           <WalletHeader wallet={wallet} setChainType={setChainTypeCallback} />
           <WalletNfts wallet={wallet} />
           <WalletIdentities wallet={wallet} />
+          <WalletMessages wallet={wallet} />
         </>
       )}
     </>
