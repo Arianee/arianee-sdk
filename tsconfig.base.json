@@ -18,6 +18,9 @@
       "@arianee/arianee-access-token": [
         "packages/arianee-access-token/src/index.ts"
       ],
+      "@arianee/arianee-api-client": [
+        "packages/arianee-api-client/src/index.ts"
+      ],
       "@arianee/arianee-privacy-gateway-client": [
         "packages/arianee-privacy-gateway-client/src/index.ts"
       ],

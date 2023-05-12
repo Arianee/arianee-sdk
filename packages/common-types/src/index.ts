@@ -8,3 +8,5 @@ export * from './lib/smartAsset';
 export * from './lib/event';
 export * from './lib/brandIdentity';
 export * from './lib/decentralizedMessage';
+export * from './lib/smartContractNames';
+export * from './lib/blockchainEventsName';
