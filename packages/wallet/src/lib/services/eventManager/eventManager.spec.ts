@@ -55,9 +55,11 @@ describe('EventManager', () => {
     let pullSmartAssetsEventsSpy: jest.SpyInstance;
     let pullArianeeEventsSpy: jest.SpyInstance;
     let pullIdentitiesEventsSpy: jest.SpyInstance;
+    let pullMessagesEventsSpy: jest.SpyInstance;
     let emitSmartAssetsEventsSpy: jest.SpyInstance;
     let emitArianeeEventsSpy: jest.SpyInstance;
     let emitIdentitiesEventsSpy: jest.SpyInstance;
+    let emitMessagesEventsSpy: jest.SpyInstance;
     let updatePullAfterSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -78,12 +80,20 @@ describe('EventManager', () => {
         .spyOn(eventManager as any, 'pullIdentitiesEvents')
         .mockImplementation();
 
+      pullMessagesEventsSpy = jest
+        .spyOn(eventManager as any, 'pullMessagesEvents')
+        .mockImplementation();
+
       emitSmartAssetsEventsSpy = jest
         .spyOn(eventManager as any, 'emitSmartAssetsEvents')
         .mockImplementation();
 
       emitArianeeEventsSpy = jest
         .spyOn(eventManager as any, 'emitArianeeEvents')
+        .mockImplementation();
+
+      emitMessagesEventsSpy = jest
+        .spyOn(eventManager as any, 'emitMessagesEvents')
         .mockImplementation();
 
       emitIdentitiesEventsSpy = jest
@@ -113,6 +123,7 @@ describe('EventManager', () => {
       pullSmartAssetsEventsSpy.mockResolvedValue(events);
       pullArianeeEventsSpy.mockResolvedValue(events);
       pullIdentitiesEventsSpy.mockResolvedValue(events);
+      pullMessagesEventsSpy.mockResolvedValue(events);
 
       await eventManager['pull']();
 
@@ -120,9 +131,11 @@ describe('EventManager', () => {
       expect(pullSmartAssetsEventsSpy).toHaveBeenCalled();
       expect(pullArianeeEventsSpy).toHaveBeenCalled();
       expect(pullIdentitiesEventsSpy).toHaveBeenCalled();
+      expect(pullMessagesEventsSpy).toHaveBeenCalled();
       expect(emitArianeeEventsSpy).toHaveBeenCalledWith(events);
       expect(emitSmartAssetsEventsSpy).toHaveBeenCalledWith(events);
       expect(emitIdentitiesEventsSpy).toHaveBeenCalledWith(events);
+      expect(emitMessagesEventsSpy).toHaveBeenCalledWith(events);
 
       expect(updatePullAfterSpy).toHaveBeenCalled();
     });

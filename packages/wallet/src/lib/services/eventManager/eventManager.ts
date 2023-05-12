@@ -60,6 +60,16 @@ export default class EventManager<T extends ChainType>
     'identityUpdated'
   );
 
+  public readonly messageRead = new WrappedEventEmitter(
+    this.arianee,
+    'messageRead'
+  );
+
+  public readonly messageReceived = new WrappedEventEmitter(
+    this.arianee,
+    'messageReceived'
+  );
+
   private updatePullAfter() {
     this.pullAfter = new Date();
   }
@@ -81,16 +91,18 @@ export default class EventManager<T extends ChainType>
   private async pull() {
     if (!this.atLeastOneListener()) return;
 
-    const [arianeeEvents, smartAssetEvents, identitiesEvents] =
+    const [arianeeEvents, smartAssetEvents, identitiesEvents, messagesEvents] =
       await Promise.all([
         this.pullArianeeEvents(),
         this.pullSmartAssetsEvents(),
         this.pullIdentitiesEvents(),
+        this.pullMessagesEvents(),
       ]);
 
     this.emitArianeeEvents(arianeeEvents);
     this.emitSmartAssetsEvents(smartAssetEvents);
     this.emitIdentitiesEvents(identitiesEvents);
+    this.emitMessagesEvents(messagesEvents);
 
     this.updatePullAfter();
   }
@@ -109,6 +121,10 @@ export default class EventManager<T extends ChainType>
     // get identities events created after this.date using arianee-api-client
     return;
   }
+  private async pullMessagesEvents() {
+    // get messages events created after this.date using arianee-api-client
+    return;
+  }
 
   private async emitArianeeEvents(arianeeEvents: any) {
     return;
@@ -119,6 +135,10 @@ export default class EventManager<T extends ChainType>
   }
 
   private async emitIdentitiesEvents(identitiesEvents: any) {
+    return;
+  }
+
+  private async emitMessagesEvents(messagesEvents: any) {
     return;
   }
 }

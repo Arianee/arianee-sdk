@@ -73,7 +73,11 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       this.i18nStrategy
     );
 
-    this._message = new MessageService<T>();
+    this._message = new MessageService<T>(
+      this.walletAbstraction,
+      this.eventManager,
+      this.i18nStrategy
+    );
   }
 
   private getCoreFromAuth(auth: WalletParams<T>['auth']) {

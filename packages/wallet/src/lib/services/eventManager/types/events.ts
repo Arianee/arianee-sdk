@@ -1,5 +1,6 @@
 import {
   BrandIdentity,
+  DecentralizedMessage,
   Event,
   Protocol,
   SmartAsset,
@@ -11,6 +12,8 @@ export type EventMap = {
   smartAssetUpdated: SmartAssetUpdatedEvent;
   arianeeEventReceived: ArianeeEventReceivedEvent;
   identityUpdated: IdentityUpdatedEvent;
+  messageReceived: MessageReceivedEvent;
+  messageRead: MessageReadEvent;
 };
 
 export type SmartAssetReceivedEvent = {
@@ -36,5 +39,15 @@ export type ArianeeEventReceivedEvent = {
 
 export type IdentityUpdatedEvent = {
   issuer: BrandIdentity['address'];
+  protocol: Protocol;
+};
+
+export type MessageReceivedEvent = {
+  messageId: DecentralizedMessage['id'];
+  protocol: Protocol;
+};
+
+export type MessageReadEvent = {
+  messageId: DecentralizedMessage['id'];
   protocol: Protocol;
 };

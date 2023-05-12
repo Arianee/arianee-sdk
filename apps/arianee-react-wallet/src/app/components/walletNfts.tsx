@@ -80,7 +80,7 @@ export default function WalletNfts({ wallet }: WalletNftsProps) {
   }, [wallet]);
 
   return (
-    <div>
+    <div id="nfts">
       <h3>NFTs</h3>
       {loading ? (
         <div>Loading...</div>

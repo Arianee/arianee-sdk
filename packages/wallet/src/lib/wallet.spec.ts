@@ -150,9 +150,19 @@ describe('Wallet', () => {
     });
 
     it('should instantiate messageService with the correct params and expose it in a getter', () => {
-      const wallet = new Wallet();
+      const wallet = new Wallet({
+        eventManagerParams: {
+          pullInterval: 1234,
+        },
+      });
+
       expect(wallet.message).toBeDefined();
-      expect(MessageService).toHaveBeenCalledWith(); // add constructor params here
+
+      expect(MessageService).toHaveBeenCalledWith(
+        expect.any(WalletApiClient),
+        expect.any(EventManager),
+        'raw'
+      );
     });
 
     it('should instantiate smartAssetService with the correct params and expose it in a getter', () => {

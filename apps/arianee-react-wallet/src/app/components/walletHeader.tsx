@@ -32,6 +32,17 @@ export default function WalletHeader({
       ) : (
         <a>mainnet</a>
       )}
+      <ul>
+        <li>
+          <a href="#nfts">NFTs</a>
+        </li>
+        <li>
+          <a href="#identities">Identities</a>
+        </li>
+        <li>
+          <a href="#messages">Messages</a>
+        </li>
+      </ul>
     </div>
   );
 }
