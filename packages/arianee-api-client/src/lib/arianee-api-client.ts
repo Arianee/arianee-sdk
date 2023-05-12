@@ -10,6 +10,8 @@ import { blockchainEventFilters } from './types/blockchainEventFilters';
 import { smartAssetInfo } from './types/smartAssetInfo';
 import { decentralizedMessageInfo } from './types/decentralizedMessageInfo';
 import { brandIdentityInfo } from './types/brandIdentityInfo';
+import { convertObjectToDotNotation } from './utils/dotNotation/dotNotation';
+import { contractNameToArianeeApiContractName } from './utils/contracts/contractName';
 
 export class ArianeeApiClient {
   private fetchLike: typeof fetch;
@@ -50,9 +52,15 @@ export class ArianeeApiClient {
       eventName: blockchainEventsName,
       filters?: blockchainEventFilters
     ): Promise<BlockchainEvent[]> => {
-      const queryParams = filters ? '?' + filters : '';
+      const queryParams = filters
+        ? '?' + convertObjectToDotNotation(filters)
+        : '';
+
+      const arianeeApiContractName =
+        contractNameToArianeeApiContractName[smartContractName];
+
       return this.fetchArianeeApi(
-        `/multichain/${chainType}/contract/${smartContractName}/${eventName}${queryParams}`,
+        `/multichain/${chainType}/contract/${arianeeApiContractName}/${eventName}${queryParams}`,
         'fetch events on arianee api'
       );
     },
@@ -89,7 +97,9 @@ export class ArianeeApiClient {
       eventName: blockchainEventsName,
       filters?: blockchainEventFilters
     ): Promise<BlockchainEvent[]> => {
-      const queryParams = filters ? '?' + filters : '';
+      const queryParams = filters
+        ? '?' + convertObjectToDotNotation(filters)
+        : '';
       return this.fetchArianeeApi(
         `/report/${chainId}/contract/${contractAddress}/${eventName}${queryParams}`,
         'fetch events on arianee api'
@@ -101,7 +111,9 @@ export class ArianeeApiClient {
       eventName: blockchainEventsName,
       filters?: blockchainEventFilters
     ): Promise<number> => {
-      const queryParams = filters ? '?' + filters : '';
+      const queryParams = filters
+        ? '?' + convertObjectToDotNotation(filters)
+        : '';
       return this.fetchArianeeApi(
         `/report/${chainId}/contract/${contractAddress}/${eventName}/count${queryParams}`,
         'fetch count events on arianee api'
