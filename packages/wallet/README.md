@@ -41,15 +41,22 @@ const wallet = new Wallet({
 
 ### Authentication
 
-The wallet supports 3 authentication methods:
+The wallet supports 3 ways of authentication:
 
-- private key
-- mnemonic
 - an `@arianee/core` instance
+- mnemonic
+- private key
 
 Authentication is passed to the constructor under the `auth` key.
 
 ```typescript
+// with core instance
+const wallet = new Wallet({
+  auth: {
+    core: Core.fromRandom(),
+  },
+});
+
 // with mnemonic
 const wallet = new Wallet({
   auth: {
@@ -61,13 +68,6 @@ const wallet = new Wallet({
 const wallet = new Wallet({
   auth: {
     privateKey: '123456',
-  },
-});
-
-// with core instance
-const wallet = new Wallet({
-  auth: {
-    core: Core.fromRandom(),
   },
 });
 ```
@@ -155,7 +155,7 @@ wallet.smartAsset.received.removeAllListeners();
 Unit tests can be ran with:
 
 ```bash
-npm run test
+npm run test:wallet
 ```
 
 ## Examples

@@ -19,7 +19,12 @@ describe('IdentityService', () => {
   let identityService: IdentityService<'testnet'>;
   const walletApiClient = new WalletApiClient('testnet', Core.fromRandom());
 
-  const eventManager = new EventManager('testnet', walletApiClient);
+  const eventManager = new EventManager(
+    'testnet',
+    walletApiClient,
+    '0x123456',
+    jest.fn()
+  );
 
   const getOwnedSmartAssetsBrandIdentitiesSpy = jest
     .spyOn(walletApiClient, 'getOwnedSmartAssetsBrandIdentities')

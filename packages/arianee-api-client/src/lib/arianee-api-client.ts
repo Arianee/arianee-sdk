@@ -66,10 +66,11 @@ export class ArianeeApiClient {
     },
     getOwnedNfts: async (
       chainType: ChainType,
-      address: string
+      address: string,
+      populateEvents = true
     ): Promise<smartAssetInfo[]> => {
       return this.fetchArianeeApi(
-        `/multichain/${chainType}/nft/${address}/list?populateEvent=true`,
+        `/multichain/${chainType}/nft/${address}/list?populateEvent=${populateEvents}`,
         'fetch nfts on arianee api'
       );
     },

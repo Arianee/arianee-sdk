@@ -19,11 +19,13 @@ export type EventMap = {
 export type SmartAssetReceivedEvent = {
   certificateId: SmartAsset['certificateId'];
   protocol: Protocol;
+  from: string;
 };
 
 export type SmartAssetTransferedEvent = {
   certificateId: SmartAsset['certificateId'];
   protocol: Protocol;
+  to: string;
 };
 
 export type SmartAssetUpdatedEvent = {
