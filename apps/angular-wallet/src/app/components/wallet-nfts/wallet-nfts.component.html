@@ -1,0 +1,39 @@
+<div>
+  <h2>NFTs</h2>
+  <div *ngIf="loading">loading..</div>
+  <div *ngIf="!loading">
+    <div>
+      <h4>
+        Events (listening
+        <div class="listening"></div>
+        )
+      </h4>
+
+      <textarea readonly>{{ eventsLog }}</textarea>
+    </div>
+    <div *ngFor="let nft of nfts" class="nft">
+      <div><b>Issuer:</b> {{ nft.data.issuer }}</div>
+      <div><b>Name:</b> {{ nft.data.content.name }}</div>
+      <div>
+        <b>Content:</b><br /><textarea readonly>
+        {{ stringify(nft.data.content) }}
+      </textarea
+        >
+      </div>
+      <div>
+        <b>Blockchain events:</b><br />
+        <textarea readonly>
+      {{ stringify(nft.data.blockchainEvents) }}
+    </textarea
+        >
+      </div>
+      <div>
+        <b>Arianee events events:</b><br />
+        <textarea readonly>
+      {{ stringify(nft.arianeeEvents) }}
+    </textarea
+        >
+      </div>
+    </div>
+  </div>
+</div>

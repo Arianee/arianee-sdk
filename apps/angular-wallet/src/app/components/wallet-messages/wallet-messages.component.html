@@ -1,0 +1,25 @@
+<div>
+  <h2>Messages</h2>
+  <div *ngIf="loading">loading..</div>
+  <div *ngIf="!loading">
+    <div>
+      <h4>
+        Events (listening
+        <div class="listening"></div>
+        )
+      </h4>
+
+      <textarea readonly>{{ eventsLog }}</textarea>
+    </div>
+    <div *ngFor="let message of messages" class="message">
+      <div><b>Sender:</b> {{ message.data.sender }}</div>
+      <div><b>Protocol:</b> {{ stringify(message.data.protocol) }}</div>
+      <div>
+        <b>Content:</b><br /><textarea readonly>
+        {{ stringify(message.data.content) }}
+      </textarea
+        >
+      </div>
+    </div>
+  </div>
+</div>
