@@ -1,0 +1,58 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "es2022",
+    "useDefineForClassFields": false,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "crypto": ["./node_modules/crypto-browserify"],
+      "stream": ["./node_modules/stream-browserify"],
+      "assert": ["./node_modules/assert"],
+      "http": ["./node_modules/stream-http"],
+      "https": ["./node_modules/https-browserify"],
+      "os": ["./node_modules/os-browserify"],
+      "process": ["./node_modules/process"],
+      "zlib": ["./node_modules/browserify-zlib"],
+      "@arianee/arianee-access-token": [
+        "packages/arianee-access-token/src/index.ts"
+      ],
+      "@arianee/arianee-api-client": [
+        "packages/arianee-api-client/src/index.ts"
+      ],
+      "@arianee/arianee-privacy-gateway-client": [
+        "packages/arianee-privacy-gateway-client/src/index.ts"
+      ],
+      "@arianee/common-types": ["packages/common-types/src/index.ts"],
+      "@arianee/core": ["packages/core/src/index.ts"],
+      "@arianee/wallet": ["packages/wallet/src/index.ts"],
+      "@arianee/wallet-abstraction": [
+        "packages/wallet-abstraction/src/index.ts"
+      ],
+      "@arianee/wallet-api-client": ["packages/wallet-api-client/src/index.ts"]
+    }
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./tsconfig.editor.json"
+    }
+  ],
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}

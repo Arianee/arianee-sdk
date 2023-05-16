@@ -160,13 +160,27 @@ npm run test:wallet
 
 ## Examples
 
-We created a simple multichain React Wallet using the library, you can run it with:
+We created examples of a simple multichain wallet using various web frameworks. \
+
+### React
+
+A multichain wallet built with React, you can run it with:
 
 ```bash
 npm run react-wallet
 ```
 
 The source is located in `apps/arianee-react-wallet/`
+
+### Angular
+
+A multichain wallet built with Angular, you can run it with:
+
+```bash
+npm run angular-wallet
+```
+
+The source is located in `apps/angular-wallet/`
 
 ## Polyfills
 
@@ -253,9 +267,9 @@ Create empty `tls.d.ts` and `net.d.ts` at the root of your project (or wherever 
       "os": ["./node_modules/os-browserify"],
       "process": ["./node_modules/process"],
       "zlib": ["./node_modules/browserify-zlib"]
-    },
-    "include": ["src/**/*.ts", "tls.d.ts", "net.d.ts"]
-  }
+    }
+  },
+  "include": ["src/**/*.ts", "tls.d.ts", "net.d.ts"]
 }
 ```
 
@@ -269,6 +283,5 @@ global.Buffer = Buffer;
 global.process = {
   env: { DEBUG: undefined },
   version: '',
-  nextTick: require('next-tick'),
 } as any;
 ```

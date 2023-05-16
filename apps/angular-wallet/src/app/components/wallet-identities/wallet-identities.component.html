@@ -1,0 +1,26 @@
+<div>
+  <h2>Identities</h2>
+  <div *ngIf="loading">loading..</div>
+  <div *ngIf="!loading">
+    <div>
+      <h4>
+        Events (listening
+        <div class="listening"></div>
+        )
+      </h4>
+
+      <textarea readonly>{{ eventsLog }}</textarea>
+    </div>
+    <div *ngFor="let identity of identities" class="identity">
+      <div><b>Issuer:</b> {{ identity.data.address }}</div>
+      <div><b>Name:</b> {{ identity.data.content.name }}</div>
+      <div><b>Protocol:</b> {{ stringify(identity.data.protocol) }}</div>
+      <div>
+        <b>Content:</b><br /><textarea readonly>
+        {{ stringify(identity.data.content) }}
+      </textarea
+        >
+      </div>
+    </div>
+  </div>
+</div>

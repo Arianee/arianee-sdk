@@ -1,0 +1,18 @@
+<div>
+  <div><b>Wallet: </b>{{ (walletService.wallet | async)!.getAddress() }}</div>
+  <div>
+    <b>Chain type: </b>
+
+    <a
+      (click)="walletService.switchChainType('testnet')"
+      [ngClass]="{ active: walletService.chainType === 'testnet' }"
+      >testnet</a
+    >
+    |
+    <a
+      (click)="walletService.switchChainType('mainnet')"
+      [ngClass]="{ active: walletService.chainType === 'mainnet' }"
+      >mainnet</a
+    >
+  </div>
+</div>

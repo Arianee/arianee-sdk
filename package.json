@@ -18,7 +18,8 @@
     "test:all": "nx run-many --target=test --all",
     "lint:all": "nx run-many --target=lint --all",
     "dev": "nx serve arianee-sdk-example",
-    "react-wallet": "nx serve arianee-react-wallet"
+    "react-wallet": "nx serve arianee-react-wallet",
+    "angular-wallet": "nx serve angular-wallet"
   },
   "private": true,
   "workspaces": [
