@@ -11,6 +11,9 @@ export type SmartAssetInstance = {
 export default class SmartAssetService<T extends ChainType> {
   public readonly received: EventManager<T>['smartAssetReceived'];
   public readonly transferred: EventManager<T>['smartAssetTransferred'];
+  /**
+   * warning: not implemented yet
+   */
   public readonly updated: EventManager<T>['smartAssetUpdated'];
   public readonly arianeeEventReceived: EventManager<T>['arianeeEventReceived'];
 

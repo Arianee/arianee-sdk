@@ -26,7 +26,7 @@ export default function WalletNfts({ wallet }: WalletNftsProps) {
   const nftUpdated = (event: SmartAssetUpdatedEvent) => {
     pushToEventsLog(
       `[${getTime()}] NFT #${event.certificateId} updated on ${
-        event.protocol.name
+        event.protocol?.name || '?'
       }`
     );
   };
@@ -34,7 +34,7 @@ export default function WalletNfts({ wallet }: WalletNftsProps) {
   const nftReceived = (event: SmartAssetReceivedEvent) => {
     pushToEventsLog(
       `[${getTime()}] NFT #${event.certificateId} received on ${
-        event.protocol.name
+        event.protocol?.name || '?'
       }`
     );
   };
@@ -42,7 +42,7 @@ export default function WalletNfts({ wallet }: WalletNftsProps) {
   const nftTransferred = (event: SmartAssetTransferedEvent) => {
     pushToEventsLog(
       `[${getTime()}] NFT #${event.certificateId} transferred on ${
-        event.protocol.name
+        event.protocol?.name || '?'
       }`
     );
   };
@@ -52,7 +52,7 @@ export default function WalletNfts({ wallet }: WalletNftsProps) {
       `[${getTime()}] NFT #${
         event.certificateId
       } received an arianee event (id ${event.eventId}) on ${
-        event.protocol.name
+        event.protocol?.name || '?'
       }`
     );
   };

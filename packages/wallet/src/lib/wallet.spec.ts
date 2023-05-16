@@ -19,9 +19,13 @@ jest.mock('./services/message/message');
 jest.mock('./services/smartAsset/smartAsset');
 jest.mock('./services/eventManager/eventManager');
 
+const mockedAddress = '0x123456';
+const getAddresSpy = jest.spyOn(Wallet.prototype, 'getAddress');
+
 describe('Wallet', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    getAddresSpy.mockReturnValue(mockedAddress);
   });
 
   describe('constructor', () => {
@@ -125,22 +129,30 @@ describe('Wallet', () => {
       expect(wallet['walletAbstraction']).toBe(walletAbstraction);
     });
 
-    /* TODO: update tests to add the constructor params once the services have been created */
-    it('should instantiate identityService with the correct params and expose it in a getter', () => {
+    it('should instantiate eventManager with the correct params ', () => {
+      const mockedFetchLike = () => ({} as any);
+
       const wallet = new Wallet({
         eventManagerParams: {
           pullInterval: 1234,
         },
+        fetchLike: mockedFetchLike,
       });
-      expect(wallet.identity).toBeDefined();
 
       expect(EventManager).toHaveBeenCalledWith(
         'testnet',
         wallet['walletAbstraction'],
+        mockedAddress,
+        mockedFetchLike,
         {
           pullInterval: 1234,
         }
       );
+    });
+
+    it('should instantiate identityService with the correct params and expose it in a getter', () => {
+      const wallet = new Wallet();
+      expect(wallet.identity).toBeDefined();
 
       expect(IdentityService).toHaveBeenCalledWith(
         expect.any(WalletApiClient),
@@ -150,11 +162,7 @@ describe('Wallet', () => {
     });
 
     it('should instantiate messageService with the correct params and expose it in a getter', () => {
-      const wallet = new Wallet({
-        eventManagerParams: {
-          pullInterval: 1234,
-        },
-      });
+      const wallet = new Wallet();
 
       expect(wallet.message).toBeDefined();
 
@@ -166,26 +174,36 @@ describe('Wallet', () => {
     });
 
     it('should instantiate smartAssetService with the correct params and expose it in a getter', () => {
-      const wallet = new Wallet({
-        eventManagerParams: {
-          pullInterval: 1234,
-        },
-      });
-      expect(wallet.smartAsset).toBeDefined();
+      const wallet = new Wallet();
 
-      expect(EventManager).toHaveBeenCalledWith(
-        'testnet',
-        wallet['walletAbstraction'],
-        {
-          pullInterval: 1234,
-        }
-      );
+      expect(wallet.smartAsset).toBeDefined();
 
       expect(SmartAssetService).toHaveBeenCalledWith(
         expect.any(WalletApiClient),
         expect.any(EventManager),
         'raw'
       );
+    });
+  });
+
+  describe('getAddress', () => {
+    it('should return the address of the core instance', () => {
+      getAddresSpy.mockRestore();
+
+      const mockGetAddress = jest.fn().mockReturnValue('0x123');
+
+      const core: Core = {
+        getAddress: mockGetAddress,
+      } as any;
+
+      const wallet = new Wallet({
+        auth: {
+          core,
+        },
+      });
+
+      expect(wallet.getAddress()).toBe('0x123');
+      expect(mockGetAddress).toHaveBeenCalled();
     });
   });
 });

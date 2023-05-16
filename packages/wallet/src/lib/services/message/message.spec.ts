@@ -23,7 +23,12 @@ describe('MessageService', () => {
   let messageService: MessageService<'testnet'>;
   const walletApiClient = new WalletApiClient('testnet', Core.fromRandom());
 
-  const eventManager = new EventManager('testnet', walletApiClient);
+  const eventManager = new EventManager(
+    'testnet',
+    walletApiClient,
+    '0x123456',
+    jest.fn()
+  );
 
   const getReceivedMessagesSpy = jest
     .spyOn(walletApiClient, 'getReceivedMessages')

@@ -58,6 +58,8 @@ export default class Wallet<T extends ChainType = 'testnet'> {
     this.eventManager = new EventManager(
       this._chainType,
       this.walletAbstraction,
+      this.getAddress(),
+      this.fetchLike,
       eventManagerParams
     );
 
