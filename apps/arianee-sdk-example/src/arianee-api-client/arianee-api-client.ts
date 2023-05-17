@@ -26,4 +26,7 @@ export default async () => {
     '0x0ECCF7BD729F6367eCa5234DbDDb0480394215E1'
   );
   console.log(identity);
+
+  const nft = await arianeeApiClient.network.getNft('testnet', '92988157');
+  console.log(nft);
 };

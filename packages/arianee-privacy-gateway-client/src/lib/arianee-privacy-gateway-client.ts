@@ -206,3 +206,4 @@ export default class ArianeePrivacyGatewayClient {
     return (await res.json()).result;
   }
 }
+export { ArianeePrivacyGatewayClient };

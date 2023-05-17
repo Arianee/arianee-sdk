@@ -121,47 +121,47 @@ export class ArianeeApiClient {
       );
     },
     getOwnedNfts: async (
-      protocol: Protocol,
+      protocolName: Protocol['name'],
       address: string
     ): Promise<smartAssetInfo[]> => {
       return this.fetchArianeeApi(
-        `/nft/${address}/list?network=${protocol.name}`,
+        `/report/nft/${address}/list?network=${protocolName}`,
         'fetch owned nft on arianee api'
       );
     },
     getNftOwner: async (
-      protocol: Protocol,
+      protocolName: Protocol['name'],
       tokenId: string
     ): Promise<string> => {
       return this.fetchArianeeApi(
-        `/nft/${protocol.name}/ownerOf/${tokenId}`,
+        `/report/nft/${protocolName}/ownerOf/${tokenId}`,
         "fetch nft's owner on arianee api"
       );
     },
     getNft: async (
-      protocol: Protocol,
+      protocolName: Protocol['name'],
       tokenId: string
     ): Promise<smartAssetInfo> => {
       return this.fetchArianeeApi(
-        `/nft/${protocol.name}/${tokenId}`,
+        `/report/nft/${protocolName}/${tokenId}`,
         'fetch nft on arianee api'
       );
     },
     getNftArianeeEvents: async (
-      protocol: Protocol,
+      protocolName: Protocol['name'],
       tokenId: string
     ): Promise<BlockchainEvent[]> => {
       return this.fetchArianeeApi(
-        `/nft/${protocol.name}/${tokenId}/arianeeEvents`,
+        `/report/nft/${protocolName}/${tokenId}/arianeeEvents`,
         'fetch nft arianee events on arianee api'
       );
     },
     getIdentity: async (
-      protocol: Protocol,
+      protocolName: Protocol['name'],
       address: string
     ): Promise<brandIdentityInfo> => {
       return this.fetchArianeeApi(
-        `/identity/${protocol.name}/${address}`,
+        `/identity/${protocolName}/${address}`,
         'fetch identity on arianee api'
       );
     },
