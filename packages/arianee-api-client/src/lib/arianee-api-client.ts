@@ -1,4 +1,5 @@
 import {
+  ArianeeBrandIdentityI18N,
   BlockchainEvent,
   blockchainEventsName,
   ChainType,
@@ -159,7 +160,7 @@ export class ArianeeApiClient {
     getIdentity: async (
       protocolName: Protocol['name'],
       address: string
-    ): Promise<brandIdentityInfo> => {
+    ): Promise<ArianeeBrandIdentityI18N> => {
       return this.fetchArianeeApi(
         `/identity/${protocolName}/${address}`,
         'fetch identity on arianee api'
