@@ -16,14 +16,21 @@ export type Authentication =
 
 export default class ArianeePrivacyGatewayClient {
   private aat?: ArianeeAccessTokenClass;
+  private readonly fetchLike: typeof fetch;
 
   constructor(
     private readonly auth:
       | Core
       | ArianeeAccessToken
       | { message: string; signature: string },
-    private readonly fetchLike: typeof fetch
-  ) {}
+    fetchLike?: typeof fetch
+  ) {
+    if (typeof window === 'undefined') {
+      this.fetchLike = fetchLike ?? require('node-fetch');
+    } else {
+      this.fetchLike = fetchLike ?? window.fetch.bind(window);
+    }
+  }
 
   private async getArianeeAccessToken(): Promise<ArianeeAccessToken> {
     if (this.auth instanceof Core) {
