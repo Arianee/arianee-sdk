@@ -6,11 +6,11 @@ export type AuthorizationType =
   | 'arianeeAccessToken';
 
 export default class HttpClient {
-  private arianeeAccessToken: ArianeeAccessToken;
-
-  constructor(private core: Core, private fetchLike: typeof fetch) {
-    this.arianeeAccessToken = new ArianeeAccessToken(this.core);
-  }
+  constructor(
+    private core: Core,
+    private fetchLike: typeof fetch,
+    private arianeeAccessToken: ArianeeAccessToken
+  ) {}
 
   private async getAuthorization(authorizationType: AuthorizationType) {
     let authorization: string;

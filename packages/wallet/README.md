@@ -17,7 +17,8 @@ Default values are:
 - `auth`: a randomly generated wallet using `@arianee/core`
 - `i18nStrategy`: `"raw"`
 - `fetchLike`: `window.fetch` in browser environment, `node-fetch` in node environment
-- `walletAbstraction`: a `WalletApiClient` instance from `@arianee/wallet-api-client`
+- `eventManagerParams`: undefined
+- `arianeeAccessToken`: a `ArianeeAccessToken` instance from `@arianee/arianee-access-token` using the core instance derived from passed auth
 
 First, you need to import the `Wallet` class:
 
@@ -85,6 +86,28 @@ const wallet = new Wallet({
 });
 ```
 
+### Arianee Access Token
+
+Sometimes you may want to use a custom `WalletApiClient` instance or your own arianee access token instance. In such case, make sure to use the same instance of `ArianeeAccessToken` both for the `WalletApiClient` instance and the `Wallet` instance. This way, the lib will request you to sign an arianee access token only once (it would request it twice if you don't share the instances).
+
+Example:
+
+```ts
+const core = Core.fromRandom();
+const arianeeAccessToken = new ArianeeAccessToken(core);
+
+const testnetWalletApiClient = new WalletApiClient('testnet', core, {
+  apiURL: 'http://127.0.0.1:3000/',
+  arianeeAccessToken,
+});
+
+const testnetWallet = new Wallet({
+  auth: { core },
+  walletAbstraction: testnetWalletApiClient,
+  arianeeAccessToken,
+});
+```
+
 ### Methods
 
 The wallet exposes several methods to interact with the Arianee protocol. \
@@ -120,7 +143,8 @@ wallet.identity.getOwnedSmartAssetsIdentities(...);
 wallet.identity.updated
 
 // utils
-wallet.getAddress()
+wallet.getAddress();
+wallet.authenticate(); // force generate a wallet scoped arianee access token, useful when you want to control when a signature request is made to the user with metamask / walletconnect etc.
 ```
 
 ### Events

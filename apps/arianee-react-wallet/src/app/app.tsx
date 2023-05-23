@@ -21,13 +21,17 @@ export function App() {
   );
 
   useEffect(() => {
-    setWallet(wallets[chainType]);
+    (async () => {
+      const wallet = wallets[chainType];
+      await wallet.authenticate();
+      setWallet(wallet);
+    })();
   }, [chainType]);
 
   return (
     <>
       {!wallet ? (
-        <div>Loading...</div>
+        <div>Loading ({chainType})...</div>
       ) : (
         <>
           <WalletHeader wallet={wallet} setChainType={setChainTypeCallback} />

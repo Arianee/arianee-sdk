@@ -2,6 +2,7 @@
 import { Core } from '@arianee/core';
 import _fetch from 'node-fetch';
 import HttpClient from './httpClient';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 jest.mock('node-fetch');
 
@@ -14,9 +15,15 @@ const core = Core.fromMnemonic(
 
 describe('httpClient', () => {
   let httpClient: HttpClient;
+  let arianeeAccessToken: ArianeeAccessToken;
   beforeEach(() => {
     jest.clearAllMocks();
-    httpClient = new HttpClient(core, mockedFetch as unknown as typeof fetch);
+    arianeeAccessToken = new ArianeeAccessToken(Core.fromRandom());
+    httpClient = new HttpClient(
+      core,
+      mockedFetch as unknown as typeof fetch,
+      arianeeAccessToken
+    );
   });
 
   describe('get', () => {

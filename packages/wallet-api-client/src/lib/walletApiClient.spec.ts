@@ -5,6 +5,7 @@ import _fetch from 'node-fetch';
 import { ChainType } from '@arianee/common-types';
 import { WALLET_API_URL } from './constants';
 import HttpClient from './helpers/httpClient';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 declare const global: {
   window: { fetch: typeof fetch } | undefined;
@@ -12,13 +13,19 @@ declare const global: {
 
 jest.mock('node-fetch');
 jest.mock('./helpers/httpClient');
+jest.mock('@arianee/arianee-access-token');
 
 const mockedFetch = _fetch as jest.MockedFunction<typeof _fetch>;
 
 const core = Core.fromMnemonic(
   'art success hello fold once ignore arrow damp note affair razor vital'
 );
-const httpClient = new HttpClient(core, mockedFetch as unknown as typeof fetch);
+const arianeeAccessToken = new ArianeeAccessToken(core);
+const httpClient = new HttpClient(
+  core,
+  mockedFetch as unknown as typeof fetch,
+  arianeeAccessToken
+);
 const mockedHttpClient = httpClient as jest.Mocked<HttpClient>;
 
 describe('WalletApiClient', () => {
@@ -411,6 +418,26 @@ describe('WalletApiClient', () => {
       });
 
       expect(client['httpClient']).toBe(httpClient);
+    });
+
+    it('should use the arianee access token instance if passed', () => {
+      const client = new WalletApiClient('testnet', core, {
+        arianeeAccessToken,
+      });
+
+      expect(HttpClient).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        arianeeAccessToken
+      );
+    });
+
+    it('should instantiate arianee access token instance if not passed', () => {
+      const client = new WalletApiClient('testnet', core, {
+        httpClient,
+      });
+
+      expect(ArianeeAccessToken).toHaveBeenCalledWith(core);
     });
   });
 });
