@@ -84,7 +84,9 @@ export class ArianeeApiClient {
         'fetch messages on arianee api'
       );
     },
-    getIdentity: async (address: string): Promise<brandIdentityInfo> => {
+    getIdentity: async (
+      address: string
+    ): Promise<{ [protocolName: string]: brandIdentityInfo }> => {
       return this.fetchArianeeApi(
         `/identity/${address}`,
         'fetch identity on arianee api'
