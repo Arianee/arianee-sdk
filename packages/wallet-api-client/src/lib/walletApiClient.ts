@@ -1,6 +1,7 @@
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import {
   BrandIdentity,
+  BrandIdentityWithOwned,
   ChainType,
   DecentralizedMessage,
   Event,
@@ -248,7 +249,7 @@ export default class WalletApiClient<T extends ChainType>
 
   async getOwnedSmartAssetsBrandIdentities(params?: {
     preferredLanguages?: string[];
-  }): Promise<BrandIdentity[]> {
+  }): Promise<BrandIdentityWithOwned[]> {
     const { preferredLanguages } = params || {};
 
     const query = generateQueryString({

@@ -4,7 +4,7 @@ import Wallet, {
   IdentityInstance,
   IdentityUpdatedEvent,
 } from '@arianee/wallet';
-import { ChainType } from '@arianee/common-types';
+import { BrandIdentityWithOwned, ChainType } from '@arianee/common-types';
 
 @Component({
   selector: 'app-wallet-identities',
@@ -12,7 +12,7 @@ import { ChainType } from '@arianee/common-types';
   styleUrls: ['./wallet-identities.component.scss'],
 })
 export class WalletIdentities implements OnInit {
-  public identities: IdentityInstance[] = [];
+  public identities: IdentityInstance<BrandIdentityWithOwned>[] = [];
   public loading = false;
 
   public eventsLog = '';

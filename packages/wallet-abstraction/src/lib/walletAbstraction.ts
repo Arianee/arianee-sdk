@@ -1,5 +1,6 @@
 import {
   BrandIdentity,
+  BrandIdentityWithOwned,
   DecentralizedMessage,
   Event,
   Protocol,
@@ -55,5 +56,5 @@ export interface WalletAbstraction {
 
   getOwnedSmartAssetsBrandIdentities(params?: {
     preferredLanguages?: string[];
-  }): BrandIdentity[] | Promise<BrandIdentity[]>;
+  }): BrandIdentityWithOwned[] | Promise<BrandIdentityWithOwned[]>;
 }
