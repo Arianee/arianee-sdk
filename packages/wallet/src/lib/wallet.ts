@@ -9,6 +9,7 @@ import { I18NStrategy } from './utils/i18n';
 import EventManager, {
   EventManagerParams,
 } from './services/eventManager/eventManager';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 export type WalletParams<T extends ChainType> = {
   chainType?: T;
@@ -17,6 +18,7 @@ export type WalletParams<T extends ChainType> = {
   i18nStrategy?: I18NStrategy;
   fetchLike?: typeof fetch;
   eventManagerParams?: EventManagerParams;
+  arianeeAccessToken?: ArianeeAccessToken;
 };
 
 export default class Wallet<T extends ChainType = 'testnet'> {
@@ -26,6 +28,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
   private i18nStrategy: I18NStrategy;
   private fetchLike: typeof fetch;
   private eventManager: EventManager<T>;
+  private arianeeAccessToken: ArianeeAccessToken;
 
   private _smartAsset: SmartAssetService<T>;
   private _identity: IdentityService<T>;
@@ -39,6 +42,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       i18nStrategy,
       fetchLike,
       eventManagerParams,
+      arianeeAccessToken,
     } = params ?? {};
 
     this._chainType = chainType ?? ('testnet' as T);
@@ -51,9 +55,17 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       this.fetchLike = fetchLike ?? window.fetch.bind(window);
     }
 
+    this.arianeeAccessToken =
+      arianeeAccessToken ?? new ArianeeAccessToken(this.core);
+
     this.walletAbstraction =
       walletAbstraction ??
-      new WalletApiClient(this._chainType, this.core, {}, fetchLike);
+      new WalletApiClient(
+        this._chainType,
+        this.core,
+        { arianeeAccessToken: this.arianeeAccessToken },
+        fetchLike
+      );
 
     this.eventManager = new EventManager(
       this._chainType,
@@ -116,6 +128,14 @@ export default class Wallet<T extends ChainType = 'testnet'> {
 
   public getAddress() {
     return this.core.getAddress();
+  }
+
+  /**
+   * Use this to force trigger an authentication signature if
+   * you use a wallet provider such as Metamask or WalletConnect
+   */
+  public async authenticate(): Promise<void> {
+    await this.arianeeAccessToken.getValidWalletAccessToken();
   }
 }
 

@@ -11,6 +11,7 @@ import { Core } from '@arianee/core';
 import { WALLET_API_URL } from './constants';
 import { generateQueryString, removeTrailingSlash } from './helpers';
 import HttpClient, { AuthorizationType } from './helpers/httpClient';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 export default class WalletApiClient<T extends ChainType>
   implements WalletAbstraction
@@ -25,6 +26,7 @@ export default class WalletApiClient<T extends ChainType>
     options?: {
       apiURL?: string;
       httpClient?: HttpClient;
+      arianeeAccessToken?: ArianeeAccessToken;
     },
     fetchLike?: typeof fetch
   ) {
@@ -35,8 +37,13 @@ export default class WalletApiClient<T extends ChainType>
     }
 
     this.apiURL = removeTrailingSlash(options?.apiURL ?? WALLET_API_URL);
+
+    const arianeeAccessToken =
+      options?.arianeeAccessToken ?? new ArianeeAccessToken(this.core);
+
     this.httpClient =
-      options?.httpClient ?? new HttpClient(this.core, this.fetchLike);
+      options?.httpClient ??
+      new HttpClient(this.core, this.fetchLike, arianeeAccessToken);
   }
 
   private getAuthorizationType(

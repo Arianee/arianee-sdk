@@ -8,12 +8,14 @@ import IdentityService from './services/identity/identity';
 import SmartAssetService from './services/smartAsset/smartAsset';
 import MessageService from './services/message/message';
 import EventManager from './services/eventManager/eventManager';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 declare const global: {
   window: { fetch: typeof fetch } | undefined;
 };
 
 jest.mock('@arianee/core');
+jest.mock('@arianee/wallet-api-client');
 jest.mock('./services/identity/identity');
 jest.mock('./services/message/message');
 jest.mock('./services/smartAsset/smartAsset');
@@ -183,6 +185,33 @@ describe('Wallet', () => {
         expect.any(EventManager),
         'raw'
       );
+    });
+
+    it('should use the arianee access token instance if passed', () => {
+      jest.spyOn(Core, 'fromRandom').mockReturnValue({} as any);
+
+      const aat = new ArianeeAccessToken({} as any);
+
+      new Wallet({
+        arianeeAccessToken: aat,
+      });
+
+      expect(WalletApiClient).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        {
+          arianeeAccessToken: aat,
+        },
+        undefined
+      );
+    });
+
+    it('should instantiate arianee access token instance if not passed', () => {
+      jest.spyOn(Core, 'fromRandom').mockReturnValue({} as any);
+
+      const wallet = new Wallet();
+
+      expect(wallet['arianeeAccessToken']).toBeInstanceOf(ArianeeAccessToken);
     });
   });
 
