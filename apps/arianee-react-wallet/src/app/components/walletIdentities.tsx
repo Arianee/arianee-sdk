@@ -88,6 +88,9 @@ export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
                   <b>Name:</b> {data.content.name}
                 </div>
                 <div>
+                  <b>Owned NFTs:</b> {data.ownedCount}
+                </div>
+                <div>
                   <b>Protocol:</b> {JSON.stringify(data.protocol, undefined, 2)}
                 </div>
                 <div>

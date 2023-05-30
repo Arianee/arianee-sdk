@@ -14,6 +14,7 @@
     <div *ngFor="let identity of identities" class="identity">
       <div><b>Issuer:</b> {{ identity.data.address }}</div>
       <div><b>Name:</b> {{ identity.data.content.name }}</div>
+      <div><b>Owned NFTs:</b> {{ identity.data.ownedCount }}</div>
       <div><b>Protocol:</b> {{ stringify(identity.data.protocol) }}</div>
       <div>
         <b>Content:</b><br /><textarea readonly>
