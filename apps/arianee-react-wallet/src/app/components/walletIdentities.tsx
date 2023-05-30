@@ -3,7 +3,7 @@ import Wallet, {
   IdentityUpdatedEvent,
 } from '@arianee/wallet';
 import { useEffect, useState } from 'react';
-import { ChainType } from '@arianee/common-types';
+import { BrandIdentityWithOwned, ChainType } from '@arianee/common-types';
 import { getTime } from '../utils/misc';
 
 export interface WalletIdentitiesProps {
@@ -11,7 +11,9 @@ export interface WalletIdentitiesProps {
 }
 
 export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
-  const [identities, setIdentities] = useState<IdentityInstance[]>([]);
+  const [identities, setIdentities] = useState<
+    IdentityInstance<BrandIdentityWithOwned>[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [eventsLog, setEventsLog] = useState<string>('');

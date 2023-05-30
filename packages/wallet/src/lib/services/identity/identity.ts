@@ -1,11 +1,16 @@
-import { BrandIdentity, ChainType } from '@arianee/common-types';
+import {
+  BrandIdentity,
+  BrandIdentityWithOwned,
+  ChainType,
+} from '@arianee/common-types';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
 import EventManager from '../eventManager/eventManager';
 
-export type IdentityInstance = {
-  data: BrandIdentity;
-};
+export type IdentityInstance<T extends BrandIdentity | BrandIdentityWithOwned> =
+  {
+    data: T;
+  };
 
 export default class IdentityService<T extends ChainType> {
   public readonly updated: EventManager<T>['identityUpdated'];
@@ -29,7 +34,7 @@ export default class IdentityService<T extends ChainType> {
     params?: {
       i18nStrategy?: I18NStrategy;
     }
-  ): Promise<IdentityInstance> {
+  ): Promise<IdentityInstance<BrandIdentity>> {
     const preferredLanguages = getPreferredLanguages(
       params?.i18nStrategy ?? this.i18nStrategy
     );
@@ -49,7 +54,7 @@ export default class IdentityService<T extends ChainType> {
    */
   async getOwnedSmartAssetsIdentities(params?: {
     i18nStrategy?: I18NStrategy;
-  }): Promise<IdentityInstance[]> {
+  }): Promise<IdentityInstance<BrandIdentityWithOwned>[]> {
     const { i18nStrategy } = params ?? {};
 
     const preferredLanguages = getPreferredLanguages(

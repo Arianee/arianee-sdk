@@ -9,5 +9,8 @@ export interface BrandIdentity {
   content: ArianeeBrandIdentityI18N;
   rawContent: ArianeeBrandIdentityI18N;
   protocol: Protocol;
+}
+
+export interface BrandIdentityWithOwned extends BrandIdentity {
   ownedCount: number;
 }
