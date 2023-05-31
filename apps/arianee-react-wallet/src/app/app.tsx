@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Wallet from '@arianee/wallet';
 import WalletHeader from './components/walletHeader';
 import WalletNfts from './components/walletNfts';
-import { ChainType } from '@arianee/common-types';
+import { ChainType, Language } from '@arianee/common-types';
 import { wallets } from './utils/wallet';
 import WalletIdentities from './components/walletIdentities';
 import WalletMessages from './components/walletMessages';
@@ -12,12 +12,20 @@ import WalletMessages from './components/walletMessages';
 export function App() {
   const [wallet, setWallet] = useState<Wallet<ChainType> | null>(null);
   const [chainType, setChainType] = useState<ChainType>('testnet');
+  const [userLanguage, setUserLanguage] = useState<Language>('en-US');
 
   const setChainTypeCallback = useCallback(
     (newChainType: ChainType) => {
       setChainType(newChainType);
     },
     [setChainType]
+  );
+
+  const setUserLanguageCallback = useCallback(
+    (newLanguage: Language) => {
+      setUserLanguage(newLanguage);
+    },
+    [setUserLanguage]
   );
 
   useEffect(() => {
@@ -34,10 +42,15 @@ export function App() {
         <div>Loading ({chainType})...</div>
       ) : (
         <>
-          <WalletHeader wallet={wallet} setChainType={setChainTypeCallback} />
-          <WalletNfts wallet={wallet} />
-          <WalletIdentities wallet={wallet} />
-          <WalletMessages wallet={wallet} />
+          <WalletHeader
+            wallet={wallet}
+            language={userLanguage}
+            setChainType={setChainTypeCallback}
+            setUserLanguage={setUserLanguageCallback}
+          />
+          <WalletNfts wallet={wallet} language={userLanguage} />
+          <WalletIdentities wallet={wallet} language={userLanguage} />
+          <WalletMessages wallet={wallet} language={userLanguage} />
         </>
       )}
     </>

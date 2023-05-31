@@ -3,14 +3,22 @@ import Wallet, {
   IdentityUpdatedEvent,
 } from '@arianee/wallet';
 import { useEffect, useState } from 'react';
-import { BrandIdentityWithOwned, ChainType } from '@arianee/common-types';
+import {
+  BrandIdentityWithOwned,
+  ChainType,
+  Language,
+} from '@arianee/common-types';
 import { getTime } from '../utils/misc';
 
 export interface WalletIdentitiesProps {
   wallet: Wallet<ChainType>;
+  language: Language;
 }
 
-export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
+export default function WalletIdentities({
+  wallet,
+  language,
+}: WalletIdentitiesProps) {
   const [identities, setIdentities] = useState<
     IdentityInstance<BrandIdentityWithOwned>[]
   >([]);
@@ -36,15 +44,19 @@ export default function WalletIdentities({ wallet }: WalletIdentitiesProps) {
 
     wallet.identity.updated.addListener(identityUpdated);
 
-    wallet.identity.getOwnedSmartAssetsIdentities().then((identities) => {
-      setIdentities(identities);
-      setLoading(false);
-    });
+    wallet.identity
+      .getOwnedSmartAssetsIdentities({
+        i18nStrategy: { useLanguages: [language] },
+      })
+      .then((identities) => {
+        setIdentities(identities);
+        setLoading(false);
+      });
 
     return () => {
       wallet.identity.updated.removeAllListeners();
     };
-  }, [wallet]);
+  }, [wallet, language]);
 
   return (
     <div id="identities">

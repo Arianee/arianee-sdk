@@ -5,14 +5,18 @@ import Wallet, {
   MessageReceivedEvent,
 } from '@arianee/wallet';
 import { useEffect, useState } from 'react';
-import { ChainType } from '@arianee/common-types';
+import { ChainType, Language } from '@arianee/common-types';
 import { getTime } from '../utils/misc';
 
 export interface WalletMessagesProps {
   wallet: Wallet<ChainType>;
+  language: Language;
 }
 
-export default function WalletMessages({ wallet }: WalletMessagesProps) {
+export default function WalletMessages({
+  wallet,
+  language,
+}: WalletMessagesProps) {
   const [messages, setMessages] = useState<MessageInstance[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -45,16 +49,18 @@ export default function WalletMessages({ wallet }: WalletMessagesProps) {
     wallet.message.received.addListener(messageReceived);
     wallet.message.read.addListener(messageRead);
 
-    wallet.message.getReceived().then((messages) => {
-      setMessages(messages);
-      setLoading(false);
-    });
+    wallet.message
+      .getReceived({ i18nStrategy: { useLanguages: [language] } })
+      .then((messages) => {
+        setMessages(messages);
+        setLoading(false);
+      });
 
     return () => {
       wallet.message.received.removeAllListeners();
       wallet.message.read.removeAllListeners();
     };
-  }, [wallet]);
+  }, [wallet, language]);
 
   return (
     <div id="messages">
