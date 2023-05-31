@@ -6,14 +6,15 @@ import Wallet, {
   SmartAssetUpdatedEvent,
 } from '@arianee/wallet';
 import { useEffect, useState } from 'react';
-import { ChainType } from '@arianee/common-types';
+import { ChainType, Language } from '@arianee/common-types';
 import { getTime } from '../utils/misc';
 
 export interface WalletNftsProps {
   wallet: Wallet<ChainType>;
+  language: Language;
 }
 
-export default function WalletNfts({ wallet }: WalletNftsProps) {
+export default function WalletNfts({ wallet, language }: WalletNftsProps) {
   const [nfts, setNfts] = useState<SmartAssetInstance[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -66,10 +67,12 @@ export default function WalletNfts({ wallet }: WalletNftsProps) {
     wallet.smartAsset.received.addListener(nftReceived);
     wallet.smartAsset.arianeeEventReceived.addListener(arianeeEventReceived);
 
-    wallet.smartAsset.getOwned().then((nfts) => {
-      setNfts(nfts);
-      setLoading(false);
-    });
+    wallet.smartAsset
+      .getOwned({ i18nStrategy: { useLanguages: [language] } })
+      .then((nfts) => {
+        setNfts(nfts);
+        setLoading(false);
+      });
 
     return () => {
       wallet.smartAsset.updated.removeAllListeners();
@@ -77,7 +80,7 @@ export default function WalletNfts({ wallet }: WalletNftsProps) {
       wallet.smartAsset.received.removeAllListeners();
       wallet.smartAsset.arianeeEventReceived.removeAllListeners();
     };
-  }, [wallet]);
+  }, [wallet, language]);
 
   return (
     <div id="nfts">

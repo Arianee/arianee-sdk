@@ -1,14 +1,30 @@
 import Wallet from '@arianee/wallet';
-import { ChainType } from '@arianee/common-types';
+import { ChainType, Language } from '@arianee/common-types';
 
 export interface WalletHeaderProps {
   wallet: Wallet<ChainType>;
+  language: Language;
   setChainType: (newChainType: ChainType) => void;
+  setUserLanguage: (newLanguage: Language) => void;
 }
+
+const LANGUAGES: Language[] = [
+  'fr-FR',
+  'en-US',
+  'zh-TW',
+  'zh-CN',
+  'ko-KR',
+  'ja-JP',
+  'de-DE',
+  'es',
+  'it',
+];
 
 export default function WalletHeader({
   wallet,
+  language,
   setChainType,
+  setUserLanguage,
 }: WalletHeaderProps) {
   const authenticate = async () => {
     await wallet.authenticate();
@@ -21,9 +37,16 @@ export default function WalletHeader({
     <div>
       <div>
         <strong>Wallet:</strong> {wallet.getAddress()} (
-        <a href="#" onClick={authenticate}>
-          authenticate
-        </a>
+        <button onClick={authenticate}>authenticate</button> / preferred
+        language:{' '}
+        <select
+          defaultValue={language}
+          onChange={(event) => setUserLanguage(event.target.value as Language)}
+        >
+          {LANGUAGES.map((_language) => (
+            <option key={_language}>{_language}</option>
+          ))}
+        </select>
         )
         <br />
         <strong>Chain type:</strong>{' '}
