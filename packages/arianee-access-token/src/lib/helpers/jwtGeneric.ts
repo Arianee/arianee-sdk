@@ -70,7 +70,7 @@ export class JWTGeneric {
    * Verify if signature was signed by pubKey and return true/false
    * @param pubKey
    */
-  private verify(pubKey: string): boolean {
+  private verify(pubKey: string, ignoreExpiration = false): boolean {
     if (!this.params.recover) {
       throw new Error('You should provide a decoder to verify your token');
     }
@@ -83,7 +83,7 @@ export class JWTGeneric {
 
     const decode = this.params.recover(joinedHeaderPayload, signature);
 
-    const arePropertyValid = this.arePropertiesValid(payload);
+    const arePropertyValid = this.arePropertiesValid(payload, ignoreExpiration);
 
     if (!arePropertyValid) {
       return false;
@@ -91,8 +91,11 @@ export class JWTGeneric {
     return pubKey.toLowerCase() === decode.toLowerCase();
   }
 
-  private arePropertiesValid = (payload: ArianeeAccessTokenPayload) => {
-    if (payload.exp) {
+  private arePropertiesValid = (
+    payload: ArianeeAccessTokenPayload,
+    ignoreExpiration = false
+  ) => {
+    if (payload.exp && !ignoreExpiration) {
       const isExpired = new Date(payload.exp).getTime() < Date.now();
       if (isExpired) {
         return false;
