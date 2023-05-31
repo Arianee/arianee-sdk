@@ -58,23 +58,31 @@ export class ArianeeAccessToken {
     return urlObject.toString();
   }
 
-  static isArianeeAccessTokenValid(arianeeAccessToken: string): boolean {
+  static isArianeeAccessTokenValid(
+    arianeeAccessToken: string,
+    ignoreExpiration = false
+  ): boolean {
     const recover = (message: string, signature: string): string =>
       ethers.verifyMessage(message, signature);
     const jwtGenerator = new JWTGeneric({ recover });
     const jwt = jwtGenerator.setToken(arianeeAccessToken);
     const iss = jwt.decode().payload.iss;
 
-    return jwt.verify(iss);
+    return jwt.verify(iss, ignoreExpiration);
   }
 
-  static decodeJwt(arianeeAccessToken: string): {
+  static decodeJwt(
+    arianeeAccessToken: string,
+    ignoreExpiration = false
+  ): {
     header: JwtHeaderInterface;
     payload: ArianeeAccessTokenPayload;
     signature: string;
   } {
-    const isAatValid =
-      ArianeeAccessToken.isArianeeAccessTokenValid(arianeeAccessToken);
+    const isAatValid = ArianeeAccessToken.isArianeeAccessTokenValid(
+      arianeeAccessToken,
+      ignoreExpiration
+    );
     if (!isAatValid) {
       throw new Error('ArianeeAccessToken is not valid');
     }
