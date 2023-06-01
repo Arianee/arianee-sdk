@@ -143,10 +143,11 @@ export class ArianeeApiClient {
     },
     getNft: async (
       protocolName: Protocol['name'],
-      tokenId: string
+      tokenId: string,
+      populateEvents = false
     ): Promise<smartAssetInfo> => {
       return this.fetchArianeeApi(
-        `/report/nft/${protocolName}/${tokenId}`,
+        `/report/nft/${protocolName}/${tokenId}?populateEvent=${populateEvents}`,
         'fetch nft on arianee api'
       );
     },
