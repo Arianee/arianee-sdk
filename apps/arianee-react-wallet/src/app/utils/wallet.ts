@@ -9,7 +9,7 @@ const mnemonic =
 
 const core = Core.fromMnemonic(mnemonic);
 
-const arianeeAccessToken = new ArianeeAccessToken(core);
+export const arianeeAccessToken = new ArianeeAccessToken(core);
 
 const testnetWalletApiClient = new WalletApiClient('testnet', core, {
   apiURL: 'http://127.0.0.1:3000/',
