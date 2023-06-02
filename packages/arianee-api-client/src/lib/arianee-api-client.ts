@@ -13,6 +13,7 @@ import { decentralizedMessageInfo } from './types/decentralizedMessageInfo';
 import { brandIdentityInfo } from './types/brandIdentityInfo';
 import { convertObjectToDotNotation } from './utils/dotNotation/dotNotation';
 import { contractNameToArianeeApiContractName } from './utils/contracts/contractName';
+import { ArianeeEvent } from './types/arianeeEvent';
 
 export class ArianeeApiClient {
   private fetchLike: typeof fetch;
@@ -154,7 +155,7 @@ export class ArianeeApiClient {
     getNftArianeeEvents: async (
       protocolName: Protocol['name'],
       tokenId: string
-    ): Promise<BlockchainEvent[]> => {
+    ): Promise<ArianeeEvent[]> => {
       return this.fetchArianeeApi(
         `/report/nft/${protocolName}/${tokenId}/arianeeEvents`,
         'fetch nft arianee events on arianee api'
