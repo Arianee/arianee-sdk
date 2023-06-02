@@ -43,12 +43,14 @@ export default function WalletIdentities({
     setEventsLog('');
 
     wallet.identity.updated.addListener(identityUpdated);
+    console.time('wallet.identity.getOwnedSmartAssetsIdentities');
 
     wallet.identity
       .getOwnedSmartAssetsIdentities({
         i18nStrategy: { useLanguages: [language] },
       })
       .then((identities) => {
+        console.timeEnd('wallet.identity.getOwnedSmartAssetsIdentities');
         setIdentities(identities);
         setLoading(false);
       });
@@ -60,7 +62,7 @@ export default function WalletIdentities({
 
   return (
     <div id="identities">
-      <h3>Identities</h3>
+      <h3>Identities {!loading ? `(${identities.length})` : null}</h3>
       {loading ? (
         <div>Loading...</div>
       ) : (
@@ -70,7 +72,20 @@ export default function WalletIdentities({
               margin: '8px',
             }}
           >
-            <h4>Events log</h4>
+            <h4>
+              Events log (live)
+              <div
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  background: 'lightgreen',
+                  display: 'inline-block',
+                  verticalAlign: 'middle',
+                  marginLeft: '8px',
+                }}
+              ></div>
+            </h4>
             <textarea
               spellCheck={false}
               style={{ width: '500px', height: '100px' }}
@@ -78,46 +93,54 @@ export default function WalletIdentities({
               value={eventsLog}
             ></textarea>
           </div>
-          {identities.map((identity, index) => {
-            const { data } = identity;
-            const issuer = data.address;
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: '100%',
+              overflowX: 'auto',
+            }}
+          >
+            {identities.map((identity, index) => {
+              const { data } = identity;
+              const issuer = data.address;
 
-            return (
-              <div
-                id={'identity-' + issuer.toLowerCase()}
-                key={issuer}
-                style={{
-                  background: index % 2 === 0 ? '#d2baff' : '#ede3ff',
-                  padding: '16px',
-                  margin: '8px',
-                  borderRadius: '8px',
-                }}
-              >
-                <div>
-                  <b>Issuer:</b> {issuer}
+              return (
+                <div
+                  id={'identity-' + issuer.toLowerCase()}
+                  key={issuer}
+                  style={{
+                    background: index % 2 === 0 ? '#d2baff' : '#ede3ff',
+                    padding: '16px',
+                    margin: '8px',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <h3>{data.content.name ?? 'unnamed'}</h3>
+                  <div>
+                    <b>Issuer:</b> {issuer}
+                  </div>
+                  <div>
+                    <b>Owned NFTs:</b> {data.ownedCount}
+                  </div>
+                  <div>
+                    <b>Protocol:</b>{' '}
+                    {JSON.stringify(data.protocol, undefined, 2)}
+                  </div>
+                  <div>
+                    <b>Content:</b>
+                    <br />
+                    <textarea
+                      spellCheck={false}
+                      style={{ width: '300px', height: '50px' }}
+                      value={JSON.stringify(data.content, undefined, 4)}
+                      readOnly={true}
+                    ></textarea>
+                  </div>
                 </div>
-                <div>
-                  <b>Name:</b> {data.content.name}
-                </div>
-                <div>
-                  <b>Owned NFTs:</b> {data.ownedCount}
-                </div>
-                <div>
-                  <b>Protocol:</b> {JSON.stringify(data.protocol, undefined, 2)}
-                </div>
-                <div>
-                  <b>Content:</b>
-                  <br />
-                  <textarea
-                    spellCheck={false}
-                    style={{ width: '300px', height: '50px' }}
-                    value={JSON.stringify(data.content, undefined, 4)}
-                    readOnly={true}
-                  ></textarea>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </>
       )}
     </div>

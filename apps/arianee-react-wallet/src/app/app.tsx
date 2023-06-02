@@ -48,9 +48,11 @@ export function App() {
             setChainType={setChainTypeCallback}
             setUserLanguage={setUserLanguageCallback}
           />
-          <WalletNfts wallet={wallet} language={userLanguage} />
-          <WalletIdentities wallet={wallet} language={userLanguage} />
-          <WalletMessages wallet={wallet} language={userLanguage} />
+          <div style={{ marginTop: '80px' }}>
+            <WalletNfts wallet={wallet} language={userLanguage} />
+            <WalletIdentities wallet={wallet} language={userLanguage} />
+            <WalletMessages wallet={wallet} language={userLanguage} />
+          </div>
         </>
       )}
     </>

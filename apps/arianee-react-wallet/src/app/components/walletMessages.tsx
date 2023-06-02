@@ -48,10 +48,13 @@ export default function WalletMessages({
 
     wallet.message.received.addListener(messageReceived);
     wallet.message.read.addListener(messageRead);
+    console.time('wallet.message.getReceived');
 
     wallet.message
       .getReceived({ i18nStrategy: { useLanguages: [language] } })
       .then((messages) => {
+        console.timeEnd('wallet.message.getReceived');
+
         setMessages(messages);
         setLoading(false);
       });
@@ -64,7 +67,7 @@ export default function WalletMessages({
 
   return (
     <div id="messages">
-      <h3>Messages</h3>
+      <h3>Messages {!loading ? `(${messages.length})` : null}</h3>
       {loading ? (
         <div>Loading...</div>
       ) : (
@@ -74,7 +77,20 @@ export default function WalletMessages({
               margin: '8px',
             }}
           >
-            <h4>Events log</h4>
+            <h4>
+              Events log (live)
+              <div
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  background: 'lightgreen',
+                  display: 'inline-block',
+                  verticalAlign: 'middle',
+                  marginLeft: '8px',
+                }}
+              ></div>
+            </h4>
             <textarea
               spellCheck={false}
               style={{ width: '500px', height: '100px' }}
@@ -82,42 +98,55 @@ export default function WalletMessages({
               value={eventsLog}
             ></textarea>
           </div>
-          {messages.map((message, index) => {
-            const { data } = message;
-            const id = data.id;
 
-            return (
-              <div
-                key={id}
-                style={{
-                  background: index % 2 === 0 ? '#cfe4ff' : '#e3efff',
-                  padding: '16px',
-                  margin: '8px',
-                  borderRadius: '8px',
-                }}
-              >
-                <div>
-                  <b>ID:</b> {id}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: '100%',
+              overflowX: 'auto',
+            }}
+          >
+            {messages.map((message, index) => {
+              const { data } = message;
+              const id = data.id;
+
+              return (
+                <div
+                  key={id}
+                  style={{
+                    background: index % 2 === 0 ? '#cfe4ff' : '#e3efff',
+                    padding: '16px',
+                    margin: '8px',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <h3>{data.content.title ?? 'untitled'}</h3>
+                  <div>
+                    <b>ID:</b> {id}
+                  </div>
+                  <div>
+                    <b>Protocol:</b>{' '}
+                    {JSON.stringify(data.protocol, undefined, 2)}
+                  </div>
+                  <div>
+                    <b>Content:</b>
+                    <br />
+                    <textarea
+                      spellCheck={false}
+                      style={{ width: '300px', height: '50px' }}
+                      value={JSON.stringify(data.content, undefined, 4)}
+                      readOnly={true}
+                    ></textarea>
+                  </div>
+                  <div>
+                    <b>Message:</b>
+                    <p style={{ height: 'auto' }}>{data.content.content}</p>
+                  </div>
                 </div>
-                <div>
-                  <b>Title:</b> {data.content.title}
-                </div>
-                <div>
-                  <b>Protocol:</b> {JSON.stringify(data.protocol, undefined, 2)}
-                </div>
-                <div>
-                  <b>Content:</b>
-                  <br />
-                  <textarea
-                    spellCheck={false}
-                    style={{ width: '300px', height: '50px' }}
-                    value={JSON.stringify(data.content, undefined, 4)}
-                    readOnly={true}
-                  ></textarea>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </>
       )}
     </div>
