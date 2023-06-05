@@ -1,6 +1,7 @@
 import Wallet from '@arianee/wallet';
 import { ChainType, Language } from '@arianee/common-types';
 import { arianeeAccessToken } from '../utils/wallet';
+import { readLink } from '@arianee/utils';
 
 export interface WalletHeaderProps {
   wallet: Wallet<ChainType>;
@@ -37,6 +38,21 @@ export default function WalletHeader({
     alert('authenticated');
   };
 
+  const handleLink = () => {
+    const link = prompt('Enter link');
+    if (!link) return;
+    try {
+      const decodedLink = readLink(link);
+      alert('Link read (see console), handling will be implemented later...');
+      console.log(decodedLink);
+    } catch (e) {
+      console.error(e);
+      alert('Error while reading link (see console)');
+    }
+
+    // todo: add handle link call from wallet when implemented later
+  };
+
   const nextChainType = wallet.chainType === 'testnet' ? 'mainnet' : 'testnet';
 
   return (
@@ -68,7 +84,8 @@ export default function WalletHeader({
         ) <button onClick={authenticate}>force authenticate</button>{' '}
         <button onClick={logArianeeAccessToken}>
           log arianee access token
-        </button>
+        </button>{' '}
+        <button onClick={handleLink}>handle link</button>
         <br />
         <strong>Chain type:</strong>{' '}
         {nextChainType === 'testnet' ? (
