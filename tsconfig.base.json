@@ -26,6 +26,7 @@
       ],
       "@arianee/common-types": ["packages/common-types/src/index.ts"],
       "@arianee/core": ["packages/core/src/index.ts"],
+      "@arianee/utils": ["packages/utils/src/index.ts"],
       "@arianee/wallet": ["packages/wallet/src/index.ts"],
       "@arianee/wallet-abstraction": [
         "packages/wallet-abstraction/src/index.ts"
