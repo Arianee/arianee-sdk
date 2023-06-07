@@ -88,4 +88,31 @@ describe('httpClient', () => {
       expect(res).toMatchObject({ mock: 'mock' });
     });
   });
+
+  describe('post', () => {
+    it('should call fetch with the right url and return the response', async () => {
+      const res = await httpClient.post(
+        'https://mock/',
+        {
+          mock: 'mock',
+        },
+        {
+          testHeader: 'testValue',
+        }
+      );
+
+      expect(mockedFetch).toHaveBeenCalledWith('https://mock/', {
+        method: 'POST',
+        body: JSON.stringify({ mock: 'mock' }),
+        headers: {
+          testHeader: 'testValue',
+          Accept: 'application/json, text/plain',
+          'Content-Type': 'application/json;charset=UTF-8',
+          mode: 'no-cors',
+        },
+      });
+
+      expect(res).toMatchObject({ mock: 'mock' });
+    });
+  });
 });

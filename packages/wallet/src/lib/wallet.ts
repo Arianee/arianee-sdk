@@ -78,7 +78,8 @@ export default class Wallet<T extends ChainType = 'testnet'> {
     this._smartAsset = new SmartAssetService(
       this.walletAbstraction,
       this.eventManager,
-      this.i18nStrategy
+      this.i18nStrategy,
+      this.arianeeAccessToken
     );
 
     this._identity = new IdentityService<T>(

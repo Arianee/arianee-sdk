@@ -1,7 +1,7 @@
 import Wallet from '@arianee/wallet';
 import { ChainType, Language } from '@arianee/common-types';
 import { arianeeAccessToken } from '../utils/wallet';
-import { readLink } from '@arianee/utils';
+import { useState } from 'react';
 
 export interface WalletHeaderProps {
   wallet: Wallet<ChainType>;
@@ -33,24 +33,37 @@ export default function WalletHeader({
   setChainType,
   setUserLanguage,
 }: WalletHeaderProps) {
+  const [handlingLink, setHandlingLink] = useState<boolean>(false);
+  const [handlingSuccess, setHandlingSuccess] = useState<boolean | null>(null);
+
   const authenticate = async () => {
     await wallet.authenticate();
     alert('authenticated');
   };
 
-  const handleLink = () => {
-    const link = prompt('Enter link');
+  const handleLink = async (resolveFinalNft = false) => {
+    const link = prompt(
+      `Enter link (resolveFinalNft=${resolveFinalNft})\nResult will be logged in the console `
+    );
     if (!link) return;
+    setHandlingLink(true);
     try {
-      const decodedLink = readLink(link);
-      alert('Link read (see console), handling will be implemented later...');
-      console.log(decodedLink);
+      const smartAsset = await wallet.smartAsset.getFromLink(
+        link,
+        resolveFinalNft
+      );
+      setHandlingSuccess(true);
+      console.log(
+        `handle link result (link: ${link}, resolveFinalNft: ${resolveFinalNft})`,
+        smartAsset
+      );
     } catch (e) {
       console.error(e);
-      alert('Error while reading link (see console)');
+      setHandlingSuccess(false);
+    } finally {
+      setHandlingLink(false);
+      setTimeout(() => setHandlingSuccess(null), 2000);
     }
-
-    // todo: add handle link call from wallet when implemented later
   };
 
   const nextChainType = wallet.chainType === 'testnet' ? 'mainnet' : 'testnet';
@@ -85,7 +98,24 @@ export default function WalletHeader({
         <button onClick={logArianeeAccessToken}>
           log arianee access token
         </button>{' '}
-        <button onClick={handleLink}>handle link</button>
+        <button
+          disabled={handlingLink}
+          onClick={() => handleLink(false)}
+          style={{
+            background: colorFromHandlingSuccess(handlingSuccess),
+          }}
+        >
+          {handlingLink ? 'loading...' : 'handle link (without resolve)'}
+        </button>{' '}
+        <button
+          disabled={handlingLink}
+          onClick={() => handleLink(true)}
+          style={{
+            background: colorFromHandlingSuccess(handlingSuccess),
+          }}
+        >
+          {handlingLink ? 'loading...' : 'handle link (with resolve)'}
+        </button>
         <br />
         <strong>Chain type:</strong>{' '}
         {nextChainType === 'testnet' ? (
@@ -107,3 +137,14 @@ export default function WalletHeader({
     </div>
   );
 }
+
+const colorFromHandlingSuccess = (handlingSuccess: boolean | null) => {
+  switch (handlingSuccess) {
+    case true:
+      return 'lightgreen';
+    case false:
+      return 'crimson';
+    default:
+      return undefined;
+  }
+};

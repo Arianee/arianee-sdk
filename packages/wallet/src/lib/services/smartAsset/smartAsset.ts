@@ -2,6 +2,8 @@ import { ChainType, Event, Protocol, SmartAsset } from '@arianee/common-types';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
 import EventManager from '../eventManager/eventManager';
+import WalletApiClient from '@arianee/wallet-api-client';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 export type SmartAssetInstance = {
   data: SmartAsset;
@@ -20,7 +22,8 @@ export default class SmartAssetService<T extends ChainType> {
   constructor(
     private walletAbstraction: WalletAbstraction,
     private eventManager: EventManager<T>,
-    private i18nStrategy: I18NStrategy
+    private i18nStrategy: I18NStrategy,
+    private arianeeAccessToken: ArianeeAccessToken
   ) {
     this.received = this.eventManager.smartAssetReceived;
     this.transferred = this.eventManager.smartAssetTransferred;
@@ -108,10 +111,43 @@ export default class SmartAssetService<T extends ChainType> {
     return smartAssetsInstances;
   }
 
-  async getFromLink(link: string): Promise<SmartAssetInstance> {
-    // todo: implement handleLinkService in wallet-api and call it using the wallet-api-client
+  async getFromLink(
+    link: string,
+    resolveFinalNft = false,
+    i18nStrategy?: I18NStrategy
+  ): Promise<SmartAssetInstance> {
+    if (!(this.walletAbstraction instanceof WalletApiClient))
+      throw new Error(
+        'The wallet abstraction you use do not support this method (try using @arianee/wallet-api-client)'
+      );
 
-    throw new Error('Not implemented');
+    try {
+      const { network, certificateId, passphrase } = await (
+        this.walletAbstraction as WalletApiClient<T>
+      ).handleLink(
+        link,
+        resolveFinalNft
+          ? {
+              resolveFinalNft: true,
+              arianeeAccessToken:
+                await this.arianeeAccessToken.getValidWalletAccessToken(),
+            }
+          : {}
+      );
+
+      return await this.get(
+        network,
+        {
+          id: certificateId,
+          passphrase,
+        },
+        { i18nStrategy: i18nStrategy ?? this.i18nStrategy }
+      );
+    } catch (e) {
+      throw new Error(
+        'Could not retrieve a smart asset from this link: ' + link
+      );
+    }
   }
 }
 
