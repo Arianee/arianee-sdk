@@ -14,6 +14,17 @@ describe('readLink', () => {
       },
     },
     {
+      link: 'https://arianee.net/799709261,rrlr160hhjhj',
+      expected: {
+        certificateId: '799709261',
+        passphrase: 'rrlr160hhjhj',
+        aat: undefined,
+        method: 'requestOwnership',
+        network: 'mainnet',
+        link: 'https://arianee.net/799709261,rrlr160hhjhj',
+      },
+    },
+    {
       link: 'https://test.arian.ee/983190220,kj1ed3hq3a4y?arianeeAccessToken=eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweEE5QmM5MEQyNEQwYjg0OTUwNDNBYjU4NTc0NTU0NDQ2MzAwMjhDQUYiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjE2ODU5NTcxMDYyNzMsImlhdCI6MTY4NTk1NjgwNjI3M30=.0x58c72886153f2a80834378450bff77a0cd23226c41bb572cf2b7690d770ac75a74500e4c2cef27f01384bf41706199dd4d9b3bb6ce420c930a8052d99c692c771c',
       expected: {
         certificateId: '983190220',
