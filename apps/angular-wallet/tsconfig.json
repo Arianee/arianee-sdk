@@ -33,7 +33,8 @@
       "@arianee/wallet-abstraction": [
         "packages/wallet-abstraction/src/index.ts"
       ],
-      "@arianee/wallet-api-client": ["packages/wallet-api-client/src/index.ts"]
+      "@arianee/wallet-api-client": ["packages/wallet-api-client/src/index.ts"],
+      "@arianee/utils": ["packages/utils/src/index.ts"]
     }
   },
   "files": [],

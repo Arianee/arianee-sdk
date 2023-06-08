@@ -119,7 +119,7 @@ const wallet = new Wallet();
 // smart asset methods
 wallet.smartAsset.get(...);
 wallet.smartAsset.getOwned(...);
-wallet.smartAsset.getFromLink(...); // to be implemented in subsequent versions
+wallet.smartAsset.getFromLink(...);
 
 // events
 wallet.smartAsset.received

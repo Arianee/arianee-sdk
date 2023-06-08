@@ -13,6 +13,7 @@ import { WALLET_API_URL } from './constants';
 import { generateQueryString, removeTrailingSlash } from './helpers';
 import HttpClient, { AuthorizationType } from './helpers/httpClient';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import { ReadLink } from '@arianee/utils';
 
 export default class WalletApiClient<T extends ChainType>
   implements WalletAbstraction
@@ -275,6 +276,66 @@ export default class WalletApiClient<T extends ChainType>
         `Failed to fetch owned smart assets brand identities: ${
           (e as Error).message
         }`
+      );
+    }
+  }
+
+  async handleLink(
+    link: string,
+    params?: {
+      resolveFinalNft?: boolean;
+      arianeeAccessToken?: string;
+    }
+  ): Promise<ReadLink> {
+    try {
+      const response = await this.httpClient.post(
+        `${this.apiURL}/arianee/link/handle`,
+        {
+          link,
+          ...(params?.resolveFinalNft && { resolveFinalNft: true }),
+          ...(params?.arianeeAccessToken && {
+            arianeeAccessToken: params.arianeeAccessToken,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (e) {
+      throw new Error(`Failed to handle link: ${(e as Error).message}`);
+    }
+  }
+
+  async linkToSmartAsset(
+    link: string,
+    params?: {
+      resolveFinalNft?: boolean;
+      arianeeAccessToken?: string;
+    }
+  ): Promise<SmartAsset> {
+    try {
+      const response = await this.httpClient.post(
+        `${this.apiURL}/arianee/link/toSmartAsset`,
+        {
+          link,
+          ...(params?.resolveFinalNft && { resolveFinalNft: true }),
+          ...(params?.arianeeAccessToken && {
+            arianeeAccessToken: params.arianeeAccessToken,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (e) {
+      throw new Error(
+        `Failed to get smart asset from link (${link}): ${(e as Error).message}`
       );
     }
   }

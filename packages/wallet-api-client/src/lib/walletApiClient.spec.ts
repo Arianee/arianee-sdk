@@ -116,7 +116,7 @@ describe('WalletApiClient', () => {
         ok: false,
       } as unknown as Response);
 
-      expect(
+      await expect(
         walletApiClient.getSmartAsset('testnet', { id: '123456' })
       ).rejects.toThrowError(/error fetching/gi);
     });
@@ -183,7 +183,7 @@ describe('WalletApiClient', () => {
         ok: false,
       } as unknown as Response);
 
-      expect(
+      await expect(
         walletApiClient.getSmartAssetEvents('testnet', { id: '123456' })
       ).rejects.toThrowError(/error fetching/gi);
     });
@@ -232,7 +232,7 @@ describe('WalletApiClient', () => {
         ok: false,
       } as unknown as Response);
 
-      expect(walletApiClient.getOwnedSmartAssets()).rejects.toThrowError(
+      await expect(walletApiClient.getOwnedSmartAssets()).rejects.toThrowError(
         /error fetching/gi
       );
     });
@@ -268,7 +268,7 @@ describe('WalletApiClient', () => {
         ok: false,
       } as unknown as Response);
 
-      expect(walletApiClient.getReceivedMessages()).rejects.toThrowError(
+      await expect(walletApiClient.getReceivedMessages()).rejects.toThrowError(
         /error fetching/gi
       );
     });
@@ -304,9 +304,9 @@ describe('WalletApiClient', () => {
         ok: false,
       } as unknown as Response);
 
-      expect(walletApiClient.getMessage('1', 'testnet')).rejects.toThrowError(
-        /error fetching/gi
-      );
+      await expect(
+        walletApiClient.getMessage('1', 'testnet')
+      ).rejects.toThrowError(/error fetching/gi);
     });
   });
 
@@ -338,9 +338,9 @@ describe('WalletApiClient', () => {
         ok: false,
       } as unknown as Response);
 
-      expect(walletApiClient.getBrandIdentity('0x123456')).rejects.toThrowError(
-        /error fetching/gi
-      );
+      await expect(
+        walletApiClient.getBrandIdentity('0x123456')
+      ).rejects.toThrowError(/error fetching/gi);
     });
   });
   describe('getOwnedSmartAssetsBrandIdentities', () => {
@@ -370,9 +370,85 @@ describe('WalletApiClient', () => {
         ok: false,
       } as unknown as Response);
 
-      expect(
+      await expect(
         walletApiClient.getOwnedSmartAssetsBrandIdentities({})
       ).rejects.toThrowError(/error fetching/gi);
+    });
+  });
+
+  describe('handleLink', () => {
+    it('should call the api with the right url and return the data', async () => {
+      mockedHttpClient.post.mockResolvedValue({
+        ok: true,
+        json: async () => ({ mock: 'mock' }),
+      } as any);
+
+      const res = await walletApiClient.handleLink('https://mock', {
+        arianeeAccessToken: 'aat',
+        resolveFinalNft: true,
+      });
+
+      expect(mockedHttpClient.post).toHaveBeenCalledWith(
+        'https://mock/arianee/link/handle',
+        {
+          link: 'https://mock',
+          arianeeAccessToken: 'aat',
+          resolveFinalNft: true,
+        }
+      );
+
+      expect(res).toEqual({ mock: 'mock' });
+    });
+
+    it('should throw if response is not ok', async () => {
+      mockedHttpClient.post.mockResolvedValue({
+        ok: false,
+      } as unknown as Response);
+
+      await expect(
+        walletApiClient.handleLink('https://mock', {
+          arianeeAccessToken: 'aat',
+          resolveFinalNft: true,
+        })
+      ).rejects.toThrowError(/Failed to handle link/gi);
+    });
+  });
+
+  describe('linkToSmartAsset', () => {
+    it('should call the api with the right url and return the data', async () => {
+      mockedHttpClient.post.mockResolvedValue({
+        ok: true,
+        json: async () => ({ mock: 'mock' }),
+      } as any);
+
+      const res = await walletApiClient.linkToSmartAsset('https://mock', {
+        arianeeAccessToken: 'aat',
+        resolveFinalNft: true,
+      });
+
+      expect(mockedHttpClient.post).toHaveBeenCalledWith(
+        'https://mock/arianee/link/toSmartAsset',
+        {
+          link: 'https://mock',
+          arianeeAccessToken: 'aat',
+          resolveFinalNft: true,
+        }
+      );
+
+      expect(res).toEqual({ mock: 'mock' });
+    });
+
+    it('should throw if response is not ok', async () => {
+      mockedHttpClient.post.mockResolvedValue({
+        ok: false,
+      } as unknown as Response);
+
+      await expect(
+        walletApiClient.linkToSmartAsset('https://mock', {
+          arianeeAccessToken: 'aat',
+          resolveFinalNft: true,
+        })
+      ).rejects.toThrowError(/Failed to get smart asset from link/gi);
     });
   });
 

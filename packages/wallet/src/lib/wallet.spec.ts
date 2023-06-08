@@ -16,6 +16,7 @@ declare const global: {
 
 jest.mock('@arianee/core');
 jest.mock('@arianee/wallet-api-client');
+jest.mock('@arianee/arianee-access-token');
 jest.mock('./services/identity/identity');
 jest.mock('./services/message/message');
 jest.mock('./services/smartAsset/smartAsset');
@@ -183,7 +184,8 @@ describe('Wallet', () => {
       expect(SmartAssetService).toHaveBeenCalledWith(
         expect.any(WalletApiClient),
         expect.any(EventManager),
-        'raw'
+        'raw',
+        wallet['arianeeAccessToken']
       );
     });
 

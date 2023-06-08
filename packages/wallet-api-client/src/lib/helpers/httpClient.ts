@@ -62,4 +62,21 @@ export default class HttpClient {
       },
     });
   }
+
+  public async post(
+    url: string,
+    data: { [key: string | number]: unknown },
+    extraHeaders: HeadersInit = {}
+  ) {
+    return this.fetchLike(url, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        Accept: 'application/json, text/plain',
+        'Content-Type': 'application/json;charset=UTF-8',
+        mode: 'no-cors',
+        ...extraHeaders,
+      },
+    });
+  }
 }
