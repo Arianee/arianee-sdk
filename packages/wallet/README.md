@@ -19,6 +19,7 @@ Default values are:
 - `fetchLike`: `window.fetch` in browser environment, `node-fetch` in node environment
 - `eventManagerParams`: undefined
 - `arianeeAccessToken`: a `ArianeeAccessToken` instance from `@arianee/arianee-access-token` using the core instance derived from passed auth
+- `arianeeAccessTokenPrefix`: an optional `string` that can be added before the arianee access token payload to sign. This is useful to let the user know what they are signing and why.
 
 First, you need to import the `Wallet` class:
 
@@ -95,16 +96,19 @@ Example:
 ```ts
 const core = Core.fromRandom();
 const arianeeAccessToken = new ArianeeAccessToken(core);
+const prefix = 'Sign this Arianee access token to authenticate\n\n';
 
 const testnetWalletApiClient = new WalletApiClient('testnet', core, {
   apiURL: 'http://127.0.0.1:3000/',
   arianeeAccessToken,
+  arianeeAccessTokenPrefix: prefix,
 });
 
 const testnetWallet = new Wallet({
   auth: { core },
   walletAbstraction: testnetWalletApiClient,
   arianeeAccessToken,
+  arianeeAccessTokenPrefix: prefix,
 });
 ```
 

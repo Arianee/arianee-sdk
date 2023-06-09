@@ -26,6 +26,10 @@ const mockedAddress = '0x123456';
 const getAddresSpy = jest.spyOn(Wallet.prototype, 'getAddress');
 
 describe('Wallet', () => {
+  const core: Core = {
+    getAddress: () => mockedAddress,
+  } as any;
+
   beforeEach(() => {
     jest.clearAllMocks();
     getAddresSpy.mockReturnValue(mockedAddress);
@@ -105,9 +109,29 @@ describe('Wallet', () => {
       expect(wallet['i18nStrategy']).toBe('raw');
     });
 
-    it('should use @arianee/wallet-api-client as default WalletAbstraction', () => {
-      const wallet = new Wallet();
+    it('should set the arianeeAccessTokenPrefix to the passed param', () => {
+      const wallet = new Wallet({
+        arianeeAccessTokenPrefix: 'prefix',
+      });
+      expect(wallet['arianeeAccessTokenPrefix']).toBe('prefix');
+    });
+
+    it('should use @arianee/wallet-api-client as default WalletAbstraction and pass the arianeeAccessTokenPrefix', () => {
+      const wallet = new Wallet({
+        arianeeAccessTokenPrefix: 'prefix',
+        auth: { core },
+      });
+
       expect(wallet['walletAbstraction']).toBeInstanceOf(WalletApiClient);
+      expect(WalletApiClient).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        {
+          arianeeAccessToken: expect.any(ArianeeAccessToken),
+          arianeeAccessTokenPrefix: 'prefix',
+        },
+        undefined
+      );
     });
 
     it('should throw if invalid auth was passed', () => {
@@ -190,12 +214,11 @@ describe('Wallet', () => {
     });
 
     it('should use the arianee access token instance if passed', () => {
-      jest.spyOn(Core, 'fromRandom').mockReturnValue({} as any);
-
       const aat = new ArianeeAccessToken({} as any);
 
       new Wallet({
         arianeeAccessToken: aat,
+        auth: { core },
       });
 
       expect(WalletApiClient).toHaveBeenCalledWith(
@@ -235,6 +258,29 @@ describe('Wallet', () => {
 
       expect(wallet.getAddress()).toBe('0x123');
       expect(mockGetAddress).toHaveBeenCalled();
+    });
+  });
+
+  describe('authenticate', () => {
+    it('should call getValidWalletAccessToken with prefix', async () => {
+      const aat = new ArianeeAccessToken(core);
+
+      const getValidWalletAccessTokenSpy = jest
+        .spyOn(aat, 'getValidWalletAccessToken')
+        .mockImplementation();
+
+      const wallet = new Wallet({
+        auth: { core },
+        arianeeAccessToken: aat,
+        arianeeAccessTokenPrefix: 'prefix',
+      });
+
+      await wallet.authenticate();
+
+      expect(getValidWalletAccessTokenSpy).toHaveBeenCalledWith(
+        {},
+        { prefix: 'prefix' }
+      );
     });
   });
 });

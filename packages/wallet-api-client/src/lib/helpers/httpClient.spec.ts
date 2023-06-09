@@ -59,10 +59,42 @@ describe('httpClient', () => {
 
       expect(
         (mockedFetch.mock.calls[0][1] as any)!.headers.authorization
-      ).toMatch(/^Bearer ([=a-zA-Z0-9_]+\.){2}[=a-zA-Z0-9_-]+$/);
+      ).toMatch(/^Bearer ([%a-zA-Z0-9_]+\.){2}[%a-zA-Z0-9_-]+$/);
 
       expect(res).toMatchObject({ mock: 'mock' });
     });
+
+    it('should call fetch with the right url and authorization (prefixed aat) and return the response', async () => {
+      const httpClient = new HttpClient(
+        core,
+        mockedFetch as unknown as typeof fetch,
+        arianeeAccessToken,
+        'prefix\r\n'
+      );
+
+      const res = await httpClient.authorizedGet({
+        url: 'https://mock/',
+        authorizationType: 'arianeeAccessToken',
+      });
+
+      expect(mockedFetch).toHaveBeenCalledWith('https://mock/', {
+        headers: {
+          Accept: 'application/json, text/plain',
+          'Content-Type': 'application/json;charset=UTF-8',
+          mode: 'no-cors',
+          authorization: expect.stringMatching(
+            /^Bearer prefix%0D%0A([%a-zA-Z0-9_]+\.){2}[%a-zA-Z0-9_-]+$/
+          ),
+        },
+      });
+
+      expect(
+        (mockedFetch.mock.calls[0][1] as any)!.headers.authorization
+      ).toMatch(/^Bearer prefix%0D%0A([%a-zA-Z0-9_]+\.){2}[%a-zA-Z0-9_-]+$/);
+
+      expect(res).toMatchObject({ mock: 'mock' });
+    });
+
     it('should call fetch with the right url and authorization (id, passphrase) and return the response', async () => {
       const res = await httpClient.authorizedGet({
         url: 'https://mock/',

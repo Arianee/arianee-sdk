@@ -19,6 +19,7 @@ export type WalletParams<T extends ChainType> = {
   fetchLike?: typeof fetch;
   eventManagerParams?: EventManagerParams;
   arianeeAccessToken?: ArianeeAccessToken;
+  arianeeAccessTokenPrefix?: string;
 };
 
 export default class Wallet<T extends ChainType = 'testnet'> {
@@ -29,6 +30,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
   private fetchLike: typeof fetch;
   private eventManager: EventManager<T>;
   private arianeeAccessToken: ArianeeAccessToken;
+  private arianeeAccessTokenPrefix?: string;
 
   private _smartAsset: SmartAssetService<T>;
   private _identity: IdentityService<T>;
@@ -43,11 +45,13 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       fetchLike,
       eventManagerParams,
       arianeeAccessToken,
+      arianeeAccessTokenPrefix,
     } = params ?? {};
 
     this._chainType = chainType ?? ('testnet' as T);
     this.core = this.getCoreFromAuth(auth);
     this.i18nStrategy = i18nStrategy ?? 'raw';
+    this.arianeeAccessTokenPrefix = arianeeAccessTokenPrefix;
 
     if (typeof window === 'undefined') {
       this.fetchLike = fetchLike ?? require('node-fetch');
@@ -63,7 +67,10 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       new WalletApiClient(
         this._chainType,
         this.core,
-        { arianeeAccessToken: this.arianeeAccessToken },
+        {
+          arianeeAccessToken: this.arianeeAccessToken,
+          arianeeAccessTokenPrefix: this.arianeeAccessTokenPrefix,
+        },
         fetchLike
       );
 
@@ -136,7 +143,10 @@ export default class Wallet<T extends ChainType = 'testnet'> {
    * you use a wallet provider such as Metamask or WalletConnect
    */
   public async authenticate(): Promise<void> {
-    await this.arianeeAccessToken.getValidWalletAccessToken();
+    await this.arianeeAccessToken.getValidWalletAccessToken(
+      {},
+      { prefix: this.arianeeAccessTokenPrefix }
+    );
   }
 }
 
