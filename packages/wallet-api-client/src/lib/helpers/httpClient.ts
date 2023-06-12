@@ -9,14 +9,21 @@ export default class HttpClient {
   constructor(
     private core: Core,
     private fetchLike: typeof fetch,
-    private arianeeAccessToken: ArianeeAccessToken
+    private arianeeAccessToken: ArianeeAccessToken,
+    private arianeeAccessTokenPrefix?: string
   ) {}
 
   private async getAuthorization(authorizationType: AuthorizationType) {
     let authorization: string;
     if (authorizationType === 'arianeeAccessToken') {
-      authorization =
-        'Bearer ' + (await this.arianeeAccessToken.getValidWalletAccessToken());
+      const aat = encodeURIComponent(
+        await this.arianeeAccessToken.getValidWalletAccessToken(
+          {},
+          { prefix: this.arianeeAccessTokenPrefix }
+        )
+      );
+
+      authorization = 'Bearer ' + aat;
     } else {
       const { certificateId, passphrase } = authorizationType;
       const core = Core.fromPassPhrase(passphrase);

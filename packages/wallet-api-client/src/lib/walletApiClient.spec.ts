@@ -499,12 +499,14 @@ describe('WalletApiClient', () => {
     it('should use the arianee access token instance if passed', () => {
       const client = new WalletApiClient('testnet', core, {
         arianeeAccessToken,
+        arianeeAccessTokenPrefix: 'prefix',
       });
 
       expect(HttpClient).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
-        arianeeAccessToken
+        arianeeAccessToken,
+        'prefix'
       );
     });
 

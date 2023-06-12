@@ -2,6 +2,12 @@ import { ArianeeAccessTokenPayload } from '../types/arianeeAccessTokenPayload';
 import { JwtHeaderInterface } from '../types/JwtHeaderInterface';
 
 export class JWTGeneric {
+  private static readonly JWT_HEADER_ETH =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFVEgifQ==';
+
+  private static readonly JWT_HEADER_secp256k1 =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==';
+
   private header = { typ: 'JWT', alg: 'secp256k1' };
   private payload!: ArianeeAccessTokenPayload;
   private encodedToken!: string;
@@ -54,16 +60,16 @@ export class JWTGeneric {
   }
 
   private static fromBase64JSONParse(data: string) {
-    const buffer = new Buffer(data, 'base64');
+    const buffer = Buffer.from(data, 'base64');
     const string = buffer.toString('utf8');
     return JSON.parse(string);
   }
 
-  public async sign() {
+  public async sign(prefix?: string) {
     const header = JWTGeneric.base64Stringified(this.header);
     const payload = JWTGeneric.base64Stringified(this.payload);
-    const signature = await this.signature();
-    return `${header}.${payload}.${signature}`;
+    const signature = await this.signature(prefix ?? '');
+    return `${prefix ?? ''}${header}.${payload}.${signature}`;
   }
 
   /**
@@ -75,13 +81,12 @@ export class JWTGeneric {
       throw new Error('You should provide a decoder to verify your token');
     }
 
-    const { header, signature, payload } = this.decode();
-    const joinedHeaderPayload =
-      JWTGeneric.base64Stringified(header) +
-      '.' +
-      JWTGeneric.base64Stringified(payload);
+    const { prefix, header, payload, signature } = this.decode();
+    const signedMessage = `${prefix}${JWTGeneric.base64Stringified(
+      header
+    )}.${JWTGeneric.base64Stringified(payload)}`;
 
-    const decode = this.params.recover(joinedHeaderPayload, signature);
+    const decode = this.params.recover(signedMessage, signature);
 
     const arePropertyValid = this.arePropertiesValid(payload, ignoreExpiration);
 
@@ -112,12 +117,21 @@ export class JWTGeneric {
   };
 
   private decode(): {
+    prefix: string;
     header: JwtHeaderInterface;
     payload: ArianeeAccessTokenPayload;
     signature: string;
   } {
-    const [header, payload, signature] = this.encodedToken.split('.');
+    const headerType = this.encodedToken.includes(JWTGeneric.JWT_HEADER_ETH)
+      ? JWTGeneric.JWT_HEADER_ETH
+      : JWTGeneric.JWT_HEADER_secp256k1;
+
+    const [prefix, remainder] = this.encodedToken.split(`${headerType}.`);
+
+    const [header, payload, signature] = [headerType, ...remainder.split('.')];
+
     return {
+      prefix: prefix ?? '',
       header: JWTGeneric.fromBase64JSONParse(
         header
       ) as unknown as JwtHeaderInterface,
@@ -128,12 +142,14 @@ export class JWTGeneric {
     };
   }
 
-  private signature() {
+  private signature(prefix: string) {
     if (!this.params.signer) {
       throw new Error('You must provide a signer');
     }
+
     return this.params.signer(
-      JWTGeneric.base64Stringified(this.header) +
+      prefix +
+        JWTGeneric.base64Stringified(this.header) +
         '.' +
         JWTGeneric.base64Stringified(this.payload)
     );

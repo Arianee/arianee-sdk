@@ -29,6 +29,7 @@ export default class WalletApiClient<T extends ChainType>
       apiURL?: string;
       httpClient?: HttpClient;
       arianeeAccessToken?: ArianeeAccessToken;
+      arianeeAccessTokenPrefix?: string;
     },
     fetchLike?: typeof fetch
   ) {
@@ -45,7 +46,12 @@ export default class WalletApiClient<T extends ChainType>
 
     this.httpClient =
       options?.httpClient ??
-      new HttpClient(this.core, this.fetchLike, arianeeAccessToken);
+      new HttpClient(
+        this.core,
+        this.fetchLike,
+        arianeeAccessToken,
+        options?.arianeeAccessTokenPrefix
+      );
   }
 
   private getAuthorizationType(

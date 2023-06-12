@@ -44,6 +44,8 @@ const smartAsset = await walletApiClient.getSmartAsset('mainnet', {
 - `options`: Optional configuration object containing:
   - `apiURL`: The base URL of the API (default is `WALLET_API_URL` (from `./constants`)).
   - `httpClient`: A custom HTTP client instance.
+  - `arianeeAccessToken`: An `@arianee/arianee-access-token` instance, used for authorization generation.
+  - `arianeeAccessTokenPrefix`: The prefix to use for arianee access tokens generated for authorization.
 - `fetchLike`: An optional fetch-like function (default is fetch in browser environment, and node-fetch in node environment).
 
 ## Methods

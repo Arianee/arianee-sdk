@@ -15,6 +15,7 @@
     "test:apg": "nx test arianee-privacy-gateway-client",
     "test:wallet-api-client": "nx test wallet-api-client",
     "test:arianee-api-client": "nx test arianee-api-client",
+    "test:arianee-access-token": "nx test arianee-access-token",
     "test:utils": "nx test utils",
     "test:core": "nx test core",
     "test:all": "nx run-many --target=test --all",

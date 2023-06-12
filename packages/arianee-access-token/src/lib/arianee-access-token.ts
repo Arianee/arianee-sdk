@@ -17,18 +17,27 @@ export class ArianeeAccessToken {
 
   public async getValidWalletAccessToken(
     payloadOverride: PayloadOverride = {},
-    timeBeforeExp = 10
+    params?: {
+      timeBeforeExp?: number;
+      prefix?: string;
+    }
   ): Promise<string> {
+    const { timeBeforeExp = 10, prefix } = params ?? {};
+
     if (!this.lastAAT || isExpInLessThan(this.lastAAT, timeBeforeExp)) {
-      this.lastAAT = await this.createWalletAccessToken(payloadOverride);
+      this.lastAAT = await this.createWalletAccessToken(
+        payloadOverride,
+        prefix
+      );
     }
     return this.lastAAT;
   }
 
   public createWalletAccessToken(
-    payloadOverride: PayloadOverride = {}
+    payloadOverride: PayloadOverride = {},
+    prefix?: string
   ): Promise<string> {
-    return this.generateAAT(payloadOverride);
+    return this.generateAAT(payloadOverride, prefix);
   }
 
   public createCertificateArianeeAccessToken(
@@ -92,7 +101,8 @@ export class ArianeeAccessToken {
   }
 
   private async generateAAT(
-    payload: Partial<ArianeeAccessTokenPayload> = {}
+    payload: Partial<ArianeeAccessTokenPayload> = {},
+    prefix?: string
   ): Promise<string> {
     const signer = async (data: string) => {
       return (await this.core.signMessage(data)).signature;
@@ -108,6 +118,6 @@ export class ArianeeAccessToken {
     };
 
     const jwt = await jwtGenerator.setPayload(basicPayload);
-    return jwt.sign();
+    return jwt.sign(prefix);
   }
 }

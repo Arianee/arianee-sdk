@@ -13,9 +13,16 @@ const arianeeAccessToken = new ArianeeAccessToken(core);
 
 Then you can use the following methods:
 
-### `createWalletAccessToken(): Promise<string>`
+### `getValidWalletAccessToken(payloadOverride: PayloadOverride = {}, params?: { timeBeforeExp?: number; prefix?: string; }): Promise<string>`
+
+This method generates a wallet scoped Arianee Access Token (AAT) and stores it in memory. On subsequent calls, if the stored AAT is still valid, it will return it. Otherwise if it has expired or the expiration is in less than `timeBeforeExp` seconds, it will regenerate a new one and return it.
+
+You can use the `prefix` parameter to add a string before the arianee access token payload in the message to be signed.
+
+### `createWalletAccessToken(payloadOverride: PayloadOverride = {}, prefix?: string): Promise<string>`
 
 This method generates an Arianee Access Token (AAT) for the wallet scope. It returns a `Promise` that resolves to the AAT as a `string`.
+It takes two optional parameters, a `payloadOverride` parameter to override the default payload and a `prefix` parameter to add a string before the arianee access token payload in the message to be signed.
 
 ### `createCertificateArianeeAccessToken(certificateId: number, network: string): Promise<string>`
 
@@ -29,7 +36,7 @@ This method creates a link with an Arianee Access Token (AAT) attached to it. It
 
 If you only need to decode existing arianee access token, you don't need to instanciate the class.
 
-You can use the following static methods
+You can use the following static methods. These methods will automatically detect if the arianee access token is prefixed and handle it. In order for this to work seamlessly, the arianee access tokens must be signed with one of these two signature algorithms (alg prop in header): `secp256k1` or `ETH`.
 
 ### `static isArianeeAccessTokenValid(arianeeAccessToken: string): boolean`
 
