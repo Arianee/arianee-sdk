@@ -245,19 +245,23 @@ describe('EventManager', () => {
   describe('emitSmartAssetsEvents', () => {
     it('should emit smartAssetTransferred and smartAssetReceived events with correct data', async () => {
       const receivedEvent = {
-        returnValues: {
-          _from: '0x123',
-          _to: userAddress,
-          _tokenId: '1',
+        eventData: {
+          returnValues: {
+            _from: '0x123',
+            _to: userAddress,
+            _tokenId: '1',
+          },
         },
         protocol: { chainId: 1, name: 'mock' },
       } as unknown as BlockchainEvent;
 
       const transferredEvent = {
-        returnValues: {
-          _from: userAddress,
-          _to: '0x123',
-          _tokenId: '2',
+        eventData: {
+          returnValues: {
+            _from: userAddress,
+            _to: '0x123',
+            _tokenId: '2',
+          },
         },
         protocol: { chainId: 1, name: 'mock' },
       } as unknown as BlockchainEvent;
@@ -342,9 +346,11 @@ describe('EventManager', () => {
   describe('emitArianeeEvents', () => {
     it('should emit arianeeEventReceived events with correct data', async () => {
       const arianeeEvent = {
-        returnValues: {
-          _eventId: '2',
-          _tokenId: '1',
+        eventData: {
+          returnValues: {
+            _eventId: '2',
+            _tokenId: '1',
+          },
         },
         protocol: { chainId: 1, name: 'mock' },
       } as unknown as BlockchainEvent;
@@ -411,8 +417,10 @@ describe('EventManager', () => {
   describe('emitIdentitiesEvents', () => {
     it('should emit identityUpdated events with correct data', async () => {
       const identityEvent = {
-        returnValues: {
-          _identity: '0x1',
+        eventData: {
+          returnValues: {
+            _identity: '0x1',
+          },
         },
         protocol: { chainId: 1, name: 'mock' },
       } as unknown as BlockchainEvent;
@@ -478,8 +486,10 @@ describe('EventManager', () => {
   describe('emitMessagesEvents', () => {
     it('should emit messageReceived events with correct data', async () => {
       const messageEvent = {
-        returnValues: {
-          _messageId: '1',
+        eventData: {
+          returnValues: {
+            _messageId: '1',
+          },
         },
         protocol: { chainId: 1, name: 'mock' },
       } as unknown as BlockchainEvent;
