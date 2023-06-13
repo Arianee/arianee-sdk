@@ -1,1 +1,1 @@
-export * from './lib/arianee-protocol-client';
+export * from './lib/arianeeProtocolClient';
