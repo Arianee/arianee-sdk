@@ -270,8 +270,8 @@ export default class EventManager<T extends ChainType>
       this.emitUnique(
         'arianeeEventReceived',
         {
-          certificateId: event.returnValues['_tokenId'] as string,
-          eventId: event.returnValues['_eventId'] as string,
+          certificateId: event.eventData.returnValues['_tokenId'] as string,
+          eventId: event.eventData.returnValues['_eventId'] as string,
           protocol: event.protocol,
         },
         event
@@ -286,7 +286,7 @@ export default class EventManager<T extends ChainType>
     const { transferred, received } = smartAssetEvents;
 
     transferred.forEach((event) => {
-      const { _to, _tokenId } = event.returnValues;
+      const { _to, _tokenId } = event.eventData.returnValues;
 
       this.emitUnique(
         'smartAssetTransferred',
@@ -300,7 +300,7 @@ export default class EventManager<T extends ChainType>
     });
 
     received.forEach((event) => {
-      const { _from, _tokenId } = event.returnValues;
+      const { _from, _tokenId } = event.eventData.returnValues;
 
       this.emitUnique(
         'smartAssetReceived',
@@ -319,7 +319,7 @@ export default class EventManager<T extends ChainType>
       this.emitUnique(
         'identityUpdated',
         {
-          issuer: event.returnValues['_identity'] as string,
+          issuer: event.eventData.returnValues['_identity'] as string,
           protocol: event.protocol,
         },
         event
@@ -332,7 +332,7 @@ export default class EventManager<T extends ChainType>
       this.emitUnique(
         'messageReceived',
         {
-          messageId: event.returnValues['_messageId'] as string,
+          messageId: event.eventData.returnValues['_messageId'] as string,
           protocol: event.protocol,
         },
         event

@@ -1,6 +1,6 @@
 import { Protocol } from './protocol';
 
-export interface BlockchainEvent {
+export interface EventData {
   returnValues: {
     [key: string]: unknown;
   };
@@ -16,6 +16,13 @@ export interface BlockchainEvent {
   blockHash: string;
   blockNumber: number;
   address: string;
+}
+
+export interface BlockchainEvent {
+  eventData: EventData;
   protocol: Protocol;
   timestamp: string;
+  smartContractName: string;
+  blockNumber: number;
+  contractAddress: string;
 }
