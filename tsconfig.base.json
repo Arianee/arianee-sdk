@@ -24,6 +24,9 @@
       "@arianee/arianee-privacy-gateway-client": [
         "packages/arianee-privacy-gateway-client/src/index.ts"
       ],
+      "@arianee/arianee-protocol-client": [
+        "packages/arianee-protocol-client/src/index.ts"
+      ],
       "@arianee/common-types": ["packages/common-types/src/index.ts"],
       "@arianee/core": ["packages/core/src/index.ts"],
       "@arianee/utils": ["packages/utils/src/index.ts"],
