@@ -2,7 +2,8 @@
 // import walletApiLanding from './wallet-api-client/landing';
 // import walletApiWallet from './wallet-api-client/wallet';
 // import arianeeApiClient from './arianee-api-client/arianee-api-client';
-import links from './wallet-api-client/links';
+// import links from './wallet-api-client/links';
+import protocolClient from './arianee-protocol-client';
 
 (async () => {
   // await certificateRead();
@@ -11,5 +12,6 @@ import links from './wallet-api-client/links';
   // await wallet();
   // await arianeeApiClient();
   // await arianeeApiClient();
-  await links();
+  // await links();
+  await protocolClient();
 })();
