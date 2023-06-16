@@ -23,7 +23,10 @@ Because there exists different versions of the protocol, the `connect` method re
 You can check the version of the protocol you are connected to with a simple if:
 
 ```typescript
-if (protocol.v1) {
+if ('v1' in protocol) {
   // protocol deployed on the connected network is v1
+  // you can call the contracts methods directly like that:
+
+  const uri = await protocol.v1.identityContract.addressURI('0x305051e9a023fe881EE21cA43fd90c460B427Caa');
 }
 ```
