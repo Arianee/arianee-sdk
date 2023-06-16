@@ -238,6 +238,30 @@ describe('Wallet', () => {
 
       expect(wallet['arianeeAccessToken']).toBeInstanceOf(ArianeeAccessToken);
     });
+
+    it('should set the walletRewards to the passed param', () => {
+      const wallet = new Wallet({
+        walletRewards: {
+          poa: '0x1',
+          sokol: '0x2',
+          polygon: '0x3',
+        },
+      });
+      expect(wallet['walletRewards']).toEqual({
+        poa: '0x1',
+        sokol: '0x2',
+        polygon: '0x3',
+      });
+    });
+
+    it('should set the walletRewards to the default value if not passed', () => {
+      const wallet = new Wallet({});
+      expect(wallet['walletRewards']).toEqual({
+        poa: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+        sokol: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+        polygon: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+      });
+    });
   });
 
   describe('getAddress', () => {
