@@ -10,6 +10,7 @@ import EventManager, {
   EventManagerParams,
 } from './services/eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import { WalletRewards } from './utils/walletReward/walletReward';
 
 export type WalletParams<T extends ChainType> = {
   chainType?: T;
@@ -20,6 +21,7 @@ export type WalletParams<T extends ChainType> = {
   eventManagerParams?: EventManagerParams;
   arianeeAccessToken?: ArianeeAccessToken;
   arianeeAccessTokenPrefix?: string;
+  walletRewards?: WalletRewards;
 };
 
 export default class Wallet<T extends ChainType = 'testnet'> {
@@ -31,6 +33,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
   private eventManager: EventManager<T>;
   private arianeeAccessToken: ArianeeAccessToken;
   private arianeeAccessTokenPrefix?: string;
+  private walletRewards: WalletRewards;
 
   private _smartAsset: SmartAssetService<T>;
   private _identity: IdentityService<T>;
@@ -46,6 +49,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       eventManagerParams,
       arianeeAccessToken,
       arianeeAccessTokenPrefix,
+      walletRewards,
     } = params ?? {};
 
     this._chainType = chainType ?? ('testnet' as T);
@@ -73,6 +77,12 @@ export default class Wallet<T extends ChainType = 'testnet'> {
         },
         fetchLike
       );
+
+    this.walletRewards = walletRewards ?? {
+      poa: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+      sokol: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+      polygon: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+    };
 
     this.eventManager = new EventManager(
       this._chainType,
