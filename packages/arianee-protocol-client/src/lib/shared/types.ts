@@ -1,12 +1,12 @@
 export type ProtocolDetails = {
   contractAdresses: {
-    smartAssets: string;
+    smartAsset: string;
     identity: string;
     aria: string;
     store: string;
     creditHistory: string;
     whitelist: string;
-    event: string;
+    eventArianee: string;
     message: string;
     userAction: string;
     updateSmartAssets: string;
@@ -14,4 +14,5 @@ export type ProtocolDetails = {
   httpProvider: string;
   gasStation: string;
   chainId: number;
+  version: '1' | '1.1' | '2';
 };
