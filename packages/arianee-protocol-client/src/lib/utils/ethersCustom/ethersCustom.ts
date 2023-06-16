@@ -7,6 +7,7 @@ import {
 } from 'ethers';
 import Core from '@arianee/core';
 import { Protocol } from '@arianee/common-types';
+import GasStation from '../gasStation/gasStation';
 
 /**
  * Returns an ethers wallet with signTransaction, signMessage and getAddress methods
@@ -15,17 +16,21 @@ import { Protocol } from '@arianee/common-types';
  * @param httpProvider the http provider used to connect to the blockchain
  * @returns a proxified ethers wallet
  */
-export const ethersWalletFromCore = (
-  core: Core,
-  httpProvider: string,
-  chainId: Protocol['chainId']
-): Wallet => {
-  const isPoaOrSokol = [77, 99].includes(chainId);
-
+export const ethersWalletFromCore = ({
+  core,
+  httpProvider,
+  chainId,
+  gasStation,
+}: {
+  core: Core;
+  httpProvider: string;
+  chainId: Protocol['chainId'];
+  gasStation?: GasStation;
+}): Wallet => {
   return new CoreWallet(
     core,
     new JsonRpcProvider(httpProvider, chainId),
-    isPoaOrSokol
+    gasStation
   );
 };
 
@@ -37,10 +42,9 @@ class CoreWallet extends Wallet {
   constructor(
     private core: Core,
     provider: Provider,
-    private isPoaOrSokol: boolean
+    private gasStation?: GasStation
   ) {
     super(CoreWallet.READ_ONLY_PRIVATE_KEY, provider);
-
     this.overrideAddress();
   }
 
@@ -67,9 +71,19 @@ class CoreWallet extends Wallet {
   }
 
   override async sendTransaction(tx: TransactionRequest) {
+    let gasPrice: bigint | null = null;
+
+    if (!tx.gasPrice && this.gasStation) {
+      try {
+        gasPrice = await this.gasStation.getGasPrice();
+      } catch {
+        // NOOP
+      }
+    }
+
     return super.sendTransaction({
       ...tx,
-      ...(this.isPoaOrSokol && { type: 0 }),
+      ...(gasPrice && { gasPrice }),
     });
   }
 }
