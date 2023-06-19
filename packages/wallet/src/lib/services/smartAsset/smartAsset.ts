@@ -4,10 +4,21 @@ import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
 import EventManager from '../eventManager/eventManager';
 import WalletApiClient from '@arianee/wallet-api-client';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import {
+  WalletRewards,
+  getWalletReward,
+} from '../../utils/walletReward/walletReward';
+import { ContractTransactionReceipt, ethers } from 'ethers';
+import Core from '@arianee/core';
 
 export type SmartAssetInstance = {
   data: SmartAsset;
   arianeeEvents: Event[];
+};
+
+export type ClaimableSmartAssetInstance = SmartAssetInstance & {
+  claim: (receiver?: string) => Promise<ContractTransactionReceipt>;
 };
 
 export default class SmartAssetService<T extends ChainType> {
@@ -19,12 +30,39 @@ export default class SmartAssetService<T extends ChainType> {
   public readonly updated: EventManager<T>['smartAssetUpdated'];
   public readonly arianeeEventReceived: EventManager<T>['arianeeEventReceived'];
 
-  constructor(
-    private walletAbstraction: WalletAbstraction,
-    private eventManager: EventManager<T>,
-    private i18nStrategy: I18NStrategy,
-    private arianeeAccessToken: ArianeeAccessToken
-  ) {
+  private walletAbstraction: WalletAbstraction;
+  private eventManager: EventManager<T>;
+  private i18nStrategy: I18NStrategy;
+  private arianeeAccessToken: ArianeeAccessToken;
+  private arianeeProtocolClient: ArianeeProtocolClient;
+  private walletRewards: WalletRewards;
+  private core: Core;
+
+  constructor({
+    walletAbstraction,
+    eventManager,
+    i18nStrategy,
+    arianeeAccessToken,
+    arianeeProtocolClient,
+    walletRewards,
+    core,
+  }: {
+    walletAbstraction: WalletAbstraction;
+    eventManager: EventManager<T>;
+    i18nStrategy: I18NStrategy;
+    arianeeAccessToken: ArianeeAccessToken;
+    arianeeProtocolClient: ArianeeProtocolClient;
+    walletRewards: WalletRewards;
+    core: Core;
+  }) {
+    this.walletAbstraction = walletAbstraction;
+    this.eventManager = eventManager;
+    this.i18nStrategy = i18nStrategy;
+    this.arianeeAccessToken = arianeeAccessToken;
+    this.arianeeProtocolClient = arianeeProtocolClient;
+    this.walletRewards = walletRewards;
+    this.core = core;
+
     this.received = this.eventManager.smartAssetReceived;
     this.transferred = this.eventManager.smartAssetTransferred;
     this.updated = this.eventManager.smartAssetUpdated;
@@ -115,7 +153,7 @@ export default class SmartAssetService<T extends ChainType> {
     link: string,
     resolveFinalNft = false,
     i18nStrategy?: I18NStrategy
-  ): Promise<SmartAssetInstance> {
+  ): Promise<ClaimableSmartAssetInstance> {
     if (!(this.walletAbstraction instanceof WalletApiClient))
       throw new Error(
         'The wallet abstraction you use do not support this method (try using @arianee/wallet-api-client)'
@@ -135,7 +173,7 @@ export default class SmartAssetService<T extends ChainType> {
           : {}
       );
 
-      return await this.get(
+      const smartAssetInstance = await this.get(
         network,
         {
           id: certificateId,
@@ -143,10 +181,66 @@ export default class SmartAssetService<T extends ChainType> {
         },
         { i18nStrategy: i18nStrategy ?? this.i18nStrategy }
       );
+
+      return {
+        ...smartAssetInstance,
+        claim: (receiver?: string) =>
+          this.claim(network, certificateId, passphrase!, receiver),
+      };
     } catch (e) {
       throw new Error(
         'Could not retrieve a smart asset from this link: ' + link
       );
+    }
+  }
+
+  public async claim(
+    protocolName: Protocol['name'],
+    tokenId: SmartAsset['certificateId'],
+    passphrase: string,
+    receiver?: string
+  ): Promise<ContractTransactionReceipt> {
+    const protocol = await this.arianeeProtocolClient.connect(protocolName);
+
+    if ('v1' in protocol) {
+      const requestWallet = Core.fromPassPhrase(passphrase);
+      const _receiver = receiver ?? this.core.getAddress();
+
+      const message = ethers.keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint', 'address'],
+          [tokenId, _receiver]
+        )
+      );
+
+      const messageBytes = ethers.getBytes(message);
+      const messageHash = ethers.hashMessage(messageBytes);
+
+      const { signature } = await requestWallet.signMessage(
+        new Uint8Array(messageBytes) as unknown as string
+      );
+
+      const walletReward = getWalletReward(protocolName, this.walletRewards);
+
+      const tx = await protocol.v1.storeContract[
+        'requestToken(uint256,bytes32,bool,address,bytes,address)'
+      ](
+        parseInt(tokenId),
+        messageHash,
+        false,
+        walletReward,
+        signature,
+        _receiver
+      );
+
+      const receipt = await tx.wait();
+
+      if (!receipt)
+        throw new Error('Could not retrieve the receipt of the transaction');
+
+      return receipt;
+    } else {
+      throw new Error('The claim is not yet supported for this protocol');
     }
   }
 }

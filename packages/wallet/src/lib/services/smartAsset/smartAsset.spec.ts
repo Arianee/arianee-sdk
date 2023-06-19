@@ -3,9 +3,11 @@ import SmartAssetService from './smartAsset';
 import WalletApiClient from '@arianee/wallet-api-client';
 import EventManager from '../eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/arianee-access-token');
+jest.mock('@arianee/arianee-protocol-client');
 jest.mock('../eventManager/eventManager');
 
 const mockSmartAssetUpdated = {} as any;
@@ -34,6 +36,12 @@ describe('SmartAssetService', () => {
   const core = Core.fromRandom();
   const walletApiClient = new WalletApiClient('testnet', core);
   const arianeeAccessToken = new ArianeeAccessToken(core);
+  const arianeeProtocolClient = new ArianeeProtocolClient(core);
+  const walletRewards = {
+    poa: '0x0',
+    sokol: '0x1',
+    polygon: '0x2',
+  };
   const eventManager = new EventManager(
     'testnet',
     walletApiClient,
@@ -56,12 +64,15 @@ describe('SmartAssetService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    smartAssetService = new SmartAssetService(
-      walletApiClient,
-      eventManager,
-      defaultI18nStrategy,
-      arianeeAccessToken
-    );
+    smartAssetService = new SmartAssetService({
+      walletAbstraction: walletApiClient,
+      eventManager: eventManager,
+      i18nStrategy: defaultI18nStrategy,
+      arianeeAccessToken: arianeeAccessToken,
+      arianeeProtocolClient: arianeeProtocolClient,
+      walletRewards: walletRewards,
+      core: core,
+    });
   });
 
   describe('events', () => {
@@ -213,6 +224,7 @@ describe('SmartAssetService', () => {
             },
           },
           arianeeEvents: [],
+          claim: expect.any(Function),
         };
 
         const expectedI18NStrategy = i18nStrategy ?? defaultI18nStrategy;
@@ -266,12 +278,15 @@ describe('SmartAssetService', () => {
     );
 
     it('should throw if the wallet abstraction is not a WalletApiClient', async () => {
-      const smartAssetService = new SmartAssetService(
-        {} as any,
-        eventManager,
-        defaultI18nStrategy,
-        arianeeAccessToken
-      );
+      const smartAssetService = new SmartAssetService({
+        walletAbstraction: {} as any,
+        eventManager: eventManager,
+        i18nStrategy: defaultI18nStrategy,
+        arianeeAccessToken: arianeeAccessToken,
+        arianeeProtocolClient: arianeeProtocolClient,
+        walletRewards: walletRewards,
+        core: core,
+      });
 
       await expect(
         smartAssetService.getFromLink('https://test.arian.ee/123,abc')
@@ -288,6 +303,64 @@ describe('SmartAssetService', () => {
       await expect(
         smartAssetService.getFromLink('https://test.arian.ee/123,abc')
       ).rejects.toThrowError('Could not retrieve a smart asset from this link');
+    });
+  });
+
+  describe('claim', () => {
+    it('should throw if the protocol is not supported', async () => {
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v2: {},
+        } as any);
+
+      await expect(
+        smartAssetService.claim('mockProtocol', 'mockId', 'mockPassphrase')
+      ).rejects.toThrowError(/not yet supported for this protocol/gi);
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    });
+
+    it('should call the v1 contract with correct params', async () => {
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const requestTokenSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v1: {
+            storeContract: {
+              'requestToken(uint256,bytes32,bool,address,bytes,address)':
+                requestTokenSpy,
+            },
+          },
+        } as any);
+
+      const service = new SmartAssetService({
+        walletAbstraction: walletApiClient,
+        eventManager: eventManager,
+        i18nStrategy: defaultI18nStrategy,
+        arianeeAccessToken: arianeeAccessToken,
+        arianeeProtocolClient: arianeeProtocolClient,
+        walletRewards: walletRewards,
+        core: Core.fromPrivateKey(
+          '0xe5ca26599b7210485f8a4a4d1d1c1ba89752ca7b9be2f566665e730f952552e0'
+        ),
+      });
+
+      await service.claim('mockProtocol', '86208174', 'gx2mhc408880');
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+
+      expect(requestTokenSpy).toHaveBeenCalledWith(
+        86208174,
+        '0x41e5a882819f11c7dcaf097e9008f1aa68cf913351d4ce52cf9dbd747933badf',
+        false,
+        '0x2',
+        '0xd4de91e2b2348eb67c4837e0fdc5772e40a42a427528c3a97dbc9a2f61cf05547648a8ec36647f709f00ba1376c9b454b92c017c4c85163e117db28f64c522d61c',
+        '0x44BccE8aE7c47d3e0666441F946B4065A3286c23'
+      );
     });
   });
 });

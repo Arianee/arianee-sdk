@@ -9,6 +9,7 @@ import SmartAssetService from './services/smartAsset/smartAsset';
 import MessageService from './services/message/message';
 import EventManager from './services/eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 
 declare const global: {
   window: { fetch: typeof fetch } | undefined;
@@ -17,6 +18,7 @@ declare const global: {
 jest.mock('@arianee/core');
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/arianee-access-token');
+jest.mock('@arianee/arianee-protocol-client');
 jest.mock('./services/identity/identity');
 jest.mock('./services/message/message');
 jest.mock('./services/smartAsset/smartAsset');
@@ -130,7 +132,7 @@ describe('Wallet', () => {
           arianeeAccessToken: expect.any(ArianeeAccessToken),
           arianeeAccessTokenPrefix: 'prefix',
         },
-        undefined
+        expect.anything()
       );
     });
 
@@ -205,12 +207,15 @@ describe('Wallet', () => {
 
       expect(wallet.smartAsset).toBeDefined();
 
-      expect(SmartAssetService).toHaveBeenCalledWith(
-        expect.any(WalletApiClient),
-        expect.any(EventManager),
-        'raw',
-        wallet['arianeeAccessToken']
-      );
+      expect(SmartAssetService).toHaveBeenCalledWith({
+        walletAbstraction: expect.any(WalletApiClient),
+        eventManager: expect.any(EventManager),
+        i18nStrategy: 'raw',
+        arianeeAccessToken: wallet['arianeeAccessToken'],
+        arianeeProtocolClient: expect.any(ArianeeProtocolClient),
+        walletRewards: wallet['walletRewards'],
+        core: wallet['core'],
+      });
     });
 
     it('should use the arianee access token instance if passed', () => {
@@ -227,7 +232,7 @@ describe('Wallet', () => {
         {
           arianeeAccessToken: aat,
         },
-        undefined
+        expect.anything()
       );
     });
 
@@ -258,8 +263,8 @@ describe('Wallet', () => {
       const wallet = new Wallet({});
       expect(wallet['walletRewards']).toEqual({
         poa: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
-        sokol: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
-        polygon: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+        sokol: '0xC7f2c65E88c98df41f9992a14546Ed2770e5Ac6b',
+        polygon: '0x1C47291C40B86802fd42d59B186dE6C978dF8937',
       });
     });
   });

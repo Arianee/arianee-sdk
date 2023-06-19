@@ -11,6 +11,7 @@ import EventManager, {
 } from './services/eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import { WalletRewards } from './utils/walletReward/walletReward';
+import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 
 export type WalletParams<T extends ChainType> = {
   chainType?: T;
@@ -75,13 +76,13 @@ export default class Wallet<T extends ChainType = 'testnet'> {
           arianeeAccessToken: this.arianeeAccessToken,
           arianeeAccessTokenPrefix: this.arianeeAccessTokenPrefix,
         },
-        fetchLike
+        this.fetchLike
       );
 
     this.walletRewards = walletRewards ?? {
       poa: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
-      sokol: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
-      polygon: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
+      sokol: '0xC7f2c65E88c98df41f9992a14546Ed2770e5Ac6b',
+      polygon: '0x1C47291C40B86802fd42d59B186dE6C978dF8937',
     };
 
     this.eventManager = new EventManager(
@@ -92,12 +93,19 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       eventManagerParams
     );
 
-    this._smartAsset = new SmartAssetService(
-      this.walletAbstraction,
-      this.eventManager,
-      this.i18nStrategy,
-      this.arianeeAccessToken
-    );
+    const arianeeProtocolClient = new ArianeeProtocolClient(this.core, {
+      fetchLike: this.fetchLike,
+    });
+
+    this._smartAsset = new SmartAssetService({
+      walletAbstraction: this.walletAbstraction,
+      eventManager: this.eventManager,
+      i18nStrategy: this.i18nStrategy,
+      arianeeAccessToken: this.arianeeAccessToken,
+      walletRewards: this.walletRewards,
+      arianeeProtocolClient,
+      core: this.core,
+    });
 
     this._identity = new IdentityService<T>(
       this.walletAbstraction,
