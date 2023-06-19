@@ -47,12 +47,15 @@ export default class ProtocolClientV1 {
   ) {
     const { protocolVersion } = protocolDetails;
 
-    if (!['1', '1.1'].includes(protocolVersion))
+    if (!['1', '1.0', '1.1'].includes(protocolVersion))
       throw new Error(
         'ProtocolClientV1 is not compatible with protocol v' + protocolVersion
       );
 
-    const ethers6 = protocolVersion === '1' ? ethers6_v1 : ethers6_v1_1;
+    const ethers6 =
+      protocolVersion === '1' || protocolVersion === '1.0'
+        ? ethers6_v1
+        : ethers6_v1_1;
 
     this.storeContract = ethers6.ArianeeStore__factory.connect(
       this.protocolDetails.contractAdresses.store,
@@ -95,7 +98,8 @@ export default class ProtocolClientV1 {
     );
 
     this.userActionContract = ethers6.ArianeeUserAction__factory.connect(
-      this.protocolDetails.contractAdresses.userAction,
+      this.protocolDetails.contractAdresses.userAction ??
+        '0x0000000000000000000000000000000000000000',
       this.signer
     );
 
