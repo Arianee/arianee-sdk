@@ -3,7 +3,7 @@ import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import { EventMap } from './types/events';
 import WrappedEventEmitter from './helpers/wrappedEventEmitter';
 import {
-  BlockchainEvent,
+  UnnestedBlockchainEvent,
   BrandIdentity,
   ChainType,
   SmartAsset,
@@ -111,7 +111,7 @@ export default class EventManager<T extends ChainType>
   private emitUnique<E extends keyof EventMap>(
     eventName: E,
     event: EventMap[E],
-    rawEvent: BlockchainEvent
+    rawEvent: UnnestedBlockchainEvent
   ) {
     const _hashCode = hashCode(`${eventName}-${JSON.stringify(rawEvent)}`);
 
@@ -265,13 +265,13 @@ export default class EventManager<T extends ChainType>
     return messagesEvents;
   }
 
-  private async emitArianeeEvents(arianeeEvents: BlockchainEvent[]) {
+  private async emitArianeeEvents(arianeeEvents: UnnestedBlockchainEvent[]) {
     arianeeEvents.forEach((event) => {
       this.emitUnique(
         'arianeeEventReceived',
         {
-          certificateId: event.eventData.returnValues['_tokenId'] as string,
-          eventId: event.eventData.returnValues['_eventId'] as string,
+          certificateId: event.returnValues['_tokenId'] as string,
+          eventId: event.returnValues['_eventId'] as string,
           protocol: event.protocol,
         },
         event
@@ -280,13 +280,13 @@ export default class EventManager<T extends ChainType>
   }
 
   private async emitSmartAssetsEvents(smartAssetEvents: {
-    transferred: BlockchainEvent[];
-    received: BlockchainEvent[];
+    transferred: UnnestedBlockchainEvent[];
+    received: UnnestedBlockchainEvent[];
   }) {
     const { transferred, received } = smartAssetEvents;
 
     transferred.forEach((event) => {
-      const { _to, _tokenId } = event.eventData.returnValues;
+      const { _to, _tokenId } = event.returnValues;
 
       this.emitUnique(
         'smartAssetTransferred',
@@ -300,7 +300,7 @@ export default class EventManager<T extends ChainType>
     });
 
     received.forEach((event) => {
-      const { _from, _tokenId } = event.eventData.returnValues;
+      const { _from, _tokenId } = event.returnValues;
 
       this.emitUnique(
         'smartAssetReceived',
@@ -314,12 +314,14 @@ export default class EventManager<T extends ChainType>
     });
   }
 
-  private async emitIdentitiesEvents(identitiesEvents: BlockchainEvent[]) {
+  private async emitIdentitiesEvents(
+    identitiesEvents: UnnestedBlockchainEvent[]
+  ) {
     identitiesEvents.forEach((event) => {
       this.emitUnique(
         'identityUpdated',
         {
-          issuer: event.eventData.returnValues['_identity'] as string,
+          issuer: event.returnValues['_identity'] as string,
           protocol: event.protocol,
         },
         event
@@ -327,12 +329,12 @@ export default class EventManager<T extends ChainType>
     });
   }
 
-  private async emitMessagesEvents(messagesEvents: BlockchainEvent[]) {
+  private async emitMessagesEvents(messagesEvents: UnnestedBlockchainEvent[]) {
     messagesEvents.forEach((event) => {
       this.emitUnique(
         'messageReceived',
         {
-          messageId: event.eventData.returnValues['_messageId'] as string,
+          messageId: event.returnValues['_messageId'] as string,
           protocol: event.protocol,
         },
         event

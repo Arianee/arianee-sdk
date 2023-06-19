@@ -26,3 +26,11 @@ export interface BlockchainEvent {
   blockNumber: number;
   contractAddress: string;
 }
+
+export interface UnnestedBlockchainEvent extends EventData {
+  protocol: Protocol;
+  timestamp: string;
+  smartContractName: string;
+  blockNumber: number;
+  contractAddress: string;
+}

@@ -5,6 +5,7 @@ import {
   ChainType,
   Protocol,
   SmartContractNames,
+  UnnestedBlockchainEvent,
 } from '@arianee/common-types';
 
 import { blockchainEventFilters } from './types/blockchainEventFilters';
@@ -53,7 +54,7 @@ export class ArianeeApiClient {
       smartContractName: SmartContractNames,
       eventName: blockchainEventsName,
       filters?: blockchainEventFilters
-    ): Promise<BlockchainEvent[]> => {
+    ): Promise<UnnestedBlockchainEvent[]> => {
       const queryParams = filters
         ? '?' + convertObjectToDotNotation(filters)
         : '';
@@ -101,7 +102,7 @@ export class ArianeeApiClient {
       contractAddress: string,
       eventName: blockchainEventsName,
       filters?: blockchainEventFilters
-    ): Promise<BlockchainEvent[]> => {
+    ): Promise<UnnestedBlockchainEvent[]> => {
       const queryParams = filters
         ? '?' + convertObjectToDotNotation(filters)
         : '';
