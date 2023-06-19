@@ -195,11 +195,13 @@ describe('Wallet', () => {
 
       expect(wallet.message).toBeDefined();
 
-      expect(MessageService).toHaveBeenCalledWith(
-        expect.any(WalletApiClient),
-        expect.any(EventManager),
-        'raw'
-      );
+      expect(MessageService).toHaveBeenCalledWith({
+        walletAbstraction: expect.any(WalletApiClient),
+        eventManager: expect.any(EventManager),
+        i18nStrategy: 'raw',
+        arianeeProtocolClient: expect.any(ArianeeProtocolClient),
+        walletRewards: wallet['walletRewards'],
+      });
     });
 
     it('should instantiate smartAssetService with the correct params and expose it in a getter', () => {

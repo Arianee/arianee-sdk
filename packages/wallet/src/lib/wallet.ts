@@ -113,11 +113,13 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       this.i18nStrategy
     );
 
-    this._message = new MessageService<T>(
-      this.walletAbstraction,
-      this.eventManager,
-      this.i18nStrategy
-    );
+    this._message = new MessageService<T>({
+      walletAbstraction: this.walletAbstraction,
+      eventManager: this.eventManager,
+      i18nStrategy: this.i18nStrategy,
+      walletRewards: this.walletRewards,
+      arianeeProtocolClient,
+    });
   }
 
   private getCoreFromAuth(auth: WalletParams<T>['auth']) {

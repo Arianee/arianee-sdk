@@ -2,9 +2,11 @@ import { Core } from '@arianee/core';
 import MessageService from './message';
 import WalletApiClient from '@arianee/wallet-api-client';
 import EventManager from '../eventManager/eventManager';
+import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');
+jest.mock('@arianee/arianee-protocol-client');
 
 const mockMessageReceived = {} as any;
 const mockMessageRead = {} as any;
@@ -22,7 +24,13 @@ const defaultI18nStrategy = {
 describe('MessageService', () => {
   let messageService: MessageService<'testnet'>;
   const walletApiClient = new WalletApiClient('testnet', Core.fromRandom());
-
+  const core = Core.fromRandom();
+  const arianeeProtocolClient = new ArianeeProtocolClient(core);
+  const walletRewards = {
+    poa: '0x0',
+    sokol: '0x1',
+    polygon: '0x2',
+  };
   const eventManager = new EventManager(
     'testnet',
     walletApiClient,
@@ -41,11 +49,13 @@ describe('MessageService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    messageService = new MessageService(
-      walletApiClient,
-      eventManager,
-      defaultI18nStrategy
-    );
+    messageService = new MessageService({
+      walletAbstraction: walletApiClient,
+      eventManager: eventManager,
+      i18nStrategy: defaultI18nStrategy,
+      arianeeProtocolClient: arianeeProtocolClient,
+      walletRewards: walletRewards,
+    });
   });
 
   describe('events', () => {
@@ -90,6 +100,7 @@ describe('MessageService', () => {
         });
 
         expect(instance.data).toBeDefined();
+        expect(instance.readMessage).toEqual(expect.any(Function));
       }
     );
   });
@@ -124,7 +135,46 @@ describe('MessageService', () => {
         });
 
         expect(instances[0].data).toBeDefined();
+        expect(instances[0].readMessage).toEqual(expect.any(Function));
       }
     );
+  });
+
+  describe('readMessage', () => {
+    it('should throw if the protocol is not supported', async () => {
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v2: {},
+        } as any);
+
+      await expect(
+        messageService.readMessage('mockProtocol', '123')
+      ).rejects.toThrowError(/not yet supported/gi);
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    });
+
+    it('should call the v1 contract with correct params', async () => {
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const readMessageSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v1: {
+            storeContract: {
+              readMessage: readMessageSpy,
+            },
+          },
+        } as any);
+
+      await messageService.readMessage('mockProtocol', '123');
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+
+      expect(readMessageSpy).toHaveBeenCalledWith('123', '0x2');
+    });
   });
 });

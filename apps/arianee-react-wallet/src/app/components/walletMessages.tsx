@@ -7,6 +7,7 @@ import Wallet, {
 import { useEffect, useState } from 'react';
 import { ChainType, Language } from '@arianee/common-types';
 import { getTime } from '../utils/misc';
+import Message from './message';
 
 export interface WalletMessagesProps {
   wallet: Wallet<ChainType>;
@@ -112,38 +113,7 @@ export default function WalletMessages({
               const id = data.id;
 
               return (
-                <div
-                  key={id}
-                  style={{
-                    background: index % 2 === 0 ? '#cfe4ff' : '#e3efff',
-                    padding: '16px',
-                    margin: '8px',
-                    borderRadius: '8px',
-                  }}
-                >
-                  <h3>{data.content.title ?? 'untitled'}</h3>
-                  <div>
-                    <b>ID:</b> {id}
-                  </div>
-                  <div>
-                    <b>Protocol:</b>{' '}
-                    {JSON.stringify(data.protocol, undefined, 2)}
-                  </div>
-                  <div>
-                    <b>Content:</b>
-                    <br />
-                    <textarea
-                      spellCheck={false}
-                      style={{ width: '300px', height: '50px' }}
-                      value={JSON.stringify(data.content, undefined, 4)}
-                      readOnly={true}
-                    ></textarea>
-                  </div>
-                  <div>
-                    <b>Message:</b>
-                    <p style={{ height: 'auto' }}>{data.content.content}</p>
-                  </div>
-                </div>
+                <Message index={index} messageInstance={message} key={id} />
               );
             })}
           </div>
