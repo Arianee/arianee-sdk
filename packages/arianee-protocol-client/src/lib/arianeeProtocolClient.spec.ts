@@ -3,7 +3,7 @@ import Core from '@arianee/core';
 import ArianeeProtocolClient from './arianeeProtocolClient';
 import _fetch from 'node-fetch';
 import ProtocolClientV1 from './v1/protocolClientV1';
-import * as ethersProxies from './utils/ethersCustom';
+import * as ethersProxies from './utils/ethersCustom/ethersCustom';
 
 declare const global: {
   window: { fetch: typeof fetch } | undefined;

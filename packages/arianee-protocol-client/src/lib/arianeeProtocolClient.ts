@@ -1,7 +1,8 @@
 import Core from '@arianee/core';
 import ProtocolClientV1 from './v1/protocolClientV1';
 import { ProtocolDetails } from './shared/types';
-import { ethersWalletFromCore } from './utils/ethersCustom';
+import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
+import GasStation from './utils/gasStation/gasStation';
 
 export default class ArianeeProtocolClient {
   private fetchLike: typeof fetch;
@@ -26,11 +27,12 @@ export default class ArianeeProtocolClient {
     const protocolDetails = await this.getProtocolDetailsFromSlug(slug);
     const httpProvider = options?.httpProvider ?? protocolDetails.httpProvider;
 
-    const wallet = ethersWalletFromCore(
-      this.core,
+    const wallet = ethersWalletFromCore({
+      core: this.core,
       httpProvider,
-      protocolDetails.chainId
-    );
+      chainId: protocolDetails.chainId,
+      gasStation: new GasStation(protocolDetails.gasStation, this.fetchLike),
+    });
 
     return {
       v1: new ProtocolClientV1(wallet, {
