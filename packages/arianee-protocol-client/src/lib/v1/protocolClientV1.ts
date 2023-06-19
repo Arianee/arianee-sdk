@@ -45,14 +45,14 @@ export default class ProtocolClientV1 {
     private signer: Signer,
     private protocolDetails: ProtocolDetails
   ) {
-    const { version } = protocolDetails;
+    const { protocolVersion } = protocolDetails;
 
-    if (!['1', '1.1'].includes(version))
+    if (!['1', '1.1'].includes(protocolVersion))
       throw new Error(
-        'ProtocolClientV1 is not compatible with protocol v' + version
+        'ProtocolClientV1 is not compatible with protocol v' + protocolVersion
       );
 
-    const ethers6 = version === '1' ? ethers6_v1 : ethers6_v1_1;
+    const ethers6 = protocolVersion === '1' ? ethers6_v1 : ethers6_v1_1;
 
     this.storeContract = ethers6.ArianeeStore__factory.connect(
       this.protocolDetails.contractAdresses.store,

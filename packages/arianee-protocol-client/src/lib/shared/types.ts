@@ -14,5 +14,5 @@ export type ProtocolDetails = {
   httpProvider: string;
   gasStation: string;
   chainId: number;
-  version: '1' | '1.1' | '2';
+  protocolVersion: '1' | '1.1' | '2';
 };
