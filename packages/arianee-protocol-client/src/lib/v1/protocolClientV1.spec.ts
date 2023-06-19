@@ -9,7 +9,7 @@ describe('ProtocolClientV1', () => {
         new ProtocolClientV1(
           {} as unknown as Signer,
           {
-            version: '2',
+            protocolVersion: '2',
           } as unknown as ProtocolDetails
         )
     ).toThrowError(/not compatible with protocol v2/gi);
