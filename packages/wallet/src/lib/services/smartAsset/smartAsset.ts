@@ -9,12 +9,15 @@ import {
   WalletRewards,
   getWalletReward,
 } from '../../utils/walletReward/walletReward';
-import { ContractTransactionReceipt, ethers } from 'ethers';
+import { ContractTransactionReceipt, TransactionReceipt, ethers } from 'ethers';
 import Core from '@arianee/core';
 
 export type SmartAssetInstance = {
   data: SmartAsset;
-  arianeeEvents: Event[];
+  arianeeEvents: (Event & {
+    acceptEvent: () => Promise<TransactionReceipt>;
+    refuseEvent: () => Promise<TransactionReceipt>;
+  })[];
 };
 
 export type ClaimableSmartAssetInstance = SmartAssetInstance & {
@@ -89,7 +92,7 @@ export default class SmartAssetService<T extends ChainType> {
       params?.i18nStrategy ?? this.i18nStrategy
     );
 
-    const [_smartAsset, arianeeEvents] = await Promise.all([
+    const [_smartAsset, _arianeeEvents] = await Promise.all([
       this.walletAbstraction.getSmartAsset(protocolName, smartAsset, {
         preferredLanguages,
       }),
@@ -98,6 +101,12 @@ export default class SmartAssetService<T extends ChainType> {
         preferredLanguages,
       }),
     ]);
+
+    const arianeeEvents = _arianeeEvents.map((event) => ({
+      ...event,
+      acceptEvent: () => this.acceptEvent(event.protocol.name, event.id),
+      refuseEvent: () => this.refuseEvent(event.protocol.name, event.id),
+    }));
 
     return {
       data: _smartAsset,
@@ -129,15 +138,21 @@ export default class SmartAssetService<T extends ChainType> {
 
     const smartAssetsInstances = await Promise.all(
       smartAssets.map(async (smartAsset) => {
-        const arianeeEvents = await this.walletAbstraction.getSmartAssetEvents(
-          smartAsset.protocol.name,
-          {
-            id: smartAsset.certificateId,
-          },
-          {
-            preferredLanguages,
-          }
-        );
+        const arianeeEvents = (
+          await this.walletAbstraction.getSmartAssetEvents(
+            smartAsset.protocol.name,
+            {
+              id: smartAsset.certificateId,
+            },
+            {
+              preferredLanguages,
+            }
+          )
+        ).map((event) => ({
+          ...event,
+          acceptEvent: () => this.acceptEvent(event.protocol.name, event.id),
+          refuseEvent: () => this.refuseEvent(event.protocol.name, event.id),
+        }));
 
         return {
           data: smartAsset,
@@ -241,6 +256,52 @@ export default class SmartAssetService<T extends ChainType> {
       return receipt;
     } else {
       throw new Error('The claim is not yet supported for this protocol');
+    }
+  }
+
+  public async acceptEvent(
+    protocolName: Protocol['name'],
+    eventId: Event['id']
+  ): Promise<TransactionReceipt> {
+    const protocol = await this.arianeeProtocolClient.connect(protocolName);
+
+    if ('v1' in protocol) {
+      const tx = await protocol.v1.storeContract.acceptEvent(
+        eventId,
+        getWalletReward(protocolName, this.walletRewards)
+      );
+
+      const receipt = await tx.wait();
+
+      if (!receipt)
+        throw new Error('Could not retrieve the receipt of the transaction');
+
+      return receipt;
+    } else {
+      throw new Error(`This protocol is not yet supported (${protocolName})`);
+    }
+  }
+
+  public async refuseEvent(
+    protocolName: Protocol['name'],
+    eventId: Event['id']
+  ): Promise<TransactionReceipt> {
+    const protocol = await this.arianeeProtocolClient.connect(protocolName);
+
+    if ('v1' in protocol) {
+      const tx = await protocol.v1.storeContract.refuseEvent(
+        eventId,
+        getWalletReward(protocolName, this.walletRewards)
+      );
+
+      const receipt = await tx.wait();
+
+      if (!receipt)
+        throw new Error('Could not retrieve the receipt of the transaction');
+
+      return receipt;
+    } else {
+      throw new Error(`This protocol is not yet supported (${protocolName})`);
     }
   }
 }

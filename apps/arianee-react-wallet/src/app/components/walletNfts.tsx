@@ -5,9 +5,10 @@ import Wallet, {
   SmartAssetTransferedEvent,
   SmartAssetUpdatedEvent,
 } from '@arianee/wallet';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ChainType, Language } from '@arianee/common-types';
 import { getTime } from '../utils/misc';
+import ArianeeEvent from './arianeeEvent';
 
 export interface WalletNftsProps {
   wallet: Wallet<ChainType>;
@@ -18,6 +19,12 @@ export default function WalletNfts({ wallet, language }: WalletNftsProps) {
   const [nfts, setNfts] = useState<SmartAssetInstance[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [brandsFilter, setBrandsFilter] = useState<string | 'all'>('all');
+
+  const [lastFetch, setLastFetch] = useState<Date>(new Date());
+
+  const refreshNfts = useCallback(() => {
+    setLastFetch(new Date());
+  }, [setLastFetch]);
 
   const [eventsLog, setEventsLog] = useState<string>('');
 
@@ -87,11 +94,14 @@ export default function WalletNfts({ wallet, language }: WalletNftsProps) {
       wallet.smartAsset.received.removeAllListeners();
       wallet.smartAsset.arianeeEventReceived.removeAllListeners();
     };
-  }, [wallet, language, brandsFilter]);
+  }, [wallet, language, brandsFilter, lastFetch]);
 
   return (
     <div id="nfts">
-      <h3>NFTs {!loading ? `(${nfts.length})` : null}</h3>
+      <h3>
+        NFTs {!loading ? `(${nfts.length})` : null}{' '}
+        <button onClick={refreshNfts}>🔄</button>
+      </h3>
       {loading ? (
         <div>Loading...</div>
       ) : (
@@ -204,12 +214,13 @@ export default function WalletNfts({ wallet, language }: WalletNftsProps) {
                   <div>
                     <b>Arianee events:</b>
                     <br />
-                    <textarea
-                      spellCheck={false}
-                      readOnly={true}
-                      style={{ width: '300px', height: '50px' }}
-                      value={JSON.stringify(nft.arianeeEvents, undefined, 4)}
-                    ></textarea>
+                    {nft.arianeeEvents.map((event) => (
+                      <ArianeeEvent
+                        event={event}
+                        key={event.id}
+                        refreshNfts={refreshNfts}
+                      />
+                    ))}
                   </div>
                 </div>
               );

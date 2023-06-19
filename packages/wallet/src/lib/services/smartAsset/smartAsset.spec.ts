@@ -55,7 +55,7 @@ describe('SmartAssetService', () => {
 
   const getSmartAssetEventsSpy = jest
     .spyOn(walletApiClient, 'getSmartAssetEvents')
-    .mockImplementation();
+    .mockResolvedValue([]);
 
   const getOwnedSmartAssetsSpy = jest
     .spyOn(walletApiClient, 'getOwnedSmartAssets')
@@ -361,6 +361,82 @@ describe('SmartAssetService', () => {
         '0xd4de91e2b2348eb67c4837e0fdc5772e40a42a427528c3a97dbc9a2f61cf05547648a8ec36647f709f00ba1376c9b454b92c017c4c85163e117db28f64c522d61c',
         '0x44BccE8aE7c47d3e0666441F946B4065A3286c23'
       );
+    });
+  });
+
+  describe('acceptEvent', () => {
+    it('should throw if the protocol is not supported', async () => {
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v2: {},
+        } as any);
+
+      await expect(
+        smartAssetService.acceptEvent('mockProtocol', 'mockId')
+      ).rejects.toThrowError(/is not yet supported/gi);
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    });
+
+    it('should call the v1 contract with correct params', async () => {
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const acceptEventSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v1: {
+            storeContract: {
+              acceptEvent: acceptEventSpy,
+            },
+          },
+        } as any);
+
+      await smartAssetService.acceptEvent('mockProtocol', '123');
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+
+      expect(acceptEventSpy).toHaveBeenCalledWith('123', '0x2');
+    });
+  });
+
+  describe('refuseEvent', () => {
+    it('should throw if the protocol is not supported', async () => {
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v2: {},
+        } as any);
+
+      await expect(
+        smartAssetService.refuseEvent('mockProtocol', 'mockId')
+      ).rejects.toThrowError(/is not yet supported/gi);
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    });
+
+    it('should call the v1 contract with correct params', async () => {
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const refuseEventSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v1: {
+            storeContract: {
+              refuseEvent: refuseEventSpy,
+            },
+          },
+        } as any);
+
+      await smartAssetService.refuseEvent('mockProtocol', '123');
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+
+      expect(refuseEventSpy).toHaveBeenCalledWith('123', '0x2');
     });
   });
 });
