@@ -68,3 +68,9 @@ export const getProtocolNameFromHostname = (
 ): Protocol['name'] | null => {
   return WHITELABEL_HOSTNAMES_TO_PROTOCOL_NAME[hostname.toLowerCase()] || null;
 };
+
+export const getHostnameFromProtocolName = (protocolName: Protocol['name']) => {
+  return Object.entries(WHITELABEL_HOSTNAMES_TO_PROTOCOL_NAME).find(
+    ([, value]) => value === protocolName
+  )?.[0];
+};

@@ -177,7 +177,7 @@ describe('SmartAssetService', () => {
           } as any,
         ]);
 
-        await smartAssetService.getOwned({
+        const owned = await smartAssetService.getOwned({
           i18nStrategy,
         });
 
@@ -197,6 +197,9 @@ describe('SmartAssetService', () => {
         expect(getOwnedSmartAssetsSpy).toHaveBeenCalledWith({
           preferredLanguages: expectedPreferedLanguages,
         });
+
+        expect(owned[0].createProofLink).toEqual(expect.any(Function));
+        expect(owned[0].createRequestLink).toEqual(expect.any(Function));
       }
     );
   });
@@ -438,5 +441,69 @@ describe('SmartAssetService', () => {
 
       expect(refuseEventSpy).toHaveBeenCalledWith('123', '0x2');
     });
+  });
+
+  describe('createLink', () => {
+    it('should throw if the protocol is not supported', async () => {
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v2: {},
+        } as any);
+
+      await expect(
+        smartAssetService.createLink('proof', 'mockProtocol', 'mockId')
+      ).rejects.toThrowError(/is not yet supported/gi);
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    });
+
+    it.each([
+      {
+        linkType: 'proof',
+        expectedLink: 'https://test.arianee.net/proof/123,twpmfcvwup35',
+        expectedAccessType: 2,
+      },
+      {
+        linkType: 'requestOwnership',
+        expectedLink: 'https://test.arianee.net/123,twpmfcvwup35',
+        expectedAccessType: 1,
+      },
+    ])(
+      'should call the v1 contract with correct params and return the link',
+      async ({ linkType, expectedAccessType, expectedLink }) => {
+        const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+        const addTokenAccessSpy = jest.fn().mockResolvedValue({
+          wait: waitSpy,
+        });
+        const connectSpy = jest
+          .spyOn(arianeeProtocolClient, 'connect')
+          .mockResolvedValue({
+            v1: {
+              smartAssetContract: {
+                addTokenAccess: addTokenAccessSpy,
+              },
+            },
+          } as any);
+
+        const link = await smartAssetService.createLink(
+          linkType as 'proof' | 'requestOwnership',
+          'testnet',
+          '123',
+          'twpmfcvwup35'
+        );
+
+        expect(connectSpy).toHaveBeenCalledWith('testnet');
+
+        expect(link).toEqual(expectedLink);
+
+        expect(addTokenAccessSpy).toHaveBeenCalledWith(
+          '123',
+          '0x01cAF71551aadbe6dA1b8c2Be652b3874f8A91Dc',
+          true,
+          expectedAccessType
+        );
+      }
+    );
   });
 });

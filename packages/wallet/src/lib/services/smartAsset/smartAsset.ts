@@ -11,6 +11,10 @@ import {
 } from '../../utils/walletReward/walletReward';
 import { ContractTransactionReceipt, TransactionReceipt, ethers } from 'ethers';
 import Core from '@arianee/core';
+import {
+  generateRandomPassphrase,
+  getHostnameFromProtocolName,
+} from '@arianee/utils';
 
 export type SmartAssetInstance = {
   data: SmartAsset;
@@ -18,6 +22,11 @@ export type SmartAssetInstance = {
     acceptEvent: () => Promise<TransactionReceipt>;
     refuseEvent: () => Promise<TransactionReceipt>;
   })[];
+};
+
+export type OwnedSmartAssetInstance = SmartAssetInstance & {
+  createProofLink: () => Promise<string>;
+  createRequestLink: () => Promise<string>;
 };
 
 export type ClaimableSmartAssetInstance = SmartAssetInstance & {
@@ -124,7 +133,7 @@ export default class SmartAssetService<T extends ChainType> {
   async getOwned(params?: {
     onlyFromBrands?: string[];
     i18nStrategy?: I18NStrategy;
-  }): Promise<SmartAssetInstance[]> {
+  }): Promise<OwnedSmartAssetInstance[]> {
     const { onlyFromBrands, i18nStrategy } = params ?? {};
 
     const preferredLanguages = getPreferredLanguages(
@@ -157,6 +166,18 @@ export default class SmartAssetService<T extends ChainType> {
         return {
           data: smartAsset,
           arianeeEvents,
+          createProofLink: () =>
+            this.createLink(
+              'proof',
+              smartAsset.protocol.name,
+              smartAsset.certificateId
+            ),
+          createRequestLink: () =>
+            this.createLink(
+              'requestOwnership',
+              smartAsset.protocol.name,
+              smartAsset.certificateId
+            ),
         };
       })
     );
@@ -300,6 +321,41 @@ export default class SmartAssetService<T extends ChainType> {
         throw new Error('Could not retrieve the receipt of the transaction');
 
       return receipt;
+    } else {
+      throw new Error(`This protocol is not yet supported (${protocolName})`);
+    }
+  }
+
+  public async createLink(
+    linkType: 'proof' | 'requestOwnership',
+    protocolName: Protocol['name'],
+    tokenId: SmartAsset['certificateId'],
+    passphrase?: string
+  ): Promise<string> {
+    const protocol = await this.arianeeProtocolClient.connect(protocolName);
+
+    if ('v1' in protocol) {
+      const _passphrase = passphrase ?? generateRandomPassphrase();
+      const passphraseWallet = Core.fromPassPhrase(_passphrase);
+
+      const accessType = linkType === 'requestOwnership' ? 1 : 2; // 1 = request, 2 = proof
+      const suffix = linkType === 'requestOwnership' ? '' : '/proof';
+
+      const tx = await protocol.v1.smartAssetContract.addTokenAccess(
+        tokenId,
+        passphraseWallet.getAddress(),
+        true,
+        accessType
+      );
+
+      const receipt = await tx.wait();
+
+      if (!receipt)
+        throw new Error('Could not retrieve the receipt of the transaction');
+
+      return `https://${getHostnameFromProtocolName(
+        protocolName
+      )}${suffix}/${tokenId},${_passphrase}`;
     } else {
       throw new Error(`This protocol is not yet supported (${protocolName})`);
     }
