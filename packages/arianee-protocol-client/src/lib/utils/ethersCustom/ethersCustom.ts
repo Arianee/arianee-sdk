@@ -1,9 +1,12 @@
 import {
   JsonRpcProvider,
   Provider,
+  Transaction,
   TransactionLike,
   TransactionRequest,
+  TransactionResponse,
   Wallet,
+  resolveProperties,
 } from 'ethers';
 import Core from '@arianee/core';
 import { Protocol } from '@arianee/common-types';
@@ -29,7 +32,9 @@ export const ethersWalletFromCore = ({
 }): Wallet => {
   return new CoreWallet(
     core,
-    new JsonRpcProvider(httpProvider, chainId),
+    new UncheckedJsonRpcProvider(httpProvider, chainId, {
+      batchMaxSize: 1,
+    }),
     gasStation
   );
 };
@@ -85,5 +90,38 @@ class CoreWallet extends Wallet {
       ...tx,
       ...(gasPrice && { gasPrice }),
     });
+  }
+}
+
+class UncheckedJsonRpcProvider extends JsonRpcProvider {
+  /**
+   * Broadcast a transaction without checking that output hash is the computed hash
+   * (this is needed for our relayed claim mechanism, as the output hash is NOT the computed
+   * hash by design since a new transaction is forged)
+   * */
+  override async broadcastTransaction(
+    signedTx: string
+  ): Promise<TransactionResponse> {
+    const { blockNumber, hash, network } = await resolveProperties({
+      blockNumber: this.getBlockNumber(),
+      hash: this._perform({
+        method: 'broadcastTransaction',
+        signedTransaction: signedTx,
+      }),
+      network: this.getNetwork(),
+    });
+
+    const tx = Transaction.from(signedTx);
+
+    Object.defineProperty(tx, 'hash', {
+      enumerable: true,
+      value: hash,
+      writable: false,
+    });
+
+    return this._wrapTransactionResponse(
+      <any>tx,
+      network
+    ).replaceableTransaction(blockNumber);
   }
 }
