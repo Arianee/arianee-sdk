@@ -1,6 +1,6 @@
 import Wallet, {
   ArianeeEventReceivedEvent,
-  SmartAssetInstance,
+  OwnedSmartAssetInstance,
   SmartAssetReceivedEvent,
   SmartAssetTransferedEvent,
   SmartAssetUpdatedEvent,
@@ -8,7 +8,7 @@ import Wallet, {
 import { useCallback, useEffect, useState } from 'react';
 import { ChainType, Language } from '@arianee/common-types';
 import { getTime } from '../utils/misc';
-import ArianeeEvent from './arianeeEvent';
+import Nft from './nft';
 
 export interface WalletNftsProps {
   wallet: Wallet<ChainType>;
@@ -16,7 +16,7 @@ export interface WalletNftsProps {
 }
 
 export default function WalletNfts({ wallet, language }: WalletNftsProps) {
-  const [nfts, setNfts] = useState<SmartAssetInstance[]>([]);
+  const [nfts, setNfts] = useState<OwnedSmartAssetInstance[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [brandsFilter, setBrandsFilter] = useState<string | 'all'>('all');
 
@@ -164,65 +164,12 @@ export default function WalletNfts({ wallet, language }: WalletNftsProps) {
               const id = data.certificateId;
 
               return (
-                <div
+                <Nft
                   key={id}
-                  style={{
-                    background: index % 2 === 0 ? '#bbb' : '#eee',
-                    padding: '16px',
-                    margin: '8px',
-                    borderRadius: '8px',
-                  }}
-                >
-                  <h3>{data.content.name ?? 'unnamed'}</h3>
-                  <div>
-                    <b>ID:</b> {id}
-                  </div>
-                  <div>
-                    <b>Protocol:</b>{' '}
-                    {JSON.stringify(data.protocol, undefined, 2)}
-                  </div>
-                  <div>
-                    <b>Issuer:</b>{' '}
-                    <a href={'#identity-' + data.issuer.toLowerCase()}>
-                      {data.issuer}
-                    </a>
-                  </div>
-                  <div>
-                    <b>Content:</b>
-                    <br />
-                    <textarea
-                      spellCheck={false}
-                      readOnly={true}
-                      style={{ width: '300px', height: '50px' }}
-                      value={JSON.stringify(data.content, undefined, 4)}
-                    ></textarea>
-                  </div>
-                  <div>
-                    <b>Blockchain events:</b>
-                    <br />
-                    <textarea
-                      spellCheck={false}
-                      readOnly={true}
-                      value={JSON.stringify(
-                        data.blockchainEvents,
-                        undefined,
-                        4
-                      )}
-                      style={{ width: '300px', height: '50px' }}
-                    ></textarea>
-                  </div>
-                  <div>
-                    <b>Arianee events:</b>
-                    <br />
-                    {nft.arianeeEvents.map((event) => (
-                      <ArianeeEvent
-                        event={event}
-                        key={event.id}
-                        refreshNfts={refreshNfts}
-                      />
-                    ))}
-                  </div>
-                </div>
+                  ownedSmartAssetInstance={nft}
+                  index={index}
+                  refreshNfts={refreshNfts}
+                />
               );
             })}
           </div>
