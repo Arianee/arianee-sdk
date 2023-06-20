@@ -124,16 +124,21 @@ const wallet = new Wallet();
 wallet.smartAsset.get(...);
 wallet.smartAsset.getOwned(...);
 wallet.smartAsset.getFromLink(...);
+wallet.smartAsset.claim(...);
+wallet.smartAsset.acceptEvent(...);
+wallet.smartAsset.refuseEvent(...);
+wallet.smartAsset.createLink(...);
 
 // events
-wallet.smartAsset.received
-wallet.smartAsset.transferred
+wallet.smartAsset.received // emits when user received a smart asset from someone
+wallet.smartAsset.transferred // emits when user transferred a smart asset to someone
 wallet.smartAsset.updated
 wallet.smartAsset.arianeeEventReceived
 
 // message methods
 wallet.message.get(...);
 wallet.message.getReceived(...);
+wallet.message.readMessage(...);
 
 // events
 wallet.message.received
