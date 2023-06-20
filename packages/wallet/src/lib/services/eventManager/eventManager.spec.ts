@@ -2,7 +2,11 @@
 import EventManager from './eventManager';
 import Core from '@arianee/core';
 import WalletApiClient from '@arianee/wallet-api-client';
-import { BlockchainEvent, ChainType } from '@arianee/common-types';
+import {
+  BlockchainEvent,
+  ChainType,
+  UnnestedBlockchainEvent,
+} from '@arianee/common-types';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/core');
@@ -245,26 +249,23 @@ describe('EventManager', () => {
   describe('emitSmartAssetsEvents', () => {
     it('should emit smartAssetTransferred and smartAssetReceived events with correct data', async () => {
       const receivedEvent = {
-        eventData: {
-          returnValues: {
-            _from: '0x123',
-            _to: userAddress,
-            _tokenId: '1',
-          },
+        returnValues: {
+          _from: '0x123',
+          _to: userAddress,
+          _tokenId: '1',
         },
         protocol: { chainId: 1, name: 'mock' },
-      } as unknown as BlockchainEvent;
+      } as unknown as UnnestedBlockchainEvent;
 
       const transferredEvent = {
-        eventData: {
-          returnValues: {
-            _from: userAddress,
-            _to: '0x123',
-            _tokenId: '2',
-          },
+        returnValues: {
+          _from: userAddress,
+          _to: '0x123',
+          _tokenId: '2',
         },
+
         protocol: { chainId: 1, name: 'mock' },
-      } as unknown as BlockchainEvent;
+      } as unknown as UnnestedBlockchainEvent;
 
       const emitUniqueSpy = jest.spyOn(eventManager as any, 'emitUnique');
 
@@ -346,14 +347,12 @@ describe('EventManager', () => {
   describe('emitArianeeEvents', () => {
     it('should emit arianeeEventReceived events with correct data', async () => {
       const arianeeEvent = {
-        eventData: {
-          returnValues: {
-            _eventId: '2',
-            _tokenId: '1',
-          },
+        returnValues: {
+          _eventId: '2',
+          _tokenId: '1',
         },
         protocol: { chainId: 1, name: 'mock' },
-      } as unknown as BlockchainEvent;
+      } as unknown as UnnestedBlockchainEvent;
 
       const emitUniqueSpy = jest.spyOn(eventManager as any, 'emitUnique');
 
@@ -417,13 +416,11 @@ describe('EventManager', () => {
   describe('emitIdentitiesEvents', () => {
     it('should emit identityUpdated events with correct data', async () => {
       const identityEvent = {
-        eventData: {
-          returnValues: {
-            _identity: '0x1',
-          },
+        returnValues: {
+          _identity: '0x1',
         },
         protocol: { chainId: 1, name: 'mock' },
-      } as unknown as BlockchainEvent;
+      } as unknown as UnnestedBlockchainEvent;
 
       const emitUniqueSpy = jest.spyOn(eventManager as any, 'emitUnique');
 
@@ -486,13 +483,11 @@ describe('EventManager', () => {
   describe('emitMessagesEvents', () => {
     it('should emit messageReceived events with correct data', async () => {
       const messageEvent = {
-        eventData: {
-          returnValues: {
-            _messageId: '1',
-          },
+        returnValues: {
+          _messageId: '1',
         },
         protocol: { chainId: 1, name: 'mock' },
-      } as unknown as BlockchainEvent;
+      } as unknown as UnnestedBlockchainEvent;
 
       const emitUniqueSpy = jest.spyOn(eventManager as any, 'emitUnique');
 
