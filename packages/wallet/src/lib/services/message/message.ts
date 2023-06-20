@@ -9,6 +9,7 @@ import {
 } from '../../utils/walletReward/walletReward';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import { TransactionReceipt } from 'ethers';
+import { transactionWrapper } from '../../utils/transactions/transactionWrapper';
 
 export type MessageInstance = {
   data: DecentralizedMessage;
@@ -107,23 +108,14 @@ export default class MessageService<T extends ChainType> {
     protocolName: Protocol['name'],
     messageId: DecentralizedMessage['id']
   ) {
-    const protocol = await this.arianeeProtocolClient.connect(protocolName);
-
-    if ('v1' in protocol) {
-      const tx = await protocol.v1.storeContract.readMessage(
-        messageId,
-        getWalletReward(protocolName, this.walletRewards)
-      );
-
-      const receipt = await tx.wait();
-
-      if (!receipt)
-        throw new Error('Could not retrieve the receipt of the transaction');
-
-      return receipt;
-    } else {
-      throw new Error('This protocol is not yet supported' + protocolName);
-    }
+    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
+      protocolV1Action: async (v1) => {
+        return v1.storeContract.readMessage(
+          messageId,
+          getWalletReward(protocolName, this.walletRewards)
+        );
+      },
+    });
   }
 }
 

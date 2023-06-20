@@ -15,6 +15,10 @@ import {
   generateRandomPassphrase,
   getHostnameFromProtocolName,
 } from '@arianee/utils';
+import {
+  transactionWrapper,
+  NonPayableOverrides,
+} from '../../utils/transactions/transactionWrapper';
 
 export type SmartAssetInstance = {
   data: SmartAsset;
@@ -221,7 +225,7 @@ export default class SmartAssetService<T extends ChainType> {
       return {
         ...smartAssetInstance,
         claim: (receiver?: string) =>
-          this.claim(network, certificateId, passphrase!, receiver),
+          this.claim(network, certificateId, passphrase!, { receiver }),
       };
     } catch (e) {
       throw new Error(
@@ -234,131 +238,106 @@ export default class SmartAssetService<T extends ChainType> {
     protocolName: Protocol['name'],
     tokenId: SmartAsset['certificateId'],
     passphrase: string,
-    receiver?: string
+    params?: { receiver?: string; overrides?: NonPayableOverrides }
   ): Promise<ContractTransactionReceipt> {
-    const protocol = await this.arianeeProtocolClient.connect(protocolName);
+    const requestWallet = Core.fromPassPhrase(passphrase);
+    const _receiver = params?.receiver ?? this.core.getAddress();
 
-    if ('v1' in protocol) {
-      const requestWallet = Core.fromPassPhrase(passphrase);
-      const _receiver = receiver ?? this.core.getAddress();
+    const message = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(
+        ['uint', 'address'],
+        [tokenId, _receiver]
+      )
+    );
 
-      const message = ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(
-          ['uint', 'address'],
-          [tokenId, _receiver]
-        )
-      );
+    const messageBytes = ethers.getBytes(message);
+    const messageHash = ethers.hashMessage(messageBytes);
 
-      const messageBytes = ethers.getBytes(message);
-      const messageHash = ethers.hashMessage(messageBytes);
+    const { signature } = await requestWallet.signMessage(
+      new Uint8Array(messageBytes) as unknown as string
+    );
 
-      const { signature } = await requestWallet.signMessage(
-        new Uint8Array(messageBytes) as unknown as string
-      );
+    const walletReward = getWalletReward(protocolName, this.walletRewards);
 
-      const walletReward = getWalletReward(protocolName, this.walletRewards);
-
-      const tx = await protocol.v1.storeContract[
-        'requestToken(uint256,bytes32,bool,address,bytes,address)'
-      ](
-        parseInt(tokenId),
-        messageHash,
-        false,
-        walletReward,
-        signature,
-        _receiver
-      );
-
-      const receipt = await tx.wait();
-
-      if (!receipt)
-        throw new Error('Could not retrieve the receipt of the transaction');
-
-      return receipt;
-    } else {
-      throw new Error('The claim is not yet supported for this protocol');
-    }
+    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
+      protocolV1Action: async (v1) => {
+        return v1.storeContract[
+          'requestToken(uint256,bytes32,bool,address,bytes,address)'
+        ](
+          parseInt(tokenId),
+          messageHash,
+          false,
+          walletReward,
+          signature,
+          _receiver,
+          params?.overrides ?? {}
+        );
+      },
+    });
   }
 
   public async acceptEvent(
     protocolName: Protocol['name'],
-    eventId: Event['id']
-  ): Promise<TransactionReceipt> {
-    const protocol = await this.arianeeProtocolClient.connect(protocolName);
-
-    if ('v1' in protocol) {
-      const tx = await protocol.v1.storeContract.acceptEvent(
-        eventId,
-        getWalletReward(protocolName, this.walletRewards)
-      );
-
-      const receipt = await tx.wait();
-
-      if (!receipt)
-        throw new Error('Could not retrieve the receipt of the transaction');
-
-      return receipt;
-    } else {
-      throw new Error(`This protocol is not yet supported (${protocolName})`);
-    }
+    eventId: Event['id'],
+    overrides: NonPayableOverrides = {}
+  ): Promise<ContractTransactionReceipt> {
+    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
+      protocolV1Action: async (v1) => {
+        return v1.storeContract.acceptEvent(
+          eventId,
+          getWalletReward(protocolName, this.walletRewards),
+          overrides
+        );
+      },
+    });
   }
 
   public async refuseEvent(
     protocolName: Protocol['name'],
-    eventId: Event['id']
-  ): Promise<TransactionReceipt> {
-    const protocol = await this.arianeeProtocolClient.connect(protocolName);
-
-    if ('v1' in protocol) {
-      const tx = await protocol.v1.storeContract.refuseEvent(
-        eventId,
-        getWalletReward(protocolName, this.walletRewards)
-      );
-
-      const receipt = await tx.wait();
-
-      if (!receipt)
-        throw new Error('Could not retrieve the receipt of the transaction');
-
-      return receipt;
-    } else {
-      throw new Error(`This protocol is not yet supported (${protocolName})`);
-    }
+    eventId: Event['id'],
+    overrides: NonPayableOverrides = {}
+  ): Promise<ContractTransactionReceipt> {
+    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
+      protocolV1Action: async (v1) => {
+        return v1.storeContract.refuseEvent(
+          eventId,
+          getWalletReward(protocolName, this.walletRewards),
+          overrides
+        );
+      },
+    });
   }
 
   public async createLink(
     linkType: 'proof' | 'requestOwnership',
     protocolName: Protocol['name'],
     tokenId: SmartAsset['certificateId'],
-    passphrase?: string
-  ): Promise<string> {
-    const protocol = await this.arianeeProtocolClient.connect(protocolName);
-
-    if ('v1' in protocol) {
-      const _passphrase = passphrase ?? generateRandomPassphrase();
-      const passphraseWallet = Core.fromPassPhrase(_passphrase);
-
-      const accessType = linkType === 'requestOwnership' ? 1 : 2; // 1 = request, 2 = proof
-      const suffix = linkType === 'requestOwnership' ? '' : '/proof';
-
-      const tx = await protocol.v1.smartAssetContract.addTokenAccess(
-        tokenId,
-        passphraseWallet.getAddress(),
-        true,
-        accessType
-      );
-
-      const receipt = await tx.wait();
-
-      if (!receipt)
-        throw new Error('Could not retrieve the receipt of the transaction');
-
-      return `https://${getHostnameFromProtocolName(
-        protocolName
-      )}${suffix}/${tokenId},${_passphrase}`;
-    } else {
-      throw new Error(`This protocol is not yet supported (${protocolName})`);
+    params?: {
+      passphrase?: string;
+      overrides?: NonPayableOverrides;
     }
+  ): Promise<string> {
+    const _passphrase = params?.passphrase ?? generateRandomPassphrase();
+    const passphraseWallet = Core.fromPassPhrase(_passphrase);
+
+    const accessType = linkType === 'requestOwnership' ? 1 : 2; // 1 = request, 2 = proof
+    const suffix = linkType === 'requestOwnership' ? '' : '/proof';
+
+    await transactionWrapper(this.arianeeProtocolClient, protocolName, {
+      protocolV1Action: async (v1) => {
+        return v1.smartAssetContract.addTokenAccess(
+          tokenId,
+          passphraseWallet.getAddress(),
+          true,
+          accessType,
+          params?.overrides ?? {}
+        );
+      },
+    });
+
+    return `https://${getHostnameFromProtocolName(
+      protocolName
+    )}${suffix}/${tokenId},${_passphrase}`;
   }
 }
 

@@ -109,3 +109,5 @@ export default class ProtocolClientV1 {
     );
   }
 }
+
+export { ProtocolClientV1 };

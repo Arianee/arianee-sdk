@@ -4,11 +4,13 @@ import WalletApiClient from '@arianee/wallet-api-client';
 import EventManager from '../eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import * as txWrapperModule from '../../utils/transactions/transactionWrapper';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/arianee-access-token');
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('../eventManager/eventManager');
+jest.mock('../../utils/transactions/transactionWrapper');
 
 const mockSmartAssetUpdated = {} as any;
 const mockSmartAssetReceived = {} as any;
@@ -310,35 +312,8 @@ describe('SmartAssetService', () => {
   });
 
   describe('claim', () => {
-    it('should throw if the protocol is not supported', async () => {
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v2: {},
-        } as any);
-
-      await expect(
-        smartAssetService.claim('mockProtocol', 'mockId', 'mockPassphrase')
-      ).rejects.toThrowError(/not yet supported for this protocol/gi);
-
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
-    });
-
     it('should call the v1 contract with correct params', async () => {
-      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
-      const requestTokenSpy = jest.fn().mockResolvedValue({
-        wait: waitSpy,
-      });
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v1: {
-            storeContract: {
-              'requestToken(uint256,bytes32,bool,address,bytes,address)':
-                requestTokenSpy,
-            },
-          },
-        } as any);
+      const requestTokenSpy = jest.fn();
 
       const service = new SmartAssetService({
         walletAbstraction: walletApiClient,
@@ -352,112 +327,122 @@ describe('SmartAssetService', () => {
         ),
       });
 
-      await service.claim('mockProtocol', '86208174', 'gx2mhc408880');
+      const transactionWrapperSpy = jest
+        .spyOn(txWrapperModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+      await service.claim('testnet', '86208174', 'gx2mhc408880', {
+        overrides: {
+          nonce: 123456,
+        },
+      });
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        storeContract: {
+          'requestToken(uint256,bytes32,bool,address,bytes,address)':
+            requestTokenSpy,
+        },
+      } as any);
 
       expect(requestTokenSpy).toHaveBeenCalledWith(
         86208174,
         '0x41e5a882819f11c7dcaf097e9008f1aa68cf913351d4ce52cf9dbd747933badf',
         false,
-        '0x2',
+        '0x1',
         '0xd4de91e2b2348eb67c4837e0fdc5772e40a42a427528c3a97dbc9a2f61cf05547648a8ec36647f709f00ba1376c9b454b92c017c4c85163e117db28f64c522d61c',
-        '0x44BccE8aE7c47d3e0666441F946B4065A3286c23'
+        '0x44BccE8aE7c47d3e0666441F946B4065A3286c23',
+        {
+          nonce: 123456,
+        }
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'testnet',
+        {
+          protocolV1Action: expect.any(Function),
+        }
       );
     });
   });
 
   describe('acceptEvent', () => {
-    it('should throw if the protocol is not supported', async () => {
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
+    it('should call transactionWrapper with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(txWrapperModule, 'transactionWrapper')
         .mockResolvedValue({
-          v2: {},
+          mockReceipt: '0x123',
         } as any);
 
-      await expect(
-        smartAssetService.acceptEvent('mockProtocol', 'mockId')
-      ).rejects.toThrowError(/is not yet supported/gi);
+      const acceptEventSpy = jest.fn();
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
-    });
-
-    it('should call the v1 contract with correct params', async () => {
-      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
-      const acceptEventSpy = jest.fn().mockResolvedValue({
-        wait: waitSpy,
+      await smartAssetService.acceptEvent('mockProtocol', '123', {
+        nonce: 123456,
       });
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v1: {
-            storeContract: {
-              acceptEvent: acceptEventSpy,
-            },
-          },
-        } as any);
 
-      await smartAssetService.acceptEvent('mockProtocol', '123');
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+      await protocolV1Action({
+        storeContract: {
+          acceptEvent: acceptEventSpy,
+        },
+      } as any);
 
-      expect(acceptEventSpy).toHaveBeenCalledWith('123', '0x2');
+      expect(acceptEventSpy).toHaveBeenCalledWith('123', '0x2', {
+        nonce: 123456,
+      });
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+        }
+      );
     });
   });
 
   describe('refuseEvent', () => {
-    it('should throw if the protocol is not supported', async () => {
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
+    it('should call transactionWrapper with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(txWrapperModule, 'transactionWrapper')
         .mockResolvedValue({
-          v2: {},
+          mockReceipt: '0x123',
         } as any);
 
-      await expect(
-        smartAssetService.refuseEvent('mockProtocol', 'mockId')
-      ).rejects.toThrowError(/is not yet supported/gi);
+      const refuseEventSpy = jest.fn();
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
-    });
-
-    it('should call the v1 contract with correct params', async () => {
-      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
-      const refuseEventSpy = jest.fn().mockResolvedValue({
-        wait: waitSpy,
+      await smartAssetService.refuseEvent('mockProtocol', '123', {
+        nonce: 123456,
       });
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v1: {
-            storeContract: {
-              refuseEvent: refuseEventSpy,
-            },
-          },
-        } as any);
 
-      await smartAssetService.refuseEvent('mockProtocol', '123');
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+      await protocolV1Action({
+        storeContract: {
+          refuseEvent: refuseEventSpy,
+        },
+      } as any);
 
-      expect(refuseEventSpy).toHaveBeenCalledWith('123', '0x2');
+      expect(refuseEventSpy).toHaveBeenCalledWith('123', '0x2', {
+        nonce: 123456,
+      });
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+        }
+      );
     });
   });
 
   describe('createLink', () => {
-    it('should throw if the protocol is not supported', async () => {
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v2: {},
-        } as any);
-
-      await expect(
-        smartAssetService.createLink('proof', 'mockProtocol', 'mockId')
-      ).rejects.toThrowError(/is not yet supported/gi);
-
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
-    });
-
     it.each([
       {
         linkType: 'proof',
@@ -470,30 +455,35 @@ describe('SmartAssetService', () => {
         expectedAccessType: 1,
       },
     ])(
-      'should call the v1 contract with correct params and return the link',
+      'should call transactionWrapper with correct params and return the link',
       async ({ linkType, expectedAccessType, expectedLink }) => {
-        const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
-        const addTokenAccessSpy = jest.fn().mockResolvedValue({
-          wait: waitSpy,
-        });
-        const connectSpy = jest
-          .spyOn(arianeeProtocolClient, 'connect')
+        const transactionWrapperSpy = jest
+          .spyOn(txWrapperModule, 'transactionWrapper')
           .mockResolvedValue({
-            v1: {
-              smartAssetContract: {
-                addTokenAccess: addTokenAccessSpy,
-              },
-            },
+            mockReceipt: '0x123',
           } as any);
+
+        const addTokenAccessSpy = jest.fn();
 
         const link = await smartAssetService.createLink(
           linkType as 'proof' | 'requestOwnership',
           'testnet',
           '123',
-          'twpmfcvwup35'
+          {
+            passphrase: 'twpmfcvwup35',
+            overrides: {
+              nonce: 123456,
+            },
+          }
         );
 
-        expect(connectSpy).toHaveBeenCalledWith('testnet');
+        const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+        await protocolV1Action({
+          smartAssetContract: {
+            addTokenAccess: addTokenAccessSpy,
+          },
+        } as any);
 
         expect(link).toEqual(expectedLink);
 
@@ -501,7 +491,18 @@ describe('SmartAssetService', () => {
           '123',
           '0x01cAF71551aadbe6dA1b8c2Be652b3874f8A91Dc',
           true,
-          expectedAccessType
+          expectedAccessType,
+          {
+            nonce: 123456,
+          }
+        );
+
+        expect(transactionWrapperSpy).toHaveBeenCalledWith(
+          arianeeProtocolClient,
+          'testnet',
+          {
+            protocolV1Action: expect.any(Function),
+          }
         );
       }
     );
