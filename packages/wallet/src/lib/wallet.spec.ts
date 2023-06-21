@@ -91,11 +91,11 @@ describe('Wallet', () => {
       expect(fromMnemonicSpy).toHaveBeenCalled();
     });
     it('should use the passed core instance', () => {
-      const core = new Core(
-        () => ({} as any),
-        () => ({} as any),
-        () => ''
-      );
+      const core = new Core({
+        signMessage: () => ({} as any),
+        signTransaction: () => ({} as any),
+        getAddress: () => '',
+      });
 
       const wallet = new Wallet({
         auth: {
