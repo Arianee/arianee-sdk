@@ -62,6 +62,8 @@ class CoreWallet extends Wallet {
   }
 
   override async signTransaction(transaction: TransactionLike) {
+    if (!this.core.signTransaction)
+      throw new Error('signTransaction is not implemented in Core');
     const { signature } = await this.core.signTransaction(transaction);
     return signature;
   }
@@ -84,6 +86,13 @@ class CoreWallet extends Wallet {
       } catch {
         // NOOP
       }
+    }
+
+    if (this.core.sendTransaction) {
+      return this.core.sendTransaction({
+        ...tx,
+        ...(gasPrice && { gasPrice }),
+      });
     }
 
     return super.sendTransaction({

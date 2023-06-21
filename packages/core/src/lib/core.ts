@@ -1,28 +1,84 @@
-import { ethers, Mnemonic, SigningKey, TransactionLike } from 'ethers';
+import {
+  ethers,
+  Mnemonic,
+  SigningKey,
+  TransactionLike,
+  TransactionResponse,
+} from 'ethers';
+import { TransactionRequest } from 'ethers/lib.esm';
 
 export default class Core {
-  constructor(
-    public signMessage: (
+  public signMessage!: (
+    message: string
+  ) => Promise<{ message: string; signature: string }>;
+  public signTransaction!:
+    | ((
+        transaction: TransactionLike
+      ) => Promise<{ transaction: TransactionLike; signature: string }>)
+    | undefined;
+
+  public sendTransaction!:
+    | ((transaction: TransactionRequest) => Promise<TransactionResponse>)
+    | undefined;
+
+  public getAddress!: () => string;
+
+  constructor(params: {
+    signMessage: (
       message: string
-    ) => Promise<{ message: string; signature: string }>,
-    public signTransaction: (
-      transaction: TransactionLike
-    ) => Promise<{ message: TransactionLike; signature: string }>,
-    public getAddress: () => string
-  ) {}
+    ) => Promise<{ message: string; signature: string }>;
+    getAddress: () => string;
+    signTransaction?:
+      | ((
+          transaction: TransactionLike
+        ) => Promise<{ transaction: TransactionLike; signature: string }>)
+      | undefined;
+    sendTransaction?:
+      | ((transaction: TransactionRequest) => Promise<TransactionResponse>)
+      | undefined;
+  }) {
+    if (
+      params.signTransaction !== undefined &&
+      params.sendTransaction !== undefined
+    ) {
+      throw new Error(
+        'You can not use signTransaction and sendTransaction at the same time'
+      );
+    }
+
+    if (
+      params.signTransaction === undefined &&
+      params.sendTransaction === undefined
+    ) {
+      throw new Error(
+        'You must provide a signTransaction or a sendTransaction function'
+      );
+    }
+
+    if (params.signMessage === undefined)
+      throw new Error('You must provide a signMessage function');
+
+    if (params.getAddress === undefined)
+      throw new Error('You must provide a getAddress function');
+
+    this.getAddress = params.getAddress;
+    this.signMessage = params.signMessage;
+    this.signTransaction = params.signTransaction;
+    this.sendTransaction = params.sendTransaction;
+  }
 
   static fromWallet(wallet: ethers.Wallet): Core {
-    return new Core(
-      async (message: string) => {
+    return new Core({
+      signMessage: async (message: string) => {
         const signature = await wallet.signMessage(message);
         return { message, signature };
       },
-      async (data: TransactionLike) => {
+      signTransaction: async (data: TransactionLike) => {
         const signature = await wallet.signTransaction(data);
-        return { message: data, signature };
+        return { transaction: data, signature };
       },
-      () => wallet.address
-    );
+      getAddress: () => wallet.address,
+    });
   }
 
   static fromPrivateKey(privateKey: string): Core {
