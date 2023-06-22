@@ -39,7 +39,7 @@ export const ethersWalletFromCore = ({
   );
 };
 
-class CoreWallet extends Wallet {
+export class CoreWallet extends Wallet {
   // Needed to instantiate a Wallet, not used, better performance wise than generating a random one each time
   private static readonly READ_ONLY_PRIVATE_KEY =
     '0x42a6d505e27450660adae0618ce3753b17dfd88d188202fd571a42a188b7cd08';
@@ -88,6 +88,11 @@ class CoreWallet extends Wallet {
       }
     }
 
+    if (tx.chainId === undefined) {
+      const network = await this.provider?.getNetwork();
+      tx.chainId = network?.chainId;
+    }
+
     if (this.core.sendTransaction) {
       const transactionResponse = await this.core.sendTransaction({
         ...tx,
@@ -104,7 +109,7 @@ class CoreWallet extends Wallet {
   }
 }
 
-class UncheckedJsonRpcProvider extends JsonRpcProvider {
+export class UncheckedJsonRpcProvider extends JsonRpcProvider {
   /**
    * Broadcast a transaction without checking that output hash is the computed hash
    * (this is needed for our relayed claim mechanism, as the output hash is NOT the computed
