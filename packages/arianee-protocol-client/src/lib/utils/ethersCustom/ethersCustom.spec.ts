@@ -1,6 +1,10 @@
 import Core from '@arianee/core';
-import { ethersWalletFromCore } from './ethersCustom';
-import { TransactionResponse, ethers } from 'ethers';
+import {
+  CoreWallet,
+  ethersWalletFromCore,
+  UncheckedJsonRpcProvider,
+} from './ethersCustom';
+import { ethers, TransactionResponse } from 'ethers';
 import GasStation from '../gasStation/gasStation';
 
 jest.mock('../gasStation/gasStation');
@@ -76,16 +80,23 @@ describe('ethersWalletFromCore', () => {
 
         const gasStation = new GasStation('https://gasStation.com/', jest.fn());
 
-        const coreWallet = ethersWalletFromCore({
-          core,
-          httpProvider: 'https://localhost:8545',
-          chainId: 1,
-          gasStation,
-        });
+        const provider = new UncheckedJsonRpcProvider(
+          'https://localhost:8545',
+          1,
+          {
+            batchMaxSize: 1,
+          }
+        );
+
+        const coreWallet = new CoreWallet(core, provider, gasStation);
 
         const getGasPriceSpy = jest
           .spyOn(gasStation, 'getGasPrice')
           .mockResolvedValue(BigInt(1));
+
+        const getNetwork = jest
+          .spyOn(provider, 'getNetwork')
+          .mockResolvedValue({ chainId: BigInt(1) } as any);
 
         const sendTransactionSpy = jest
           .spyOn(ethers.Wallet.prototype, 'sendTransaction')
@@ -94,6 +105,7 @@ describe('ethersWalletFromCore', () => {
         await coreWallet.sendTransaction(tx);
 
         expect(sendTransactionSpy).toHaveBeenCalledWith({
+          chainId: BigInt(1),
           to: '0x85014957FA3EF8C30B5fDe2592e909469728c9F3',
           gasPrice: expectedGasPrice,
         });
@@ -107,16 +119,22 @@ describe('ethersWalletFromCore', () => {
 
       const gasStation = new GasStation('https://gasStation.com/', jest.fn());
 
-      const coreWallet = ethersWalletFromCore({
-        core,
-        httpProvider: 'https://localhost:8545',
-        chainId: 1,
-        gasStation,
-      });
+      const provider = new UncheckedJsonRpcProvider(
+        'https://localhost:8545',
+        1,
+        {
+          batchMaxSize: 1,
+        }
+      );
+      const coreWallet = new CoreWallet(core, provider, gasStation);
 
       const getGasPriceSpy = jest
         .spyOn(gasStation, 'getGasPrice')
         .mockRejectedValue(new Error('error'));
+
+      const getNetwork = jest
+        .spyOn(provider, 'getNetwork')
+        .mockResolvedValue({ chainId: BigInt(1) } as any);
 
       const sendTransactionSpy = jest
         .spyOn(ethers.Wallet.prototype, 'sendTransaction')
@@ -127,6 +145,7 @@ describe('ethersWalletFromCore', () => {
       });
 
       expect(sendTransactionSpy).toHaveBeenCalledWith({
+        chainId: BigInt(1),
         to: '0x85014957FA3EF8C30B5fDe2592e909469728c9F3',
       });
 
