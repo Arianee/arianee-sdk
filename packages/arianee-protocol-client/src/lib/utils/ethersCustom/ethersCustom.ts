@@ -89,10 +89,12 @@ class CoreWallet extends Wallet {
     }
 
     if (this.core.sendTransaction) {
-      return this.core.sendTransaction({
+      const transactionResponse = await this.core.sendTransaction({
         ...tx,
         ...(gasPrice && { gasPrice }),
       });
+
+      return new TransactionResponse(transactionResponse, this.provider!);
     }
 
     return super.sendTransaction({
