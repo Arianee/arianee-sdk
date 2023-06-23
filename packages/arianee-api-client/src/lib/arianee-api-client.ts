@@ -15,6 +15,7 @@ import { brandIdentityInfo } from './types/brandIdentityInfo';
 import { convertObjectToDotNotation } from './utils/dotNotation/dotNotation';
 import { contractNameToArianeeApiContractName } from './utils/contracts/contractName';
 import { ArianeeEvent } from './types/arianeeEvent';
+import { defaultFetchLike } from '@arianee/utils';
 
 export class ArianeeApiClient {
   private fetchLike: typeof fetch;
@@ -22,11 +23,7 @@ export class ArianeeApiClient {
     private readonly arianeeApiUrl?: string,
     fetchLike?: typeof fetch
   ) {
-    if (typeof window === 'undefined') {
-      this.fetchLike = fetchLike ?? require('node-fetch');
-    } else {
-      this.fetchLike = fetchLike ?? window.fetch.bind(window);
-    }
+    this.fetchLike = fetchLike ?? defaultFetchLike;
 
     if (!arianeeApiUrl) {
       this.arianeeApiUrl = 'https://api.arianee.com';

@@ -13,7 +13,7 @@ import { WALLET_API_URL } from './constants';
 import { generateQueryString, removeTrailingSlash } from './helpers';
 import HttpClient, { AuthorizationType } from './helpers/httpClient';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
-import { ReadLink } from '@arianee/utils';
+import { ReadLink, defaultFetchLike } from '@arianee/utils';
 
 export default class WalletApiClient<T extends ChainType>
   implements WalletAbstraction
@@ -33,11 +33,7 @@ export default class WalletApiClient<T extends ChainType>
     },
     fetchLike?: typeof fetch
   ) {
-    if (typeof window === 'undefined') {
-      this.fetchLike = fetchLike ?? require('node-fetch');
-    } else {
-      this.fetchLike = fetchLike ?? window.fetch.bind(window);
-    }
+    this.fetchLike = fetchLike ?? defaultFetchLike;
 
     this.apiURL = removeTrailingSlash(options?.apiURL ?? WALLET_API_URL);
 

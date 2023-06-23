@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Core } from '@arianee/core';
 import ArianeePrivacyGatewayClient from './arianee-privacy-gateway-client';
-import _fetch from 'node-fetch';
-
-declare const global: {
-  window: { fetch: typeof fetch } | undefined;
-};
-
-jest.mock('node-fetch');
+import { defaultFetchLike } from '@arianee/utils';
 
 const mockRpcCall = () => ({
   json: () => ({
@@ -26,22 +20,7 @@ describe('arianeePrivacyGatewayClient', () => {
   describe('constructor', () => {
     it('should use node-fetch in node environment as default fetch function', () => {
       const client = new ArianeePrivacyGatewayClient('');
-      expect(client['fetchLike']).toBe(_fetch);
-    });
-
-    it('should use window.fetch in browser environment as default fetch function', () => {
-      const mockedFetch = {
-        bind: jest.fn(() => global.window!.fetch),
-      } as unknown as typeof fetch;
-
-      global.window = {
-        fetch: mockedFetch,
-      };
-
-      const client = new ArianeePrivacyGatewayClient('');
-      expect(client['fetchLike']).toBe(mockedFetch);
-
-      delete global.window;
+      expect(client['fetchLike']).toBe(defaultFetchLike);
     });
   });
 
@@ -55,7 +34,7 @@ describe('arianeePrivacyGatewayClient', () => {
 
       arianeePrivacyGatewayClient = new ArianeePrivacyGatewayClient(
         core,
-        _fetch as unknown as typeof fetch
+        jest.fn()
       );
 
       rpcCallSpy = jest
@@ -235,7 +214,7 @@ describe('arianeePrivacyGatewayClient', () => {
     beforeEach(() => {
       arianeePrivacyGatewayClient = new ArianeePrivacyGatewayClient(
         arianeeAccessToken,
-        _fetch as unknown as typeof fetch
+        jest.fn()
       );
 
       rpcCallSpy = jest
@@ -345,7 +324,7 @@ describe('arianeePrivacyGatewayClient', () => {
     beforeEach(() => {
       arianeePrivacyGatewayClient = new ArianeePrivacyGatewayClient(
         auth,
-        _fetch as unknown as typeof fetch
+        jest.fn()
       );
 
       rpcCallSpy = jest

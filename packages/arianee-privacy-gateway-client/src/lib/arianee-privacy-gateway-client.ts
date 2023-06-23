@@ -6,6 +6,7 @@ import {
   ArianeeProductCertificateI18N,
 } from '@arianee/common-types';
 import { ArianeeAccessToken as ArianeeAccessTokenClass } from '@arianee/arianee-access-token';
+import { defaultFetchLike } from '@arianee/utils';
 
 export type ArianeeAccessToken = string;
 export type RpcUrl = NonNullable<ArianeeBrandIdentityI18N['rpcEndpoint']>;
@@ -25,11 +26,7 @@ export default class ArianeePrivacyGatewayClient {
       | { message: string; signature: string },
     fetchLike?: typeof fetch
   ) {
-    if (typeof window === 'undefined') {
-      this.fetchLike = fetchLike ?? require('node-fetch');
-    } else {
-      this.fetchLike = fetchLike ?? window.fetch.bind(window);
-    }
+    this.fetchLike = fetchLike ?? defaultFetchLike;
   }
 
   private async getArianeeAccessToken(): Promise<ArianeeAccessToken> {

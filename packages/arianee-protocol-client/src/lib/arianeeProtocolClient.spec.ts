@@ -1,13 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Core from '@arianee/core';
 import ArianeeProtocolClient from './arianeeProtocolClient';
-import _fetch from 'node-fetch';
 import ProtocolClientV1 from './v1/protocolClientV1';
 import * as ethersProxies from './utils/ethersCustom/ethersCustom';
-
-declare const global: {
-  window: { fetch: typeof fetch } | undefined;
-};
+import { defaultFetchLike } from '@arianee/utils';
 
 jest.mock('@arianee/core');
 jest.mock('./v1/protocolClientV1');
@@ -24,24 +20,9 @@ describe('ArianeeProtocolClient', () => {
   });
 
   describe('constructor', () => {
-    it('should use node-fetch in node environment as default fetch function', () => {
+    it('should use the defaultFetchLike if no fetch like passed', () => {
       const client = new ArianeeProtocolClient(Core.fromRandom());
-      expect(client['fetchLike']).toBe(_fetch);
-    });
-
-    it('should use window.fetch in browser environment as default fetch function', () => {
-      const mockedFetch = {
-        bind: jest.fn(() => global.window!.fetch),
-      } as unknown as typeof fetch;
-
-      global.window = {
-        fetch: mockedFetch,
-      };
-
-      const client = new ArianeeProtocolClient(Core.fromRandom());
-      expect(client['fetchLike']).toBe(mockedFetch);
-
-      delete global.window;
+      expect(client['fetchLike']).toBe(defaultFetchLike);
     });
   });
 
