@@ -12,6 +12,7 @@ import EventManager, {
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import { WalletRewards } from './utils/walletReward/walletReward';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import { defaultFetchLike } from '@arianee/utils';
 
 export type WalletParams<T extends ChainType> = {
   chainType?: T;
@@ -58,11 +59,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
     this.i18nStrategy = i18nStrategy ?? 'raw';
     this.arianeeAccessTokenPrefix = arianeeAccessTokenPrefix;
 
-    if (typeof window === 'undefined') {
-      this.fetchLike = fetchLike ?? require('node-fetch');
-    } else {
-      this.fetchLike = fetchLike ?? window.fetch.bind(window);
-    }
+    this.fetchLike = fetchLike ?? defaultFetchLike;
 
     this.arianeeAccessToken =
       arianeeAccessToken ?? new ArianeeAccessToken(this.core);

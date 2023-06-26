@@ -6,6 +6,7 @@ import { ChainType } from '@arianee/common-types';
 import { WALLET_API_URL } from './constants';
 import HttpClient from './helpers/httpClient';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import { defaultFetchLike } from '@arianee/utils';
 
 declare const global: {
   window: { fetch: typeof fetch } | undefined;
@@ -455,23 +456,8 @@ describe('WalletApiClient', () => {
   describe('constructor', () => {
     it('should use node-fetch in node environment as default fetch function', async () => {
       const client = new WalletApiClient('testnet', core);
-
       // @ts-ignore
-      expect(client['fetchLike']).toBe(mockedFetch);
-    });
-
-    it('should use window.fetch in browser environment as default fetch function', async () => {
-      const mockedWindowFetch = {
-        bind: jest.fn(() => global.window!.fetch),
-      } as unknown as typeof fetch;
-
-      global.window = { fetch: mockedWindowFetch };
-
-      const client = new WalletApiClient('testnet', core);
-      // @ts-ignore
-      expect(client['fetchLike']).toBe(mockedWindowFetch);
-
-      delete global.window;
+      expect(client['fetchLike']).toBe(defaultFetchLike);
     });
 
     it('should use the WALLET_API_URL without trailing slash if no apiURL is provided', async () => {

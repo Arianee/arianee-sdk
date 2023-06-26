@@ -3,6 +3,7 @@ import ProtocolClientV1 from './v1/protocolClientV1';
 import { ProtocolDetails } from './shared/types';
 import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
 import GasStation from './utils/gasStation/gasStation';
+import { defaultFetchLike } from '@arianee/utils';
 
 export default class ArianeeProtocolClient {
   private fetchLike: typeof fetch;
@@ -13,11 +14,7 @@ export default class ArianeeProtocolClient {
       fetchLike?: typeof fetch;
     }
   ) {
-    if (typeof window === 'undefined') {
-      this.fetchLike = options?.fetchLike ?? require('node-fetch');
-    } else {
-      this.fetchLike = options?.fetchLike ?? window.fetch.bind(window);
-    }
+    this.fetchLike = options?.fetchLike ?? defaultFetchLike;
   }
 
   public async connect(

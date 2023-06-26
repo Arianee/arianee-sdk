@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Wallet from './wallet';
-import _fetch from 'node-fetch';
 import Core from '@arianee/core';
 import WalletApiClient from '@arianee/wallet-api-client';
 import IdentityService from './services/identity/identity';
@@ -10,10 +9,7 @@ import MessageService from './services/message/message';
 import EventManager from './services/eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
-
-declare const global: {
-  window: { fetch: typeof fetch } | undefined;
-};
+import { defaultFetchLike } from '@arianee/utils';
 
 jest.mock('@arianee/core');
 jest.mock('@arianee/wallet-api-client');
@@ -38,24 +34,9 @@ describe('Wallet', () => {
   });
 
   describe('constructor', () => {
-    it('should use node-fetch in node environment as default fetch function', () => {
+    it('should use the defaultFetchLike if no fetch like passed', () => {
       const wallet = new Wallet();
-      expect(wallet['fetchLike']).toBe(_fetch);
-    });
-
-    it('should use window.fetch in browser environment as default fetch function', () => {
-      const mockedFetch = {
-        bind: jest.fn(() => global.window!.fetch),
-      } as unknown as typeof fetch;
-
-      global.window = {
-        fetch: mockedFetch,
-      };
-
-      const wallet = new Wallet();
-      expect(wallet['fetchLike']).toBe(mockedFetch);
-
-      delete global.window;
+      expect(wallet['fetchLike']).toBe(defaultFetchLike);
     });
 
     it('should use testnet as default chain type', () => {
