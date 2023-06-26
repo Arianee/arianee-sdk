@@ -4,6 +4,7 @@ import { JWTGeneric } from './helpers/jwtGeneric';
 import { ethers } from 'ethers';
 import { JwtHeaderInterface } from './types/JwtHeaderInterface';
 import { isExpInLessThan } from './helpers/timeBeforeExp';
+import { MemoryStorage } from '@arianee/utils';
 
 interface PayloadOverride {
   exp?: number;
@@ -11,9 +12,18 @@ interface PayloadOverride {
 }
 
 export class ArianeeAccessToken {
-  private lastAAT!: string;
+  private storage: Storage;
 
-  constructor(private core: Core) {}
+  private static readonly LAST_AAT_KEY = 'arianee__lastAAT';
+
+  constructor(
+    private core: Core,
+    params?: {
+      storage?: Storage;
+    }
+  ) {
+    this.storage = params?.storage ?? new MemoryStorage();
+  }
 
   public async getValidWalletAccessToken(
     payloadOverride: PayloadOverride = {},
@@ -24,13 +34,14 @@ export class ArianeeAccessToken {
   ): Promise<string> {
     const { timeBeforeExp = 10, prefix } = params ?? {};
 
-    if (!this.lastAAT || isExpInLessThan(this.lastAAT, timeBeforeExp)) {
-      this.lastAAT = await this.createWalletAccessToken(
-        payloadOverride,
-        prefix
-      );
+    let aat = this.storage.getItem(ArianeeAccessToken.LAST_AAT_KEY);
+
+    if (!aat || isExpInLessThan(aat, timeBeforeExp)) {
+      aat = await this.createWalletAccessToken(payloadOverride, prefix);
+      this.storage.setItem(ArianeeAccessToken.LAST_AAT_KEY, aat);
     }
-    return this.lastAAT;
+
+    return aat;
   }
 
   public createWalletAccessToken(

@@ -20,6 +20,7 @@ Default values are:
 - `eventManagerParams`: undefined
 - `arianeeAccessToken`: a `ArianeeAccessToken` instance from `@arianee/arianee-access-token` using the core instance derived from passed auth
 - `arianeeAccessTokenPrefix`: an optional `string` that can be added before the arianee access token payload to sign. This is useful to let the user know what they are signing and why.
+- `storage`: a `MemoryStorage` from `@arianee/utils`
 
 First, you need to import the `Wallet` class:
 
@@ -71,6 +72,19 @@ const wallet = new Wallet({
   auth: {
     privateKey: '123456',
   },
+});
+```
+
+### Storage
+
+You can pass a `storage` object (that implements the [`Web Storage API`](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)) to the wallet constructor under the `storage` key. \
+This is particularly useful for frontend applications, as it allows for the wallet to persist data such as the arianee access token between page reloads through the use of the `sessionStorage` or `localStorage` object of the browser.
+
+Example, persisting arianee access token over page refresh:
+
+```typescript
+const wallet = new Wallet({
+  storage: sessionStorage,
 });
 ```
 

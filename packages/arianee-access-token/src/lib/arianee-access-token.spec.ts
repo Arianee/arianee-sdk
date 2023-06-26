@@ -2,11 +2,33 @@
 import { ArianeeAccessToken } from './arianee-access-token';
 import { Core } from '@arianee/core';
 import * as timeBeforeExpModule from './helpers/timeBeforeExp';
+import { MemoryStorage } from '@arianee/utils';
 
 describe('arianeeAccessToken', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   const pk =
     '0xaab1af774ae54a2efaff0d3d93308c00fa7b639304da92847cfc986af4b87eb5';
   const core = Core.fromPrivateKey(pk);
+
+  describe('constructor', () => {
+    it('should use the MemoryStorage if no storage passed', () => {
+      const arianeeAccessToken = new ArianeeAccessToken(core);
+      expect(arianeeAccessToken['storage']).toBeInstanceOf(MemoryStorage);
+    });
+
+    it('should use the passed storage', () => {
+      const storage = new MemoryStorage();
+
+      const arianeeAccessToken = new ArianeeAccessToken(core, {
+        storage,
+      });
+
+      expect(arianeeAccessToken['storage']).toBe(storage);
+    });
+  });
 
   it('should generate a valid aat', async () => {
     const aatGenerator = new ArianeeAccessToken(core);
