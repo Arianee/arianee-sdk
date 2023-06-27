@@ -177,4 +177,88 @@ describe('MessageService', () => {
       expect(readMessageSpy).toHaveBeenCalledWith('123', '0x2');
     });
   });
+
+  describe('blackListAddress', () => {
+    it('should throw if the protocol is not supported', async () => {
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v2: {},
+        } as any);
+
+      await expect(
+        messageService.blackListAddress('mockProtocol', '0x123', '23')
+      ).rejects.toThrowError(/not yet supported/gi);
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    });
+
+    it('should call the v1 contract with correct params', async () => {
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const addBlacklistedAddressSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v1: {
+            whitelistContract: {
+              addBlacklistedAddress: addBlacklistedAddressSpy,
+            },
+          },
+        } as any);
+
+      await messageService.blackListAddress('mockProtocol', '0x123', '23');
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+
+      expect(addBlacklistedAddressSpy).toHaveBeenCalledWith(
+        '0x123',
+        '23',
+        true
+      );
+    });
+  });
+
+  describe('unblackListAddress', () => {
+    it('should throw if the protocol is not supported', async () => {
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v2: {},
+        } as any);
+
+      await expect(
+        messageService.unblackListAddress('mockProtocol', '0x123', '23')
+      ).rejects.toThrowError(/not yet supported/gi);
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    });
+
+    it('should call the v1 contract with correct params', async () => {
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const addBlacklistedAddressSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+      const connectSpy = jest
+        .spyOn(arianeeProtocolClient, 'connect')
+        .mockResolvedValue({
+          v1: {
+            whitelistContract: {
+              addBlacklistedAddress: addBlacklistedAddressSpy,
+            },
+          },
+        } as any);
+
+      await messageService.unblackListAddress('mockProtocol', '0x123', '23');
+
+      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+
+      expect(addBlacklistedAddressSpy).toHaveBeenCalledWith(
+        '0x123',
+        '23',
+        false
+      );
+    });
+  });
 });
