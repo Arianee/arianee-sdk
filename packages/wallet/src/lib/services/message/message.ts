@@ -1,4 +1,4 @@
-import { ChainType, Protocol } from '@arianee/common-types';
+import { ChainType, Protocol, SmartAsset } from '@arianee/common-types';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
 import EventManager from '../eventManager/eventManager';
@@ -116,6 +116,39 @@ export default class MessageService<T extends ChainType> {
         );
       },
     });
+  }
+
+  private async setBlacklist(
+    protocolName: Protocol['name'],
+    messageSender: DecentralizedMessage['sender'],
+    smartAssetId: SmartAsset['certificateId'],
+    activate: boolean
+  ) {
+    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
+      protocolV1Action: async (v1) => {
+        return v1.whitelistContract.addBlacklistedAddress(
+          messageSender,
+          smartAssetId,
+          activate
+        );
+      },
+    });
+  }
+
+  public async blackListAddress(
+    protocolName: Protocol['name'],
+    messageSender: DecentralizedMessage['sender'],
+    smartAssetId: SmartAsset['certificateId']
+  ) {
+    return this.setBlacklist(protocolName, messageSender, smartAssetId, true);
+  }
+
+  public async unblackListAddress(
+    protocolName: Protocol['name'],
+    messageSender: DecentralizedMessage['sender'],
+    smartAssetId: SmartAsset['certificateId']
+  ) {
+    return this.setBlacklist(protocolName, messageSender, smartAssetId, false);
   }
 }
 
