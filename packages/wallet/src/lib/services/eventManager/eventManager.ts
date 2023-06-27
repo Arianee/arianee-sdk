@@ -132,18 +132,25 @@ export default class EventManager<T extends ChainType>
   private async pull() {
     await this.fetchUserDataIfNeeded();
 
-    const [arianeeEvents, smartAssetEvents, identitiesEvents, messagesEvents] =
-      await Promise.all([
-        this.pullArianeeEvents(),
-        this.pullSmartAssetsEvents(),
-        this.pullIdentitiesEvents(),
-        this.pullMessagesEvents(),
-      ]);
+    const [
+      arianeeEvents,
+      smartAssetEvents,
+      identitiesEvents,
+      messageReceivedEvents,
+      messageReadEvents,
+    ] = await Promise.all([
+      this.pullArianeeEvents(),
+      this.pullSmartAssetsEvents(),
+      this.pullIdentitiesEvents(),
+      this.pullMessageReceivedEvents(),
+      this.pullMessageReadEvents(),
+    ]);
 
     this.emitArianeeEvents(arianeeEvents);
     this.emitSmartAssetsEvents(smartAssetEvents);
     this.emitIdentitiesEvents(identitiesEvents);
-    this.emitMessagesEvents(messagesEvents);
+    this.emitMessageReceivedEvents(messageReceivedEvents);
+    this.emitMessageReadEvents(messageReadEvents);
 
     this.updatePullAfter();
   }
@@ -247,13 +254,31 @@ export default class EventManager<T extends ChainType>
     return identitiesEvents;
   }
 
-  private async pullMessagesEvents() {
-    if (!this.atLeastOneListener(['messageRead', 'messageReceived'])) return [];
+  private async pullMessageReceivedEvents() {
+    if (!this.atLeastOneListener(['messageReceived'])) return [];
 
     const messagesEvents = await this.arianeeApiClient.multichain.getEvents(
       this.chainType,
       'ArianeeMessage',
       'MessageSent',
+      {
+        createdAfter: this.pullAfter.toISOString(),
+        returnValues: {
+          _receiver: checksumAddress(this.address),
+        },
+      }
+    );
+
+    return messagesEvents;
+  }
+
+  private async pullMessageReadEvents() {
+    if (!this.atLeastOneListener(['messageRead'])) return [];
+
+    const messagesEvents = await this.arianeeApiClient.multichain.getEvents(
+      this.chainType,
+      'ArianeeMessage',
+      'MessageRead',
       {
         createdAfter: this.pullAfter.toISOString(),
         returnValues: {
@@ -329,10 +354,27 @@ export default class EventManager<T extends ChainType>
     });
   }
 
-  private async emitMessagesEvents(messagesEvents: UnnestedBlockchainEvent[]) {
+  private async emitMessageReceivedEvents(
+    messagesEvents: UnnestedBlockchainEvent[]
+  ) {
     messagesEvents.forEach((event) => {
       this.emitUnique(
         'messageReceived',
+        {
+          messageId: event.returnValues['_messageId'] as string,
+          protocol: event.protocol,
+        },
+        event
+      );
+    });
+  }
+
+  private async emitMessageReadEvents(
+    messagesEvents: UnnestedBlockchainEvent[]
+  ) {
+    messagesEvents.forEach((event) => {
+      this.emitUnique(
+        'messageRead',
         {
           messageId: event.returnValues['_messageId'] as string,
           protocol: event.protocol,
