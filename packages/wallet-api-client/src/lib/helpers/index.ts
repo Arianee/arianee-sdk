@@ -11,7 +11,7 @@ export const generateQueryString = (
     searchParams.append(key, JSON.stringify(value));
   });
 
-  return Array.from(searchParams).length > 0
+  return searchParams.toString().length > 0
     ? `?${decodeURIComponent(searchParams.toString())}`
     : '';
 };

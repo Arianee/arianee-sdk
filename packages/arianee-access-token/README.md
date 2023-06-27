@@ -45,3 +45,8 @@ This static method checks if an Arianee Access Token (AAT) is valid. It takes an
 ### `static decodeJwt(arianeeAccessToken: string): {header: JwtHeaderInterface, payload: ArianeeAccessTokenPayload, signature: string}`
 
 This static method decodes an Arianee Access Token (AAT). It takes an `arianeeAccessToken` parameter as a `string` and returns an object with the decoded AAT, containing the header, payload, and signature.
+
+## Storage
+
+You can pass a `storage` object (that implements the [`Web Storage API`](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)) to the constructor under the `params.storage` key. \
+This storage will be used for caching the generated arianee access token. Make sure that you do not pass an unsafe / public storage as it may expose the generated arianee access token.

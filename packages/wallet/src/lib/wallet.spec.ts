@@ -10,6 +10,7 @@ import EventManager from './services/eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import { defaultFetchLike } from '@arianee/utils';
+import { MemoryStorage } from '@arianee/utils';
 
 jest.mock('@arianee/core');
 jest.mock('@arianee/wallet-api-client');
@@ -85,6 +86,29 @@ describe('Wallet', () => {
       });
 
       expect(wallet['core']).toBe(core);
+    });
+
+    it('should use MemoryStorage as default storage', () => {
+      const wallet = new Wallet({
+        auth: {
+          core,
+        },
+      });
+
+      expect(wallet['storage']).toBeInstanceOf(MemoryStorage);
+    });
+
+    it('should use the passed storage', () => {
+      const memoryStorage = new MemoryStorage();
+
+      const wallet = new Wallet({
+        auth: {
+          core,
+        },
+        storage: memoryStorage,
+      });
+
+      expect(wallet['storage']).toBe(memoryStorage);
     });
 
     it('should use raw as default i18n strategy', () => {

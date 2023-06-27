@@ -1,3 +1,4 @@
 export * from './lib/links/readLink';
 export * from './lib/fetchLike/defaultFetchLike';
 export * from './lib/passphrase/randomPassphrase';
+export * from './lib/storage/memoryStorage';

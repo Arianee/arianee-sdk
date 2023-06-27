@@ -13,6 +13,7 @@ import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import { WalletRewards } from './utils/walletReward/walletReward';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import { defaultFetchLike } from '@arianee/utils';
+import { MemoryStorage } from '@arianee/utils';
 
 export type WalletParams<T extends ChainType> = {
   chainType?: T;
@@ -24,6 +25,7 @@ export type WalletParams<T extends ChainType> = {
   arianeeAccessToken?: ArianeeAccessToken;
   arianeeAccessTokenPrefix?: string;
   walletRewards?: WalletRewards;
+  storage?: Storage;
 };
 
 export default class Wallet<T extends ChainType = 'testnet'> {
@@ -36,6 +38,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
   private arianeeAccessToken: ArianeeAccessToken;
   private arianeeAccessTokenPrefix?: string;
   private walletRewards: WalletRewards;
+  private storage: Storage;
 
   private _smartAsset: SmartAssetService<T>;
   private _identity: IdentityService<T>;
@@ -52,6 +55,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       arianeeAccessToken,
       arianeeAccessTokenPrefix,
       walletRewards,
+      storage,
     } = params ?? {};
 
     this._chainType = chainType ?? ('testnet' as T);
@@ -61,8 +65,11 @@ export default class Wallet<T extends ChainType = 'testnet'> {
 
     this.fetchLike = fetchLike ?? defaultFetchLike;
 
+    this.storage = storage ?? new MemoryStorage();
+
     this.arianeeAccessToken =
-      arianeeAccessToken ?? new ArianeeAccessToken(this.core);
+      arianeeAccessToken ??
+      new ArianeeAccessToken(this.core, { storage: this.storage });
 
     this.walletAbstraction =
       walletAbstraction ??
