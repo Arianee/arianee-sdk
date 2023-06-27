@@ -2,11 +2,7 @@
 import EventManager from './eventManager';
 import Core from '@arianee/core';
 import WalletApiClient from '@arianee/wallet-api-client';
-import {
-  BlockchainEvent,
-  ChainType,
-  UnnestedBlockchainEvent,
-} from '@arianee/common-types';
+import { ChainType, UnnestedBlockchainEvent } from '@arianee/common-types';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/core');
@@ -80,11 +76,13 @@ describe('EventManager', () => {
     let pullSmartAssetsEventsSpy: jest.SpyInstance;
     let pullArianeeEventsSpy: jest.SpyInstance;
     let pullIdentitiesEventsSpy: jest.SpyInstance;
-    let pullMessagesEventsSpy: jest.SpyInstance;
+    let pullMessageReceivedEventsSpy: jest.SpyInstance;
+    let pullMessageReadEventsSpy: jest.SpyInstance;
     let emitSmartAssetsEventsSpy: jest.SpyInstance;
     let emitArianeeEventsSpy: jest.SpyInstance;
     let emitIdentitiesEventsSpy: jest.SpyInstance;
-    let emitMessagesEventsSpy: jest.SpyInstance;
+    let emitMessageReceivedEventsSpy: jest.SpyInstance;
+    let emitMessageReadEventsSpy: jest.SpyInstance;
     let updatePullAfterSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -104,8 +102,12 @@ describe('EventManager', () => {
         .spyOn(eventManager as any, 'pullIdentitiesEvents')
         .mockImplementation();
 
-      pullMessagesEventsSpy = jest
-        .spyOn(eventManager as any, 'pullMessagesEvents')
+      pullMessageReceivedEventsSpy = jest
+        .spyOn(eventManager as any, 'pullMessageReceivedEvents')
+        .mockImplementation();
+
+      pullMessageReadEventsSpy = jest
+        .spyOn(eventManager as any, 'pullMessageReadEvents')
         .mockImplementation();
 
       emitSmartAssetsEventsSpy = jest
@@ -116,8 +118,12 @@ describe('EventManager', () => {
         .spyOn(eventManager as any, 'emitArianeeEvents')
         .mockImplementation();
 
-      emitMessagesEventsSpy = jest
-        .spyOn(eventManager as any, 'emitMessagesEvents')
+      emitMessageReceivedEventsSpy = jest
+        .spyOn(eventManager as any, 'emitMessageReceivedEvents')
+        .mockImplementation();
+
+      emitMessageReadEventsSpy = jest
+        .spyOn(eventManager as any, 'emitMessageReadEvents')
         .mockImplementation();
 
       emitIdentitiesEventsSpy = jest
@@ -135,7 +141,8 @@ describe('EventManager', () => {
       pullSmartAssetsEventsSpy.mockResolvedValue(events);
       pullArianeeEventsSpy.mockResolvedValue(events);
       pullIdentitiesEventsSpy.mockResolvedValue(events);
-      pullMessagesEventsSpy.mockResolvedValue(events);
+      pullMessageReceivedEventsSpy.mockResolvedValue(events);
+      pullMessageReadEventsSpy.mockResolvedValue(events);
 
       await eventManager['pull']();
 
@@ -144,11 +151,13 @@ describe('EventManager', () => {
       expect(pullSmartAssetsEventsSpy).toHaveBeenCalled();
       expect(pullArianeeEventsSpy).toHaveBeenCalled();
       expect(pullIdentitiesEventsSpy).toHaveBeenCalled();
-      expect(pullMessagesEventsSpy).toHaveBeenCalled();
+      expect(pullMessageReceivedEventsSpy).toHaveBeenCalled();
+      expect(pullMessageReadEventsSpy).toHaveBeenCalled();
       expect(emitArianeeEventsSpy).toHaveBeenCalledWith(events);
       expect(emitSmartAssetsEventsSpy).toHaveBeenCalledWith(events);
       expect(emitIdentitiesEventsSpy).toHaveBeenCalledWith(events);
-      expect(emitMessagesEventsSpy).toHaveBeenCalledWith(events);
+      expect(emitMessageReceivedEventsSpy).toHaveBeenCalledWith(events);
+      expect(emitMessageReadEventsSpy).toHaveBeenCalledWith(events);
 
       expect(updatePullAfterSpy).toHaveBeenCalled();
     });
@@ -440,7 +449,7 @@ describe('EventManager', () => {
     });
   });
 
-  describe('pullMessagesEvents', () => {
+  describe('pullMessageReceivedEvents', () => {
     it('should return an empty array if there is no listener', async () => {
       atLeastOneListenerSpy.mockReturnValue(false);
 
@@ -448,7 +457,7 @@ describe('EventManager', () => {
         .spyOn(eventManager['arianeeApiClient'].multichain, 'getEvents')
         .mockImplementation();
 
-      const result = await eventManager['pullMessagesEvents']();
+      const result = await eventManager['pullMessageReceivedEvents']();
 
       expect(getEventsSpy).not.toHaveBeenCalled();
       expect(result).toEqual([]);
@@ -462,7 +471,7 @@ describe('EventManager', () => {
         .spyOn(eventManager['arianeeApiClient'].multichain, 'getEvents')
         .mockResolvedValue(events);
 
-      const result = await eventManager['pullMessagesEvents']();
+      const result = await eventManager['pullMessageReceivedEvents']();
 
       expect(getEventsSpy).toHaveBeenCalledWith(
         chainType,
@@ -480,7 +489,7 @@ describe('EventManager', () => {
     });
   });
 
-  describe('emitMessagesEvents', () => {
+  describe('emitMessageReceivedEvents', () => {
     it('should emit messageReceived events with correct data', async () => {
       const messageEvent = {
         returnValues: {
@@ -491,10 +500,77 @@ describe('EventManager', () => {
 
       const emitUniqueSpy = jest.spyOn(eventManager as any, 'emitUnique');
 
-      await eventManager['emitMessagesEvents']([messageEvent]);
+      await eventManager['emitMessageReceivedEvents']([messageEvent]);
 
       expect(emitUniqueSpy).toHaveBeenCalledWith(
         'messageReceived',
+        {
+          messageId: '1',
+          protocol: {
+            name: 'mock',
+            chainId: 1,
+          },
+        },
+        messageEvent
+      );
+    });
+  });
+
+  describe('pullMessageReadEvents', () => {
+    it('should return an empty array if there is no listener', async () => {
+      atLeastOneListenerSpy.mockReturnValue(false);
+
+      const getEventsSpy = jest
+        .spyOn(eventManager['arianeeApiClient'].multichain, 'getEvents')
+        .mockImplementation();
+
+      const result = await eventManager['pullMessageReadEvents']();
+
+      expect(getEventsSpy).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+    it('should call getEvents from arianeeApiClient and return an array of messages events', async () => {
+      atLeastOneListenerSpy.mockReturnValue(true);
+
+      const events = ['mock'] as any;
+
+      const getEventsSpy = jest
+        .spyOn(eventManager['arianeeApiClient'].multichain, 'getEvents')
+        .mockResolvedValue(events);
+
+      const result = await eventManager['pullMessageReadEvents']();
+
+      expect(getEventsSpy).toHaveBeenCalledWith(
+        chainType,
+        'ArianeeMessage',
+        'MessageRead',
+        {
+          createdAfter: new Date(date.getTime() - 10 * 1000).toISOString(),
+          returnValues: {
+            _receiver: checksummedUserAddress,
+          },
+        }
+      );
+
+      expect(result).toEqual(['mock'] as any);
+    });
+  });
+
+  describe('emitMessageReadEvents', () => {
+    it('should emit messageRead events with correct data', async () => {
+      const messageEvent = {
+        returnValues: {
+          _messageId: '1',
+        },
+        protocol: { chainId: 1, name: 'mock' },
+      } as unknown as UnnestedBlockchainEvent;
+
+      const emitUniqueSpy = jest.spyOn(eventManager as any, 'emitUnique');
+
+      await eventManager['emitMessageReadEvents']([messageEvent]);
+
+      expect(emitUniqueSpy).toHaveBeenCalledWith(
+        'messageRead',
         {
           messageId: '1',
           protocol: {
