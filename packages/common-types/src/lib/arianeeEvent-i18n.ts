@@ -64,7 +64,7 @@ export interface EventAttribute {
 }
 
 export interface EventI18nContent {
-  language: EventLanguageCode;
+  language?: EventLanguageCode;
   title?: string;
   description?: string;
   externalContents?: EventExternalContent[];
