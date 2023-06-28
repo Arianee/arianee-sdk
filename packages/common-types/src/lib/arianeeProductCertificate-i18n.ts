@@ -174,7 +174,7 @@ export interface ProductParentCertificate {
 }
 
 export interface ProductI18n {
-  language: ProductLanguageCode;
+  language?: ProductLanguageCode;
   name?: string;
   model?: string;
   subBrand?: string;

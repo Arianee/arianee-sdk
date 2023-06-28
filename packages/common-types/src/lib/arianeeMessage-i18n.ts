@@ -42,7 +42,7 @@ export interface MessageMedia {
 }
 
 export interface MessageI18nContent {
-  language: MessageLanguageCode;
+  language?: MessageLanguageCode;
   title?: string;
   content?: string;
   externalContents?: MessageExternalContent[];

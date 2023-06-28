@@ -23,7 +23,7 @@ export type ExternalContent = {
 };
 
 export type I18n = {
-  language: Language;
+  language?: Language;
   description?: string;
   externalContents?: ExternalContent[];
 };
