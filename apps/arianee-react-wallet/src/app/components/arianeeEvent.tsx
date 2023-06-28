@@ -1,9 +1,10 @@
 import { SmartAssetInstance } from '@arianee/wallet';
 import { TransactionReceipt } from 'ethers';
 import { useEffect, useState } from 'react';
+import { ChainType } from '@arianee/common-types';
 
 export interface ArianeeEventProps {
-  event: SmartAssetInstance['arianeeEvents'][number];
+  event: SmartAssetInstance<ChainType>['arianeeEvents'][number];
   refreshNfts: () => void;
 }
 

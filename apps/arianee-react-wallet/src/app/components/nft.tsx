@@ -1,15 +1,16 @@
-import { OwnedSmartAssetInstance } from '@arianee/wallet';
+import { SmartAssetInstance } from '@arianee/wallet';
 import { useEffect, useState } from 'react';
 import ArianeeEvent from './arianeeEvent';
+import { ChainType } from '@arianee/common-types';
 
 export interface NftProps {
-  ownedSmartAssetInstance: OwnedSmartAssetInstance;
+  smartAssetInstance: SmartAssetInstance<ChainType>;
   index: number;
   refreshNfts: () => void;
 }
 
 export default function Nft({
-  ownedSmartAssetInstance,
+  smartAssetInstance: ownedSmartAssetInstance,
   index,
   refreshNfts,
 }: NftProps) {

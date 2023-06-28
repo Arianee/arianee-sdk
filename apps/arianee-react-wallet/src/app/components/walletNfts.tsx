@@ -1,9 +1,9 @@
 import Wallet, {
   ArianeeEventReceivedEvent,
-  OwnedSmartAssetInstance,
   SmartAssetReceivedEvent,
   SmartAssetTransferedEvent,
   SmartAssetUpdatedEvent,
+  SmartAssetInstance,
 } from '@arianee/wallet';
 import { useCallback, useEffect, useState } from 'react';
 import { ChainType, Language } from '@arianee/common-types';
@@ -16,7 +16,7 @@ export interface WalletNftsProps {
 }
 
 export default function WalletNfts({ wallet, language }: WalletNftsProps) {
-  const [nfts, setNfts] = useState<OwnedSmartAssetInstance[]>([]);
+  const [nfts, setNfts] = useState<SmartAssetInstance<ChainType>[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [brandsFilter, setBrandsFilter] = useState<string | 'all'>('all');
 
@@ -166,7 +166,7 @@ export default function WalletNfts({ wallet, language }: WalletNftsProps) {
               return (
                 <Nft
                   key={id}
-                  ownedSmartAssetInstance={nft}
+                  smartAssetInstance={nft}
                   index={index}
                   refreshNfts={refreshNfts}
                 />

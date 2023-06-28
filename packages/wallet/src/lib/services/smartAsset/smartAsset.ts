@@ -9,7 +9,7 @@ import {
   WalletRewards,
   getWalletReward,
 } from '../../utils/walletReward/walletReward';
-import { ContractTransactionReceipt, TransactionReceipt, ethers } from 'ethers';
+import { ContractTransactionReceipt, ethers } from 'ethers';
 import Core from '@arianee/core';
 import {
   generateRandomPassphrase,
@@ -19,23 +19,7 @@ import {
   transactionWrapper,
   NonPayableOverrides,
 } from '../../utils/transactions/transactionWrapper';
-
-export type SmartAssetInstance = {
-  data: SmartAsset;
-  arianeeEvents: (Event & {
-    acceptEvent: () => Promise<TransactionReceipt>;
-    refuseEvent: () => Promise<TransactionReceipt>;
-  })[];
-};
-
-export type OwnedSmartAssetInstance = SmartAssetInstance & {
-  createProofLink: () => Promise<string>;
-  createRequestLink: () => Promise<string>;
-};
-
-export type ClaimableSmartAssetInstance = SmartAssetInstance & {
-  claim: (receiver?: string) => Promise<ContractTransactionReceipt>;
-};
+import SmartAssetInstance from './instances/smartAssetInstance';
 
 export default class SmartAssetService<T extends ChainType> {
   public readonly received: EventManager<T>['smartAssetReceived'];
@@ -100,12 +84,12 @@ export default class SmartAssetService<T extends ChainType> {
       passphrase?: string;
     },
     params?: { i18nStrategy?: I18NStrategy }
-  ): Promise<SmartAssetInstance> {
+  ): Promise<SmartAssetInstance<T>> {
     const preferredLanguages = getPreferredLanguages(
       params?.i18nStrategy ?? this.i18nStrategy
     );
 
-    const [_smartAsset, _arianeeEvents] = await Promise.all([
+    const [_smartAsset, arianeeEvents] = await Promise.all([
       this.walletAbstraction.getSmartAsset(protocolName, smartAsset, {
         preferredLanguages,
       }),
@@ -115,16 +99,17 @@ export default class SmartAssetService<T extends ChainType> {
       }),
     ]);
 
-    const arianeeEvents = _arianeeEvents.map((event) => ({
-      ...event,
-      acceptEvent: () => this.acceptEvent(event.protocol.name, event.id),
-      refuseEvent: () => this.refuseEvent(event.protocol.name, event.id),
-    }));
-
-    return {
-      data: _smartAsset,
-      arianeeEvents,
-    };
+    return new SmartAssetInstance(
+      this,
+      {
+        data: _smartAsset,
+        arianeeEvents,
+        userAddress: this.core.getAddress(),
+      },
+      {
+        passphrase: smartAsset.passphrase,
+      }
+    );
   }
 
   /**
@@ -137,7 +122,7 @@ export default class SmartAssetService<T extends ChainType> {
   async getOwned(params?: {
     onlyFromBrands?: string[];
     i18nStrategy?: I18NStrategy;
-  }): Promise<OwnedSmartAssetInstance[]> {
+  }): Promise<SmartAssetInstance<T>[]> {
     const { onlyFromBrands, i18nStrategy } = params ?? {};
 
     const preferredLanguages = getPreferredLanguages(
@@ -151,38 +136,21 @@ export default class SmartAssetService<T extends ChainType> {
 
     const smartAssetsInstances = await Promise.all(
       smartAssets.map(async (smartAsset) => {
-        const arianeeEvents = (
-          await this.walletAbstraction.getSmartAssetEvents(
-            smartAsset.protocol.name,
-            {
-              id: smartAsset.certificateId,
-            },
-            {
-              preferredLanguages,
-            }
-          )
-        ).map((event) => ({
-          ...event,
-          acceptEvent: () => this.acceptEvent(event.protocol.name, event.id),
-          refuseEvent: () => this.refuseEvent(event.protocol.name, event.id),
-        }));
+        const arianeeEvents = await this.walletAbstraction.getSmartAssetEvents(
+          smartAsset.protocol.name,
+          {
+            id: smartAsset.certificateId,
+          },
+          {
+            preferredLanguages,
+          }
+        );
 
-        return {
+        return new SmartAssetInstance(this, {
           data: smartAsset,
           arianeeEvents,
-          createProofLink: () =>
-            this.createLink(
-              'proof',
-              smartAsset.protocol.name,
-              smartAsset.certificateId
-            ),
-          createRequestLink: () =>
-            this.createLink(
-              'requestOwnership',
-              smartAsset.protocol.name,
-              smartAsset.certificateId
-            ),
-        };
+          userAddress: this.core.getAddress(),
+        });
       })
     );
 
@@ -193,7 +161,7 @@ export default class SmartAssetService<T extends ChainType> {
     link: string,
     resolveFinalNft = false,
     i18nStrategy?: I18NStrategy
-  ): Promise<ClaimableSmartAssetInstance> {
+  ): Promise<SmartAssetInstance<T>> {
     if (!(this.walletAbstraction instanceof WalletApiClient))
       throw new Error(
         'The wallet abstraction you use do not support this method (try using @arianee/wallet-api-client)'
@@ -213,7 +181,7 @@ export default class SmartAssetService<T extends ChainType> {
           : {}
       );
 
-      const smartAssetInstance = await this.get(
+      return await this.get(
         network,
         {
           id: certificateId,
@@ -221,12 +189,6 @@ export default class SmartAssetService<T extends ChainType> {
         },
         { i18nStrategy: i18nStrategy ?? this.i18nStrategy }
       );
-
-      return {
-        ...smartAssetInstance,
-        claim: (receiver?: string) =>
-          this.claim(network, certificateId, passphrase!, { receiver }),
-      };
     } catch (e) {
       throw new Error(
         'Could not retrieve a smart asset from this link: ' + link

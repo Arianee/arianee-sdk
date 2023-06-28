@@ -8,13 +8,8 @@ import {
   getWalletReward,
 } from '../../utils/walletReward/walletReward';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
-import { TransactionReceipt } from 'ethers';
 import { transactionWrapper } from '../../utils/transactions/transactionWrapper';
-
-export type MessageInstance = {
-  data: DecentralizedMessage;
-  readMessage: () => Promise<TransactionReceipt>;
-};
+import MessageInstance from './instances/messageInstance';
 
 export default class MessageService<T extends ChainType> {
   public readonly received: EventManager<T>['messageReceived'];
@@ -62,7 +57,7 @@ export default class MessageService<T extends ChainType> {
     params?: {
       i18nStrategy?: I18NStrategy;
     }
-  ): Promise<MessageInstance> {
+  ): Promise<MessageInstance<T>> {
     const { i18nStrategy } = params ?? {};
 
     const preferredLanguages = getPreferredLanguages(
@@ -73,10 +68,7 @@ export default class MessageService<T extends ChainType> {
       preferredLanguages,
     });
 
-    return {
-      data: message,
-      readMessage: () => this.readMessage(protocolName, id),
-    };
+    return new MessageInstance(this, message);
   }
 
   /**
@@ -85,7 +77,7 @@ export default class MessageService<T extends ChainType> {
    */
   async getReceived(params?: {
     i18nStrategy?: I18NStrategy;
-  }): Promise<MessageInstance[]> {
+  }): Promise<MessageInstance<T>[]> {
     const { i18nStrategy } = params ?? {};
 
     const preferredLanguages = getPreferredLanguages(
@@ -96,10 +88,9 @@ export default class MessageService<T extends ChainType> {
       preferredLanguages,
     });
 
-    const messageInstances = messages.map((message) => ({
-      data: message,
-      readMessage: () => this.readMessage(message.protocol.name, message.id),
-    }));
+    const messageInstances = messages.map(
+      (message) => new MessageInstance(this, message)
+    );
 
     return messageInstances;
   }

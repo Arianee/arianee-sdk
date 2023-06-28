@@ -5,6 +5,7 @@ import EventManager from '../eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import * as txWrapperModule from '../../utils/transactions/transactionWrapper';
+import SmartAssetInstance from './instances/smartAssetInstance';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/arianee-access-token');
@@ -200,8 +201,7 @@ describe('SmartAssetService', () => {
           preferredLanguages: expectedPreferedLanguages,
         });
 
-        expect(owned[0].createProofLink).toEqual(expect.any(Function));
-        expect(owned[0].createRequestLink).toEqual(expect.any(Function));
+        expect(owned[0]).toBeInstanceOf(SmartAssetInstance);
       }
     );
   });

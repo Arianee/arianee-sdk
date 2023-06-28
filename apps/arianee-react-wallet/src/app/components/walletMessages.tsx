@@ -1,5 +1,4 @@
 import Wallet, {
-  IdentityUpdatedEvent,
   MessageInstance,
   MessageReadEvent,
   MessageReceivedEvent,
@@ -18,7 +17,7 @@ export default function WalletMessages({
   wallet,
   language,
 }: WalletMessagesProps) {
-  const [messages, setMessages] = useState<MessageInstance[]>([]);
+  const [messages, setMessages] = useState<MessageInstance<ChainType>[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [eventsLog, setEventsLog] = useState<string>('');

@@ -1,9 +1,10 @@
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import { Core } from '@arianee/core';
 import { transactionWrapper } from './transactionWrapper';
-import { Contract, ContractTransactionResponse } from 'ethers';
+import { ContractTransactionResponse } from 'ethers';
 
 jest.mock('@arianee/arianee-protocol-client');
+jest.spyOn(console, 'error').mockImplementation();
 
 describe('transactionWrapper', () => {
   const arianeeProtocolClient = new ArianeeProtocolClient(
