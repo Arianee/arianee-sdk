@@ -1,9 +1,10 @@
 import { MessageInstance } from '@arianee/wallet';
 import { TransactionReceipt } from 'ethers';
 import { useEffect, useState } from 'react';
+import { ChainType } from '@arianee/common-types';
 
 export interface MessageProps {
-  messageInstance: MessageInstance;
+  messageInstance: MessageInstance<ChainType>;
   index: number;
 }
 
