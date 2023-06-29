@@ -53,7 +53,7 @@ export type ProductLanguageCode =
   | 'it'
   | 'ru';
 export type ProductCategory = 'apparel' | 'accessory' | string;
-export type ProductSubCategory = 'shirt' | 'dress' | 'watch';
+export type ProductSubCategory = 'shirt' | 'dress' | 'watch' | 'Digital Asset';
 export type ProductIntended = 'womens' | 'mens' | 'neutral';
 export type ProductSerialNumberType =
   | 'serialnumber'
@@ -64,7 +64,12 @@ export type ProductSerialNumberType =
   | 'millesimation';
 export type ProductSubDescriptionType = 'service' | 'recycling' | 'other';
 export type ProductCurrency = 'USD' | 'EUR' | 'GBP';
-export type ProductMediaType = 'picture' | 'youtube' | '3dModel' | 'video';
+export type ProductMediaType =
+  | 'picture'
+  | 'youtube'
+  | '3dModel'
+  | 'video'
+  | 'AR';
 export type ProductMediaTypeEnum =
   | 'product'
   | 'brandItemBackgroundPicture'
@@ -73,7 +78,10 @@ export type ProductMediaTypeEnum =
   | '3dModelPreview'
   | '3dModelAsset'
   | 'videoPreview'
-  | 'videoSource';
+  | 'videoSource'
+  | 'ARPreview'
+  | 'ARAsset'
+  | 'ARPrimaryAsset';
 export type ProductMaterialEnum =
   | 'cashmere'
   | 'cotton'
