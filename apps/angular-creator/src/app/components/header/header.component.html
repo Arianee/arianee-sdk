@@ -1,0 +1,31 @@
+<header>
+  <h3>Creator status</h3>
+  <div class="status">
+    <div [ngClass]="{ dot: true, connected: creatorService.connected }"></div>
+    <span>{{ creatorService.connected ? 'Connected' : 'Disconnected' }}</span>
+  </div>
+  <div class="connector">
+    <h4>Connector</h4>
+    <div class="user-input">
+      <label>Slug</label>
+      <select name="slug" [(ngModel)]="slug">
+        <option>testnet</option>
+      </select>
+      or <input type="text" [(ngModel)]="slugOverride" />
+    </div>
+    <div class="user-input">
+      <label>Mnemonic</label>
+      <input type="text" [(ngModel)]="mnemonic" /> or
+      <label>Private key</label>
+      <input type="text" [(ngModel)]="privateKey" />
+    </div>
+    <div class="user-input">
+      <label>Creator address</label>
+      <input type="text" [(ngModel)]="creatorAddress" />
+    </div>
+    <button [disabled]="loading" (click)="tryConnect()">Connect</button>
+    <div class="errors" *ngIf="errors.length > 0">
+      <p [innerHTML]="errors"></p>
+    </div>
+  </div>
+</header>
