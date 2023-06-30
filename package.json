@@ -22,6 +22,8 @@
     "test:core": "nx test core",
     "test:all": "nx run-many --target=test --all",
     "lint:all": "nx run-many --target=lint --all",
+    "bump:all": "./scripts/bump.sh",
+    "publish:all": "./scripts/publish.sh",
     "dev": "nx serve arianee-sdk-example",
     "react-wallet": "nx serve arianee-react-wallet",
     "angular-wallet": "nx serve angular-wallet"
