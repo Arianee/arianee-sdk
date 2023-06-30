@@ -16,6 +16,11 @@ const passphrase = '05fo931jo0mi';
 const messageId = '456';
 const eventId = '789';
 
+const content = {
+  $schema: 'mock',
+  name: 'test',
+};
+
 describe('arianeePrivacyGatewayClient', () => {
   describe('constructor', () => {
     it('should use node-fetch in node environment as default fetch function', () => {
@@ -64,6 +69,27 @@ describe('arianeePrivacyGatewayClient', () => {
       expect(res.$schema).toBeDefined();
     });
 
+    it('should be able to call certificateCreate', async () => {
+      const res = await arianeePrivacyGatewayClient.certificateCreate(
+        'https://mock-rpc/',
+        {
+          certificateId,
+          content,
+        }
+      );
+
+      expect(rpcCallSpy).toHaveBeenCalledWith(
+        'https://mock-rpc/',
+        'certificate.create',
+        {
+          certificateId,
+          json: content,
+        }
+      );
+
+      expect(res).toBeDefined();
+    });
+
     it('should be able to call certificateRead with a passphrase', async () => {
       const res = await arianeePrivacyGatewayClient.certificateRead(
         'https://mock-rpc/',
@@ -107,6 +133,27 @@ describe('arianeePrivacyGatewayClient', () => {
       );
 
       expect(res.$schema).toBeDefined();
+    });
+
+    it('should be able to call updateCreate', async () => {
+      const res = await arianeePrivacyGatewayClient.updateCreate(
+        'https://mock-rpc/',
+        {
+          certificateId,
+          content,
+        }
+      );
+
+      expect(rpcCallSpy).toHaveBeenCalledWith(
+        'https://mock-rpc/',
+        'update.create',
+        {
+          certificateId,
+          json: content,
+        }
+      );
+
+      expect(res).toBeDefined();
     });
 
     it('should be able to call updateRead with a passphrase', async () => {
@@ -155,6 +202,27 @@ describe('arianeePrivacyGatewayClient', () => {
       expect(res.$schema).toBeDefined();
     });
 
+    it('should be able to call messageCreate', async () => {
+      const res = await arianeePrivacyGatewayClient.messageCreate(
+        'https://mock-rpc/',
+        {
+          messageId,
+          content,
+        }
+      );
+
+      expect(rpcCallSpy).toHaveBeenCalledWith(
+        'https://mock-rpc/',
+        'message.create',
+        {
+          messageId,
+          json: content,
+        }
+      );
+
+      expect(res).toBeDefined();
+    });
+
     it('should be able to call eventRead', async () => {
       const res = await arianeePrivacyGatewayClient.eventRead(
         'https://mock-rpc/',
@@ -177,6 +245,26 @@ describe('arianeePrivacyGatewayClient', () => {
       );
 
       expect(res.$schema).toBeDefined();
+    });
+    it('should be able to call messageCreate', async () => {
+      const res = await arianeePrivacyGatewayClient.eventCreate(
+        'https://mock-rpc/',
+        {
+          eventId,
+          content,
+        }
+      );
+
+      expect(rpcCallSpy).toHaveBeenCalledWith(
+        'https://mock-rpc/',
+        'event.create',
+        {
+          eventId,
+          json: content,
+        }
+      );
+
+      expect(res).toBeDefined();
     });
 
     it('should be able to call eventRead with a passphrase', async () => {

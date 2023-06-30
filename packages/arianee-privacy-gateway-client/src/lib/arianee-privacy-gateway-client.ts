@@ -125,6 +125,26 @@ export default class ArianeePrivacyGatewayClient {
     return (await res.json()).result;
   }
 
+  public async certificateCreate(
+    rpcUrl: RpcUrl,
+    {
+      certificateId,
+      content,
+    }: { certificateId: string; content: ArianeeProductCertificateI18N }
+  ): Promise<{
+    jsonrpc: string;
+    id: number;
+    error?: { code: number; message: string };
+    result: string | null;
+  }> {
+    const res = await this.rpcCall(rpcUrl, 'certificate.create', {
+      certificateId,
+      json: content,
+    });
+
+    return res.json();
+  }
+
   public async updateRead(
     rpcUrl: RpcUrl,
     {
@@ -154,6 +174,25 @@ export default class ArianeePrivacyGatewayClient {
     return (await res.json()).result;
   }
 
+  public async updateCreate(
+    rpcUrl: RpcUrl,
+    {
+      certificateId,
+      content,
+    }: { certificateId: string; content: ArianeeProductCertificateI18N }
+  ): Promise<{
+    jsonrpc: string;
+    id: number;
+    error?: { code: number; message: string };
+    result: string | null;
+  }> {
+    const res = await this.rpcCall(rpcUrl, 'update.create', {
+      certificateId,
+      json: content,
+    });
+    return res.json();
+  }
+
   public async messageRead(
     rpcUrl: RpcUrl,
     {
@@ -176,6 +215,25 @@ export default class ArianeePrivacyGatewayClient {
     });
 
     return (await res.json()).result;
+  }
+
+  public async messageCreate(
+    rpcUrl: RpcUrl,
+    {
+      messageId,
+      content,
+    }: { messageId: string; content: ArianeeProductCertificateI18N }
+  ): Promise<{
+    jsonrpc: string;
+    id: number;
+    error?: { code: number; message: string };
+    result: string | null;
+  }> {
+    const res = await this.rpcCall(rpcUrl, 'message.create', {
+      messageId,
+      json: content,
+    });
+    return res.json();
   }
 
   public async eventRead(
@@ -208,6 +266,25 @@ export default class ArianeePrivacyGatewayClient {
     });
 
     return (await res.json()).result;
+  }
+
+  public async eventCreate(
+    rpcUrl: RpcUrl,
+    {
+      eventId,
+      content,
+    }: { eventId: string; content: ArianeeProductCertificateI18N }
+  ): Promise<{
+    jsonrpc: string;
+    id: number;
+    error?: { code: number; message: string };
+    result: string | null;
+  }> {
+    const res = await this.rpcCall(rpcUrl, 'event.create', {
+      eventId,
+      json: content,
+    });
+    return res.json();
   }
 }
 export { ArianeePrivacyGatewayClient };
