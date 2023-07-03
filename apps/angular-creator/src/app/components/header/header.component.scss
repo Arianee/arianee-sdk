@@ -1,0 +1,59 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin-top: 16px;
+  margin-left: 8px;
+
+  a:not(.active) {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  header {
+    div.status {
+      display: flex;
+      align-items: center;
+
+      div.dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+        background-color: red;
+        margin-right: 8px;
+
+        &.connected {
+          background-color: green;
+        }
+      }
+    }
+
+    div.connector {
+      background-color: #aaa;
+      padding: 8px;
+      margin: 8px 0;
+      border-radius: 4px;
+
+      h4 {
+        margin: 4px 0 20px 0;
+      }
+
+      div.user-input {
+        label {
+          margin-right: 8px;
+          font-weight: bold;
+        }
+      }
+    }
+
+    div.errors {
+      background: #ff9999;
+      color: #bb3333;
+      border-radius: 8px;
+      padding: 4px;
+      margin: 4px 0;
+    }
+  }
+}
