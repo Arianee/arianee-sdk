@@ -1,3 +1,4 @@
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import { Core } from '@arianee/core';
 import { transactionWrapper } from './transactionWrapper';
@@ -30,7 +31,7 @@ describe('transactionWrapper', () => {
       })
     ).rejects.toThrowError(/is not yet supported/gi);
 
-    expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    expect(connectSpy).toHaveBeenCalledWith('mockProtocol', undefined);
   });
 
   it('should call the protocol v1 action, wait for the transaction and return the receipt', async () => {
@@ -54,7 +55,7 @@ describe('transactionWrapper', () => {
       }
     );
 
-    expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+    expect(connectSpy).toHaveBeenCalledWith('mockProtocol', undefined);
     expect(protocolV1Action).toHaveBeenCalledWith(v1Spy);
     expect(receipt).toMatchObject({ mockReceipt: '0x123' });
   });

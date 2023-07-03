@@ -2,7 +2,7 @@ import { Core } from '@arianee/core';
 import MessageService from './message';
 import WalletApiClient from '@arianee/wallet-api-client';
 import EventManager from '../eventManager/eventManager';
-import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');
@@ -25,7 +25,8 @@ describe('MessageService', () => {
   let messageService: MessageService<'testnet'>;
   const walletApiClient = new WalletApiClient('testnet', Core.fromRandom());
   const core = Core.fromRandom();
-  const arianeeProtocolClient = new ArianeeProtocolClient(core);
+  const arianeeProtocolClient =
+    new arianeeProtocolClientModule.ArianeeProtocolClient(core);
   const walletRewards = {
     poa: '0x0',
     sokol: '0x1',
@@ -141,123 +142,116 @@ describe('MessageService', () => {
   });
 
   describe('readMessage', () => {
-    it('should throw if the protocol is not supported', async () => {
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
+    it('should call the v1 contract with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
         .mockResolvedValue({
-          v2: {},
+          mockReceipt: '0x123',
         } as any);
 
-      await expect(
-        messageService.readMessage('mockProtocol', '123')
-      ).rejects.toThrowError(/not yet supported/gi);
-
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
-    });
-
-    it('should call the v1 contract with correct params', async () => {
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const readMessageSpy = jest.fn().mockResolvedValue({
         wait: waitSpy,
       });
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v1: {
-            storeContract: {
-              readMessage: readMessageSpy,
-            },
-          },
-        } as any);
 
       await messageService.readMessage('mockProtocol', '123');
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
 
-      expect(readMessageSpy).toHaveBeenCalledWith('123', '0x2');
+      await protocolV1Action({
+        storeContract: {
+          readMessage: readMessageSpy,
+        },
+      } as any);
+
+      expect(readMessageSpy).toHaveBeenCalledWith('123', '0x2', {});
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+        }
+      );
     });
   });
 
   describe('blackListAddress', () => {
-    it('should throw if the protocol is not supported', async () => {
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
+    it('should call the v1 contract with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
         .mockResolvedValue({
-          v2: {},
+          mockReceipt: '0x123',
         } as any);
 
-      await expect(
-        messageService.blackListAddress('mockProtocol', '0x123', '23')
-      ).rejects.toThrowError(/not yet supported/gi);
-
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
-    });
-
-    it('should call the v1 contract with correct params', async () => {
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const addBlacklistedAddressSpy = jest.fn().mockResolvedValue({
         wait: waitSpy,
       });
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v1: {
-            whitelistContract: {
-              addBlacklistedAddress: addBlacklistedAddressSpy,
-            },
-          },
-        } as any);
 
       await messageService.blackListAddress('mockProtocol', '0x123', '23');
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        whitelistContract: {
+          addBlacklistedAddress: addBlacklistedAddressSpy,
+        },
+      } as any);
 
       expect(addBlacklistedAddressSpy).toHaveBeenCalledWith(
         '0x123',
         '23',
-        true
+        true,
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+        }
       );
     });
   });
 
   describe('unblackListAddress', () => {
-    it('should throw if the protocol is not supported', async () => {
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
+    it('should call the v1 contract with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
         .mockResolvedValue({
-          v2: {},
+          mockReceipt: '0x123',
         } as any);
 
-      await expect(
-        messageService.unblackListAddress('mockProtocol', '0x123', '23')
-      ).rejects.toThrowError(/not yet supported/gi);
-
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
-    });
-
-    it('should call the v1 contract with correct params', async () => {
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const addBlacklistedAddressSpy = jest.fn().mockResolvedValue({
         wait: waitSpy,
       });
-      const connectSpy = jest
-        .spyOn(arianeeProtocolClient, 'connect')
-        .mockResolvedValue({
-          v1: {
-            whitelistContract: {
-              addBlacklistedAddress: addBlacklistedAddressSpy,
-            },
-          },
-        } as any);
 
       await messageService.unblackListAddress('mockProtocol', '0x123', '23');
 
-      expect(connectSpy).toHaveBeenCalledWith('mockProtocol');
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        whitelistContract: {
+          addBlacklistedAddress: addBlacklistedAddressSpy,
+        },
+      } as any);
 
       expect(addBlacklistedAddressSpy).toHaveBeenCalledWith(
         '0x123',
         '23',
-        false
+        false,
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+        }
       );
     });
   });

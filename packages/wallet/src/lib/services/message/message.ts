@@ -7,8 +7,11 @@ import {
   WalletRewards,
   getWalletReward,
 } from '../../utils/walletReward/walletReward';
-import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
-import { transactionWrapper } from '../../utils/transactions/transactionWrapper';
+import ArianeeProtocolClient, {
+  NonPayableOverrides,
+} from '@arianee/arianee-protocol-client';
+import { transactionWrapper } from '@arianee/arianee-protocol-client';
+
 import MessageInstance from './instances/messageInstance';
 
 export default class MessageService<T extends ChainType> {
@@ -97,13 +100,15 @@ export default class MessageService<T extends ChainType> {
 
   public async readMessage(
     protocolName: Protocol['name'],
-    messageId: DecentralizedMessage['id']
+    messageId: DecentralizedMessage['id'],
+    overrides?: NonPayableOverrides
   ) {
     return transactionWrapper(this.arianeeProtocolClient, protocolName, {
       protocolV1Action: async (v1) => {
         return v1.storeContract.readMessage(
           messageId,
-          getWalletReward(protocolName, this.walletRewards)
+          getWalletReward(protocolName, this.walletRewards),
+          overrides ?? {}
         );
       },
     });
@@ -113,14 +118,16 @@ export default class MessageService<T extends ChainType> {
     protocolName: Protocol['name'],
     messageSender: DecentralizedMessage['sender'],
     smartAssetId: SmartAsset['certificateId'],
-    activate: boolean
+    activate: boolean,
+    overrides?: NonPayableOverrides
   ) {
     return transactionWrapper(this.arianeeProtocolClient, protocolName, {
       protocolV1Action: async (v1) => {
         return v1.whitelistContract.addBlacklistedAddress(
           messageSender,
           smartAssetId,
-          activate
+          activate,
+          overrides ?? {}
         );
       },
     });
@@ -129,17 +136,31 @@ export default class MessageService<T extends ChainType> {
   public async blackListAddress(
     protocolName: Protocol['name'],
     messageSender: DecentralizedMessage['sender'],
-    smartAssetId: SmartAsset['certificateId']
+    smartAssetId: SmartAsset['certificateId'],
+    overrides?: NonPayableOverrides
   ) {
-    return this.setBlacklist(protocolName, messageSender, smartAssetId, true);
+    return this.setBlacklist(
+      protocolName,
+      messageSender,
+      smartAssetId,
+      true,
+      overrides
+    );
   }
 
   public async unblackListAddress(
     protocolName: Protocol['name'],
     messageSender: DecentralizedMessage['sender'],
-    smartAssetId: SmartAsset['certificateId']
+    smartAssetId: SmartAsset['certificateId'],
+    overrides?: NonPayableOverrides
   ) {
-    return this.setBlacklist(protocolName, messageSender, smartAssetId, false);
+    return this.setBlacklist(
+      protocolName,
+      messageSender,
+      smartAssetId,
+      false,
+      overrides
+    );
   }
 }
 

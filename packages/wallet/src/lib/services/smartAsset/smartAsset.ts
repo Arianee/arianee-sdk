@@ -18,7 +18,7 @@ import {
 import {
   transactionWrapper,
   NonPayableOverrides,
-} from '../../utils/transactions/transactionWrapper';
+} from '@arianee/arianee-protocol-client';
 import SmartAssetInstance from './instances/smartAssetInstance';
 
 export default class SmartAssetService<T extends ChainType> {
