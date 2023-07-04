@@ -4,9 +4,8 @@ import {
   TransactionRequest,
 } from 'ethers';
 import { Protocol } from '@arianee/common-types';
-import ArianeeProtocolClient, {
-  ProtocolClientV1,
-} from '@arianee/arianee-protocol-client';
+import ArianeeProtocolClient from '../../arianeeProtocolClient';
+import ProtocolClientV1 from '../../v1/protocolClientV1';
 
 export type NonPayableOverrides = Omit<
   Omit<TransactionRequest, 'to' | 'data'>,
@@ -20,9 +19,13 @@ export const transactionWrapper = async (
     protocolV1Action: (
       v1: ProtocolClientV1
     ) => Promise<ContractTransactionResponse>;
-  }
+  },
+  connectOptions?: Parameters<ArianeeProtocolClient['connect']>[1]
 ): Promise<ContractTransactionReceipt> => {
-  const protocol = await arianeeProtocolClient.connect(protocolName);
+  const protocol = await arianeeProtocolClient.connect(
+    protocolName,
+    connectOptions
+  );
 
   if ('v1' in protocol) {
     let tx: ContractTransactionResponse;

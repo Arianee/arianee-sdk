@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import Creator from '@arianee/creator';
 import Core from '@arianee/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CreatorService {
-  private _creator?: Creator;
+  private _creator: BehaviorSubject<Creator | null> =
+    new BehaviorSubject<Creator | null>(null);
 
   public get connected() {
-    return this._creator?.connected || false;
+    return this._creator.getValue()?.connected || false;
   }
 
   public get creator() {
@@ -27,12 +29,14 @@ export class CreatorService {
     else if ('mnemonic' in auth) core = Core.fromMnemonic(auth.mnemonic);
     else throw new Error('auth should be privateKey or mnemonic');
 
-    this._creator = new Creator({
-      core,
-      creatorAddress,
-    });
+    this._creator.next(
+      new Creator({
+        core,
+        creatorAddress,
+      })
+    );
 
-    await this._creator.connect(slug);
-    return this._creator;
+    await this._creator.getValue()?.connect(slug);
+    return this.creator;
   }
 }

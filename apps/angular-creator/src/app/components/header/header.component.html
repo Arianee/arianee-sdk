@@ -9,7 +9,9 @@
     <div class="user-input">
       <label>Slug</label>
       <select name="slug" [(ngModel)]="slug">
-        <option>testnet</option>
+        <option value="testnet">testnet</option>
+        <option value="mainnet">mainnet</option>
+        <option value="polygon">polygon</option>
       </select>
       or <input type="text" [(ngModel)]="slugOverride" />
     </div>

@@ -1,0 +1,7 @@
+<div class="actions" *ngIf="creatorService.connected">
+  <h3>Actions</h3>
+
+  <app-action-get-available-smart-asset-id
+    [creator]="creatorService.creator.getValue()"
+  ></app-action-get-available-smart-asset-id>
+</div>
