@@ -301,6 +301,24 @@ export default class SmartAssetService<T extends ChainType> {
       protocolName
     )}${suffix}/${tokenId},${_passphrase}`;
   }
+
+  public async transfer(
+    protocolName: Protocol['name'],
+    tokenId: SmartAsset['certificateId'],
+    to: string,
+    overrides: NonPayableOverrides = {}
+  ): Promise<ContractTransactionReceipt> {
+    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
+      protocolV1Action: async (v1) => {
+        return v1.smartAssetContract.transferFrom(
+          this.core.getAddress(),
+          to,
+          tokenId,
+          overrides
+        );
+      },
+    });
+  }
 }
 
 export { SmartAssetService as SmartAsset };
