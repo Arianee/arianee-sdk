@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Core from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
 import ArianeeProtocolClient, {
+  NonPayableOverrides,
   callWrapper,
+  transactionWrapper,
 } from '@arianee/arianee-protocol-client';
+import { CreditType } from './types/credit';
 
 export type CreatorParams = {
   creatorAddress: string;
@@ -55,38 +59,104 @@ export default class Creator {
   }
 
   public async getAvailableSmartAssetId(): Promise<number> {
-    if (!this.connected || !this.slug)
-      throw new Error(
-        'Creator is not connected, you must call the connect method once before calling other methods'
-      );
+    this.requiresCreatorToBeConnected();
 
     let idCandidate: number;
     let isFree = false;
 
     do {
       idCandidate = Math.ceil(Math.random() * 1000000000);
-
-      await callWrapper(
-        this.arianeeProtocolClient,
-        this.slug,
-        {
-          protocolV1Action: async (protocolV1) => {
-            // NFTs assigned to zero address are considered invalid, and queries about them do throw
-            // See https://raw.githubusercontent.com/0xcert/framework/master/packages/0xcert-ethereum-erc721-contracts/src/contracts/nf-token-metadata-enumerable.sol
-            try {
-              await protocolV1.smartAssetContract.ownerOf(idCandidate);
-            } catch {
-              isFree = true;
-            }
-
-            return '';
-          },
-        },
-        this.connectOptions
-      );
+      isFree = await this.isSmartAssetIdAvailable(idCandidate);
     } while (!isFree);
 
     return idCandidate;
+  }
+
+  private async isSmartAssetIdAvailable(id: number): Promise<boolean> {
+    this.requiresCreatorToBeConnected();
+
+    let isFree = false;
+
+    await callWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) => {
+          // NFTs assigned to zero address are considered invalid, and queries about them do throw
+          // See https://raw.githubusercontent.com/0xcert/framework/master/packages/0xcert-ethereum-erc721-contracts/src/contracts/nf-token-metadata-enumerable.sol
+          try {
+            await protocolV1.smartAssetContract.ownerOf(id);
+          } catch {
+            isFree = true;
+          }
+
+          return '';
+        },
+      },
+      this.connectOptions
+    );
+
+    return isFree;
+  }
+
+  public async reserveSmartAssetId(
+    id?: number,
+    overrides: NonPayableOverrides = {}
+  ) {
+    this.requiresCreatorToBeConnected();
+
+    if (id) {
+      const isFree = await this.isSmartAssetIdAvailable(id);
+      if (!isFree) {
+        throw new Error(`The id ${id} is not available`);
+      }
+    }
+
+    const smartAssetCredits = await this.getCreditBalance(
+      CreditType.smartAsset
+    );
+    if (smartAssetCredits === BigInt(0))
+      throw new Error(
+        `You do not have enough smart asset credits to reserve a smart asset ID (required: 1, balance: ${smartAssetCredits})`
+      );
+
+    const _id = id ?? (await this.getAvailableSmartAssetId());
+
+    return transactionWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.storeContract.reserveToken(
+            _id,
+            this.core.getAddress(),
+            overrides
+          ),
+      },
+      this.connectOptions
+    );
+  }
+
+  private requiresCreatorToBeConnected(): void {
+    if (!this.connected || !this.slug)
+      throw new Error(
+        'Creator is not connected, you must call the connect method once before calling other methods'
+      );
+  }
+
+  public async getCreditBalance(creditType: CreditType): Promise<bigint> {
+    return callWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          await protocolV1.creditHistoryContract.balanceOf(
+            this.core.getAddress(),
+            creditType
+          ),
+      },
+      this.connectOptions
+    );
   }
 }
 

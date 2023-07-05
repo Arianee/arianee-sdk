@@ -3,7 +3,6 @@ import Creator from './creator';
 import Core from '@arianee/core';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 
-jest.mock('@arianee/core');
 jest.mock('@arianee/arianee-protocol-client');
 jest.spyOn(console, 'error').mockImplementation();
 
@@ -86,8 +85,9 @@ describe('Creator', () => {
 
   describe('getAvailableSmartAssetId', () => {
     it('should call the v1 contract with correct params and return the id', async () => {
-      jest.spyOn(Creator.prototype, 'connected', 'get').mockReturnValue(true);
-      creator['slug'] = 'slug';
+      jest
+        .spyOn(creator as any, 'requiresCreatorToBeConnected')
+        .mockReturnValue(true);
 
       const ownerOfSpy = jest.fn().mockRejectedValue(new Error('owned by 0x0'));
 
@@ -116,6 +116,47 @@ describe('Creator', () => {
       );
 
       expect(id).toEqual(expect.any(Number));
+    });
+  });
+
+  describe('reserveSmartAssetId', () => {
+    it('should call the v1 contract with correct params and return the id', async () => {
+      jest
+        .spyOn(creator as any, 'requiresCreatorToBeConnected')
+        .mockReturnValue(true);
+
+      jest
+        .spyOn(creator as any, 'isSmartAssetIdAvailable')
+        .mockReturnValue(true);
+
+      jest.spyOn(creator, 'getCreditBalance').mockResolvedValue(BigInt(1));
+
+      const reserveTokenSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.reserveSmartAssetId(123);
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        storeContract: {
+          reserveToken: reserveTokenSpy,
+        },
+      } as any);
+
+      expect(reserveTokenSpy).toHaveBeenCalledWith(123, expect.any(String), {});
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
     });
   });
 });

@@ -1,0 +1,15 @@
+<div class="action">
+  <div class="action-name">getCreditBalance</div>
+  <div class="action-input">
+    <select [(ngModel)]="creditType">
+      <option value="0">smartAsset</option>
+      <option value="1">message</option>
+      <option value="2">event</option>
+      <option value="3">update</option>
+    </select>
+  </div>
+  <div class="action-execute"><button (click)="action()">Execute</button></div>
+  <div class="action-result" *ngIf="result !== null">
+    <b>Result:</b> {{ result }}
+  </div>
+</div>
