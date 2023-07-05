@@ -9,7 +9,10 @@ import { I18NStrategy } from './utils/i18n';
 import EventManager, {
   EventManagerParams,
 } from './services/eventManager/eventManager';
-import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import {
+  ArianeeAccessToken,
+  PayloadOverride,
+} from '@arianee/arianee-access-token';
 import { WalletRewards } from './utils/walletReward/walletReward';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import { defaultFetchLike } from '@arianee/utils';
@@ -165,12 +168,16 @@ export default class Wallet<T extends ChainType = 'testnet'> {
   /**
    * Use this to force trigger an authentication signature if
    * you use a wallet provider such as Metamask or WalletConnect
+   * @param sessionDuration duration of the session in seconds
    */
-  public async authenticate(): Promise<void> {
-    await this.arianeeAccessToken.getValidWalletAccessToken(
-      {},
-      { prefix: this.arianeeAccessTokenPrefix }
-    );
+  public async authenticate(sessionDuration?: number): Promise<void> {
+    const payloadOverride: PayloadOverride = {};
+    if (sessionDuration) {
+      payloadOverride.exp = Date.now() + sessionDuration * 1000;
+    }
+    await this.arianeeAccessToken.getValidWalletAccessToken(payloadOverride, {
+      prefix: this.arianeeAccessTokenPrefix,
+    });
   }
 }
 

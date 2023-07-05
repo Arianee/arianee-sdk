@@ -6,7 +6,7 @@ import { JwtHeaderInterface } from './types/JwtHeaderInterface';
 import { isExpInLessThan } from './helpers/timeBeforeExp';
 import { MemoryStorage } from '@arianee/utils';
 
-interface PayloadOverride {
+export interface PayloadOverride {
   exp?: number;
   iat?: number;
 }
