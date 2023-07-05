@@ -506,4 +506,45 @@ describe('SmartAssetService', () => {
       }
     );
   });
+
+  describe('transfer', () => {
+    it('should call transactionWrapper with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      const transferFromSpy = jest.fn();
+
+      await smartAssetService.transfer('mockProtocol', '123', '0x000456', {
+        nonce: 123456,
+      });
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        smartAssetContract: {
+          transferFrom: transferFromSpy,
+        },
+      } as any);
+
+      expect(transferFromSpy).toHaveBeenCalledWith(
+        core.getAddress(),
+        '0x000456',
+        '123',
+        {
+          nonce: 123456,
+        }
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+        }
+      );
+    });
+  });
 });

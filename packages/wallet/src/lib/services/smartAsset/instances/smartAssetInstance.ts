@@ -83,6 +83,19 @@ export default class SmartAssetInstance<T extends ChainType> {
       this.certificateId
     );
   }
+
+  public async transfer(receiver: string) {
+    if (!this.isOwner)
+      throw new Error(
+        `User needs to be owner of the smart asset (${this.certificateId}) to transfer it`
+      );
+
+    return this.smartAssetService.transfer(
+      this.protocolName,
+      this.certificateId,
+      receiver
+    );
+  }
 }
 
 export { SmartAssetInstance };
