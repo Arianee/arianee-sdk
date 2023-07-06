@@ -144,6 +144,18 @@ export default class Creator {
       );
   }
 
+  private async getSmartAssetOwner(id: string): Promise<string> {
+    return callWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          await protocolV1.smartAssetContract.ownerOf(id),
+      },
+      this.connectOptions
+    );
+  }
+
   public async getCreditBalance(creditType: CreditType): Promise<bigint> {
     return callWrapper(
       this.arianeeProtocolClient,
@@ -186,6 +198,31 @@ export default class Creator {
       {
         protocolV1Action: async (protocolV1) =>
           protocolV1.smartAssetContract.recoverTokenToIssuer(id, overrides),
+      },
+      this.connectOptions
+    );
+  }
+
+  public async destroySmartAsset(
+    id: string,
+    overrides: NonPayableOverrides = {}
+  ) {
+    const smartAssetOwner = await this.getSmartAssetOwner(id);
+
+    if (smartAssetOwner !== this.core.getAddress())
+      throw new Error('You are not the owner of this smart asset');
+
+    return transactionWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.smartAssetContract.transferFrom(
+            this.core.getAddress(),
+            '0x000000000000000000000000000000000000dead',
+            id,
+            overrides
+          ),
       },
       this.connectOptions
     );

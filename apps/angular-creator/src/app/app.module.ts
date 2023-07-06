@@ -8,6 +8,7 @@ import { ActionGetAvailableSmartAssetIdComponent } from './components/actions/ac
 import { ActionReserveSmartAssetIdComponent } from './components/actions/action-reserve-smart-asset-id/action-reserve-smart-asset-id.component';
 import { ActionGetCreditBalance } from './components/actions/action-get-credit-balance/action-get-credit-balance.component';
 import { ActionRecoverSmartAssetIdComponent } from './components/actions/action-recover-smart-asset/action-recover-smart-asset-id.component';
+import { ActionDestroySmartAssetIdComponent } from './components/actions/action-destroy-smart-asset/action-destroy-smart-asset-id.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { ActionRecoverSmartAssetIdComponent } from './components/actions/action-
     ActionGetAvailableSmartAssetIdComponent,
     ActionReserveSmartAssetIdComponent,
     ActionGetCreditBalance,
+    ActionDestroySmartAssetIdComponent,
     ActionRecoverSmartAssetIdComponent,
   ],
   imports: [BrowserModule, FormsModule],
