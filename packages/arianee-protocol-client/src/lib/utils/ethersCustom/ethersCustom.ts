@@ -61,6 +61,18 @@ export class CoreWallet extends Wallet {
     });
   }
 
+  override async estimateGas(tx: TransactionRequest): Promise<bigint> {
+    try {
+      const estimate = await super.estimateGas(tx);
+      return estimate;
+    } catch (e: any) {
+      if (e.message.includes('insufficient funds for gas')) {
+        return BigInt(0);
+      }
+      throw new Error(e);
+    }
+  }
+
   override async signTransaction(transaction: TransactionLike) {
     if (!this.core.signTransaction)
       throw new Error('signTransaction is not implemented in Core');
