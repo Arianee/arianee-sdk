@@ -158,6 +158,38 @@ export default class Creator {
       this.connectOptions
     );
   }
+
+  public async getSmartAssetIssuer(id: string) {
+    return callWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          await protocolV1.smartAssetContract.issuerOf(id),
+      },
+      this.connectOptions
+    );
+  }
+
+  public async recoverSmartAsset(
+    id: string,
+    overrides: NonPayableOverrides = {}
+  ) {
+    const smartAssetIssuer = await this.getSmartAssetIssuer(id);
+
+    if (smartAssetIssuer !== this.core.getAddress())
+      throw new Error('You are not the issuer of this smart asset');
+
+    return transactionWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.smartAssetContract.recoverTokenToIssuer(id, overrides),
+      },
+      this.connectOptions
+    );
+  }
 }
 
 export { Creator };

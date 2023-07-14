@@ -159,4 +159,43 @@ describe('Creator', () => {
       );
     });
   });
+
+  describe('recoverSmartAsset', () => {
+    it('should call the v1 contract with correct params and return the id', async () => {
+      jest
+        .spyOn(creator as any, 'requiresCreatorToBeConnected')
+        .mockReturnValue(true);
+
+      jest
+        .spyOn(creator as any, 'getSmartAssetIssuer')
+        .mockReturnValue(core.getAddress());
+
+      const recoverTokenToIssuerSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.recoverSmartAsset('123');
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        smartAssetContract: {
+          recoverTokenToIssuer: recoverTokenToIssuerSpy,
+        },
+      } as any);
+
+      expect(recoverTokenToIssuerSpy).toHaveBeenCalledWith('123', {});
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+    });
+  });
 });
