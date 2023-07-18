@@ -11,6 +11,7 @@ export class ActionGetAvailableSmartAssetIdComponent implements Action {
   @Input() creator: Creator | null = null;
 
   public result: string | null = null;
+  public loading = false;
 
   public async action() {
     if (!this.creator) {
@@ -18,6 +19,10 @@ export class ActionGetAvailableSmartAssetIdComponent implements Action {
       return;
     }
 
-    this.result = (await this.creator.getAvailableSmartAssetId()).toString();
+    this.loading = true;
+    this.result = (
+      await this.creator.utils.getAvailableSmartAssetId()
+    ).toString();
+    this.loading = false;
   }
 }

@@ -8,6 +8,11 @@ import { ActionGetAvailableSmartAssetIdComponent } from './components/actions/ac
 import { ActionReserveSmartAssetIdComponent } from './components/actions/action-reserve-smart-asset-id/action-reserve-smart-asset-id.component';
 import { ActionGetCreditBalance } from './components/actions/action-get-credit-balance/action-get-credit-balance.component';
 import { ActionRecoverSmartAssetIdComponent } from './components/actions/action-recover-smart-asset/action-recover-smart-asset-id.component';
+import { ActionCreateSmartAssetComponent } from './components/actions/action-create-smart-asset/action-create-smart-asset.component';
+import { ActionBuyCreditComponent } from './components/actions/action-buy-credit/action-buy-credit.component';
+import { ActionGetCreditPriceComponent } from './components/actions/action-get-credit-price/action-get-credit-price.component';
+import { ActionGetAriaBalanceComponent } from './components/actions/action-get-aria-balance/action-get-aria-balance.component';
+import { ActionCreateAndStoreSmartAssetComponent } from './components/actions/action-create-and-store-smart-asset/action-create-and-store-smart-asset.component';
 import { ActionDestroySmartAssetIdComponent } from './components/actions/action-destroy-smart-asset/action-destroy-smart-asset-id.component';
 
 @NgModule({
@@ -20,6 +25,11 @@ import { ActionDestroySmartAssetIdComponent } from './components/actions/action-
     ActionGetCreditBalance,
     ActionDestroySmartAssetIdComponent,
     ActionRecoverSmartAssetIdComponent,
+    ActionCreateSmartAssetComponent,
+    ActionCreateAndStoreSmartAssetComponent,
+    ActionBuyCreditComponent,
+    ActionGetCreditPriceComponent,
+    ActionGetAriaBalanceComponent,
   ],
   imports: [BrowserModule, FormsModule],
   providers: [],

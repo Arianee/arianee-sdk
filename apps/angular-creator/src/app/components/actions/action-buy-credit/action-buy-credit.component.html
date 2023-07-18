@@ -1,5 +1,5 @@
 <div class="action">
-  <div class="action-name">getCreditBalance</div>
+  <div class="action-name">buyCredit</div>
   <div class="action-input">
     <select [(ngModel)]="creditType">
       <option value="0">smartAsset</option>
@@ -7,6 +7,7 @@
       <option value="2">event</option>
       <option value="3">update</option>
     </select>
+    <input type="text" placeholder="amount" [(ngModel)]="amount" />
   </div>
   <div class="action-execute">
     <button (click)="action()" [disabled]="loading">

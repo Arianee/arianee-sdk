@@ -1,6 +1,7 @@
 <div class="actions" *ngIf="creatorService.connected">
   <h3>Actions</h3>
 
+  <h4>Smart assets</h4>
   <app-action-get-available-smart-asset-id
     [creator]="creatorService.creator.getValue()"
   ></app-action-get-available-smart-asset-id>
@@ -9,15 +10,39 @@
     [creator]="creatorService.creator.getValue()"
   ></app-action-reserve-smart-asset-id>
 
-  <app-action-get-credit-balance
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-get-credit-balance>
-
   <app-action-destroy-smart-asset-id
     [creator]="creatorService.creator.getValue()"
   ></app-action-destroy-smart-asset-id>
 
   <app-action-recover-smart-asset-id
     [creator]="creatorService.creator.getValue()"
-    ></app-action-recover-smart-asset-id>
+  ></app-action-recover-smart-asset-id>
+
+  <app-action-create-and-store-smart-asset
+    [creator]="creatorService.creator.getValue()"
+  ></app-action-create-and-store-smart-asset>
+
+  <app-action-create-smart-asset
+    [creator]="creatorService.creator.getValue()"
+  ></app-action-create-smart-asset>
+
+  <h4>Credits</h4>
+
+  <app-action-get-credit-balance
+    [creator]="creatorService.creator.getValue()"
+  ></app-action-get-credit-balance>
+
+  <app-action-get-credit-price
+    [creator]="creatorService.creator.getValue()"
+  ></app-action-get-credit-price>
+
+  <app-action-buy-credit
+    [creator]="creatorService.creator.getValue()"
+  ></app-action-buy-credit>
+
+  <h4>Aria</h4>
+
+  <app-action-get-aria-balance
+    [creator]="creatorService.creator.getValue()"
+  ></app-action-get-aria-balance>
 </div>

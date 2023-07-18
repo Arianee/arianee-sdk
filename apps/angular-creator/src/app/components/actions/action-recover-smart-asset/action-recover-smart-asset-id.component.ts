@@ -12,6 +12,7 @@ export class ActionRecoverSmartAssetIdComponent implements Action {
 
   public id: string | null = null;
   public result: string | null = null;
+  public loading = false;
 
   public async action() {
     if (!this.creator) {
@@ -20,6 +21,7 @@ export class ActionRecoverSmartAssetIdComponent implements Action {
     }
 
     try {
+      this.loading = true;
       if (!this.id) {
         throw new Error('No ID set!');
       }
@@ -27,6 +29,8 @@ export class ActionRecoverSmartAssetIdComponent implements Action {
     } catch (error) {
       console.error(error);
       alert('Error while reserving the smart asset ID, see console');
+    } finally {
+      this.loading = false;
     }
   }
 }
