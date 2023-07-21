@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import Creator, {
   InsufficientSmartAssetCreditsError,
+  NoIdentityError,
   UnavailableSmartAssetIdError,
 } from '@arianee/creator';
 import { Action } from '../action';
@@ -53,6 +54,10 @@ export class ActionCreateAndStoreSmartAssetComponent implements Action {
         alert('You do not have enough credits!');
       } else if (error instanceof UnavailableSmartAssetIdError) {
         alert('This smart asset ID is not available!');
+      } else if (error instanceof NoIdentityError) {
+        alert(
+          'You need to have an identity to use createAndStoreSmartAsset, please use createSmartAsset instead'
+        );
       } else {
         console.error(error);
         alert('Error while creating the smart asset, see console');

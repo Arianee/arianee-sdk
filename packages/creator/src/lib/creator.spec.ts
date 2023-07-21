@@ -223,6 +223,10 @@ describe('Creator', () => {
         .spyOn(creator as any, 'checkSmartAssetCreditBalance')
         .mockImplementation();
 
+      const storeSmartAssetSpy = jest
+        .spyOn(creator as any, 'storeSmartAsset')
+        .mockImplementation();
+
       const getCreateSmartAssetParams = jest
         .spyOn(creator as any, 'getCreateSmartAssetParams')
         .mockResolvedValue({
@@ -282,6 +286,7 @@ describe('Creator', () => {
       expect(requiresCreatorToBeConnectedSpy).toHaveBeenCalled();
       expect(checkCreateSmartAssetParametersSpy).toHaveBeenCalled();
       expect(checkSmartAssetCreditBalanceSpy).toHaveBeenCalled();
+      expect(storeSmartAssetSpy).toHaveBeenCalled();
       expect(getCreateSmartAssetParams).toHaveBeenCalledWith({
         tokenAccess: {
           fromPassphrase: 'be6qhkoijals',
