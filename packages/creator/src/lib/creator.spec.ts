@@ -160,6 +160,50 @@ describe('Creator', () => {
     });
   });
 
+  describe('destroySmartAsset', () => {
+    it('should call the v1 contract with correct params and return the id', async () => {
+      jest
+        .spyOn(creator as any, 'requiresCreatorToBeConnected')
+        .mockReturnValue(true);
+
+      jest
+        .spyOn(creator as any, 'getSmartAssetOwner')
+        .mockReturnValue(core.getAddress());
+
+      const transferFromSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.destroySmartAsset('123');
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        smartAssetContract: {
+          transferFrom: transferFromSpy,
+        },
+      } as any);
+
+      expect(transferFromSpy).toHaveBeenCalledWith(
+        core.getAddress(),
+        '0x000000000000000000000000000000000000dead',
+        '123',
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+    });
+  });
+
   describe('recoverSmartAsset', () => {
     it('should call the v1 contract with correct params and return the id', async () => {
       jest
