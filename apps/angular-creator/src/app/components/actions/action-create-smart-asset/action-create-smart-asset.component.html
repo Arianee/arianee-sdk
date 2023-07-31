@@ -1,10 +1,10 @@
 <div class="action">
-  <div class="action-name">destroySmartAsset</div>
+  <div class="action-name">createSmartAsset</div>
   <div class="action-input">
     <input type="text" placeholder="id? (optional)" [(ngModel)]="id" />
   </div>
   <div class="action-input">
-    <input type="text" placeholder="id" [(ngModel)]="id" />
+    <input type="text" placeholder="uri" [(ngModel)]="uri" />
   </div>
   <div class="action-execute">
     <button (click)="action()" [disabled]="loading">

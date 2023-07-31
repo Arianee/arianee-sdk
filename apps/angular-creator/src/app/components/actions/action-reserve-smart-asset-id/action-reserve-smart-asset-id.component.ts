@@ -12,6 +12,7 @@ export class ActionReserveSmartAssetIdComponent implements Action {
 
   public id: string | null = null;
   public result: string | null = null;
+  public loading = false;
 
   public async action() {
     if (!this.creator) {
@@ -20,12 +21,15 @@ export class ActionReserveSmartAssetIdComponent implements Action {
     }
 
     try {
+      this.loading = true;
       await this.creator.reserveSmartAssetId(
         this.id ? parseInt(this.id.trim()) : undefined
       );
     } catch (error) {
       console.error(error);
       alert('Error while reserving the smart asset ID, see console');
+    } finally {
+      this.loading = false;
     }
   }
 }

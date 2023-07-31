@@ -13,6 +13,7 @@ export class ActionGetCreditBalance implements Action {
   public id: string | null = null;
   public creditType: string = '0';
   public result: string | null = null;
+  public loading = false;
 
   public async action() {
     if (!this.creator) {
@@ -20,8 +21,10 @@ export class ActionGetCreditBalance implements Action {
       return;
     }
 
+    this.loading = true;
     this.result = (
-      await this.creator.getCreditBalance(parseInt(this.creditType))
+      await this.creator.utils.getCreditBalance(parseInt(this.creditType))
     ).toString();
+    this.loading = false;
   }
 }

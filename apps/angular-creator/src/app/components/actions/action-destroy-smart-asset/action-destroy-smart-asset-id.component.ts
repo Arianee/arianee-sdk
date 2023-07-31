@@ -12,7 +12,7 @@ export class ActionDestroySmartAssetIdComponent implements Action {
 
   public id: string | null = null;
   public result: string | null = null;
-
+  public loading = false;
   public async action() {
     if (!this.creator) {
       alert('Creator not set!');
@@ -23,10 +23,13 @@ export class ActionDestroySmartAssetIdComponent implements Action {
       if (!this.id) {
         throw new Error('No ID set!');
       }
+      this.loading = true;
       await this.creator.destroySmartAsset(this.id);
     } catch (error) {
       console.error(error);
       alert('Error while reserving the smart asset ID, see console');
+    } finally {
+      this.loading = false;
     }
   }
 }

@@ -1,10 +1,13 @@
 <div class="action">
-  <div class="action-name">destroySmartAsset</div>
+  <div class="action-name">createAndStoreSmartAsset</div>
   <div class="action-input">
     <input type="text" placeholder="id? (optional)" [(ngModel)]="id" />
   </div>
   <div class="action-input">
-    <input type="text" placeholder="id" [(ngModel)]="id" />
+    <textarea
+      [ngStyle]="{ width: '100%', height: '112px' }"
+      [(ngModel)]="content"
+    ></textarea>
   </div>
   <div class="action-execute">
     <button (click)="action()" [disabled]="loading">

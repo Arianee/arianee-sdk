@@ -83,53 +83,19 @@ describe('Creator', () => {
     });
   });
 
-  describe('getAvailableSmartAssetId', () => {
-    it('should call the v1 contract with correct params and return the id', async () => {
-      jest
-        .spyOn(creator as any, 'requiresCreatorToBeConnected')
-        .mockReturnValue(true);
-
-      const ownerOfSpy = jest.fn().mockRejectedValue(new Error('owned by 0x0'));
-
-      const callWrapperSpy = jest
-
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) => {
-          await actions.protocolV1Action({
-            smartAssetContract: {
-              ownerOf: ownerOfSpy,
-            },
-          } as any);
-        });
-
-      const id = await creator.getAvailableSmartAssetId();
-
-      expect(ownerOfSpy).toHaveBeenCalledWith(expect.any(Number));
-
-      expect(callWrapperSpy).toHaveBeenCalledWith(
-        creator['arianeeProtocolClient'],
-        creator['slug'],
-        {
-          protocolV1Action: expect.any(Function),
-        },
-        undefined
-      );
-
-      expect(id).toEqual(expect.any(Number));
-    });
-  });
-
   describe('reserveSmartAssetId', () => {
     it('should call the v1 contract with correct params and return the id', async () => {
       jest
-        .spyOn(creator as any, 'requiresCreatorToBeConnected')
-        .mockReturnValue(true);
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
 
       jest
-        .spyOn(creator as any, 'isSmartAssetIdAvailable')
-        .mockReturnValue(true);
+        .spyOn(creator.utils, 'isSmartAssetIdAvailable')
+        .mockResolvedValue(true);
 
-      jest.spyOn(creator, 'getCreditBalance').mockResolvedValue(BigInt(1));
+      jest
+        .spyOn(creator.utils, 'getCreditBalance')
+        .mockResolvedValue(BigInt(1));
 
       const reserveTokenSpy = jest.fn();
 
@@ -163,11 +129,11 @@ describe('Creator', () => {
   describe('destroySmartAsset', () => {
     it('should call the v1 contract with correct params and return the id', async () => {
       jest
-        .spyOn(creator as any, 'requiresCreatorToBeConnected')
+        .spyOn(creator.utils as any, 'requiresCreatorToBeConnected')
         .mockReturnValue(true);
 
       jest
-        .spyOn(creator as any, 'getSmartAssetOwner')
+        .spyOn(creator.utils as any, 'getSmartAssetOwner')
         .mockReturnValue(core.getAddress());
 
       const transferFromSpy = jest.fn();
@@ -207,8 +173,8 @@ describe('Creator', () => {
   describe('recoverSmartAsset', () => {
     it('should call the v1 contract with correct params and return the id', async () => {
       jest
-        .spyOn(creator as any, 'requiresCreatorToBeConnected')
-        .mockReturnValue(true);
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
 
       jest
         .spyOn(creator as any, 'getSmartAssetIssuer')
@@ -240,6 +206,184 @@ describe('Creator', () => {
         },
         undefined
       );
+    });
+  });
+
+  describe('createAndStoreSmartAsset', () => {
+    it('should call the v1 contract with correct params and return the id', async () => {
+      const requiresCreatorToBeConnectedSpy = jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      const checkCreateSmartAssetParametersSpy = jest
+        .spyOn(creator as any, 'checkCreateSmartAssetParameters')
+        .mockImplementation();
+
+      const checkSmartAssetCreditBalanceSpy = jest
+        .spyOn(creator as any, 'checkSmartAssetCreditBalance')
+        .mockImplementation();
+
+      const getCreateSmartAssetParams = jest
+        .spyOn(creator as any, 'getCreateSmartAssetParams')
+        .mockResolvedValue({
+          smartAssetId: 123,
+          initialKeyIsRequestKey: true,
+          passphrase: 'be6qhkoijals',
+          publicKey: '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+          tokenRecoveryTimestamp: 123456789,
+          uri: '',
+        });
+
+      const hydrateTokenSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.createAndStoreSmartAsset({
+        tokenAccess: {
+          fromPassphrase: 'be6qhkoijals',
+        },
+        content: {
+          $schema: 'test',
+        },
+        smartAssetId: 123,
+        tokenRecoveryTimestamp: 123456789,
+      });
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        storeContract: {
+          hydrateToken: hydrateTokenSpy,
+        },
+      } as any);
+
+      expect(hydrateTokenSpy).toHaveBeenCalledWith(
+        123,
+        '0x0000000000000000000000000000000000000000000000000000000000000111',
+        '',
+        '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+        123456789,
+        true,
+        creatorAddress,
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(requiresCreatorToBeConnectedSpy).toHaveBeenCalled();
+      expect(checkCreateSmartAssetParametersSpy).toHaveBeenCalled();
+      expect(checkSmartAssetCreditBalanceSpy).toHaveBeenCalled();
+      expect(getCreateSmartAssetParams).toHaveBeenCalledWith({
+        tokenAccess: {
+          fromPassphrase: 'be6qhkoijals',
+        },
+        content: {
+          $schema: 'test',
+        },
+        smartAssetId: 123,
+        tokenRecoveryTimestamp: 123456789,
+      });
+    });
+  });
+  describe('createSmartAsset', () => {
+    it('should call the v1 contract with correct params and return the id', async () => {
+      const fetchLikeSpy = jest.fn().mockResolvedValue({
+        json: () => ({
+          $schema: 'test',
+        }),
+      });
+      const creator = new Creator({
+        core,
+        creatorAddress,
+        fetchLike: fetchLikeSpy,
+      });
+
+      const requiresCreatorToBeConnectedSpy = jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      const checkCreateSmartAssetParametersSpy = jest
+        .spyOn(creator as any, 'checkCreateSmartAssetParameters')
+        .mockImplementation();
+
+      const checkSmartAssetCreditBalanceSpy = jest
+        .spyOn(creator as any, 'checkSmartAssetCreditBalance')
+        .mockImplementation();
+
+      const getCreateSmartAssetParams = jest
+        .spyOn(creator as any, 'getCreateSmartAssetParams')
+        .mockResolvedValue({
+          smartAssetId: 123,
+          initialKeyIsRequestKey: true,
+          passphrase: 'be6qhkoijals',
+          publicKey: '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+          tokenRecoveryTimestamp: 123456789,
+          uri: 'https://mock.com/',
+        });
+
+      const hydrateTokenSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.createSmartAsset({
+        tokenAccess: {
+          fromPassphrase: 'be6qhkoijals',
+        },
+        uri: 'https://mock.com/',
+        smartAssetId: 123,
+        tokenRecoveryTimestamp: 123456789,
+      });
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        storeContract: {
+          hydrateToken: hydrateTokenSpy,
+        },
+      } as any);
+
+      expect(hydrateTokenSpy).toHaveBeenCalledWith(
+        123,
+        '0x0000000000000000000000000000000000000000000000000000000000000111',
+        'https://mock.com/',
+        '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+        123456789,
+        true,
+        creatorAddress,
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(requiresCreatorToBeConnectedSpy).toHaveBeenCalled();
+      expect(checkCreateSmartAssetParametersSpy).toHaveBeenCalled();
+      expect(checkSmartAssetCreditBalanceSpy).toHaveBeenCalled();
+      expect(getCreateSmartAssetParams).toHaveBeenCalledWith({
+        tokenAccess: {
+          fromPassphrase: 'be6qhkoijals',
+        },
+        uri: 'https://mock.com/',
+        smartAssetId: 123,
+        tokenRecoveryTimestamp: 123456789,
+      });
     });
   });
 });

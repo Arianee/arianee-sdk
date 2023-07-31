@@ -43,7 +43,7 @@ export default class ProtocolClientV1 {
 
   constructor(
     private signer: Signer,
-    private protocolDetails: ProtocolDetails
+    public readonly protocolDetails: ProtocolDetails
   ) {
     const { protocolVersion } = protocolDetails;
 
