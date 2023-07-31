@@ -22,6 +22,9 @@ import { LinkObject } from './types/linkObject';
 import { InsufficientSmartAssetCreditsError } from './errors/InsufficientSmartAssetCreditsError';
 import { UnavailableSmartAssetIdError } from './errors/UnavailableSmartAssetIdError';
 import { InvalidURIError } from './errors/InvalidURIError';
+import { ArianeeBrandIdentityI18N } from '@arianee/common-types';
+import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
+import { NoIdentityError } from './errors';
 
 export type CreatorParams = {
   creatorAddress: string;
@@ -220,6 +223,38 @@ export default class Creator {
     };
   }
 
+  private async storeSmartAsset(
+    smartAssetId: number,
+    content: CreateAndStoreSmartAssetParameters['content']
+  ) {
+    const identityURI = await callWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          await protocolV1.identityContract.addressURI(this.core.getAddress()),
+      },
+      this.connectOptions
+    );
+
+    if (identityURI === '')
+      throw new NoIdentityError(
+        'The creator address has no identity URI, it needs to be a valid identity to store content'
+      );
+
+    const req = await this.fetchLike(identityURI);
+    const identity: ArianeeBrandIdentityI18N = await req.json();
+
+    if (!identity.rpcEndpoint)
+      throw new Error('The identity has no rpcEndpoint');
+
+    const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
+    await client.certificateCreate(identity.rpcEndpoint, {
+      certificateId: smartAssetId.toString(),
+      content,
+    });
+  }
+
   public async createAndStoreSmartAsset(
     params: CreateAndStoreSmartAssetParameters,
     overrides: NonPayableOverrides = {}
@@ -244,7 +279,8 @@ export default class Creator {
 
     const imprint =
       '0x0000000000000000000000000000000000000000000000000000000000000111'; // todo: calculate imprint from passed content
-    // todo: store content in apg
+
+    await this.storeSmartAsset(smartAssetId, params.content);
 
     await transactionWrapper(
       this.arianeeProtocolClient,
