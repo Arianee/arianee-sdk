@@ -6,6 +6,8 @@ import {
 import { CreditType } from '../types/credit';
 import Creator from '../creator';
 import { BigNumberish } from 'ethers';
+import { ArianeeProductCertificateI18N } from '@arianee/common-types';
+import { Cert } from '@0xcert/cert';
 
 export default class Utils {
   constructor(private creator: Creator) {}
@@ -198,6 +200,34 @@ export default class Utils {
       },
       this.creator.connectOptions
     );
+  }
+
+  private cleanObject(obj: any) {
+    for (const propName in obj) {
+      if (
+        obj[propName] &&
+        obj[propName].constructor === Array &&
+        obj[propName].length === 0
+      ) {
+        delete obj[propName];
+      }
+    }
+
+    return obj;
+  }
+  public async calculateImprint(
+    content: ArianeeProductCertificateI18N
+  ): Promise<string> {
+    const $schema = await this.creator.fetchLike(content.$schema);
+    const cert = new Cert({
+      schema: await $schema.json(),
+    });
+
+    const cleanData = this.cleanObject(content);
+
+    const imprint = await cert.imprint(cleanData);
+
+    return '0x' + imprint;
   }
 }
 

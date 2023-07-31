@@ -1,6 +1,7 @@
 import Creator from '../creator';
 import Core from '@arianee/core';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import { ArianeeProductCertificateI18N } from '@arianee/common-types';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.spyOn(console, 'error').mockImplementation();
@@ -153,6 +154,38 @@ describe('Creator', () => {
 
       expect(isSmartAssetIdAvailableSpy).toHaveBeenCalledWith(id);
       expect(canCreate).toBeTruthy();
+    });
+  });
+
+  describe('calculateImprint', () => {
+    it('should calculate the right imprint', async () => {
+      const content: ArianeeProductCertificateI18N = {
+        $schema:
+          'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
+        medias: [
+          {
+            mediaType: 'picture',
+            type: 'product',
+            url: 'https://bdh-enduser.api.staging.arianee.com/pub/1679388075201-Cypher_an_illusration_for_a_test_certificate_085255e5-318a-4a12-90ac-4f3e77cf641c.png',
+          },
+        ],
+        i18n: [
+          {
+            language: 'fr-FR',
+            name: 'I18N TEST (FR)',
+            description: 'Description in French',
+          },
+        ],
+        category: 'apparel',
+        language: 'en-US',
+        name: 'I18N TEST (EN)',
+        description: 'Description in English',
+      };
+      const imprint = await creator.utils.calculateImprint(content);
+
+      expect(imprint).toEqual(
+        '0xce917f8d652187e7bf162b2c05d4b5439cef04142795eb6e5d2283b6193b8e88'
+      );
     });
   });
 });

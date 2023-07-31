@@ -215,6 +215,12 @@ describe('Creator', () => {
         .spyOn(creator.utils, 'requiresCreatorToBeConnected')
         .mockImplementation();
 
+      const calculateImprintSpy = jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue(
+          '0x0000000000000000000000000000000000000000000000000000000000000111'
+        );
+
       const checkCreateSmartAssetParametersSpy = jest
         .spyOn(creator as any, 'checkCreateSmartAssetParameters')
         .mockImplementation();

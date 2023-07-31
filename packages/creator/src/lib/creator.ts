@@ -277,8 +277,7 @@ export default class Creator {
 
     await this.checkSmartAssetCreditBalance();
 
-    const imprint =
-      '0x0000000000000000000000000000000000000000000000000000000000000111'; // todo: calculate imprint from passed content
+    const imprint = await this.utils.calculateImprint(params.content);
 
     await this.storeSmartAsset(smartAssetId, params.content);
 
