@@ -47,7 +47,7 @@ export default class ProtocolClientV1 {
   ) {
     const { protocolVersion } = protocolDetails;
 
-    if (!['1', '1.0', '1.1'].includes(protocolVersion))
+    if (!['1', '1.0', '1.1', '1.5'].includes(protocolVersion))
       throw new Error(
         'ProtocolClientV1 is not compatible with protocol v' + protocolVersion
       );

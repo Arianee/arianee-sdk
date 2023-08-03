@@ -61,6 +61,13 @@ const WHITELABEL_HOSTNAMES_TO_PROTOCOL_NAME: Record<string, Protocol['name']> =
     'polygon.yslbeauty.com': 'ysl',
     'innovation-day.arian.ee': 'polygon',
     'stadetoulousain.arian.ee': 'stadetoulousain',
+    'testsbt.arian.ee': 'testnetSbt',
+    'supernet.arian.ee': 'arianeeSupernet',
+    'supernet.arianee.net': 'arianeeSupernet',
+    'arianeesbt.arian.ee': 'arianeesbt',
+    'arianeesbt.arianee.net': 'arianeesbt',
+    'sbt.panerai.com': 'arianeesbt',
+    'paneraisbt.arianee.net': 'arianeesbt',
   };
 
 export const getProtocolNameFromHostname = (
