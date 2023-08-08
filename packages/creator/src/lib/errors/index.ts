@@ -1,11 +1,11 @@
 import { InsufficientSmartAssetCreditsError } from './InsufficientSmartAssetCreditsError';
-import { UnavailableSmartAssetIdError } from './UnavailableSmartAssetIdError';
 import { InvalidURIError } from './InvalidURIError';
 import { NoIdentityError } from './NoIdentityError';
+import { UnavailableSmartAssetIdError } from './UnavailableSmartAssetIdError';
 
 export {
-  UnavailableSmartAssetIdError,
   InsufficientSmartAssetCreditsError,
   InvalidURIError,
   NoIdentityError,
+  UnavailableSmartAssetIdError,
 };

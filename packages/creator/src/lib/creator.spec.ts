@@ -1,7 +1,8 @@
-import { defaultFetchLike } from '@arianee/utils';
-import Creator from './creator';
-import Core from '@arianee/core';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import Core from '@arianee/core';
+import { defaultFetchLike } from '@arianee/utils';
+
+import Creator from './creator';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.spyOn(console, 'error').mockImplementation();

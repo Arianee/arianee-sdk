@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Cert } from '@0xcert/cert';
 import {
   callWrapper,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
-import { CreditType } from '../types/credit';
-import Creator from '../creator';
-import { BigNumberish } from 'ethers';
 import { ArianeeProductCertificateI18N } from '@arianee/common-types';
-import { Cert } from '@0xcert/cert';
+import { BigNumberish } from 'ethers';
+
+import Creator from '../creator';
+import { CreditType } from '../types/credit';
 
 export default class Utils {
   constructor(private creator: Creator) {}

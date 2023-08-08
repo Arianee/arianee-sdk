@@ -1,7 +1,8 @@
-import Creator from '../creator';
-import Core from '@arianee/core';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { ArianeeProductCertificateI18N } from '@arianee/common-types';
+import Core from '@arianee/core';
+
+import Creator from '../creator';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.spyOn(console, 'error').mockImplementation();
