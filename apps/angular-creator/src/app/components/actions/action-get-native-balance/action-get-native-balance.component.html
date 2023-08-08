@@ -1,0 +1,12 @@
+<div class="action">
+  <div class="action-name">getNativeBalance</div>
+  <div class="action-input"></div>
+  <div class="action-execute">
+    <button (click)="action()" [disabled]="loading">
+      {{ loading ? 'loading ...' : 'Execute' }}
+    </button>
+  </div>
+  <div class="action-result" *ngIf="result !== null">
+    <b>Result:</b> {{ result }}
+  </div>
+</div>

@@ -13,9 +13,8 @@ import { ActionBuyCreditComponent } from './components/actions/action-buy-credit
 import { ActionGetCreditPriceComponent } from './components/actions/action-get-credit-price/action-get-credit-price.component';
 import { ActionGetAriaBalanceComponent } from './components/actions/action-get-aria-balance/action-get-aria-balance.component';
 import { ActionCreateAndStoreSmartAssetComponent } from './components/actions/action-create-and-store-smart-asset/action-create-and-store-smart-asset.component';
-import {
-  ActionDestroySmartAssetIdComponent
-} from "./components/actions/action-destroy-smart-asset/action-destroy-smart-asset-id.component";
+import { ActionDestroySmartAssetIdComponent } from './components/actions/action-destroy-smart-asset/action-destroy-smart-asset-id.component';
+import { ActionGetNativeBalanceComponent } from './components/actions/action-get-native-balance/action-get-native-balance.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +31,7 @@ import {
     ActionBuyCreditComponent,
     ActionGetCreditPriceComponent,
     ActionGetAriaBalanceComponent,
+    ActionGetNativeBalanceComponent,
   ],
   imports: [BrowserModule, FormsModule],
   providers: [],
