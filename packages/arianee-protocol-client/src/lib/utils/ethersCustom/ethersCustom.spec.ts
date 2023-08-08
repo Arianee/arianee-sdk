@@ -1,11 +1,12 @@
 import Core from '@arianee/core';
+import { ethers, TransactionResponse } from 'ethers';
+
+import GasStation from '../gasStation/gasStation';
 import {
   CoreWallet,
   ethersWalletFromCore,
   UncheckedJsonRpcProvider,
 } from './ethersCustom';
-import { ethers, TransactionResponse } from 'ethers';
-import GasStation from '../gasStation/gasStation';
 
 jest.mock('../gasStation/gasStation');
 

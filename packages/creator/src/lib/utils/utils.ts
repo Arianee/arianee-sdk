@@ -96,7 +96,10 @@ export default class Utils {
     }
   }
 
-  public async getCreditBalance(creditType: CreditType): Promise<bigint> {
+  public async getCreditBalance(
+    creditType: CreditType,
+    address?: string
+  ): Promise<bigint> {
     this.requiresCreatorToBeConnected();
 
     return callWrapper(
@@ -105,7 +108,7 @@ export default class Utils {
       {
         protocolV1Action: async (protocolV1) =>
           protocolV1.creditHistoryContract.balanceOf(
-            this.creator.core.getAddress(),
+            address ?? this.creator.core.getAddress(),
             creditType
           ),
       },
@@ -136,6 +139,22 @@ export default class Utils {
       {
         protocolV1Action: async (protocolV1) =>
           protocolV1.ariaContract.balanceOf(
+            address ?? this.creator.core.getAddress()
+          ),
+      },
+      this.creator.connectOptions
+    );
+  }
+
+  public async getNativeBalance(address?: string): Promise<bigint> {
+    this.requiresCreatorToBeConnected();
+
+    return callWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.getNativeBalance(
             address ?? this.creator.core.getAddress()
           ),
       },
