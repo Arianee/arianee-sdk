@@ -330,4 +330,42 @@ describe('Creator', () => {
       expect(balance2).toEqual(2);
     });
   });
+
+  describe('requestTestnetAria20', () => {
+    it('should throw if the protocol is not testnet', async () => {
+      Object.defineProperty(creator, 'slug', {
+        get: () => 'mainnet',
+      });
+
+      jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      await expect(creator.utils.requestTestnetAria20()).rejects.toThrow(
+        'This method is only available for the protocol with slug testnet'
+      );
+    });
+
+    it('should call the faucet with correct params and return true if successful', async () => {
+      const mockedFetch = jest.fn(() => Promise.resolve({ ok: true }));
+
+      const creator = new Creator({
+        core: Core.fromRandom(),
+        creatorAddress: '0x' + 'a'.repeat(40),
+        fetchLike: mockedFetch as unknown as typeof fetch,
+      });
+
+      Object.defineProperty(creator, 'slug', {
+        get: () => 'testnet',
+      });
+
+      jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      const success = await creator.utils.requestTestnetAria20();
+
+      expect(success).toBeTruthy();
+    });
+  });
 });

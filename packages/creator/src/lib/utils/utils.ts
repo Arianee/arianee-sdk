@@ -8,6 +8,7 @@ import { ArianeeProductCertificateI18N } from '@arianee/common-types';
 import { BigNumberish } from 'ethers';
 
 import Creator from '../creator';
+import { ProtocolCompatibilityError } from '../errors';
 import { CreditType } from '../types/credit';
 
 export default class Utils {
@@ -235,6 +236,7 @@ export default class Utils {
 
     return obj;
   }
+
   public async calculateImprint(
     content: ArianeeProductCertificateI18N
   ): Promise<string> {
@@ -248,6 +250,23 @@ export default class Utils {
     const imprint = await cert.imprint(cleanData);
 
     return '0x' + imprint;
+  }
+
+  public async requestTestnetAria20(address?: string) {
+    this.requiresCreatorToBeConnected();
+
+    if (this.creator.slug !== 'testnet')
+      throw new ProtocolCompatibilityError(
+        'This method is only available for the protocol with slug testnet'
+      );
+
+    const res = await this.creator.fetchLike(
+      `https://faucet.arianee.net/faucet/testnet/${
+        address ?? this.creator.core.getAddress()
+      }/aria`
+    );
+
+    return res.ok;
   }
 }
 
