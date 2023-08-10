@@ -261,7 +261,7 @@ export default class Creator {
   public async createAndStoreSmartAsset(
     params: CreateAndStoreSmartAssetParameters,
     overrides: NonPayableOverrides = {}
-  ): Promise<LinkObject | void> {
+  ): Promise<LinkObject> {
     this.utils.requiresCreatorToBeConnected();
 
     const {
@@ -309,7 +309,7 @@ export default class Creator {
   public async createSmartAsset(
     params: CreateSmartAssetParameters,
     overrides: NonPayableOverrides = {}
-  ): Promise<LinkObject | void> {
+  ): Promise<LinkObject> {
     this.utils.requiresCreatorToBeConnected();
 
     const {
