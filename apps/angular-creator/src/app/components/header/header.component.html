@@ -4,6 +4,14 @@
     <div [ngClass]="{ dot: true, connected: creatorService.connected }"></div>
     <span>{{ creatorService.connected ? 'Connected' : 'Disconnected' }}</span>
   </div>
+  <div class="details" *ngIf="creatorService.connected">
+    <b>Protocol details ({{ this.creatorService.creator.getValue()?.slug }})</b>
+    <textarea
+      [value]="protocolDetails"
+      spellcheck="false"
+      readonly="true"
+    ></textarea>
+  </div>
   <div class="connector">
     <h4>Connector</h4>
     <div class="user-input">
@@ -12,6 +20,8 @@
         <option value="testnet">testnet</option>
         <option value="mainnet">mainnet</option>
         <option value="polygon">polygon</option>
+        <option value="arianeeSupernet">arianeeSupernet</option>
+        <option value="arianeesbt">arianeesbt</option>
       </select>
       or <input type="text" [(ngModel)]="slugOverride" />
     </div>

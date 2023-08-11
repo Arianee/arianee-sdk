@@ -1,6 +1,8 @@
 import { InsufficientSmartAssetCreditsError } from './InsufficientSmartAssetCreditsError';
 import { InvalidURIError } from './InvalidURIError';
 import { NoIdentityError } from './NoIdentityError';
+import { NotConnectedError } from './NotConnectedError';
+import { NotOwnerError } from './NotOwnerError';
 import { ProtocolCompatibilityError } from './ProtocolCompatibilityError';
 import { UnavailableSmartAssetIdError } from './UnavailableSmartAssetIdError';
 
@@ -8,6 +10,8 @@ export {
   InsufficientSmartAssetCreditsError,
   InvalidURIError,
   NoIdentityError,
+  NotConnectedError,
+  NotOwnerError,
   ProtocolCompatibilityError,
   UnavailableSmartAssetIdError,
 };

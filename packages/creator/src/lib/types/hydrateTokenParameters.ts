@@ -1,8 +1,10 @@
 import { ArianeeProductCertificateI18N } from '@arianee/common-types';
 
+import { TokenAccess } from './tokenAccess';
+
 export type CreateSmartAssetParametersBase = {
   smartAssetId?: number;
-  tokenAccess?: { fromPassphrase: string } | { address: string };
+  tokenAccess?: TokenAccess;
   tokenRecoveryTimestamp?: number;
   sameRequestOwnershipPassphrase?: boolean;
 };
