@@ -49,4 +49,12 @@ export class HeaderComponent {
       this.loading = false;
     }
   }
+
+  public get protocolDetails() {
+    return JSON.stringify(
+      this.creatorService.creator.getValue()?.protocolDetails,
+      null,
+      2
+    );
+  }
 }

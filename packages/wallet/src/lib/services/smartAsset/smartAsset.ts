@@ -1,24 +1,31 @@
-import { ChainType, Event, Protocol, SmartAsset } from '@arianee/common-types';
-import { WalletAbstraction } from '@arianee/wallet-abstraction';
-import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
-import EventManager from '../eventManager/eventManager';
-import WalletApiClient from '@arianee/wallet-api-client';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import {
-  WalletRewards,
-  getWalletReward,
-} from '../../utils/walletReward/walletReward';
-import { ContractTransactionReceipt, ethers } from 'ethers';
+  NonPayableOverrides,
+  transactionWrapper,
+} from '@arianee/arianee-protocol-client';
+import {
+  ChainType,
+  Event,
+  Protocol,
+  SmartAsset,
+  TokenAccessType,
+} from '@arianee/common-types';
 import Core from '@arianee/core';
 import {
   generateRandomPassphrase,
   getHostnameFromProtocolName,
 } from '@arianee/utils';
+import { WalletAbstraction } from '@arianee/wallet-abstraction';
+import WalletApiClient from '@arianee/wallet-api-client';
+import { ContractTransactionReceipt, ethers } from 'ethers';
+
+import { getPreferredLanguages, I18NStrategy } from '../../utils/i18n';
 import {
-  transactionWrapper,
-  NonPayableOverrides,
-} from '@arianee/arianee-protocol-client';
+  getWalletReward,
+  WalletRewards,
+} from '../../utils/walletReward/walletReward';
+import EventManager from '../eventManager/eventManager';
 import SmartAssetInstance from './instances/smartAssetInstance';
 
 export default class SmartAssetService<T extends ChainType> {
@@ -282,7 +289,10 @@ export default class SmartAssetService<T extends ChainType> {
     const _passphrase = params?.passphrase ?? generateRandomPassphrase();
     const passphraseWallet = Core.fromPassPhrase(_passphrase);
 
-    const accessType = linkType === 'requestOwnership' ? 1 : 2; // 1 = request, 2 = proof
+    const accessType =
+      linkType === 'requestOwnership'
+        ? TokenAccessType.request
+        : TokenAccessType.proof;
     const suffix = linkType === 'requestOwnership' ? '' : '/proof';
 
     await transactionWrapper(this.arianeeProtocolClient, protocolName, {

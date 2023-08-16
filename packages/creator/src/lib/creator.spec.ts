@@ -1,4 +1,5 @@
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import { TokenAccessType } from '@arianee/common-types';
 import Core from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
 
@@ -396,6 +397,82 @@ describe('Creator', () => {
         smartAssetId: 123,
         tokenRecoveryTimestamp: 123456789,
       });
+    });
+  });
+
+  describe('setTokenAccess', () => {
+    it('should call the v1 contract with correct params and return the id', async () => {
+      const getSmartAssetOwnerSpy = jest
+        .spyOn(creator.utils, 'getSmartAssetOwner')
+        .mockResolvedValue(core.getAddress());
+
+      const requiresCreatorToBeConnectedSpy = jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      const addTokenAccessSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.setTokenAccess('123', TokenAccessType.request, {
+        fromPassphrase: 'be6qhkoijals',
+      });
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        smartAssetContract: {
+          addTokenAccess: addTokenAccessSpy,
+        },
+      } as any);
+
+      expect(addTokenAccessSpy).toHaveBeenCalledWith(
+        '123',
+        '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+        true,
+        TokenAccessType.request,
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(requiresCreatorToBeConnectedSpy).toHaveBeenCalled();
+      expect(getSmartAssetOwnerSpy).toHaveBeenCalledWith('123');
+    });
+  });
+
+  describe('setRequestKey', () => {
+    it('should call setTokenAccess with correct params', async () => {
+      const setTokenAccessSpy = jest
+        .spyOn(creator, 'setTokenAccess')
+        .mockImplementation();
+
+      const requiresCreatorToBeConnectedSpy = jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      await creator.setRequestKey('123', {
+        fromPassphrase: 'be6qhkoijals',
+      });
+
+      expect(requiresCreatorToBeConnectedSpy).toHaveBeenCalled();
+      expect(setTokenAccessSpy).toHaveBeenCalledWith(
+        '123',
+        TokenAccessType.request,
+        {
+          fromPassphrase: 'be6qhkoijals',
+        },
+        {}
+      );
     });
   });
 });

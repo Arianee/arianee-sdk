@@ -16,6 +16,7 @@ import { ActionCreateAndStoreSmartAssetComponent } from './components/actions/ac
 import { ActionDestroySmartAssetIdComponent } from './components/actions/action-destroy-smart-asset/action-destroy-smart-asset-id.component';
 import { ActionGetNativeBalanceComponent } from './components/actions/action-get-native-balance/action-get-native-balance.component';
 import { ActionRequestTestnetAria20Component } from './components/actions/action-request-testnet-aria20/action-request-testnet-aria20.component';
+import { ActionSetRequestKeyComponent } from './components/actions/action-set-request-key/action-set-request-key.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { ActionRequestTestnetAria20Component } from './components/actions/action
     ActionGetAriaBalanceComponent,
     ActionGetNativeBalanceComponent,
     ActionRequestTestnetAria20Component,
+    ActionSetRequestKeyComponent,
   ],
   imports: [BrowserModule, FormsModule],
   providers: [],
