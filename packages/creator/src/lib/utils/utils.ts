@@ -4,28 +4,19 @@ import {
   callWrapper,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
-import { ArianeeProductCertificateI18N } from '@arianee/common-types';
+import {
+  ArianeeMessageI18N,
+  ArianeeProductCertificateI18N,
+} from '@arianee/common-types';
 import { BigNumberish } from 'ethers';
 
 import Creator from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
-import { NotConnectedError, ProtocolCompatibilityError } from '../errors';
+import { InvalidContentError, ProtocolCompatibilityError } from '../errors';
 import { CreditType } from '../types/credit';
 
 export default class Utils {
   constructor(private creator: Creator) {}
-
-  public requiresCreatorToBeConnected(): void {
-    console.log('requires called');
-    if (
-      !this.creator.connected ||
-      !this.creator.slug ||
-      !this.creator.protocolDetails
-    )
-      throw new NotConnectedError(
-        'Creator is not connected, you must call the connect method once before calling other methods'
-      );
-  }
 
   @requiresConnection()
   public async isSmartAssetIdAvailable(id: number): Promise<boolean> {
@@ -51,6 +42,22 @@ export default class Utils {
     );
 
     return isFree;
+  }
+  @requiresConnection()
+  public async isMessageIdAvailable(id: number): Promise<boolean> {
+    return callWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (protocolV1) => {
+          const message = await protocolV1.messageContract.messages(id);
+          return (
+            message.sender === '0x0000000000000000000000000000000000000000'
+          );
+        },
+      },
+      this.creator.connectOptions
+    );
   }
 
   @requiresConnection()
@@ -160,16 +167,35 @@ export default class Utils {
   }
 
   @requiresConnection()
-  public async getAvailableSmartAssetId(): Promise<number> {
+  public async getAvailableId(
+    idType: 'smartAsset' | 'message' | 'event'
+  ): Promise<number> {
     let idCandidate: number;
     let isFree = false;
 
     do {
       idCandidate = Math.ceil(Math.random() * 1000000000);
-      isFree = await this.isSmartAssetIdAvailable(idCandidate);
+
+      if (idType === 'smartAsset') {
+        isFree = await this.isSmartAssetIdAvailable(idCandidate);
+      } else if (idType === 'message') {
+        isFree = await this.isMessageIdAvailable(idCandidate);
+      } else {
+        isFree = true;
+      }
     } while (!isFree);
 
     return idCandidate;
+  }
+
+  @requiresConnection()
+  public async getAvailableSmartAssetId(): Promise<number> {
+    return this.getAvailableId('smartAsset');
+  }
+
+  @requiresConnection()
+  public async getAvailableMessageId(): Promise<number> {
+    return this.getAvailableId('message');
   }
 
   @requiresConnection()
@@ -232,12 +258,20 @@ export default class Utils {
   }
 
   public async calculateImprint(
-    content: ArianeeProductCertificateI18N
+    content: ArianeeProductCertificateI18N | ArianeeMessageI18N
   ): Promise<string> {
-    const $schema = await this.creator.fetchLike(content.$schema);
-    const cert = new Cert({
-      schema: await $schema.json(),
-    });
+    let cert: Cert;
+
+    try {
+      const $schema = await this.creator.fetchLike(content.$schema);
+      cert = new Cert({
+        schema: await $schema.json(),
+      });
+    } catch {
+      throw new InvalidContentError(
+        'The content is not valid (check that there is a $schema field and that it is valid)'
+      );
+    }
 
     const cleanData = this.cleanObject(content);
 
@@ -260,6 +294,19 @@ export default class Utils {
     );
 
     return res.ok;
+  }
+
+  @requiresConnection()
+  public async getSmartAssetIssuer(id: string) {
+    return callWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          await protocolV1.smartAssetContract.issuerOf(id),
+      },
+      this.creator.connectOptions
+    );
   }
 }
 

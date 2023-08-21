@@ -4,6 +4,7 @@ export * from './lib/arianeeMessage-i18n';
 export * from './lib/arianeeProductCertificate-i18n';
 export * from './lib/blockchainEvent';
 export * from './lib/blockchainEventsName';
+export * from './lib/blockchainEventsName';
 export * from './lib/brandIdentity';
 export * from './lib/decentralizedMessage';
 export * from './lib/event';

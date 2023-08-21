@@ -18,3 +18,8 @@ export interface CreateSmartAssetParameters
   extends CreateSmartAssetParametersBase {
   uri: string;
 }
+
+export interface CreateSmartAssetCommonParameters
+  extends CreateSmartAssetParametersBase {
+  content: ArianeeProductCertificateI18N;
+}

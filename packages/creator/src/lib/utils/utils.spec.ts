@@ -22,51 +22,78 @@ describe('Creator', () => {
       creatorAddress,
     });
 
+    Object.defineProperty(Creator.prototype, 'connected', {
+      get: () => true,
+    });
+
+    Object.defineProperty(Creator.prototype, 'slug', {
+      get: () => 'testnet',
+    });
+
+    Object.defineProperty(Creator.prototype, 'protocolDetails', {
+      get: () => ({}),
+    });
+
     jest.clearAllMocks();
   });
 
-  describe('getAvailableSmartAssetId', () => {
-    it('should call the v1 contract with correct params and return the id', async () => {
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
+  describe('getAvailableId', () => {
+    it('smartAsset: should call isSmartAssetIdAvailable and return the free number', async () => {
+      const isSmartAssetIdAvailableSpy = jest
+        .spyOn(creator.utils, 'isSmartAssetIdAvailable')
+        .mockResolvedValue(true);
 
-      const ownerOfSpy = jest.fn().mockRejectedValue(new Error('owned by 0x0'));
+      const id = await creator.utils.getAvailableId('smartAsset');
 
-      const callWrapperSpy = jest
-
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) => {
-          await actions.protocolV1Action({
-            smartAssetContract: {
-              ownerOf: ownerOfSpy,
-            },
-          } as any);
-        });
-
-      const id = await creator.utils.getAvailableSmartAssetId();
-
-      expect(ownerOfSpy).toHaveBeenCalledWith(expect.any(Number));
-
-      expect(callWrapperSpy).toHaveBeenCalledWith(
-        creator['arianeeProtocolClient'],
-        creator['slug'],
-        {
-          protocolV1Action: expect.any(Function),
-        },
-        undefined
+      expect(isSmartAssetIdAvailableSpy).toHaveBeenCalledWith(
+        expect.any(Number)
       );
+
+      expect(id).toEqual(expect.any(Number));
+    });
+    it('message: should call isMessageIdAvailable and return the free number', async () => {
+      const isMessageIdAvailableSpy = jest
+        .spyOn(creator.utils, 'isMessageIdAvailable')
+        .mockResolvedValue(true);
+
+      const id = await creator.utils.getAvailableId('message');
+
+      expect(isMessageIdAvailableSpy).toHaveBeenCalledWith(expect.any(Number));
 
       expect(id).toEqual(expect.any(Number));
     });
   });
 
-  describe('isSmartAssetAvailable', () => {
-    it('should call the v1 contract with correct params and return true if available', async () => {
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
+  describe('getAvailableSmartAssetId', () => {
+    it('should call getAvailableId and return the number', async () => {
+      const getAvailableIdSpy = jest
+        .spyOn(creator.utils, 'getAvailableId')
+        .mockResolvedValue(123);
 
+      const id = await creator.utils.getAvailableSmartAssetId();
+
+      expect(getAvailableIdSpy).toHaveBeenCalledWith('smartAsset');
+
+      expect(id).toEqual(123);
+    });
+  });
+
+  describe('getAvailableMessageId', () => {
+    it('should call getAvailableId and return the number', async () => {
+      const getAvailableIdSpy = jest
+        .spyOn(creator.utils, 'getAvailableId')
+        .mockResolvedValue(123);
+
+      const id = await creator.utils.getAvailableMessageId();
+
+      expect(getAvailableIdSpy).toHaveBeenCalledWith('message');
+
+      expect(id).toEqual(123);
+    });
+  });
+
+  describe('isSmartAssetIdAvailable', () => {
+    it('should call the v1 contract with correct params and return true if available', async () => {
       const ownerOfSpy = jest.fn().mockRejectedValue(new Error('owned by 0x0'));
 
       const callWrapperSpy = jest
@@ -100,10 +127,6 @@ describe('Creator', () => {
     it('return true if the smart asset id is available', async () => {
       const id = 123;
 
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
-
       const isSmartAssetIdAvailableSpy = jest
         .spyOn(creator.utils, 'isSmartAssetIdAvailable')
         .mockResolvedValue(true);
@@ -116,10 +139,6 @@ describe('Creator', () => {
 
     it('return true if the smart asset id is not available but is reserved', async () => {
       const id = 123;
-
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
 
       const isSmartAssetIdAvailableSpy = jest
         .spyOn(creator.utils, 'isSmartAssetIdAvailable')
@@ -199,10 +218,6 @@ describe('Creator', () => {
 
   describe('getNativeBalance', () => {
     it('should call the protocol details getNativeBalance method with correct params and return it', async () => {
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
-
       const getNativeBalanceSpy = jest
         .fn()
         .mockResolvedValueOnce(1)
@@ -238,10 +253,6 @@ describe('Creator', () => {
 
   describe('getAriaBalance', () => {
     it('should call the ariaContract balanceOf method with correct params and return it', async () => {
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
-
       const balanceOfSpy = jest
         .fn()
         .mockResolvedValueOnce(1)
@@ -279,10 +290,6 @@ describe('Creator', () => {
 
   describe('getCreditBalance', () => {
     it('should call the creditHistoryContract balanceOf method with correct params and return it', async () => {
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
-
       const balanceOfSpy = jest
         .fn()
         .mockResolvedValueOnce(1)
@@ -337,10 +344,6 @@ describe('Creator', () => {
         get: () => 'mainnet',
       });
 
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
-
       await expect(creator.utils.requestTestnetAria20()).rejects.toThrow(
         'This method is only available for the protocol with slug testnet'
       );
@@ -359,13 +362,42 @@ describe('Creator', () => {
         get: () => 'testnet',
       });
 
-      jest
-        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
-        .mockImplementation();
-
       const success = await creator.utils.requestTestnetAria20();
 
       expect(success).toBeTruthy();
+    });
+  });
+
+  describe('isMessageIdAvailable', () => {
+    it('should return ture if the sender is the 0 address', async () => {
+      const messagesSpy = jest.fn().mockResolvedValue({
+        sender: '0x0000000000000000000000000000000000000000',
+      });
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            messageContract: {
+              messages: messagesSpy,
+            },
+          } as any)
+        );
+
+      const available = await creator.utils.isMessageIdAvailable(123);
+
+      expect(messagesSpy).toHaveBeenCalledWith(123);
+
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(available).toBeTruthy();
     });
   });
 });
