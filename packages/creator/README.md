@@ -42,6 +42,18 @@ You then need to connect to the desired protocol instance using the `connect` me
 
 Most methods of the library require a connection prior to being used. If you try to use a method without being connected, it will throw a `NotConnectedError`.
 
+## Examples
+
+We built a minimalistic Angular application that leverages some of the `@arianee/creator` features.
+
+It can be ran with
+
+```bash
+npm run angular-creator
+```
+
+Code is available in the `apps/angular-creator` folder.
+
 ### Main features
 
 #### `reserveSmartAssetId`
@@ -143,14 +155,6 @@ enum CreditType {
 }
 ```
 
-#### `getSmartAssetIssuer`
-
-A method to get the issuer of a smart asset.
-
-```typescript
-public async getSmartAssetIssuer(id: string)
-```
-
 #### `recoverSmartAsset`
 
 A method to recover a smart asset issued by the creator address.
@@ -209,6 +213,69 @@ public async setRequestKey(
 The method can throw:
 
 - `NotOwnerError` if the creator address is not the owner of the smart asset
+
+#### `createAndStoreMessage`
+
+_⚠️ Requires the creator address to have an identity URI_.
+
+Create a message and store its content in the Arianee Privacy Gateway set in the creator address's identity and return a `CreatedMessage`.
+
+```typescript
+public async createAndStoreMessage(
+  params: CreateAndStoreMessageParameters,
+  overrides: NonPayableOverrides = {}
+): Promise<CreatedMessage>
+```
+
+```typescript
+type CreatedMessage = {
+  imprint: string;
+  id: number;
+};
+
+interface CreateAndStoreMessageParameters {
+  messageId?: number;
+  smartAssetId: number;
+  content: ArianeeMessageI18N;
+}
+```
+
+The method can throw:
+
+- `NotOwnerError` if the creator address is not the owner of the smart asset
+- `InsufficientMessageCreditsError` if the creator address does not have enough message credits
+- `UnavailableMessageIdError` if the message id is not available
+- `NoIdentityError` if the creator address does not have an identity URI
+
+#### `createMessage`
+
+Create a message and return a `CreatedMessage`.
+
+```typescript
+public async createMessage(
+  params: CreateMessageParameters,
+  overrides: NonPayableOverrides = {}
+): Promise<CreatedMessage>
+```
+
+```typescript
+type CreatedMessage = {
+  imprint: string;
+  id: number;
+};
+
+interface CreateAndStoreMessageParameters {
+  messageId?: number;
+  smartAssetId: number;
+  uri: string;
+}
+```
+
+The method can throw:
+
+- `NotOwnerError` if the creator address is not the owner of the smart asset
+- `InsufficientMessageCreditsError` if the creator address does not have enough message credits
+- `UnavailableMessageIdError` if the message id is not available
 
 ### Utils
 
@@ -322,6 +389,56 @@ The method can throw:
 
 - `ProtocolCompatibilityError` if called on a protocol that is not the testnet protocol
 
+#### `getSmartAssetIssuer`
+
+A method to get the issuer of a smart asset.
+
+```typescript
+public async getSmartAssetIssuer(id: string)
+```
+
+#### `getSmartAssetIssuer`
+
+A method to get the issuer of a smart asset.
+
+```typescript
+public async getSmartAssetIssuer(id: string)
+```
+
+#### `getAvailableId`
+
+A method to get a randomly generated available id for the passed type.
+
+```typescript
+public async getAvailableId(
+    idType: 'smartAsset' | 'message' | 'event'
+): Promise<number>
+```
+
+#### `getAvailableSmartAssetId`
+
+A method to get a randomly generated available id for the a smart asset.
+
+```typescript
+public async getAvailableSmartAssetId(): Promise<number>
+```
+
+#### `getAvailableMessageId`
+
+A method to get a randomly generated available id for the a message.
+
+```typescript
+public async getAvailableMessageId(): Promise<number>
+```
+
+#### `isMessageIdAvailable`
+
+A method to check whether or not a given id is available for use as a message id.
+
+```typescript
+public async isMessageIdAvailable(id: number): Promise<boolean>
+```
+
 ## Tests
 
 Unit tests can be ran with:
@@ -329,15 +446,3 @@ Unit tests can be ran with:
 ```bash
 npm run test:creator
 ```
-
-## Examples
-
-We built a minimalistic Angular application that leverages some of the `@arianee/creator` features.
-
-It can be ran with
-
-```bash
-npm run angular-creator
-```
-
-Code is available in the `apps/angular-creator` folder.

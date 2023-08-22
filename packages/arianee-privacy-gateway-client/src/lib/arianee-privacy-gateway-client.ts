@@ -1,11 +1,11 @@
-import { Core } from '@arianee/core';
+import { ArianeeAccessToken as ArianeeAccessTokenClass } from '@arianee/arianee-access-token';
 import {
   ArianeeBrandIdentityI18N,
   ArianeeEventI18N,
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
 } from '@arianee/common-types';
-import { ArianeeAccessToken as ArianeeAccessTokenClass } from '@arianee/arianee-access-token';
+import { Core } from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
 
 export type ArianeeAccessToken = string;
@@ -219,10 +219,7 @@ export default class ArianeePrivacyGatewayClient {
 
   public async messageCreate(
     rpcUrl: RpcUrl,
-    {
-      messageId,
-      content,
-    }: { messageId: string; content: ArianeeProductCertificateI18N }
+    { messageId, content }: { messageId: string; content: ArianeeMessageI18N }
   ): Promise<{
     jsonrpc: string;
     id: number;

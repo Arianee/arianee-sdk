@@ -1,29 +1,40 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import ArianeeProtocolClient, {
-  callWrapper,
   NonPayableOverrides,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import { ProtocolDetails } from '@arianee/arianee-protocol-client';
-import { ArianeeBrandIdentityI18N, SmartAsset } from '@arianee/common-types';
+import {
+  ArianeeMessageI18N,
+  ArianeeProductCertificateI18N,
+  SmartAsset,
+} from '@arianee/common-types';
 import { TokenAccessType } from '@arianee/common-types';
 import Core from '@arianee/core';
 import { defaultFetchLike, getHostnameFromProtocolName } from '@arianee/utils';
 
 import { requiresConnection } from './decorators/requiresConnection';
 import {
-  InsufficientSmartAssetCreditsError,
   InvalidURIError,
-  NoIdentityError,
   NotOwnerError,
   UnavailableSmartAssetIdError,
 } from './errors';
-import { getTokenAccessParams } from './helpers/getTokenAccessParams';
+import { checkCreditsBalance } from './helpers/checkCredits/checkCredits';
+import { getTokenAccessParams } from './helpers/getTokenAccessParams/getTokenAccessParams';
+import { getCreatorIdentity } from './helpers/identity/getCreatorIdentity';
+import { checkCreateMessageParameters } from './helpers/message/checkCreateMessageParameters';
+import { getCreateMessageParams } from './helpers/message/getCreateMessageParams';
+import { checkCreateSmartAssetParameters } from './helpers/smartAsset/checkCreateSmartAssetParameters';
+import { getCreateSmartAssetParams } from './helpers/smartAsset/getCreateSmartAssetParams';
 import {
+  CreateAndStoreMessageParameters,
   CreateAndStoreSmartAssetParameters,
+  CreatedMessage,
+  CreateMessageCommonParameters,
+  CreateMessageParameters,
+  CreateSmartAssetCommonParameters,
   CreateSmartAssetParameters,
-  CreateSmartAssetParametersBase,
   CreditType,
   LinkObject,
   TokenAccess,
@@ -115,13 +126,7 @@ export default class Creator {
       }
     }
 
-    const smartAssetCredits = await this.utils.getCreditBalance(
-      CreditType.smartAsset
-    );
-    if (smartAssetCredits === BigInt(0))
-      throw new InsufficientSmartAssetCreditsError(
-        `You do not have enough smart asset credits to reserve a smart asset ID (required: 1, balance: ${smartAssetCredits})`
-      );
+    await checkCreditsBalance(this.utils, CreditType.smartAsset, BigInt(1));
 
     const _id = id ?? (await this.utils.getAvailableSmartAssetId());
 
@@ -138,62 +143,6 @@ export default class Creator {
       },
       this.connectOptions
     );
-  }
-
-  @requiresConnection()
-  private async checkCreateSmartAssetParameters(
-    params: CreateSmartAssetParametersBase
-  ) {
-    if (!params.smartAssetId) throw new Error('Smart asset id required');
-
-    const canCreate = await this.utils.canCreateSmartAsset(params.smartAssetId);
-    if (!canCreate) {
-      throw new UnavailableSmartAssetIdError(
-        `You cannot create a smart asset with id ${params.smartAssetId}`
-      );
-    }
-  }
-
-  @requiresConnection()
-  private async checkSmartAssetCreditBalance() {
-    const balance = await this.utils.getCreditBalance(CreditType.smartAsset);
-    if (balance === BigInt(0)) {
-      throw new InsufficientSmartAssetCreditsError(
-        'Insufficient smart asset credits (balance: 0)'
-      );
-    }
-  }
-
-  @requiresConnection()
-  private async getCreateSmartAssetParams(
-    params: CreateSmartAssetParametersBase | CreateSmartAssetParameters
-  ) {
-    const smartAssetId =
-      params.smartAssetId ?? (await this.utils.getAvailableSmartAssetId());
-
-    const tokenRecoveryTimestamp =
-      params.tokenRecoveryTimestamp ??
-      Math.ceil(
-        new Date(
-          new Date().getTime() + 60 * 60 * 24 * 365 * 5 * 1000
-        ).getTime() / 1000
-      );
-
-    const initialKeyIsRequestKey =
-      params.sameRequestOwnershipPassphrase ?? true;
-
-    const { publicKey, passphrase } = getTokenAccessParams(params.tokenAccess);
-
-    const uri = 'uri' in params && params.uri ? params.uri : '';
-
-    return {
-      smartAssetId,
-      tokenRecoveryTimestamp,
-      initialKeyIsRequestKey,
-      publicKey,
-      passphrase,
-      uri,
-    };
   }
 
   private createLinkObject(
@@ -218,26 +167,7 @@ export default class Creator {
     smartAssetId: number,
     content: CreateAndStoreSmartAssetParameters['content']
   ) {
-    const identityURI = await callWrapper(
-      this.arianeeProtocolClient,
-      this.slug!,
-      {
-        protocolV1Action: async (protocolV1) =>
-          await protocolV1.identityContract.addressURI(this.core.getAddress()),
-      },
-      this.connectOptions
-    );
-
-    if (identityURI === '')
-      throw new NoIdentityError(
-        'The creator address has no identity URI, it needs to be a valid identity to store content'
-      );
-
-    const req = await this.fetchLike(identityURI);
-    const identity: ArianeeBrandIdentityI18N = await req.json();
-
-    if (!identity.rpcEndpoint)
-      throw new Error('The identity has no rpcEndpoint');
+    const identity = await getCreatorIdentity(this);
 
     const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
     await client.certificateCreate(identity.rpcEndpoint, {
@@ -251,6 +181,53 @@ export default class Creator {
     params: CreateAndStoreSmartAssetParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<LinkObject> {
+    return this.createSmartAssetCommon(
+      params,
+      async (smartAssetId) => {
+        await this.storeSmartAsset(smartAssetId, params.content);
+      },
+      overrides
+    );
+  }
+
+  @requiresConnection()
+  public async createSmartAsset(
+    params: CreateSmartAssetParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<LinkObject> {
+    let content: ArianeeProductCertificateI18N;
+
+    try {
+      const res = await this.fetchLike(params.uri);
+      if (!res.ok) throw new Error('Response not ok');
+
+      content = await res.json();
+    } catch {
+      throw new InvalidURIError('Invalid URI: could not fetch the URI content');
+    }
+
+    return this.createSmartAssetCommon(
+      {
+        ...params,
+        content,
+      },
+      null,
+      overrides
+    );
+  }
+
+  @requiresConnection()
+  private async createSmartAssetCommon(
+    params: CreateSmartAssetCommonParameters,
+    beforeTransaction:
+      | ((
+          smartAssetId: NonNullable<
+            CreateSmartAssetCommonParameters['smartAssetId']
+          >
+        ) => Promise<void>)
+      | null,
+    overrides: NonPayableOverrides = {}
+  ): Promise<LinkObject> {
     const {
       smartAssetId,
       initialKeyIsRequestKey,
@@ -258,18 +235,18 @@ export default class Creator {
       publicKey,
       tokenRecoveryTimestamp,
       uri,
-    } = await this.getCreateSmartAssetParams(params);
+    } = await getCreateSmartAssetParams(this.utils, params);
 
-    await this.checkCreateSmartAssetParameters({
+    await checkCreateSmartAssetParameters(this.utils, {
       ...params,
       smartAssetId,
     });
 
-    await this.checkSmartAssetCreditBalance();
+    await checkCreditsBalance(this.utils, CreditType.smartAsset, BigInt(1));
 
     const imprint = await this.utils.calculateImprint(params.content);
 
-    await this.storeSmartAsset(smartAssetId, params.content);
+    if (beforeTransaction) await beforeTransaction(smartAssetId);
 
     await transactionWrapper(
       this.arianeeProtocolClient,
@@ -294,48 +271,96 @@ export default class Creator {
   }
 
   @requiresConnection()
-  public async createSmartAsset(
-    params: CreateSmartAssetParameters,
-    overrides: NonPayableOverrides = {}
-  ): Promise<LinkObject> {
-    const {
-      smartAssetId,
-      initialKeyIsRequestKey,
-      passphrase,
-      publicKey,
-      tokenRecoveryTimestamp,
-      uri,
-    } = await this.getCreateSmartAssetParams(params);
+  private async storeMessage(
+    messageId: number,
+    content: CreateAndStoreMessageParameters['content']
+  ) {
+    const identity = await getCreatorIdentity(this);
 
-    await this.checkCreateSmartAssetParameters({
-      ...params,
-      smartAssetId,
+    const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
+    await client.messageCreate(identity.rpcEndpoint, {
+      messageId: messageId.toString(),
+      content,
     });
+  }
 
-    await this.checkSmartAssetCreditBalance();
+  @requiresConnection()
+  public async createAndStoreMessage(
+    params: CreateAndStoreMessageParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedMessage> {
+    return this.createMessageCommon(
+      params,
+      async (messageId) => {
+        await this.storeMessage(messageId, params.content);
+      },
+      overrides
+    );
+  }
 
-    let imprint: string;
+  @requiresConnection()
+  public async createMessage(
+    params: CreateMessageParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedMessage> {
+    let content: ArianeeMessageI18N;
     try {
-      const req = await this.fetchLike(uri);
-      const content = await req.json();
-      imprint =
-        '0x0000000000000000000000000000000000000000000000000000000000000111'; // todo: calculate imprint from content
+      const res = await this.fetchLike(params.uri);
+      if (!res.ok) throw new Error('Response not ok');
+
+      content = await res.json();
     } catch {
       throw new InvalidURIError('Invalid URI: could not fetch the URI content');
     }
+
+    return this.createMessageCommon(
+      {
+        ...params,
+        content,
+      },
+      null,
+      overrides
+    );
+  }
+
+  @requiresConnection()
+  private async createMessageCommon(
+    params: CreateMessageCommonParameters,
+    beforeTransaction:
+      | ((
+          messageId: NonNullable<CreateMessageCommonParameters['messageId']>
+        ) => Promise<void>)
+      | null,
+
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedMessage> {
+    const { smartAssetId, messageId, uri } = await getCreateMessageParams(
+      this.utils,
+      params
+    );
+
+    await checkCreateMessageParameters(this, {
+      ...params,
+      smartAssetId,
+      messageId,
+      uri,
+    });
+
+    await checkCreditsBalance(this.utils, CreditType.message, BigInt(1));
+
+    const imprint = await this.utils.calculateImprint(params.content);
+
+    if (beforeTransaction) await beforeTransaction(messageId);
 
     await transactionWrapper(
       this.arianeeProtocolClient,
       this.slug!,
       {
         protocolV1Action: async (protocolV1) =>
-          protocolV1.storeContract.hydrateToken(
+          protocolV1.storeContract.createMessage(
+            messageId,
             smartAssetId,
             imprint,
-            uri,
-            publicKey,
-            tokenRecoveryTimestamp,
-            initialKeyIsRequestKey,
             this.creatorAddress,
             overrides
           ),
@@ -343,7 +368,10 @@ export default class Creator {
       this.connectOptions
     );
 
-    return this.createLinkObject(smartAssetId, passphrase);
+    return {
+      id: messageId,
+      imprint,
+    };
   }
 
   @requiresConnection()
@@ -379,24 +407,11 @@ export default class Creator {
   }
 
   @requiresConnection()
-  public async getSmartAssetIssuer(id: string) {
-    return callWrapper(
-      this.arianeeProtocolClient,
-      this.slug!,
-      {
-        protocolV1Action: async (protocolV1) =>
-          await protocolV1.smartAssetContract.issuerOf(id),
-      },
-      this.connectOptions
-    );
-  }
-
-  @requiresConnection()
   public async recoverSmartAsset(
     id: string,
     overrides: NonPayableOverrides = {}
   ) {
-    const smartAssetIssuer = await this.getSmartAssetIssuer(id);
+    const smartAssetIssuer = await this.utils.getSmartAssetIssuer(id);
 
     if (smartAssetIssuer !== this.core.getAddress())
       throw new Error('You are not the issuer of this smart asset');

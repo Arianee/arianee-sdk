@@ -1,7 +1,7 @@
 import Core from '@arianee/core';
 import { generateRandomPassphrase } from '@arianee/utils';
 
-import { TokenAccess } from '../types';
+import { TokenAccess } from '../../types';
 
 export const getTokenAccessParams = (
   tokenAccess?: TokenAccess

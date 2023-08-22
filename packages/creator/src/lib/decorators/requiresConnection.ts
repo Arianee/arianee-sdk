@@ -1,27 +1,34 @@
-// A decorator that calls Utils.requiresCreatorToBeConnected() before calling the decorated method.
+import { NotConnectedError } from '../errors';
+
+type Creator = {
+  connected?: boolean;
+  slug?: string;
+  protocolDetails?: unknown;
+};
+
+// A decorator that checks if the creator is connected before calling the decorated method.
 export function requiresConnection() {
   return function (
     _target: unknown,
     _propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor & Creator
   ) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function (...args: unknown[]) {
+      let creator: Creator;
+
+      if ('creator' in this) {
+        creator = this.creator as Creator;
+      } else {
+        creator = this as Creator;
+      }
+
       // Property check instead of instanceof to avoid cyclic dependency
-      if (
-        'requiresCreatorToBeConnected' in this &&
-        typeof this.requiresCreatorToBeConnected === 'function'
-      )
-        this.requiresCreatorToBeConnected(); // this is instance of Utils
-      else if (
-        'utils' in this &&
-        this.utils &&
-        typeof this.utils === 'object' &&
-        'requiresCreatorToBeConnected' in this.utils &&
-        typeof this.utils.requiresCreatorToBeConnected === 'function'
-      )
-        this.utils.requiresCreatorToBeConnected(); // this is instance of Creator
+      if (!creator.connected || !creator.slug || !creator.protocolDetails)
+        throw new NotConnectedError(
+          'Creator is not connected, you must call the connect method once before calling other methods'
+        );
 
       return originalMethod.apply(this, args);
     };

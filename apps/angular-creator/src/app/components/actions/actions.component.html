@@ -32,6 +32,17 @@
     ></app-action-set-request-key>
   </div>
 
+  <div class="group messages">
+    <h4>Messages</h4>
+    <app-action-create-and-store-message
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-create-and-store-message>
+
+    <app-action-create-message
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-create-message>
+  </div>
+
   <div class="group credits">
     <h4>Credits</h4>
 

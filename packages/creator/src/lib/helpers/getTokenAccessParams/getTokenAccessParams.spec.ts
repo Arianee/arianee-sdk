@@ -1,4 +1,4 @@
-import { TokenAccess } from '../types';
+import { TokenAccess } from '../../types';
 import { getTokenAccessParams } from './getTokenAccessParams';
 
 describe('getTokenAccessParams', () => {
