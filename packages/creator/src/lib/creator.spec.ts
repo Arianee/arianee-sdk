@@ -331,7 +331,7 @@ describe('Creator', () => {
         .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
         .mockImplementation();
 
-      const beforeTransactionSpy = jest.fn();
+      const afterTransactionSpy = jest.fn();
 
       await creator['createSmartAssetCommon'](
         {
@@ -342,7 +342,7 @@ describe('Creator', () => {
           smartAssetId: 123,
           tokenRecoveryTimestamp: 123456789,
         },
-        beforeTransactionSpy
+        afterTransactionSpy
       );
 
       const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
@@ -390,7 +390,7 @@ describe('Creator', () => {
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
 
-      expect(beforeTransactionSpy).toHaveBeenCalledWith(123);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(123);
     });
   });
 
@@ -555,7 +555,7 @@ describe('Creator', () => {
           '0x0000000000000000000000000000000000000000000000000000000000000111'
         );
 
-      const beforeTransactionSpy = jest.fn();
+      const afterTransactionSpy = jest.fn();
 
       const createMessageSpy = jest.fn();
 
@@ -577,7 +577,7 @@ describe('Creator', () => {
           smartAssetId: 123,
           messageId: 456,
         },
-        beforeTransactionSpy
+        afterTransactionSpy
       );
 
       expect(createMessageSpy).toHaveBeenCalledWith(
@@ -610,7 +610,7 @@ describe('Creator', () => {
       });
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
-      expect(beforeTransactionSpy).toHaveBeenCalledWith(456);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(456);
     });
   });
 });

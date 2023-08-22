@@ -219,7 +219,7 @@ export default class Creator {
   @requiresConnection()
   private async createSmartAssetCommon(
     params: CreateSmartAssetCommonParameters,
-    beforeTransaction:
+    afterTransaction:
       | ((
           smartAssetId: NonNullable<
             CreateSmartAssetCommonParameters['smartAssetId']
@@ -246,8 +246,6 @@ export default class Creator {
 
     const imprint = await this.utils.calculateImprint(params.content);
 
-    if (beforeTransaction) await beforeTransaction(smartAssetId);
-
     await transactionWrapper(
       this.arianeeProtocolClient,
       this.slug!,
@@ -266,6 +264,8 @@ export default class Creator {
       },
       this.connectOptions
     );
+
+    if (afterTransaction) await afterTransaction(smartAssetId);
 
     return this.createLinkObject(smartAssetId, passphrase);
   }
@@ -326,7 +326,7 @@ export default class Creator {
   @requiresConnection()
   private async createMessageCommon(
     params: CreateMessageCommonParameters,
-    beforeTransaction:
+    afterTransaction:
       | ((
           messageId: NonNullable<CreateMessageCommonParameters['messageId']>
         ) => Promise<void>)
@@ -350,8 +350,6 @@ export default class Creator {
 
     const imprint = await this.utils.calculateImprint(params.content);
 
-    if (beforeTransaction) await beforeTransaction(messageId);
-
     await transactionWrapper(
       this.arianeeProtocolClient,
       this.slug!,
@@ -367,6 +365,8 @@ export default class Creator {
       },
       this.connectOptions
     );
+
+    if (afterTransaction) await afterTransaction(messageId);
 
     return {
       id: messageId,
