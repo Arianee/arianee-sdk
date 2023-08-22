@@ -44,7 +44,7 @@ Most methods of the library require a connection prior to being used. If you try
 
 ## Examples
 
-We built a minimalistic Angular application that leverages some of the `@arianee/creator` features.
+We've built a minimalistic Angular application that leverages some of the `@arianee/creator` features.
 
 It can be ran with
 
@@ -53,6 +53,8 @@ npm run angular-creator
 ```
 
 Code is available in the `apps/angular-creator` folder.
+
+You can also find examples of usage in the `apps/arianee-sdk-example/creator` folder.
 
 ### Main features
 

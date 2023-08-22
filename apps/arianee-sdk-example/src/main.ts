@@ -3,7 +3,8 @@
 // import walletApiWallet from './wallet-api-client/wallet';
 // import arianeeApiClient from './arianee-api-client/arianee-api-client';
 // import links from './wallet-api-client/links';
-import protocolClient from './arianee-protocol-client';
+// import protocolClient from './arianee-protocol-client';
+//import createAndStore from './creator/createAndStore';
 
 (async () => {
   // await certificateRead();
@@ -13,5 +14,8 @@ import protocolClient from './arianee-protocol-client';
   // await arianeeApiClient();
   // await arianeeApiClient();
   // await links();
-  await protocolClient();
+  // await protocolClient();
+  // await createAndStore();
+
+  console.log('uncomment the code you want to run');
 })();
