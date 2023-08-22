@@ -1,7 +1,9 @@
-import Creator from '../creator';
-import Core from '@arianee/core';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { ArianeeProductCertificateI18N } from '@arianee/common-types';
+import Core from '@arianee/core';
+
+import Creator from '../creator';
+import { CreditType } from '../types';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.spyOn(console, 'error').mockImplementation();
@@ -181,11 +183,151 @@ describe('Creator', () => {
         name: 'I18N TEST (EN)',
         description: 'Description in English',
       };
+
+      const creator = new Creator({
+        core: Core.fromRandom(),
+        creatorAddress: '0x' + 'a'.repeat(40),
+        fetchLike: fetch,
+      });
       const imprint = await creator.utils.calculateImprint(content);
 
       expect(imprint).toEqual(
         '0xce917f8d652187e7bf162b2c05d4b5439cef04142795eb6e5d2283b6193b8e88'
       );
+    });
+  });
+
+  describe('getNativeBalance', () => {
+    it('should call the protocol details getNativeBalance method with correct params and return it', async () => {
+      jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      const getNativeBalanceSpy = jest
+        .fn()
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(2);
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            getNativeBalance: getNativeBalanceSpy,
+          } as any)
+        );
+
+      const balance1 = await creator.utils.getNativeBalance();
+      const balance2 = await creator.utils.getNativeBalance('0x123');
+
+      expect(getNativeBalanceSpy).toHaveBeenNthCalledWith(1, core.getAddress());
+      expect(getNativeBalanceSpy).toHaveBeenNthCalledWith(2, '0x123');
+
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(balance1).toEqual(1);
+      expect(balance2).toEqual(2);
+    });
+  });
+
+  describe('getAriaBalance', () => {
+    it('should call the ariaContract balanceOf method with correct params and return it', async () => {
+      jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      const balanceOfSpy = jest
+        .fn()
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(2);
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            ariaContract: {
+              balanceOf: balanceOfSpy,
+            },
+          } as any)
+        );
+
+      const balance1 = await creator.utils.getAriaBalance();
+      const balance2 = await creator.utils.getAriaBalance('0x123');
+
+      expect(balanceOfSpy).toHaveBeenNthCalledWith(1, core.getAddress());
+      expect(balanceOfSpy).toHaveBeenNthCalledWith(2, '0x123');
+
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(balance1).toEqual(1);
+      expect(balance2).toEqual(2);
+    });
+  });
+
+  describe('getCreditBalance', () => {
+    it('should call the creditHistoryContract balanceOf method with correct params and return it', async () => {
+      jest
+        .spyOn(creator.utils, 'requiresCreatorToBeConnected')
+        .mockImplementation();
+
+      const balanceOfSpy = jest
+        .fn()
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(2);
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            creditHistoryContract: {
+              balanceOf: balanceOfSpy,
+            },
+          } as any)
+        );
+
+      const balance1 = await creator.utils.getCreditBalance(
+        CreditType.smartAsset
+      );
+      const balance2 = await creator.utils.getCreditBalance(
+        CreditType.event,
+        '0x123'
+      );
+
+      expect(balanceOfSpy).toHaveBeenNthCalledWith(
+        1,
+        core.getAddress(),
+        CreditType.smartAsset
+      );
+      expect(balanceOfSpy).toHaveBeenNthCalledWith(
+        2,
+        '0x123',
+        CreditType.event
+      );
+
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(balance1).toEqual(1);
+      expect(balance2).toEqual(2);
     });
   });
 });

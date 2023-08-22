@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Core from '@arianee/core';
-import ArianeeProtocolClient from './arianeeProtocolClient';
-import ProtocolClientV1 from './v1/protocolClientV1';
-import * as ethersProxies from './utils/ethersCustom/ethersCustom';
 import { defaultFetchLike } from '@arianee/utils';
+
+import ArianeeProtocolClient from './arianeeProtocolClient';
+import * as ethersProxies from './utils/ethersCustom/ethersCustom';
+import ProtocolClientV1 from './v1/protocolClientV1';
 
 jest.mock('@arianee/core');
 jest.mock('./v1/protocolClientV1');

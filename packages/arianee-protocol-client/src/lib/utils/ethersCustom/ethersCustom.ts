@@ -1,15 +1,16 @@
+import { Protocol } from '@arianee/common-types';
+import Core from '@arianee/core';
 import {
   JsonRpcProvider,
   Provider,
+  resolveProperties,
   Transaction,
   TransactionLike,
   TransactionRequest,
   TransactionResponse,
   Wallet,
-  resolveProperties,
 } from 'ethers';
-import Core from '@arianee/core';
-import { Protocol } from '@arianee/common-types';
+
 import GasStation from '../gasStation/gasStation';
 
 /**

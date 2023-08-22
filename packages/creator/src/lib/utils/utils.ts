@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Cert } from '@0xcert/cert';
 import {
   callWrapper,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
-import { CreditType } from '../types/credit';
-import Creator from '../creator';
-import { BigNumberish } from 'ethers';
 import { ArianeeProductCertificateI18N } from '@arianee/common-types';
-import { Cert } from '@0xcert/cert';
+import { BigNumberish } from 'ethers';
+
+import Creator from '../creator';
+import { CreditType } from '../types/credit';
 
 export default class Utils {
   constructor(private creator: Creator) {}
@@ -95,7 +96,10 @@ export default class Utils {
     }
   }
 
-  public async getCreditBalance(creditType: CreditType): Promise<bigint> {
+  public async getCreditBalance(
+    creditType: CreditType,
+    address?: string
+  ): Promise<bigint> {
     this.requiresCreatorToBeConnected();
 
     return callWrapper(
@@ -104,7 +108,7 @@ export default class Utils {
       {
         protocolV1Action: async (protocolV1) =>
           protocolV1.creditHistoryContract.balanceOf(
-            this.creator.core.getAddress(),
+            address ?? this.creator.core.getAddress(),
             creditType
           ),
       },
@@ -135,6 +139,22 @@ export default class Utils {
       {
         protocolV1Action: async (protocolV1) =>
           protocolV1.ariaContract.balanceOf(
+            address ?? this.creator.core.getAddress()
+          ),
+      },
+      this.creator.connectOptions
+    );
+  }
+
+  public async getNativeBalance(address?: string): Promise<bigint> {
+    this.requiresCreatorToBeConnected();
+
+    return callWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.getNativeBalance(
             address ?? this.creator.core.getAddress()
           ),
       },

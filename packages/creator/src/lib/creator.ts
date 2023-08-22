@@ -1,30 +1,33 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
+import ArianeeProtocolClient, {
+  callWrapper,
+  NonPayableOverrides,
+  transactionWrapper,
+} from '@arianee/arianee-protocol-client';
+import { ProtocolDetails } from '@arianee/arianee-protocol-client';
+import { ArianeeBrandIdentityI18N } from '@arianee/common-types';
 import Core from '@arianee/core';
 import {
   defaultFetchLike,
   generateRandomPassphrase,
   getHostnameFromProtocolName,
 } from '@arianee/utils';
-import ArianeeProtocolClient, {
-  NonPayableOverrides,
-  callWrapper,
-  transactionWrapper,
-} from '@arianee/arianee-protocol-client';
-import { CreditType } from './types/credit';
+
+import {
+  InsufficientSmartAssetCreditsError,
+  InvalidURIError,
+  NoIdentityError,
+  UnavailableSmartAssetIdError,
+} from './errors';
 import {
   CreateAndStoreSmartAssetParameters,
   CreateSmartAssetParameters,
   CreateSmartAssetParametersBase,
-} from './types/hydrateTokenParameters';
+  CreditType,
+  LinkObject,
+} from './types';
 import Utils from './utils/utils';
-import { ProtocolDetails } from '@arianee/arianee-protocol-client';
-import { LinkObject } from './types/linkObject';
-import { InsufficientSmartAssetCreditsError } from './errors/InsufficientSmartAssetCreditsError';
-import { UnavailableSmartAssetIdError } from './errors/UnavailableSmartAssetIdError';
-import { InvalidURIError } from './errors/InvalidURIError';
-import { ArianeeBrandIdentityI18N } from '@arianee/common-types';
-import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import { NoIdentityError } from './errors';
 
 export type CreatorParams = {
   creatorAddress: string;

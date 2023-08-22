@@ -1,9 +1,10 @@
 import Core from '@arianee/core';
-import ProtocolClientV1 from './v1/protocolClientV1';
+import { defaultFetchLike } from '@arianee/utils';
+
 import { ProtocolDetails } from './shared/types';
 import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
 import GasStation from './utils/gasStation/gasStation';
-import { defaultFetchLike } from '@arianee/utils';
+import ProtocolClientV1 from './v1/protocolClientV1';
 
 export default class ArianeeProtocolClient {
   private fetchLike: typeof fetch;
