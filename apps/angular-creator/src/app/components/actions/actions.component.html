@@ -1,58 +1,70 @@
 <div class="actions" *ngIf="creatorService.connected">
   <h3>Actions</h3>
 
-  <h4>Smart assets</h4>
-  <app-action-get-available-smart-asset-id
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-get-available-smart-asset-id>
+  <div class="group smartAssets">
+    <h4>Smart assets</h4>
+    <app-action-get-available-smart-asset-id
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-get-available-smart-asset-id>
 
-  <app-action-reserve-smart-asset-id
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-reserve-smart-asset-id>
+    <app-action-reserve-smart-asset-id
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-reserve-smart-asset-id>
 
-  <app-action-destroy-smart-asset-id
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-destroy-smart-asset-id>
+    <app-action-destroy-smart-asset-id
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-destroy-smart-asset-id>
 
-  <app-action-recover-smart-asset-id
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-recover-smart-asset-id>
+    <app-action-recover-smart-asset-id
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-recover-smart-asset-id>
 
-  <app-action-create-and-store-smart-asset
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-create-and-store-smart-asset>
+    <app-action-create-and-store-smart-asset
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-create-and-store-smart-asset>
 
-  <app-action-create-smart-asset
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-create-smart-asset>
+    <app-action-create-smart-asset
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-create-smart-asset>
 
-  <h4>Credits</h4>
+    <app-action-set-request-key
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-set-request-key>
+  </div>
 
-  <app-action-get-credit-balance
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-get-credit-balance>
+  <div class="group credits">
+    <h4>Credits</h4>
 
-  <app-action-get-credit-price
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-get-credit-price>
+    <app-action-get-credit-balance
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-get-credit-balance>
 
-  <app-action-buy-credit
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-buy-credit>
+    <app-action-get-credit-price
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-get-credit-price>
 
-  <h4>Aria</h4>
+    <app-action-buy-credit
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-buy-credit>
+  </div>
 
-  <app-action-get-aria-balance
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-get-aria-balance>
+  <div class="group aria">
+    <h4>Aria</h4>
 
-  <app-action-request-testnet-aria20
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-request-testnet-aria20>
+    <app-action-get-aria-balance
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-get-aria-balance>
 
-  <h4>Chain</h4>
+    <app-action-request-testnet-aria20
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-request-testnet-aria20>
+  </div>
 
-  <app-action-get-native-balance
-    [creator]="creatorService.creator.getValue()"
-  ></app-action-get-native-balance>
+  <div class="group chain">
+    <h4>Chain</h4>
+
+    <app-action-get-native-balance
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-get-native-balance>
+  </div>
 </div>

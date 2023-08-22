@@ -6,26 +6,27 @@ import ArianeeProtocolClient, {
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import { ProtocolDetails } from '@arianee/arianee-protocol-client';
-import { ArianeeBrandIdentityI18N } from '@arianee/common-types';
+import { ArianeeBrandIdentityI18N, SmartAsset } from '@arianee/common-types';
+import { TokenAccessType } from '@arianee/common-types';
 import Core from '@arianee/core';
-import {
-  defaultFetchLike,
-  generateRandomPassphrase,
-  getHostnameFromProtocolName,
-} from '@arianee/utils';
+import { defaultFetchLike, getHostnameFromProtocolName } from '@arianee/utils';
 
+import { requiresConnection } from './decorators/requiresConnection';
 import {
   InsufficientSmartAssetCreditsError,
   InvalidURIError,
   NoIdentityError,
+  NotOwnerError,
   UnavailableSmartAssetIdError,
 } from './errors';
+import { getTokenAccessParams } from './helpers/getTokenAccessParams';
 import {
   CreateAndStoreSmartAssetParameters,
   CreateSmartAssetParameters,
   CreateSmartAssetParametersBase,
   CreditType,
   LinkObject,
+  TokenAccess,
 } from './types';
 import Utils from './utils/utils';
 
@@ -102,12 +103,11 @@ export default class Creator {
     return !!this.slug;
   }
 
+  @requiresConnection()
   public async reserveSmartAssetId(
     id?: number,
     overrides: NonPayableOverrides = {}
   ) {
-    this.utils.requiresCreatorToBeConnected();
-
     if (id) {
       const isFree = await this.utils.isSmartAssetIdAvailable(id);
       if (!isFree) {
@@ -140,6 +140,7 @@ export default class Creator {
     );
   }
 
+  @requiresConnection()
   private async checkCreateSmartAssetParameters(
     params: CreateSmartAssetParametersBase
   ) {
@@ -153,6 +154,7 @@ export default class Creator {
     }
   }
 
+  @requiresConnection()
   private async checkSmartAssetCreditBalance() {
     const balance = await this.utils.getCreditBalance(CreditType.smartAsset);
     if (balance === BigInt(0)) {
@@ -162,6 +164,7 @@ export default class Creator {
     }
   }
 
+  @requiresConnection()
   private async getCreateSmartAssetParams(
     params: CreateSmartAssetParametersBase | CreateSmartAssetParameters
   ) {
@@ -179,23 +182,7 @@ export default class Creator {
     const initialKeyIsRequestKey =
       params.sameRequestOwnershipPassphrase ?? true;
 
-    let passphrase =
-      params.tokenAccess && 'fromPassphrase' in params.tokenAccess
-        ? params.tokenAccess.fromPassphrase
-        : undefined;
-
-    let publicKey: string;
-    if (!params.tokenAccess) {
-      passphrase = generateRandomPassphrase();
-      publicKey = Core.fromPassPhrase(passphrase).getAddress();
-    } else if ('address' in params.tokenAccess) {
-      publicKey = params.tokenAccess.address;
-    } else if ('fromPassphrase' in params.tokenAccess) {
-      const wallet = Core.fromPassPhrase(params.tokenAccess.fromPassphrase);
-      publicKey = wallet.getAddress();
-    } else {
-      throw new Error('Invalid token access');
-    }
+    const { publicKey, passphrase } = getTokenAccessParams(params.tokenAccess);
 
     const uri = 'uri' in params && params.uri ? params.uri : '';
 
@@ -210,7 +197,7 @@ export default class Creator {
   }
 
   private createLinkObject(
-    smartAssetId: number,
+    smartAssetId: number | string,
     passphrase?: string
   ): LinkObject {
     const deeplink = passphrase
@@ -226,6 +213,7 @@ export default class Creator {
     };
   }
 
+  @requiresConnection()
   private async storeSmartAsset(
     smartAssetId: number,
     content: CreateAndStoreSmartAssetParameters['content']
@@ -258,12 +246,11 @@ export default class Creator {
     });
   }
 
+  @requiresConnection()
   public async createAndStoreSmartAsset(
     params: CreateAndStoreSmartAssetParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<LinkObject> {
-    this.utils.requiresCreatorToBeConnected();
-
     const {
       smartAssetId,
       initialKeyIsRequestKey,
@@ -306,12 +293,11 @@ export default class Creator {
     return this.createLinkObject(smartAssetId, passphrase);
   }
 
+  @requiresConnection()
   public async createSmartAsset(
     params: CreateSmartAssetParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<LinkObject> {
-    this.utils.requiresCreatorToBeConnected();
-
     const {
       smartAssetId,
       initialKeyIsRequestKey,
@@ -360,13 +346,12 @@ export default class Creator {
     return this.createLinkObject(smartAssetId, passphrase);
   }
 
+  @requiresConnection()
   public async buyCredit(
     creditType: CreditType,
     amount: number,
     overrides: NonPayableOverrides = {}
   ) {
-    this.utils.requiresCreatorToBeConnected();
-
     const storeAllowance = await this.utils.getAriaAllowance(
       this._protocolDetails!.contractAdresses.store,
       this.core.getAddress()
@@ -393,6 +378,7 @@ export default class Creator {
     });
   }
 
+  @requiresConnection()
   public async getSmartAssetIssuer(id: string) {
     return callWrapper(
       this.arianeeProtocolClient,
@@ -405,6 +391,7 @@ export default class Creator {
     );
   }
 
+  @requiresConnection()
   public async recoverSmartAsset(
     id: string,
     overrides: NonPayableOverrides = {}
@@ -425,6 +412,7 @@ export default class Creator {
     );
   }
 
+  @requiresConnection()
   public async destroySmartAsset(
     id: string,
     overrides: NonPayableOverrides = {}
@@ -432,7 +420,7 @@ export default class Creator {
     const smartAssetOwner = await this.utils.getSmartAssetOwner(id);
 
     if (smartAssetOwner !== this.core.getAddress())
-      throw new Error('You are not the owner of this smart asset');
+      throw new NotOwnerError('You are not the owner of this smart asset');
 
     return transactionWrapper(
       this.arianeeProtocolClient,
@@ -447,6 +435,53 @@ export default class Creator {
           ),
       },
       this.connectOptions
+    );
+  }
+
+  @requiresConnection()
+  public async setTokenAccess(
+    smartAssetId: SmartAsset['certificateId'],
+    tokenAccessType: TokenAccessType,
+    tokenAccess?: TokenAccess,
+    overrides: NonPayableOverrides = {}
+  ): Promise<LinkObject> {
+    const owner = await this.utils.getSmartAssetOwner(smartAssetId);
+
+    if (owner !== this.core.getAddress())
+      throw new NotOwnerError('You are not the owner of this smart asset');
+
+    const { publicKey, passphrase } = getTokenAccessParams(tokenAccess);
+
+    await transactionWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.smartAssetContract.addTokenAccess(
+            smartAssetId,
+            publicKey,
+            true,
+            tokenAccessType,
+            overrides
+          ),
+      },
+      this.connectOptions
+    );
+
+    return this.createLinkObject(smartAssetId, passphrase);
+  }
+
+  @requiresConnection()
+  public async setRequestKey(
+    smartAssetId: SmartAsset['certificateId'],
+    tokenAccess?: TokenAccess,
+    overrides: NonPayableOverrides = {}
+  ): Promise<LinkObject> {
+    return this.setTokenAccess(
+      smartAssetId,
+      TokenAccessType.request,
+      tokenAccess,
+      overrides
     );
   }
 }

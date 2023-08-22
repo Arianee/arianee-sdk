@@ -5,6 +5,7 @@ import {
   CreateSmartAssetParametersBase,
 } from './hydrateTokenParameters';
 import { LinkObject } from './linkObject';
+import { TokenAccess } from './tokenAccess';
 
 export {
   CreateAndStoreSmartAssetParameters,
@@ -12,4 +13,5 @@ export {
   CreateSmartAssetParametersBase,
   CreditType,
   LinkObject,
+  TokenAccess,
 };

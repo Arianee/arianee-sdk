@@ -6,10 +6,30 @@
   margin-left: 8px;
 
   div.actions {
-    background: #77bb7766;
+    background: #00000016;
     padding: 8px;
     border-radius: 4px;
     width: 600px;
+
+    div.group {
+      margin: 4px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    div.smartAssets {
+      background-color: rgba(0, 106, 7, 0.206);
+    }
+
+    div.credits {
+      background-color: rgba(164, 127, 16, 0.206);
+    }
+    div.aria {
+      background-color: rgba(106, 0, 14, 0.206);
+    }
+    div.chain {
+      background-color: rgba(14, 183, 198, 0.305);
+    }
 
     div.action {
       padding: 4px;

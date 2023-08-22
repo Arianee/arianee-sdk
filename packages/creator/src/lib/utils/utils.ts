@@ -8,26 +8,27 @@ import { ArianeeProductCertificateI18N } from '@arianee/common-types';
 import { BigNumberish } from 'ethers';
 
 import Creator from '../creator';
-import { ProtocolCompatibilityError } from '../errors';
+import { requiresConnection } from '../decorators/requiresConnection';
+import { NotConnectedError, ProtocolCompatibilityError } from '../errors';
 import { CreditType } from '../types/credit';
 
 export default class Utils {
   constructor(private creator: Creator) {}
 
   public requiresCreatorToBeConnected(): void {
+    console.log('requires called');
     if (
       !this.creator.connected ||
       !this.creator.slug ||
       !this.creator.protocolDetails
     )
-      throw new Error(
+      throw new NotConnectedError(
         'Creator is not connected, you must call the connect method once before calling other methods'
       );
   }
 
+  @requiresConnection()
   public async isSmartAssetIdAvailable(id: number): Promise<boolean> {
-    this.requiresCreatorToBeConnected();
-
     let isFree = false;
 
     await callWrapper(
@@ -52,9 +53,8 @@ export default class Utils {
     return isFree;
   }
 
+  @requiresConnection()
   public async canCreateSmartAsset(smartAssetId: number): Promise<boolean> {
-    this.requiresCreatorToBeConnected();
-
     try {
       const available = await this.isSmartAssetIdAvailable(smartAssetId);
       if (available) return true;
@@ -97,12 +97,11 @@ export default class Utils {
     }
   }
 
+  @requiresConnection()
   public async getCreditBalance(
     creditType: CreditType,
     address?: string
   ): Promise<bigint> {
-    this.requiresCreatorToBeConnected();
-
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -117,9 +116,8 @@ export default class Utils {
     );
   }
 
+  @requiresConnection()
   public async getCreditPrice(creditType: CreditType): Promise<bigint> {
-    this.requiresCreatorToBeConnected();
-
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -131,9 +129,8 @@ export default class Utils {
     );
   }
 
+  @requiresConnection()
   public async getAriaBalance(address?: string): Promise<bigint> {
-    this.requiresCreatorToBeConnected();
-
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -147,9 +144,8 @@ export default class Utils {
     );
   }
 
+  @requiresConnection()
   public async getNativeBalance(address?: string): Promise<bigint> {
-    this.requiresCreatorToBeConnected();
-
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -163,9 +159,8 @@ export default class Utils {
     );
   }
 
+  @requiresConnection()
   public async getAvailableSmartAssetId(): Promise<number> {
-    this.requiresCreatorToBeConnected();
-
     let idCandidate: number;
     let isFree = false;
 
@@ -177,9 +172,8 @@ export default class Utils {
     return idCandidate;
   }
 
+  @requiresConnection()
   public async getAriaAllowance(spender: string, address?: string) {
-    this.requiresCreatorToBeConnected();
-
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -194,12 +188,11 @@ export default class Utils {
     );
   }
 
+  @requiresConnection()
   public async approveAriaSpender(
     spender: string,
     amount: BigNumberish = '10000000000000000000000000000'
   ) {
-    this.requiresCreatorToBeConnected();
-
     return transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -211,6 +204,7 @@ export default class Utils {
     );
   }
 
+  @requiresConnection()
   public async getSmartAssetOwner(id: string): Promise<string> {
     return callWrapper(
       this.creator.arianeeProtocolClient,
@@ -252,9 +246,8 @@ export default class Utils {
     return '0x' + imprint;
   }
 
+  @requiresConnection()
   public async requestTestnetAria20(address?: string) {
-    this.requiresCreatorToBeConnected();
-
     if (this.creator.slug !== 'testnet')
       throw new ProtocolCompatibilityError(
         'This method is only available for the protocol with slug testnet'

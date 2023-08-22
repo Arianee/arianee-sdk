@@ -40,6 +40,8 @@ You then need to connect to the desired protocol instance using the `connect` me
 })();
 ```
 
+Most methods of the library require a connection prior to being used. If you try to use a method without being connected, it will throw a `NotConnectedError`.
+
 ### Main features
 
 #### `reserveSmartAssetId`
@@ -170,6 +172,43 @@ public async destroySmartAsset(
   overrides: NonPayableOverrides = {}
 )
 ```
+
+The method can throw:
+
+- `NotOwnerError` if the creator address is not the owner of the smart asset
+
+#### `setTokenAccess`
+
+A method to set the token access (request / view) of a smart asset owned by the creator address.
+
+```typescript
+public async setTokenAccess(
+  smartAssetId: SmartAsset['certificateId'],
+  tokenAccessType: TokenAccessType,
+  tokenAccess?: TokenAccess,
+  overrides: NonPayableOverrides = {}
+): Promise<LinkObject>
+```
+
+The method can throw:
+
+- `NotOwnerError` if the creator address is not the owner of the smart asset
+
+#### `setRequestKey`
+
+A method to set the request key of a smart asset owned by the creator address.
+
+```typescript
+public async setRequestKey(
+  smartAssetId: SmartAsset['certificateId'],
+  tokenAccess?: TokenAccess,
+  overrides: NonPayableOverrides = {}
+): Promise<LinkObject>
+```
+
+The method can throw:
+
+- `NotOwnerError` if the creator address is not the owner of the smart asset
 
 ### Utils
 
