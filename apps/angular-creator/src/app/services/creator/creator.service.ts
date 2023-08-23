@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import Creator from '@arianee/creator';
 import Core from '@arianee/core';
 import { BehaviorSubject } from 'rxjs';
+import { defaultFetchLike } from '../../../../../../packages/utils/src';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,11 @@ export class CreatorService {
       new Creator({
         core,
         creatorAddress,
+        fetchLike: (input, init) =>
+          defaultFetchLike(input, {
+            ...init,
+            mode: 'cors',
+          }),
       })
     );
 

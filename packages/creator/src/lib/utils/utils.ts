@@ -5,6 +5,7 @@ import {
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import {
+  ArianeeEventI18N,
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
 } from '@arianee/common-types';
@@ -43,6 +44,7 @@ export default class Utils {
 
     return isFree;
   }
+
   @requiresConnection()
   public async isMessageIdAvailable(id: number): Promise<boolean> {
     return callWrapper(
@@ -54,6 +56,21 @@ export default class Utils {
           return (
             message.sender === '0x0000000000000000000000000000000000000000'
           );
+        },
+      },
+      this.creator.connectOptions
+    );
+  }
+  // to test
+  @requiresConnection()
+  public async isEventIdAvailable(id: number): Promise<boolean> {
+    return callWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (protocolV1) => {
+          const tokenId = await protocolV1.eventContract.eventIdToToken(id);
+          return tokenId === BigInt(0);
         },
       },
       this.creator.connectOptions
@@ -180,6 +197,8 @@ export default class Utils {
         isFree = await this.isSmartAssetIdAvailable(idCandidate);
       } else if (idType === 'message') {
         isFree = await this.isMessageIdAvailable(idCandidate);
+      } else if (idType === 'event') {
+        isFree = await this.isEventIdAvailable(idCandidate);
       } else {
         isFree = true;
       }
@@ -196,6 +215,11 @@ export default class Utils {
   @requiresConnection()
   public async getAvailableMessageId(): Promise<number> {
     return this.getAvailableId('message');
+  }
+
+  @requiresConnection()
+  public async getAvailableEventId(): Promise<number> {
+    return this.getAvailableId('event');
   }
 
   @requiresConnection()
@@ -258,7 +282,10 @@ export default class Utils {
   }
 
   public async calculateImprint(
-    content: ArianeeProductCertificateI18N | ArianeeMessageI18N
+    content:
+      | ArianeeProductCertificateI18N
+      | ArianeeMessageI18N
+      | ArianeeEventI18N
   ): Promise<string> {
     let cert: Cert;
 

@@ -1,3 +1,4 @@
+import { InsufficientEventCreditsError } from './InsufficientEventCreditsError';
 import { InsufficientMessageCreditsError } from './InsufficientMessageCreditsError';
 import { InsufficientSmartAssetCreditsError } from './InsufficientSmartAssetCreditsError';
 import { InvalidContentError } from './InvalidContentError';
@@ -7,10 +8,12 @@ import { NoIdentityError } from './NoIdentityError';
 import { NotConnectedError } from './NotConnectedError';
 import { NotOwnerError } from './NotOwnerError';
 import { ProtocolCompatibilityError } from './ProtocolCompatibilityError';
+import { UnavailableEventIdError } from './UnavailableEventIdError';
 import { UnavailableMessageIdError } from './UnavailableMessageIdError';
 import { UnavailableSmartAssetIdError } from './UnavailableSmartAssetIdError';
 
 export {
+  InsufficientEventCreditsError,
   InsufficientMessageCreditsError,
   InsufficientSmartAssetCreditsError,
   InvalidContentError,
@@ -20,6 +23,7 @@ export {
   NotConnectedError,
   NotOwnerError,
   ProtocolCompatibilityError,
+  UnavailableEventIdError,
   UnavailableMessageIdError,
   UnavailableSmartAssetIdError,
 };

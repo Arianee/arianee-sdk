@@ -267,10 +267,7 @@ export default class ArianeePrivacyGatewayClient {
 
   public async eventCreate(
     rpcUrl: RpcUrl,
-    {
-      eventId,
-      content,
-    }: { eventId: string; content: ArianeeProductCertificateI18N }
+    { eventId, content }: { eventId: string; content: ArianeeEventI18N }
   ): Promise<{
     jsonrpc: string;
     id: number;

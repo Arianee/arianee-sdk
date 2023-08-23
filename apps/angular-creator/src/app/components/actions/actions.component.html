@@ -43,6 +43,18 @@
     ></app-action-create-message>
   </div>
 
+  <div class="group events">
+    <h4>Events</h4>
+
+    <app-action-create-and-store-event
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-create-and-store-event>
+
+    <app-action-create-event
+      [creator]="creatorService.creator.getValue()"
+    ></app-action-create-event>
+  </div>
+
   <div class="group credits">
     <h4>Credits</h4>
 
