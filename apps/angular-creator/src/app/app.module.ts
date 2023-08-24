@@ -21,6 +21,7 @@ import { ActionCreateMessageComponent } from './components/actions/action-create
 import { ActionCreateAndStoreMessageComponent } from './components/actions/action-create-and-store-message/action-create-and-store-message.component';
 import { ActionCreateEventComponent } from './components/actions/action-create-event/action-create-event.component';
 import { ActionCreateAndStoreEventComponent } from './components/actions/action-create-and-store-event/action-create-and-store-event.component';
+import { ActionUpdateTokenURIComponent } from './components/actions/action-update-token-uri/action-update-token-uri.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { ActionCreateAndStoreEventComponent } from './components/actions/action-
     ActionCreateAndStoreMessageComponent,
     ActionCreateEventComponent,
     ActionCreateAndStoreEventComponent,
+    ActionUpdateTokenURIComponent,
   ],
   imports: [BrowserModule, FormsModule],
   providers: [],

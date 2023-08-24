@@ -17,7 +17,7 @@ import { defaultFetchLike, getHostnameFromProtocolName } from '@arianee/utils';
 
 import { requiresConnection } from './decorators/requiresConnection';
 import {
-  InvalidURIError,
+  NotIssuerError,
   NotOwnerError,
   UnavailableSmartAssetIdError,
 } from './errors';
@@ -30,6 +30,7 @@ import { checkCreateMessageParameters } from './helpers/message/checkCreateMessa
 import { getCreateMessageParams } from './helpers/message/getCreateMessageParams';
 import { checkCreateSmartAssetParameters } from './helpers/smartAsset/checkCreateSmartAssetParameters';
 import { getCreateSmartAssetParams } from './helpers/smartAsset/getCreateSmartAssetParams';
+import { getContentFromURI } from './helpers/uri/getContentFromURI';
 import {
   CreateAndStoreEventParameters,
   CreateAndStoreMessageParameters,
@@ -204,16 +205,10 @@ export default class Creator {
     params: CreateSmartAssetParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<LinkObject> {
-    let content: ArianeeProductCertificateI18N;
-
-    try {
-      const res = await this.fetchLike(params.uri);
-      if (!res.ok) throw new Error('Response not ok');
-
-      content = await res.json();
-    } catch {
-      throw new InvalidURIError('Invalid URI: could not fetch the URI content');
-    }
+    const content = await getContentFromURI<ArianeeProductCertificateI18N>(
+      params.uri,
+      this.fetchLike
+    );
 
     return this.createSmartAssetCommon(
       {
@@ -314,15 +309,10 @@ export default class Creator {
     params: CreateMessageParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<CreatedMessage> {
-    let content: ArianeeMessageI18N;
-    try {
-      const res = await this.fetchLike(params.uri);
-      if (!res.ok) throw new Error('Response not ok');
-
-      content = await res.json();
-    } catch {
-      throw new InvalidURIError('Invalid URI: could not fetch the URI content');
-    }
+    const content = await getContentFromURI<ArianeeMessageI18N>(
+      params.uri,
+      this.fetchLike
+    );
 
     return this.createMessageCommon(
       {
@@ -420,15 +410,10 @@ export default class Creator {
     params: CreateEventParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<CreatedEvent> {
-    let content: ArianeeEventI18N;
-    try {
-      const res = await this.fetchLike(params.uri);
-      if (!res.ok) throw new Error('Response not ok');
-
-      content = await res.json();
-    } catch {
-      throw new InvalidURIError('Invalid URI: could not fetch the URI content');
-    }
+    const content = await getContentFromURI<ArianeeEventI18N>(
+      params.uri,
+      this.fetchLike
+    );
 
     return this.createEventCommon(
       {
@@ -532,7 +517,7 @@ export default class Creator {
     const smartAssetIssuer = await this.utils.getSmartAssetIssuer(id);
 
     if (smartAssetIssuer !== this.core.getAddress())
-      throw new Error('You are not the issuer of this smart asset');
+      throw new NotIssuerError('You are not the issuer of this smart asset');
 
     return transactionWrapper(
       this.arianeeProtocolClient,
@@ -615,6 +600,34 @@ export default class Creator {
       TokenAccessType.request,
       tokenAccess,
       overrides
+    );
+  }
+
+  @requiresConnection()
+  public async updateTokenURI(
+    smartAssetId: SmartAsset['certificateId'],
+    uri: string,
+    overrides: NonPayableOverrides = {}
+  ): Promise<void> {
+    const issuer = await this.utils.getSmartAssetIssuer(smartAssetId);
+
+    if (issuer !== this.core.getAddress())
+      throw new NotIssuerError('You are not the issuer of this smart asset');
+
+    await getContentFromURI(uri, this.fetchLike);
+
+    await transactionWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.smartAssetContract.updateTokenURI(
+            smartAssetId,
+            uri,
+            overrides
+          ),
+      },
+      this.connectOptions
     );
   }
 }

@@ -12,6 +12,7 @@ import * as checkCreateMessageParametersModule from './helpers/message/checkCrea
 import * as getCreateMessageParamsModule from './helpers/message/getCreateMessageParams';
 import * as checkCreateSmartAssetParametersModule from './helpers/smartAsset/checkCreateSmartAssetParameters';
 import * as getCreateSmartAssetParamsModule from './helpers/smartAsset/getCreateSmartAssetParams';
+import * as getContentFromURIModule from './helpers/uri/getContentFromURI';
 import { CreditType } from './types';
 
 jest.mock('@arianee/arianee-protocol-client');
@@ -266,16 +267,9 @@ describe('Creator', () => {
         $schema: 'test',
       };
 
-      const fetchLikeSpy = jest.fn().mockResolvedValue({
-        ok: true,
-        json: () => content,
-      });
-
-      const creator = new Creator({
-        core,
-        creatorAddress,
-        fetchLike: fetchLikeSpy,
-      });
+      jest
+        .spyOn(getContentFromURIModule, 'getContentFromURI')
+        .mockResolvedValue(content);
 
       const createSmartAssetCommonSpy = jest
         .spyOn(creator as any, 'createSmartAssetCommon')
@@ -507,16 +501,9 @@ describe('Creator', () => {
         $schema: 'test',
       };
 
-      const fetchLikeSpy = jest.fn().mockResolvedValue({
-        ok: true,
-        json: () => content,
-      });
-
-      const creator = new Creator({
-        core,
-        creatorAddress,
-        fetchLike: fetchLikeSpy,
-      });
+      jest
+        .spyOn(getContentFromURIModule, 'getContentFromURI')
+        .mockResolvedValue(content);
 
       const createMessageCommonSpy = jest
         .spyOn(creator as any, 'createMessageCommon')
@@ -665,16 +652,9 @@ describe('Creator', () => {
         $schema: 'test',
       };
 
-      const fetchLikeSpy = jest.fn().mockResolvedValue({
-        ok: true,
-        json: () => content,
-      });
-
-      const creator = new Creator({
-        core,
-        creatorAddress,
-        fetchLike: fetchLikeSpy,
-      });
+      jest
+        .spyOn(getContentFromURIModule, 'getContentFromURI')
+        .mockResolvedValue(content);
 
       const createEventCommonSpy = jest
         .spyOn(creator as any, 'createEventCommon')
@@ -782,6 +762,51 @@ describe('Creator', () => {
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
       expect(afterTransactionSpy).toHaveBeenCalledWith(456);
+    });
+  });
+
+  describe('updateTokenURI', () => {
+    it('should call the v1 contract with correct params and return the id and imprint', async () => {
+      const updateTokenURISpy = jest.fn();
+      const getContentFromURISpy = jest
+        .spyOn(getContentFromURIModule, 'getContentFromURI')
+        .mockImplementation();
+
+      const getSmartAssetIssuerSpy = jest
+        .spyOn(creator.utils, 'getSmartAssetIssuer')
+        .mockResolvedValue(core.getAddress());
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation(async (_, __, actions) => {
+          await actions.protocolV1Action({
+            smartAssetContract: {
+              updateTokenURI: updateTokenURISpy,
+            },
+          } as any);
+
+          return null as any;
+        });
+
+      await creator.updateTokenURI('123', 'https://mock.com');
+
+      expect(updateTokenURISpy).toHaveBeenCalledWith(
+        '123',
+        'https://mock.com',
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(getContentFromURISpy).toHaveBeenCalled();
+      expect(getSmartAssetIssuerSpy).toHaveBeenCalledWith('123');
     });
   });
 });
