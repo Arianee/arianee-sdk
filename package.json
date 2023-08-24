@@ -36,7 +36,7 @@
     "apps/*"
   ],
   "dependencies": {
-    "@0xcert/cert": "^2.1.1",
+    "@arianee/0xcert-cert": "^2.0.2",
     "@angular/animations": "~16.0.0",
     "@angular/common": "~16.0.0",
     "@angular/compiler": "~16.0.0",

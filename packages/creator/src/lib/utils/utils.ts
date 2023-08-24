@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Cert } from '@0xcert/cert';
+import { Cert } from '@arianee/0xcert-cert';
 import {
   callWrapper,
   transactionWrapper,
