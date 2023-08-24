@@ -244,7 +244,6 @@ interface CreateAndStoreMessageParameters {
 
 The method can throw:
 
-- `NotOwnerError` if the core address is not the owner of the smart asset
 - `InsufficientMessageCreditsError` if the core address does not have enough message credits
 - `UnavailableMessageIdError` if the message id is not available
 - `NoIdentityError` if the core address does not have an identity URI
@@ -275,7 +274,6 @@ interface CreateMessageParameters {
 
 The method can throw:
 
-- `NotOwnerError` if the core address is not the owner of the smart asset
 - `InsufficientMessageCreditsError` if the core address does not have enough message credits
 - `UnavailableMessageIdError` if the message id is not available
 
