@@ -103,6 +103,7 @@ The method can throw different errors:
 - `UnavailableSmartAssetIdError` if the smart asset id is not available
 - `InsufficientSmartAssetCreditsError` if the core address does not have enough smart asset credits
 - `NoIdentityError` if the core address does not have an identity URI
+- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
 
 #### `createSmartAsset`
 
@@ -247,6 +248,7 @@ The method can throw:
 - `InsufficientMessageCreditsError` if the core address does not have enough message credits
 - `UnavailableMessageIdError` if the message id is not available
 - `NoIdentityError` if the core address does not have an identity URI
+- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
 
 #### `createMessage`
 
@@ -308,6 +310,7 @@ The method can throw:
 - `InsufficientEventCreditsError` if the core address does not have enough event credits
 - `UnavailableEventIdError` if the event id is not available
 - `NoIdentityError` if the core address does not have an identity URI
+- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
 
 #### `createEvent`
 
@@ -354,6 +357,26 @@ The method can throw:
 
 - `NotIssuerError` if the core address is not the issuer of the smart asset
 - `InvalidURIError` if the uri is not valid
+
+#### `updateSmartAsset`
+
+_⚠️ Requires the core address to have an identity URI_.
+
+Update the content of a smart asset in the Arianee privacy gateway and update its imprint on chain. Returns the imprint of the new content.
+
+```typescript
+public async updateSmartAsset(
+  smartAssetId: SmartAsset['certificateId'],
+  content: SmartAsset['content'],
+  overrides: NonPayableOverrides = {}
+): Promise<{ imprint: string }>
+```
+
+The method can throw different errors:
+
+- `InsufficientUpdateCreditsError` if the core address does not have enough update credits
+- `NoIdentityError` if the core address does not have an identity URI
+- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
 
 ### Utils
 

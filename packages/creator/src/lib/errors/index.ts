@@ -1,6 +1,8 @@
+import { ArianeePrivacyGatewayError } from './ArianeePrivacyGatewayError';
 import { InsufficientEventCreditsError } from './InsufficientEventCreditsError';
 import { InsufficientMessageCreditsError } from './InsufficientMessageCreditsError';
 import { InsufficientSmartAssetCreditsError } from './InsufficientSmartAssetCreditsError';
+import { InsufficientUpdateCreditsError } from './InsufficientUpdateCreditsError';
 import { InvalidContentError } from './InvalidContentError';
 import { InvalidURIError } from './InvalidURIError';
 import { MalformedIdentityError } from './MalformedIdentityError';
@@ -14,9 +16,11 @@ import { UnavailableMessageIdError } from './UnavailableMessageIdError';
 import { UnavailableSmartAssetIdError } from './UnavailableSmartAssetIdError';
 
 export {
+  ArianeePrivacyGatewayError,
   InsufficientEventCreditsError,
   InsufficientMessageCreditsError,
   InsufficientSmartAssetCreditsError,
+  InsufficientUpdateCreditsError,
   InvalidContentError,
   InvalidURIError,
   MalformedIdentityError,
