@@ -6,6 +6,7 @@ import ArianeeProtocolClient, {
 } from '@arianee/arianee-protocol-client';
 import { ProtocolDetails } from '@arianee/arianee-protocol-client';
 import {
+  ArianeeEventI18N,
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
   SmartAsset,
@@ -21,6 +22,8 @@ import {
   UnavailableSmartAssetIdError,
 } from './errors';
 import { checkCreditsBalance } from './helpers/checkCredits/checkCredits';
+import { checkCreateEventParameters } from './helpers/event/checkCreateEventParameters';
+import { getCreateEventParams } from './helpers/event/getCreateEventParams';
 import { getTokenAccessParams } from './helpers/getTokenAccessParams/getTokenAccessParams';
 import { getCreatorIdentity } from './helpers/identity/getCreatorIdentity';
 import { checkCreateMessageParameters } from './helpers/message/checkCreateMessageParameters';
@@ -28,9 +31,13 @@ import { getCreateMessageParams } from './helpers/message/getCreateMessageParams
 import { checkCreateSmartAssetParameters } from './helpers/smartAsset/checkCreateSmartAssetParameters';
 import { getCreateSmartAssetParams } from './helpers/smartAsset/getCreateSmartAssetParams';
 import {
+  CreateAndStoreEventParameters,
   CreateAndStoreMessageParameters,
   CreateAndStoreSmartAssetParameters,
+  CreatedEvent,
   CreatedMessage,
+  CreateEventCommonParameters,
+  CreateEventParameters,
   CreateMessageCommonParameters,
   CreateMessageParameters,
   CreateSmartAssetCommonParameters,
@@ -181,6 +188,8 @@ export default class Creator {
     params: CreateAndStoreSmartAssetParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<LinkObject> {
+    await getCreatorIdentity(this); // assert has identity
+
     return this.createSmartAssetCommon(
       params,
       async (smartAssetId) => {
@@ -289,6 +298,8 @@ export default class Creator {
     params: CreateAndStoreMessageParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<CreatedMessage> {
+    await getCreatorIdentity(this); // assert has identity
+
     return this.createMessageCommon(
       params,
       async (messageId) => {
@@ -370,6 +381,113 @@ export default class Creator {
 
     return {
       id: messageId,
+      imprint,
+    };
+  }
+
+  @requiresConnection()
+  private async storeEvent(
+    eventId: number,
+    content: CreateAndStoreEventParameters['content']
+  ) {
+    const identity = await getCreatorIdentity(this);
+
+    const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
+    await client.eventCreate(identity.rpcEndpoint, {
+      eventId: eventId.toString(),
+      content,
+    });
+  }
+
+  @requiresConnection()
+  public async createAndStoreEvent(
+    params: CreateAndStoreEventParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedEvent> {
+    await getCreatorIdentity(this); // assert has identity
+
+    return this.createEventCommon(
+      params,
+      async (eventId) => {
+        await this.storeEvent(eventId, params.content);
+      },
+      overrides
+    );
+  }
+
+  @requiresConnection()
+  public async createEvent(
+    params: CreateEventParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedEvent> {
+    let content: ArianeeEventI18N;
+    try {
+      const res = await this.fetchLike(params.uri);
+      if (!res.ok) throw new Error('Response not ok');
+
+      content = await res.json();
+    } catch {
+      throw new InvalidURIError('Invalid URI: could not fetch the URI content');
+    }
+
+    return this.createEventCommon(
+      {
+        ...params,
+        content,
+      },
+      null,
+      overrides
+    );
+  }
+
+  @requiresConnection()
+  private async createEventCommon(
+    params: CreateEventCommonParameters,
+    afterTransaction:
+      | ((
+          eventId: NonNullable<CreateEventCommonParameters['eventId']>
+        ) => Promise<void>)
+      | null,
+
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedMessage> {
+    const { smartAssetId, eventId, uri } = await getCreateEventParams(
+      this.utils,
+      params
+    );
+
+    await checkCreateEventParameters(this, {
+      ...params,
+      smartAssetId,
+      eventId,
+      uri,
+    });
+
+    await checkCreditsBalance(this.utils, CreditType.event, BigInt(1));
+
+    const imprint = await this.utils.calculateImprint(params.content);
+
+    await transactionWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.storeContract.createEvent(
+            eventId,
+            smartAssetId,
+            imprint,
+            uri,
+            this.creatorAddress,
+            overrides
+          ),
+      },
+      this.connectOptions
+    );
+
+    if (afterTransaction) await afterTransaction(eventId);
+
+    return {
+      id: eventId,
       imprint,
     };
   }

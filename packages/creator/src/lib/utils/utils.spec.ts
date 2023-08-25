@@ -369,7 +369,7 @@ describe('Creator', () => {
   });
 
   describe('isMessageIdAvailable', () => {
-    it('should return ture if the sender is the 0 address', async () => {
+    it('should return true if the sender is the 0 address', async () => {
       const messagesSpy = jest.fn().mockResolvedValue({
         sender: '0x0000000000000000000000000000000000000000',
       });
@@ -398,6 +398,50 @@ describe('Creator', () => {
       );
 
       expect(available).toBeTruthy();
+    });
+  });
+  describe('isEventIdAvailable', () => {
+    it('should return true if the token associated to the event id is 0', async () => {
+      const eventIdToTokenSpy = jest.fn().mockResolvedValue(BigInt(0));
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            eventContract: {
+              eventIdToToken: eventIdToTokenSpy,
+            },
+          } as any)
+        );
+
+      const available = await creator.utils.isEventIdAvailable(123);
+
+      expect(eventIdToTokenSpy).toHaveBeenCalledWith(123);
+
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(available).toBeTruthy();
+    });
+  });
+
+  describe('getAvailableEventId', () => {
+    it('should call getAvailableId and return the number', async () => {
+      const getAvailableIdSpy = jest
+        .spyOn(creator.utils, 'getAvailableId')
+        .mockResolvedValue(123);
+
+      const id = await creator.utils.getAvailableEventId();
+
+      expect(getAvailableIdSpy).toHaveBeenCalledWith('event');
+
+      expect(id).toEqual(123);
     });
   });
 });

@@ -1,4 +1,11 @@
+import { CreatedEvent } from './createdEvent';
 import { CreatedMessage } from './createdMessage';
+import {
+  CreateAndStoreEventParameters,
+  CreateEventCommonParameters,
+  CreateEventParameters,
+  CreateEventParametersBase,
+} from './createEventParameters';
 import {
   CreateAndStoreMessageParameters,
   CreateMessageCommonParameters,
@@ -16,9 +23,14 @@ import { LinkObject } from './linkObject';
 import { TokenAccess } from './tokenAccess';
 
 export {
+  CreateAndStoreEventParameters,
   CreateAndStoreMessageParameters,
   CreateAndStoreSmartAssetParameters,
+  CreatedEvent,
   CreatedMessage,
+  CreateEventCommonParameters,
+  CreateEventParameters,
+  CreateEventParametersBase,
   CreateMessageCommonParameters,
   CreateMessageParameters,
   CreateMessageParametersBase,

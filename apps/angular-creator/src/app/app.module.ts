@@ -19,6 +19,8 @@ import { ActionRequestTestnetAria20Component } from './components/actions/action
 import { ActionSetRequestKeyComponent } from './components/actions/action-set-request-key/action-set-request-key.component';
 import { ActionCreateMessageComponent } from './components/actions/action-create-message/action-create-message.component';
 import { ActionCreateAndStoreMessageComponent } from './components/actions/action-create-and-store-message/action-create-and-store-message.component';
+import { ActionCreateEventComponent } from './components/actions/action-create-event/action-create-event.component';
+import { ActionCreateAndStoreEventComponent } from './components/actions/action-create-and-store-event/action-create-and-store-event.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +42,8 @@ import { ActionCreateAndStoreMessageComponent } from './components/actions/actio
     ActionSetRequestKeyComponent,
     ActionCreateMessageComponent,
     ActionCreateAndStoreMessageComponent,
+    ActionCreateEventComponent,
+    ActionCreateAndStoreEventComponent,
   ],
   imports: [BrowserModule, FormsModule],
   providers: [],

@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin-top: 16px;
+  margin-left: 8px;
+
+  padding: 4px;
+
+  background: #00000022;
+
+  div.action-name {
+    font-size: 16px;
+    font-weight: bold;
+  }
+}

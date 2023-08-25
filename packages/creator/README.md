@@ -71,9 +71,9 @@ public async reserveSmartAssetId(
 
 #### `createAndStoreSmartAsset`
 
-_⚠️ Requires the creator address to have an identity URI_.
+_⚠️ Requires the core address to have an identity URI_.
 
-Create a smart asset and store its content in the Arianee Privacy Gateway set in the creator address's identity and return a `LinkObject` .
+Create a smart asset and store its content in the Arianee Privacy Gateway set in the core address's identity and return a `LinkObject` .
 
 ```typescript
 public async createAndStoreSmartAsset(
@@ -101,8 +101,8 @@ type LinkObject = {
 The method can throw different errors:
 
 - `UnavailableSmartAssetIdError` if the smart asset id is not available
-- `InsufficientSmartAssetCreditsError` if the creator address does not have enough smart asset credits
-- `NoIdentityError` if the creator address does not have an identity URI
+- `InsufficientSmartAssetCreditsError` if the core address does not have enough smart asset credits
+- `NoIdentityError` if the core address does not have an identity URI
 
 #### `createSmartAsset`
 
@@ -134,7 +134,7 @@ type LinkObject = {
 The method can throw different errors:
 
 - `UnavailableSmartAssetIdError` if the smart asset id is not available
-- `InsufficientSmartAssetCreditsError` if the creator address does not have enough smart asset credits
+- `InsufficientSmartAssetCreditsError` if the core address does not have enough smart asset credits
 
 #### `buyCredit`
 
@@ -159,7 +159,7 @@ enum CreditType {
 
 #### `recoverSmartAsset`
 
-A method to recover a smart asset issued by the creator address.
+A method to recover a smart asset issued by the core address.
 
 ```typescript
 public async recoverSmartAsset(
@@ -170,7 +170,7 @@ public async recoverSmartAsset(
 
 #### `destroySmartAsset`
 
-A method to destroy a smart asset owned by the creator address.
+A method to destroy a smart asset owned by the core address.
 
 ```typescript
 public async destroySmartAsset(
@@ -181,11 +181,11 @@ public async destroySmartAsset(
 
 The method can throw:
 
-- `NotOwnerError` if the creator address is not the owner of the smart asset
+- `NotOwnerError` if the core address is not the owner of the smart asset
 
 #### `setTokenAccess`
 
-A method to set the token access (request / view) of a smart asset owned by the creator address.
+A method to set the token access (request / view) of a smart asset owned by the core address.
 
 ```typescript
 public async setTokenAccess(
@@ -198,11 +198,11 @@ public async setTokenAccess(
 
 The method can throw:
 
-- `NotOwnerError` if the creator address is not the owner of the smart asset
+- `NotOwnerError` if the core address is not the owner of the smart asset
 
 #### `setRequestKey`
 
-A method to set the request key of a smart asset owned by the creator address.
+A method to set the request key of a smart asset owned by the core address.
 
 ```typescript
 public async setRequestKey(
@@ -214,13 +214,13 @@ public async setRequestKey(
 
 The method can throw:
 
-- `NotOwnerError` if the creator address is not the owner of the smart asset
+- `NotOwnerError` if the core address is not the owner of the smart asset
 
 #### `createAndStoreMessage`
 
-_⚠️ Requires the creator address to have an identity URI_.
+_⚠️ Requires the core address to have an identity URI_.
 
-Create a message and store its content in the Arianee Privacy Gateway set in the creator address's identity and return a `CreatedMessage`.
+Create a message and store its content in the Arianee Privacy Gateway set in the core address's identity and return a `CreatedMessage`.
 
 ```typescript
 public async createAndStoreMessage(
@@ -244,10 +244,10 @@ interface CreateAndStoreMessageParameters {
 
 The method can throw:
 
-- `NotOwnerError` if the creator address is not the owner of the smart asset
-- `InsufficientMessageCreditsError` if the creator address does not have enough message credits
+- `NotOwnerError` if the core address is not the owner of the smart asset
+- `InsufficientMessageCreditsError` if the core address does not have enough message credits
 - `UnavailableMessageIdError` if the message id is not available
-- `NoIdentityError` if the creator address does not have an identity URI
+- `NoIdentityError` if the core address does not have an identity URI
 
 #### `createMessage`
 
@@ -266,7 +266,7 @@ type CreatedMessage = {
   id: number;
 };
 
-interface CreateAndStoreMessageParameters {
+interface CreateMessageParameters {
   messageId?: number;
   smartAssetId: number;
   uri: string;
@@ -275,9 +275,70 @@ interface CreateAndStoreMessageParameters {
 
 The method can throw:
 
-- `NotOwnerError` if the creator address is not the owner of the smart asset
-- `InsufficientMessageCreditsError` if the creator address does not have enough message credits
+- `NotOwnerError` if the core address is not the owner of the smart asset
+- `InsufficientMessageCreditsError` if the core address does not have enough message credits
 - `UnavailableMessageIdError` if the message id is not available
+
+#### `createAndStoreEvent`
+
+_⚠️ Requires the core address to have an identity URI_.
+
+Create an event and store its content in the Arianee Privacy Gateway set in the core address's identity and return a `CreatedEvent`.
+
+```typescript
+public async createAndStoreEvent(
+  params: CreateAndStoreEventParameters,
+  overrides: NonPayableOverrides = {}
+): Promise<CreatedEvent>
+```
+
+```typescript
+type CreatedEvent = {
+  imprint: string;
+  id: number;
+};
+
+interface CreateAndStoreEventParameters {
+  eventId?: number;
+  smartAssetId: number;
+  content: ArianeeEventI18N;
+}
+```
+
+The method can throw:
+
+- `InsufficientEventCreditsError` if the core address does not have enough event credits
+- `UnavailableEventIdError` if the event id is not available
+- `NoIdentityError` if the core address does not have an identity URI
+
+#### `createEvent`
+
+Create an event and return a `CreatedEvent`.
+
+```typescript
+public async createEvent(
+  params: CreateEventParameters,
+  overrides: NonPayableOverrides = {}
+): Promise<CreatedEvent>
+```
+
+```typescript
+type CreatedEvent = {
+  imprint: string;
+  id: number;
+};
+
+interface CreateEventParameters {
+  eventId?: number;
+  smartAssetId: number;
+  uri: string;
+}
+```
+
+The method can throw:
+
+- `InsufficientEventCreditsError` if the core address does not have enough event credits
+- `UnavailableEventIdError` if the event id is not available
 
 ### Utils
 

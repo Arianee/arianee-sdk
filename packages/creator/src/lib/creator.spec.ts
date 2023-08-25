@@ -5,6 +5,9 @@ import { defaultFetchLike } from '@arianee/utils';
 
 import Creator from './creator';
 import * as checkCreditsModule from './helpers/checkCredits/checkCredits';
+import * as checkCreateEventParametersModule from './helpers/event/checkCreateEventParameters';
+import * as getCreateEventParamsModule from './helpers/event/getCreateEventParams';
+import * as getCreatorIdentityModule from './helpers/identity/getCreatorIdentity';
 import * as checkCreateMessageParametersModule from './helpers/message/checkCreateMessageParameters';
 import * as getCreateMessageParamsModule from './helpers/message/getCreateMessageParams';
 import * as checkCreateSmartAssetParametersModule from './helpers/smartAsset/checkCreateSmartAssetParameters';
@@ -219,6 +222,10 @@ describe('Creator', () => {
 
   describe('createAndStoreSmartAsset', () => {
     it('should call createSmartAssetCommon with correct params', async () => {
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
       const createSmartAssetCommonSpy = jest
         .spyOn(creator as any, 'createSmartAssetCommon')
         .mockImplementation();
@@ -462,6 +469,10 @@ describe('Creator', () => {
 
   describe('createAndStoreMessage', () => {
     it('should call createMessageCommon with the correct params', async () => {
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
       const params = {
         content: {
           $schema: 'test',
@@ -607,6 +618,166 @@ describe('Creator', () => {
         content,
         smartAssetId: 123,
         messageId: 456,
+      });
+
+      expect(calculateImprintSpy).toHaveBeenCalledWith(content);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(456);
+    });
+  });
+
+  describe('createAndStoreEvent', () => {
+    it('should call createEventCommon with the correct params', async () => {
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
+      const params = {
+        content: {
+          $schema: 'test',
+        },
+        smartAssetId: 123,
+        eventId: 456,
+      };
+
+      const createEventCommonSpy = jest
+        .spyOn(creator as any, 'createEventCommon')
+        .mockImplementation();
+
+      await creator.createAndStoreEvent(params);
+
+      expect(createEventCommonSpy).toHaveBeenCalledWith(
+        params,
+        expect.any(Function),
+        {}
+      );
+    });
+  });
+
+  describe('createEvent', () => {
+    it('should call createEventCommon with the fetched content', async () => {
+      const params = {
+        uri: 'https://mock.com',
+        smartAssetId: 123,
+        eventId: 456,
+      };
+
+      const content = {
+        $schema: 'test',
+      };
+
+      const fetchLikeSpy = jest.fn().mockResolvedValue({
+        ok: true,
+        json: () => content,
+      });
+
+      const creator = new Creator({
+        core,
+        creatorAddress,
+        fetchLike: fetchLikeSpy,
+      });
+
+      const createEventCommonSpy = jest
+        .spyOn(creator as any, 'createEventCommon')
+        .mockImplementation();
+
+      await creator.createEvent(params);
+
+      expect(createEventCommonSpy).toHaveBeenCalledWith(
+        {
+          ...params,
+          content,
+        },
+        null,
+        {}
+      );
+    });
+  });
+
+  describe('createEventCommon', () => {
+    it('should call the v1 contract with correct params and return the id and imprint', async () => {
+      const content = {
+        $schema: 'test',
+      };
+
+      const getCreateEventParamsSpy = jest
+        .spyOn(getCreateEventParamsModule as any, 'getCreateEventParams')
+        .mockResolvedValue({
+          smartAssetId: 123,
+          eventId: 456,
+          content,
+          uri: '',
+        });
+
+      const checkCreateEventParametersSpy = jest
+        .spyOn(
+          checkCreateEventParametersModule as any,
+          'checkCreateEventParameters'
+        )
+        .mockImplementation();
+
+      const checkCreditsBalanceSpy = jest
+        .spyOn(checkCreditsModule, 'checkCreditsBalance')
+        .mockImplementation();
+
+      const calculateImprintSpy = jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue(
+          '0x0000000000000000000000000000000000000000000000000000000000000111'
+        );
+
+      const afterTransactionSpy = jest.fn();
+
+      const createEventSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation(async (_, __, actions) => {
+          await actions.protocolV1Action({
+            storeContract: {
+              createEvent: createEventSpy,
+            },
+          } as any);
+
+          return null as any;
+        });
+
+      await creator['createEventCommon'](
+        {
+          content,
+          smartAssetId: 123,
+          eventId: 456,
+        },
+        afterTransactionSpy
+      );
+
+      expect(createEventSpy).toHaveBeenCalledWith(
+        456,
+        123,
+        '0x0000000000000000000000000000000000000000000000000000000000000111',
+        '',
+        creatorAddress,
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(checkCreateEventParametersSpy).toHaveBeenCalled();
+      expect(checkCreditsBalanceSpy).toHaveBeenCalledWith(
+        creator['utils'],
+        CreditType.event,
+        BigInt(1)
+      );
+      expect(getCreateEventParamsSpy).toHaveBeenCalledWith(creator['utils'], {
+        content,
+        smartAssetId: 123,
+        eventId: 456,
       });
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);

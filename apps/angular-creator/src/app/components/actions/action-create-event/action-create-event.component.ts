@@ -1,17 +1,17 @@
 import { Component, Input } from '@angular/core';
 import Creator, {
-  InsufficientMessageCreditsError,
+  InsufficientEventCreditsError,
   InvalidURIError,
-  UnavailableMessageIdError,
+  UnavailableEventIdError,
 } from '@arianee/creator';
 import { Action } from '../action';
 
 @Component({
-  selector: 'app-action-create-message',
-  templateUrl: './action-create-message.component.html',
-  styleUrls: ['./action-create-message.component.scss'],
+  selector: 'app-action-create-event',
+  templateUrl: './action-create-event.component.html',
+  styleUrls: ['./action-create-event.component.scss'],
 })
-export class ActionCreateMessageComponent implements Action {
+export class ActionCreateEventComponent implements Action {
   public result: string | null = null;
   @Input() creator: Creator | null = null;
 
@@ -28,23 +28,23 @@ export class ActionCreateMessageComponent implements Action {
 
     try {
       this.loading = true;
-      const createdMessage = await this.creator.createMessage({
+      const createdMessage = await this.creator.createEvent({
         smartAssetId: parseInt(this.smartAssetId),
         uri: this.uri,
-        messageId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+        eventId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
       });
 
       this.result = JSON.stringify(createdMessage, null, 2);
     } catch (error) {
-      if (error instanceof InsufficientMessageCreditsError) {
-        alert('You do not have enough message credits!');
-      } else if (error instanceof UnavailableMessageIdError) {
-        alert('This message ID is not available!');
+      if (error instanceof InsufficientEventCreditsError) {
+        alert('You do not have enough event credits!');
+      } else if (error instanceof UnavailableEventIdError) {
+        alert('This event ID is not available!');
       } else if (error instanceof InvalidURIError) {
         alert('This URI is not valid!');
       } else {
         console.error(error);
-        alert('Error while creating the message, see console');
+        alert('Error while creating the event, see console');
       }
     } finally {
       this.loading = false;
