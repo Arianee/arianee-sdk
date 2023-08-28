@@ -338,6 +338,23 @@ The method can throw:
 - `InsufficientEventCreditsError` if the core address does not have enough event credits
 - `UnavailableEventIdError` if the event id is not available
 
+#### `updateTokenURI`
+
+Update the public URI of a smart asset.
+
+```typescript
+public async updateTokenURI(
+  smartAssetId: SmartAsset['certificateId'],
+  uri: string,
+  overrides: NonPayableOverrides = {}
+)
+```
+
+The method can throw:
+
+- `NotIssuerError` if the core address is not the issuer of the smart asset
+- `InvalidURIError` if the uri is not valid
+
 ### Utils
 
 #### `isSmartAssetIdAvailable`

@@ -6,6 +6,7 @@ import { InvalidURIError } from './InvalidURIError';
 import { MalformedIdentityError } from './MalformedIdentityError';
 import { NoIdentityError } from './NoIdentityError';
 import { NotConnectedError } from './NotConnectedError';
+import { NotIssuerError } from './NotIssuerError';
 import { NotOwnerError } from './NotOwnerError';
 import { ProtocolCompatibilityError } from './ProtocolCompatibilityError';
 import { UnavailableEventIdError } from './UnavailableEventIdError';
@@ -21,6 +22,7 @@ export {
   MalformedIdentityError,
   NoIdentityError,
   NotConnectedError,
+  NotIssuerError,
   NotOwnerError,
   ProtocolCompatibilityError,
   UnavailableEventIdError,
