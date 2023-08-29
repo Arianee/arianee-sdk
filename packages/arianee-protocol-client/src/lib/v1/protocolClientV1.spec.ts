@@ -1,6 +1,7 @@
 import { Signer } from 'ethers';
+
+import { ProtocolDetailsV1 } from '../shared/types';
 import ProtocolClientV1 from './protocolClientV1';
-import { ProtocolDetails } from '../shared/types';
 
 describe('ProtocolClientV1', () => {
   it('should throw if instantiated with an invalid version', () => {
@@ -10,7 +11,7 @@ describe('ProtocolClientV1', () => {
           {} as unknown as Signer,
           {
             protocolVersion: '2',
-          } as unknown as ProtocolDetails
+          } as unknown as ProtocolDetailsV1
         )
     ).toThrowError(/not compatible with protocol v2/gi);
   });

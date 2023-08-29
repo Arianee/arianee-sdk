@@ -1,4 +1,5 @@
 import { Protocol } from '@arianee/common-types';
+
 import ArianeeProtocolClient from '../../arianeeProtocolClient';
 import ProtocolClientV1 from '../../v1/protocolClientV1';
 
@@ -15,9 +16,9 @@ export const callWrapper = async <T>(
     connectOptions
   );
 
-  if ('v1' in protocol) {
+  if (protocol instanceof ProtocolClientV1) {
     try {
-      return await actions.protocolV1Action(protocol.v1);
+      return await actions.protocolV1Action(protocol);
     } catch (e) {
       console.error(e);
       throw new Error('Error while executing the protocol v1 action');

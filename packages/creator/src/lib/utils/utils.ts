@@ -223,16 +223,27 @@ export default class Utils {
   }
 
   @requiresConnection()
-  public async getAriaAllowance(spender: string, address?: string) {
+  public async getAriaAllowance(
+    spender: { address: string } | 'STORE_CONTRACT_ADDRESS',
+    address?: string
+  ) {
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.ariaContract.allowance(
+        protocolV1Action: async (protocolV1) => {
+          let _spender: string;
+          if (spender === 'STORE_CONTRACT_ADDRESS') {
+            _spender = protocolV1.protocolDetails.contractAdresses.store;
+          } else {
+            _spender = spender.address;
+          }
+
+          return protocolV1.ariaContract.allowance(
             address ?? this.creator.core.getAddress(),
-            spender
-          ),
+            _spender
+          );
+        },
       },
       this.creator.connectOptions
     );
@@ -240,15 +251,23 @@ export default class Utils {
 
   @requiresConnection()
   public async approveAriaSpender(
-    spender: string,
+    spender: { address: string } | 'STORE_CONTRACT_ADDRESS',
     amount: BigNumberish = '10000000000000000000000000000'
   ) {
     return transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.ariaContract.approve(spender, amount),
+        protocolV1Action: async (protocolV1) => {
+          let _spender: string;
+          if (spender === 'STORE_CONTRACT_ADDRESS') {
+            _spender = protocolV1.protocolDetails.contractAdresses.store;
+          } else {
+            _spender = spender.address;
+          }
+
+          return protocolV1.ariaContract.approve(_spender, amount);
+        },
       },
       this.creator.connectOptions
     );

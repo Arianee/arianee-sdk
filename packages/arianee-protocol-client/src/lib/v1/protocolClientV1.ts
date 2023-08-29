@@ -2,9 +2,9 @@ import { ethers6_v1, ethers6_v1_1 } from '@arianee/arianee-abi';
 import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
-import { ProtocolDetails } from '../shared/types';
+import { ProtocolDetailsV1 } from '../shared/types';
 
-export default class ProtocolClientV1 extends ProtocolClientBase {
+export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetailsV1> {
   public readonly storeContract:
     | ethers6_v1.ArianeeStore
     | ethers6_v1_1.ArianeeStore;
@@ -43,7 +43,7 @@ export default class ProtocolClientV1 extends ProtocolClientBase {
     | ethers6_v1.ArianeeUpdate
     | ethers6_v1_1.ArianeeUpdate;
 
-  constructor(signer: Signer, protocolDetails: ProtocolDetails) {
+  constructor(signer: Signer, protocolDetails: ProtocolDetailsV1) {
     super(signer, protocolDetails);
 
     const { protocolVersion } = protocolDetails;

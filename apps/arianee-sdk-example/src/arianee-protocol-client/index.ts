@@ -1,4 +1,6 @@
-import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import ArianeeProtocolClient, {
+  ProtocolClientV1,
+} from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
 
 export default async () => {
@@ -17,7 +19,7 @@ export default async () => {
       '"\n'
   );
 
-  if ('v1' in protocol) {
+  if (protocol instanceof ProtocolClientV1) {
     const [
       identityURI,
       balanceOf,
@@ -30,29 +32,29 @@ export default async () => {
       addressToAbility,
       addAddressToWhitelist,
     ] = await Promise.all([
-      protocol.v1.identityContract.addressURI(
+      protocol.identityContract.addressURI(
         '0x305051e9a023fe881EE21cA43fd90c460B427Caa'
       ),
-      protocol.v1.smartAssetContract.balanceOf(
+      protocol.smartAssetContract.balanceOf(
         '0xa9bc90d24d0b8495043ab5857455444630028caf'
       ),
-      protocol.v1.ariaContract.balanceOf(
+      protocol.ariaContract.balanceOf(
         '0xa9bc90d24d0b8495043ab5857455444630028caf'
       ),
-      protocol.v1.creditHistoryContract.balanceOf(
+      protocol.creditHistoryContract.balanceOf(
         '0x305051e9a023fe881EE21cA43fd90c460B427Caa',
         1
       ),
-      protocol.v1.eventContract.eventIdToToken('148288273'),
-      protocol.v1.messageContract.messageLengthByReceiver(
+      protocol.eventContract.eventIdToToken('148288273'),
+      protocol.messageContract.messageLengthByReceiver(
         '0xa9bc90d24d0b8495043ab5857455444630028caf'
       ),
-      protocol.v1.storeContract.creditPriceUSD(0),
-      protocol.v1.updateSmartAssetContract.getUpdatedImprint(58824256),
-      protocol.v1.whitelistContract.addressToAbility(
+      protocol.storeContract.creditPriceUSD(0),
+      protocol.updateSmartAssetContract.getUpdatedImprint(58824256),
+      protocol.whitelistContract.addressToAbility(
         '0x305051e9a023fe881EE21cA43fd90c460B427Caa'
       ),
-      protocol.v1.userActionContract.addAddressToWhitelist(
+      protocol.userActionContract.addAddressToWhitelist(
         58824256,
         '0x305051e9a023fe881EE21cA43fd90c460B427Caa'
       ),

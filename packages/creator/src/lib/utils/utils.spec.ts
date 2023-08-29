@@ -30,10 +30,6 @@ describe('Creator', () => {
       get: () => 'testnet',
     });
 
-    Object.defineProperty(Creator.prototype, 'protocolDetails', {
-      get: () => ({}),
-    });
-
     jest.clearAllMocks();
   });
 

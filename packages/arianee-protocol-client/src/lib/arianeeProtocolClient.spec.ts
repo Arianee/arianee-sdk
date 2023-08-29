@@ -33,6 +33,7 @@ describe('ArianeeProtocolClient', () => {
         caseName: 'override httpProvider',
         options: { httpProvider: 'https://overriddenProvider.com/' },
         expectedProtocolDetails: {
+          protocolVersion: '1',
           httpProvider: 'https://overriddenProvider.com/',
         },
       },
@@ -40,6 +41,7 @@ describe('ArianeeProtocolClient', () => {
         caseName: 'use protocol details httpProvider',
         options: undefined,
         expectedProtocolDetails: {
+          protocolVersion: '1',
           httpProvider: 'https://provider.com/',
         },
       },
@@ -53,6 +55,7 @@ describe('ArianeeProtocolClient', () => {
 
         const mockProtocolDetails = {
           httpProvider: 'https://provider.com/',
+          protocolVersion: '1',
         };
 
         jest
@@ -66,7 +69,7 @@ describe('ArianeeProtocolClient', () => {
           expectedProtocolDetails
         );
 
-        expect('v1' in protocol).toBe(true);
+        expect(protocol).toBeInstanceOf(ProtocolClientV1);
       }
     );
   });
@@ -87,6 +90,7 @@ describe('ArianeeProtocolClient', () => {
           contractAdresses: {
             contractName: '0x46F48FbdedAa6F5500993BEDE9539ef85F4BeE8e',
           },
+          protocolVersion: '1',
           httpProvider: 'https://polygon.arianee.net',
           gasStation: 'https://gasstation.arianee.com/137',
           chainId: 137,
@@ -102,6 +106,7 @@ describe('ArianeeProtocolClient', () => {
         httpProvider: 'https://polygon.arianee.net',
         gasStation: 'https://gasstation.arianee.com/137',
         chainId: 137,
+        protocolVersion: '1',
       });
     });
   });

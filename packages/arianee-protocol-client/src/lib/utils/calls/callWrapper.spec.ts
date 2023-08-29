@@ -1,8 +1,11 @@
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import ArianeeProtocolClient, {
+  ProtocolClientV1,
+} from '@arianee/arianee-protocol-client';
 import { Core } from '@arianee/core';
-import { callWrapper } from './callWrapper';
 import { ContractTransactionResponse } from 'ethers';
+
+import { callWrapper } from './callWrapper';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.spyOn(console, 'error').mockImplementation();
@@ -14,6 +17,13 @@ describe('transactionWrapper', () => {
     )
   );
 
+  // set prototype to those of ProtocolClientV1 so that instanceof check passes
+  const RealProtocolClientV1 = jest.requireActual(
+    '@arianee/arianee-protocol-client'
+  ).ProtocolClientV1;
+  const mockProtocolClientV1 = new ProtocolClientV1({} as any, {} as any);
+  Object.setPrototypeOf(mockProtocolClientV1, RealProtocolClientV1.prototype);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -21,9 +31,7 @@ describe('transactionWrapper', () => {
   it('should throw if the protocol is not supported', async () => {
     const connectSpy = jest
       .spyOn(arianeeProtocolClient, 'connect')
-      .mockResolvedValue({
-        v2: {},
-      } as any);
+      .mockResolvedValue({} as any);
 
     await expect(
       callWrapper(arianeeProtocolClient, 'mockProtocol', {
@@ -36,20 +44,17 @@ describe('transactionWrapper', () => {
 
   it('should call the protocol v1 action and return the result', async () => {
     const protocolV1Action = jest.fn().mockResolvedValue('mock');
-    const v1Spy = jest.fn();
 
     const connectSpy = jest
       .spyOn(arianeeProtocolClient, 'connect')
-      .mockResolvedValue({
-        v1: v1Spy,
-      } as any);
+      .mockResolvedValue(mockProtocolClientV1);
 
     const res = await callWrapper(arianeeProtocolClient, 'mockProtocol', {
       protocolV1Action,
     });
 
     expect(connectSpy).toHaveBeenCalledWith('mockProtocol', undefined);
-    expect(protocolV1Action).toHaveBeenCalledWith(v1Spy);
+    expect(protocolV1Action).toHaveBeenCalledWith(mockProtocolClientV1);
     expect(res).toEqual('mock');
   });
 
@@ -58,9 +63,9 @@ describe('transactionWrapper', () => {
       .fn()
       .mockRejectedValue(new Error('v1 action error'));
 
-    jest.spyOn(arianeeProtocolClient, 'connect').mockResolvedValue({
-      v1: jest.fn(),
-    } as any);
+    jest
+      .spyOn(arianeeProtocolClient, 'connect')
+      .mockResolvedValue(mockProtocolClientV1);
 
     await expect(
       callWrapper(arianeeProtocolClient, 'mockProtocol', {

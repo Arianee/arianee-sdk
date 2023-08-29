@@ -52,7 +52,8 @@ export class HeaderComponent {
 
   public get protocolDetails() {
     return JSON.stringify(
-      this.creatorService.creator.getValue()?.protocolDetails,
+      this.creatorService.creator.getValue()?.connectedProtocolClient
+        ?.protocolDetails,
       null,
       2
     );

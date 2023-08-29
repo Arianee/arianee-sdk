@@ -25,7 +25,7 @@ export function requiresConnection() {
       }
 
       // Property check instead of instanceof to avoid cyclic dependency
-      if (!creator.connected || !creator.slug || !creator.protocolDetails)
+      if (!creator.connected || !creator.slug)
         throw new NotConnectedError(
           'Creator is not connected, you must call the connect method once before calling other methods'
         );
