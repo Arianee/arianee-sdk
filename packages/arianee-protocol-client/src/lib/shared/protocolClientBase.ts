@@ -2,11 +2,14 @@ import { Provider, Signer } from 'ethers';
 
 import { ProtocolDetails } from './types';
 
-export abstract class ProtocolClientBase {
-  constructor(
-    protected signer: Signer,
-    public readonly protocolDetails: ProtocolDetails
-  ) {}
+export abstract class ProtocolClientBase<T extends ProtocolDetails> {
+  constructor(protected signer: Signer, private _protocolDetails: T) {}
+
+  public get protocolDetails(): T {
+    return {
+      ...this._protocolDetails,
+    };
+  }
 
   public async getNativeBalance(address: string) {
     return this.provider.getBalance(address);

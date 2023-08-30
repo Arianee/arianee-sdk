@@ -2,9 +2,10 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import ArianeeProtocolClient, {
   NonPayableOverrides,
+  ProtocolClientV1,
+  ProtocolClientV2,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
-import { ProtocolDetails } from '@arianee/arianee-protocol-client';
 import {
   ArianeeEventI18N,
   ArianeeMessageI18N,
@@ -64,21 +65,25 @@ export default class Creator {
   public readonly arianeeProtocolClient: ArianeeProtocolClient;
 
   private _slug: string | null = null;
+  private _connectedProtocolClient: ProtocolClientV1 | ProtocolClientV2 | null =
+    null;
   private _connectOptions?: Parameters<ArianeeProtocolClient['connect']>[1];
-  private _protocolDetails: ProtocolDetails | null = null;
 
   public get slug(): string | null {
     return this._slug;
+  }
+
+  public get connectedProtocolClient():
+    | ProtocolClientV1
+    | ProtocolClientV2
+    | null {
+    return this._connectedProtocolClient;
   }
 
   public get connectOptions():
     | Parameters<ArianeeProtocolClient['connect']>[1]
     | undefined {
     return this._connectOptions;
-  }
-
-  public get protocolDetails(): ProtocolDetails | null {
-    return this._protocolDetails;
   }
 
   public readonly utils: Utils;
@@ -105,10 +110,7 @@ export default class Creator {
       const protocol = await this.arianeeProtocolClient.connect(slug, options);
       this._slug = slug;
       this._connectOptions = options;
-
-      if ('v1' in protocol) {
-        this._protocolDetails = protocol.v1.protocolDetails;
-      }
+      this._connectedProtocolClient = protocol;
     } catch (error) {
       console.error(error);
       throw new Error(
@@ -512,7 +514,7 @@ export default class Creator {
     overrides: NonPayableOverrides = {}
   ) {
     const storeAllowance = await this.utils.getAriaAllowance(
-      this._protocolDetails!.contractAdresses.store,
+      'STORE_CONTRACT_ADDRESS',
       this.core.getAddress()
     );
 
@@ -521,7 +523,7 @@ export default class Creator {
 
     if (storeAllowance < requiredAria) {
       await this.utils.approveAriaSpender(
-        this._protocolDetails!.contractAdresses.store,
+        'STORE_CONTRACT_ADDRESS',
         requiredAria * BigInt(100)
       );
     }

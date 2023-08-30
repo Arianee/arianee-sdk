@@ -1,9 +1,10 @@
+import { Protocol } from '@arianee/common-types';
 import {
   ContractTransactionReceipt,
   ContractTransactionResponse,
   TransactionRequest,
 } from 'ethers';
-import { Protocol } from '@arianee/common-types';
+
 import ArianeeProtocolClient from '../../arianeeProtocolClient';
 import ProtocolClientV1 from '../../v1/protocolClientV1';
 
@@ -27,10 +28,10 @@ export const transactionWrapper = async (
     connectOptions
   );
 
-  if ('v1' in protocol) {
+  if (protocol instanceof ProtocolClientV1) {
     let tx: ContractTransactionResponse;
     try {
-      tx = await actions.protocolV1Action(protocol.v1);
+      tx = await actions.protocolV1Action(protocol);
     } catch (e) {
       console.error(e);
       throw new Error('Error while executing the protocol v1 action');

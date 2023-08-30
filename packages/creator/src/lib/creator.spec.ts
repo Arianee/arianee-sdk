@@ -41,10 +41,6 @@ describe('Creator', () => {
       get: () => 'testnet',
     });
 
-    Object.defineProperty(Creator.prototype, 'protocolDetails', {
-      get: () => ({}),
-    });
-
     jest.clearAllMocks();
   });
 
@@ -95,9 +91,9 @@ describe('Creator', () => {
           arianeeProtocolClientModule.ArianeeProtocolClient.prototype,
           'connect'
         )
-        .mockResolvedValue({
-          v1: {} as unknown as arianeeProtocolClientModule.ProtocolClientV1,
-        });
+        .mockResolvedValue(
+          {} as unknown as arianeeProtocolClientModule.ProtocolClientV1
+        );
 
       const creator = new Creator({
         core,
