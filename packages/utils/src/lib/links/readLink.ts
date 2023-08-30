@@ -18,18 +18,21 @@ export const readLink = (link: string): ReadLink => {
     throw new Error('The link is not a valid URL');
   }
 
-  const protocolName = getProtocolNameFromHostname(url.hostname.toLowerCase());
-  if (!protocolName) throw new Error('No protocol found from hostname');
+  const protocolNameV1 = getProtocolNameFromHostname(
+    url.hostname.toLowerCase()
+  );
 
   const splitPathname = url.pathname.slice(1).split('/');
 
   const method =
     splitPathname.length > 1 ? splitPathname[0] : 'requestOwnership';
 
-  const [certificateId, passphrase] =
+  const [certificateId, passphrase, protocolNameV2] =
     splitPathname.length > 1
       ? splitPathname[1].split(',')
       : splitPathname[0].split(',');
+
+  if (!protocolNameV1 && !protocolNameV2) throw new Error('No protocol found');
 
   const aat = url.searchParams.get('arianeeAccessToken') ?? undefined;
 
@@ -37,7 +40,7 @@ export const readLink = (link: string): ReadLink => {
     certificateId,
     passphrase,
     aat,
-    network: protocolName,
+    network: protocolNameV2 ?? protocolNameV1,
     method,
     link,
   };

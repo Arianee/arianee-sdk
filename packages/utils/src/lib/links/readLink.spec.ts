@@ -90,6 +90,17 @@ describe('readLink', () => {
         link: 'https://stadetoulousain.arian.ee/proof/89592037,xakos7t8700d',
       },
     },
+    {
+      link: 'https://test.ee/proof/89592037,xakos7t8700d,137-0-arianee-0',
+      expected: {
+        certificateId: '89592037',
+        passphrase: 'xakos7t8700d',
+        aat: undefined,
+        method: 'proof',
+        network: '137-0-arianee-0',
+        link: 'https://test.ee/proof/89592037,xakos7t8700d,137-0-arianee-0',
+      },
+    },
   ])(
     'should return the expected value from the link (case %#)',
     ({ link, expected }) => {
@@ -106,7 +117,7 @@ describe('readLink', () => {
     {
       caseName: 'no protocol found for hostname',
       link: 'https://no.protocol.found/983190220,kj1ed3hq3a4y',
-      errorRegExp: /no protocol found from hostname/gi,
+      errorRegExp: /no protocol found/gi,
     },
   ])('should throw ($errorRegExp)', ({ link, errorRegExp }) => {
     expect(() => readLink(link)).toThrowError(errorRegExp);
