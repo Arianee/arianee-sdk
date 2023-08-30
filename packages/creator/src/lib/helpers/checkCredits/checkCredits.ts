@@ -28,6 +28,10 @@ export const checkCreditsBalance = async (
       throw new InsufficientEventCreditsError(
         `You do not have enough event credits (required: ${minAmount}, balance: ${creditsBalance})`
       );
+    case CreditType.update:
+      throw new InsufficientEventCreditsError(
+        `You do not have enough update credits (required: ${minAmount}, balance: ${creditsBalance})`
+      );
     default:
       throw new Error('Invalid credit type');
   }

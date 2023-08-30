@@ -1,0 +1,27 @@
+<div class="action">
+  <div class="action-name">updateSmartAsset</div>
+  <div class="action-input">
+    <input type="text" placeholder="smartAssetId" [(ngModel)]="smartAssetId" />
+  </div>
+
+  <div class="action-input">
+    <textarea
+      [ngStyle]="{ width: '100%', height: '112px' }"
+      spellcheck="false"
+      [(ngModel)]="content"
+    ></textarea>
+  </div>
+  <div class="action-execute">
+    <button (click)="action()" [disabled]="loading">
+      {{ loading ? 'loading ...' : 'Execute' }}
+    </button>
+  </div>
+  <div class="action-result" *ngIf="result !== null">
+    <b>Result:</b>
+    <textarea
+      [ngStyle]="{ width: '100%', height: '112px' }"
+      value="{{ result }}"
+      spellcheck="false"
+    ></textarea>
+  </div>
+</div>

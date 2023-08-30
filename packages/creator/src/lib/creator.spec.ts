@@ -1,21 +1,25 @@
+import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { TokenAccessType } from '@arianee/common-types';
 import Core from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
 
 import Creator from './creator';
+import { ArianeePrivacyGatewayError } from './errors';
 import * as checkCreditsModule from './helpers/checkCredits/checkCredits';
 import * as checkCreateEventParametersModule from './helpers/event/checkCreateEventParameters';
 import * as getCreateEventParamsModule from './helpers/event/getCreateEventParams';
 import * as getCreatorIdentityModule from './helpers/identity/getCreatorIdentity';
 import * as checkCreateMessageParametersModule from './helpers/message/checkCreateMessageParameters';
 import * as getCreateMessageParamsModule from './helpers/message/getCreateMessageParams';
+import * as assertSmartAssetIssuedByModule from './helpers/smartAsset/assertSmartAssetIssuedBy';
 import * as checkCreateSmartAssetParametersModule from './helpers/smartAsset/checkCreateSmartAssetParameters';
 import * as getCreateSmartAssetParamsModule from './helpers/smartAsset/getCreateSmartAssetParams';
 import * as getContentFromURIModule from './helpers/uri/getContentFromURI';
 import { CreditType } from './types';
 
 jest.mock('@arianee/arianee-protocol-client');
+jest.mock('@arianee/arianee-privacy-gateway-client');
 jest.spyOn(console, 'error').mockImplementation();
 
 describe('Creator', () => {
@@ -807,6 +811,236 @@ describe('Creator', () => {
 
       expect(getContentFromURISpy).toHaveBeenCalled();
       expect(getSmartAssetIssuerSpy).toHaveBeenCalledWith('123');
+    });
+  });
+
+  describe('storeSmartAsset', () => {
+    it('should throw an ArianeePrivacyGatewayError if the rpc call fails', async () => {
+      jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'certificateCreate')
+        .mockRejectedValue('error');
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
+      expect(
+        creator['storeSmartAsset'](123, { $schema: 'mock' })
+      ).rejects.toThrow(/Arianee Privacy Gateway/gi);
+      expect(
+        creator['storeSmartAsset'](123, { $schema: 'mock' })
+      ).rejects.toThrowError(ArianeePrivacyGatewayError);
+    });
+
+    it('should call certificateCreate', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'certificateCreate')
+        .mockImplementation();
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://mock.com',
+            } as any)
+        );
+
+      await creator['storeSmartAsset'](123, { $schema: 'mock' });
+
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        certificateId: '123',
+        content: { $schema: 'mock' },
+      });
+    });
+  });
+
+  describe('storeEvent', () => {
+    it('should throw an ArianeePrivacyGatewayError if the rpc call fails', async () => {
+      jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockRejectedValue('error');
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
+      expect(creator['storeEvent'](123, { $schema: 'mock' })).rejects.toThrow(
+        /Arianee Privacy Gateway/gi
+      );
+      expect(
+        creator['storeEvent'](123, { $schema: 'mock' })
+      ).rejects.toThrowError(ArianeePrivacyGatewayError);
+    });
+
+    it('should call eventCreate', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://mock.com',
+            } as any)
+        );
+
+      await creator['storeEvent'](123, { $schema: 'mock' });
+
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+    });
+  });
+
+  describe('storeMessage', () => {
+    it('should throw an ArianeePrivacyGatewayError if the rpc call fails', async () => {
+      jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'messageCreate')
+        .mockRejectedValue('error');
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
+      expect(creator['storeMessage'](123, { $schema: 'mock' })).rejects.toThrow(
+        /Arianee Privacy Gateway/gi
+      );
+      expect(
+        creator['storeMessage'](123, { $schema: 'mock' })
+      ).rejects.toThrowError(ArianeePrivacyGatewayError);
+    });
+
+    it('should call messageCreate', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'messageCreate')
+        .mockImplementation();
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://mock.com',
+            } as any)
+        );
+
+      await creator['storeMessage'](123, { $schema: 'mock' });
+
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        messageId: '123',
+        content: { $schema: 'mock' },
+      });
+    });
+  });
+
+  describe('updateSmartAssetContent', () => {
+    it('should throw an ArianeePrivacyGatewayError if the rpc call fails', async () => {
+      jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'updateCreate')
+        .mockRejectedValue('error');
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
+      expect(
+        creator['updateSmartAssetContent'](123, { $schema: 'mock' })
+      ).rejects.toThrow(/Arianee Privacy Gateway/gi);
+      expect(
+        creator['updateSmartAssetContent'](123, { $schema: 'mock' })
+      ).rejects.toThrowError(ArianeePrivacyGatewayError);
+    });
+
+    it('should call updateCreate', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'updateCreate')
+        .mockImplementation();
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://mock.com',
+            } as any)
+        );
+
+      await creator['updateSmartAssetContent'](123, { $schema: 'mock' });
+
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        certificateId: '123',
+        content: { $schema: 'mock' },
+      });
+    });
+  });
+
+  describe('updateSmartAsset', () => {
+    it('should call make an update transaction and call updateSmartAssetContent', async () => {
+      const content = {
+        $schema: 'mock',
+      };
+      const assertSmartAssetIssuedBySpy = jest
+        .spyOn(assertSmartAssetIssuedByModule, 'assertSmartAssetIssuedBy')
+        .mockImplementation();
+
+      const getCreatorIdentitySpy = jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
+      const checkCreditsBalanceSpy = jest
+        .spyOn(checkCreditsModule, 'checkCreditsBalance')
+        .mockImplementation();
+
+      const calculateImprintSpy = jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue('0xmock');
+
+      const updateSmartAssetContentSpy = jest
+        .spyOn(creator as any, 'updateSmartAssetContent')
+        .mockImplementation();
+
+      const updateSmartAssetSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation(async (_, __, actions) => {
+          await actions.protocolV1Action({
+            storeContract: {
+              updateSmartAsset: updateSmartAssetSpy,
+            },
+          } as any);
+
+          return null as any;
+        });
+
+      const { imprint } = await creator.updateSmartAsset('123', content);
+
+      expect(imprint).toEqual('0xmock');
+      expect(assertSmartAssetIssuedBySpy).toHaveBeenCalledWith(
+        {
+          smartAssetId: '123',
+          expectedIssuer: core.getAddress(),
+        },
+        creator.utils
+      );
+      expect(getCreatorIdentitySpy).toHaveBeenCalledWith(creator);
+      expect(checkCreditsBalanceSpy).toHaveBeenCalledWith(
+        creator.utils,
+        CreditType.update,
+        BigInt(1)
+      );
+      expect(calculateImprintSpy).toHaveBeenCalledWith(content);
+      expect(updateSmartAssetContentSpy).toBeCalledWith(123, content);
+      expect(updateSmartAssetSpy).toHaveBeenCalledWith(
+        '123',
+        '0xmock',
+        creatorAddress,
+        {}
+      );
     });
   });
 });

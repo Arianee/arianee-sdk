@@ -17,7 +17,7 @@ import { defaultFetchLike, getHostnameFromProtocolName } from '@arianee/utils';
 
 import { requiresConnection } from './decorators/requiresConnection';
 import {
-  NotIssuerError,
+  ArianeePrivacyGatewayError,
   NotOwnerError,
   UnavailableSmartAssetIdError,
 } from './errors';
@@ -28,6 +28,7 @@ import { getTokenAccessParams } from './helpers/getTokenAccessParams/getTokenAcc
 import { getCreatorIdentity } from './helpers/identity/getCreatorIdentity';
 import { checkCreateMessageParameters } from './helpers/message/checkCreateMessageParameters';
 import { getCreateMessageParams } from './helpers/message/getCreateMessageParams';
+import { assertSmartAssetIssuedBy } from './helpers/smartAsset/assertSmartAssetIssuedBy';
 import { checkCreateSmartAssetParameters } from './helpers/smartAsset/checkCreateSmartAssetParameters';
 import { getCreateSmartAssetParams } from './helpers/smartAsset/getCreateSmartAssetParams';
 import { getContentFromURI } from './helpers/uri/getContentFromURI';
@@ -178,10 +179,19 @@ export default class Creator {
     const identity = await getCreatorIdentity(this);
 
     const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
-    await client.certificateCreate(identity.rpcEndpoint, {
-      certificateId: smartAssetId.toString(),
-      content,
-    });
+
+    try {
+      await client.certificateCreate(identity.rpcEndpoint, {
+        certificateId: smartAssetId.toString(),
+        content,
+      });
+    } catch (e) {
+      throw new ArianeePrivacyGatewayError(
+        `Error while storing smart asset on Arianee Privacy Gateway\n${
+          e instanceof Error ? e.message : 'unknown reason'
+        }`
+      );
+    }
   }
 
   @requiresConnection()
@@ -282,10 +292,19 @@ export default class Creator {
     const identity = await getCreatorIdentity(this);
 
     const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
-    await client.messageCreate(identity.rpcEndpoint, {
-      messageId: messageId.toString(),
-      content,
-    });
+
+    try {
+      await client.messageCreate(identity.rpcEndpoint, {
+        messageId: messageId.toString(),
+        content,
+      });
+    } catch (e) {
+      throw new ArianeePrivacyGatewayError(
+        `Error while storing message on Arianee Privacy Gateway\n${
+          e instanceof Error ? e.message : 'unknown reason'
+        }`
+      );
+    }
   }
 
   @requiresConnection()
@@ -383,10 +402,19 @@ export default class Creator {
     const identity = await getCreatorIdentity(this);
 
     const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
-    await client.eventCreate(identity.rpcEndpoint, {
-      eventId: eventId.toString(),
-      content,
-    });
+
+    try {
+      await client.eventCreate(identity.rpcEndpoint, {
+        eventId: eventId.toString(),
+        content,
+      });
+    } catch (e) {
+      throw new ArianeePrivacyGatewayError(
+        `Error while storing event on Arianee Privacy Gateway\n${
+          e instanceof Error ? e.message : 'unknown reason'
+        }`
+      );
+    }
   }
 
   @requiresConnection()
@@ -514,10 +542,13 @@ export default class Creator {
     id: string,
     overrides: NonPayableOverrides = {}
   ) {
-    const smartAssetIssuer = await this.utils.getSmartAssetIssuer(id);
-
-    if (smartAssetIssuer !== this.core.getAddress())
-      throw new NotIssuerError('You are not the issuer of this smart asset');
+    await assertSmartAssetIssuedBy(
+      {
+        smartAssetId: id,
+        expectedIssuer: this.core.getAddress(),
+      },
+      this.utils
+    );
 
     return transactionWrapper(
       this.arianeeProtocolClient,
@@ -609,10 +640,13 @@ export default class Creator {
     uri: string,
     overrides: NonPayableOverrides = {}
   ): Promise<void> {
-    const issuer = await this.utils.getSmartAssetIssuer(smartAssetId);
-
-    if (issuer !== this.core.getAddress())
-      throw new NotIssuerError('You are not the issuer of this smart asset');
+    await assertSmartAssetIssuedBy(
+      {
+        smartAssetId,
+        expectedIssuer: this.core.getAddress(),
+      },
+      this.utils
+    );
 
     await getContentFromURI(uri, this.fetchLike);
 
@@ -629,6 +663,71 @@ export default class Creator {
       },
       this.connectOptions
     );
+  }
+
+  @requiresConnection()
+  private async updateSmartAssetContent(
+    smartAssetId: number,
+    content: SmartAsset['content']
+  ) {
+    const identity = await getCreatorIdentity(this);
+
+    const client = new ArianeePrivacyGatewayClient(this.core, this.fetchLike);
+
+    try {
+      await client.updateCreate(identity.rpcEndpoint, {
+        certificateId: smartAssetId.toString(),
+        content,
+      });
+    } catch (e) {
+      throw new ArianeePrivacyGatewayError(
+        `Error while updating smart asset on Arianee Privacy Gateway\n${
+          e instanceof Error ? e.message : 'unknown reason'
+        }`
+      );
+    }
+  }
+
+  @requiresConnection()
+  public async updateSmartAsset(
+    smartAssetId: SmartAsset['certificateId'],
+    content: SmartAsset['content'],
+    overrides: NonPayableOverrides = {}
+  ): Promise<{ imprint: string }> {
+    await getCreatorIdentity(this); // assert has identity
+
+    await assertSmartAssetIssuedBy(
+      {
+        smartAssetId,
+        expectedIssuer: this.core.getAddress(),
+      },
+      this.utils
+    );
+
+    await checkCreditsBalance(this.utils, CreditType.update, BigInt(1));
+
+    const imprint = await this.utils.calculateImprint(content);
+
+    await transactionWrapper(
+      this.arianeeProtocolClient,
+      this.slug!,
+      {
+        protocolV1Action: async (protocolV1) =>
+          protocolV1.storeContract.updateSmartAsset(
+            smartAssetId,
+            imprint,
+            this.creatorAddress,
+            overrides
+          ),
+      },
+      this.connectOptions
+    );
+
+    await this.updateSmartAssetContent(parseInt(smartAssetId), content);
+
+    return {
+      imprint,
+    };
   }
 }
 
