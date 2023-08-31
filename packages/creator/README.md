@@ -58,6 +58,42 @@ You can also find examples of usage in the `apps/arianee-sdk-example/creator` fo
 
 ### Main features
 
+Creator features are separated by type:
+
+- Smart assets
+- Messages
+- Events
+- Utils
+
+#### `buyCredit`
+
+A method to buy smart asset, message, event or update credits.
+
+```typescript
+public async buyCredit(
+  creditType: CreditType,
+  amount: number,
+  overrides: NonPayableOverrides = {}
+)
+```
+
+Implementation example :
+
+```typescript
+await this.creator.buyCredit(parseInt(this.creditType) as CreditType, parseInt(this.amount.trim()));
+```
+
+```typescript
+enum CreditType {
+  smartAsset = 0,
+  message = 1,
+  event = 2,
+  update = 3,
+}
+```
+
+### <u>Smart assets </u>
+
 #### `reserveSmartAssetId`
 
 Reserve a particular smart asset id that can be used later to create a smart asset.
@@ -67,6 +103,12 @@ public async reserveSmartAssetId(
     id?: number,
     overrides: NonPayableOverrides = {}
 )
+```
+
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.reserveSmartAssetId(this.id ? parseInt(this.id.trim()) : undefined);
 ```
 
 #### `createAndStoreSmartAsset`
@@ -80,6 +122,15 @@ public async createAndStoreSmartAsset(
   params: CreateAndStoreSmartAssetParameters,
   overrides: NonPayableOverrides = {}
 ) : Promise<LinkObject>
+```
+
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.createAndStoreSmartAsset({
+  smartAssetId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+  content,
+});
 ```
 
 ```typescript
@@ -116,6 +167,15 @@ public async createSmartAsset(
 ): Promise<LinkObject>
 ```
 
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.createSmartAsset({
+  smartAssetId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+  uri: this.uri,
+});
+```
+
 ```typescript
 interface CreateSmartAssetParameters {
   smartAssetId?: number;
@@ -137,26 +197,31 @@ The method can throw different errors:
 - `UnavailableSmartAssetIdError` if the smart asset id is not available
 - `InsufficientSmartAssetCreditsError` if the core address does not have enough smart asset credits
 
-#### `buyCredit`
+#### `updateSmartAsset`
 
-A method to buy smart asset, message, event or update credits.
+_⚠️ Requires the core address to have an identity URI_.
+
+Update the content of a smart asset in the Arianee privacy gateway and update its imprint on chain. Returns the imprint of the new content.
 
 ```typescript
-public async buyCredit(
-  creditType: CreditType,
-  amount: number,
+public async updateSmartAsset(
+  smartAssetId: SmartAsset['certificateId'],
+  content: SmartAsset['content'],
   overrides: NonPayableOverrides = {}
-)
+): Promise<{ imprint: string }>
 ```
 
+Implementation example :
+
 ```typescript
-enum CreditType {
-  smartAsset = 0,
-  message = 1,
-  event = 2,
-  update = 3,
-}
+await this.creator.smartAssets.updateSmartAsset(this.smartAssetId, content);
 ```
+
+The method can throw different errors:
+
+- `InsufficientUpdateCreditsError` if the core address does not have enough update credits
+- `NoIdentityError` if the core address does not have an identity URI
+- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
 
 #### `recoverSmartAsset`
 
@@ -169,6 +234,12 @@ public async recoverSmartAsset(
 )
 ```
 
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.recoverSmartAsset(this.id);
+```
+
 #### `destroySmartAsset`
 
 A method to destroy a smart asset owned by the core address.
@@ -178,6 +249,12 @@ public async destroySmartAsset(
   id: string,
   overrides: NonPayableOverrides = {}
 )
+```
+
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.destroySmartAsset(this.id);
 ```
 
 The method can throw:
@@ -213,9 +290,40 @@ public async setRequestKey(
 ): Promise<LinkObject>
 ```
 
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.setRequestKey(this.id, tokenAccess);
+```
+
 The method can throw:
 
 - `NotOwnerError` if the core address is not the owner of the smart asset
+
+#### `updateTokenURI`
+
+Update the public URI of a smart asset.
+
+```typescript
+public async updateTokenURI(
+  smartAssetId: SmartAsset['certificateId'],
+  uri: string,
+  overrides: NonPayableOverrides = {}
+)
+```
+
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.updateTokenURI(this.id, this.uri);
+```
+
+The method can throw:
+
+- `NotIssuerError` if the core address is not the issuer of the smart asset
+- `InvalidURIError` if the uri is not valid
+
+### <u>Messages </u>
 
 #### `createAndStoreMessage`
 
@@ -228,6 +336,16 @@ public async createAndStoreMessage(
   params: CreateAndStoreMessageParameters,
   overrides: NonPayableOverrides = {}
 ): Promise<CreatedMessage>
+```
+
+Implementation example :
+
+```typescript
+await this.creator.messages.createAndStoreMessage({
+  smartAssetId: parseInt(this.smartAssetId),
+  content,
+  messageId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+});
 ```
 
 ```typescript
@@ -261,6 +379,16 @@ public async createMessage(
 ): Promise<CreatedMessage>
 ```
 
+Implementation example :
+
+```typescript
+await this.creator.messages.createMessage({
+  smartAssetId: parseInt(this.smartAssetId),
+  uri: this.uri,
+  messageId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+});
+```
+
 ```typescript
 type CreatedMessage = {
   imprint: string;
@@ -279,6 +407,8 @@ The method can throw:
 - `InsufficientMessageCreditsError` if the core address does not have enough message credits
 - `UnavailableMessageIdError` if the message id is not available
 
+### <u>Events </u>
+
 #### `createAndStoreEvent`
 
 _⚠️ Requires the core address to have an identity URI_.
@@ -290,6 +420,16 @@ public async createAndStoreEvent(
   params: CreateAndStoreEventParameters,
   overrides: NonPayableOverrides = {}
 ): Promise<CreatedEvent>
+```
+
+Implemenation example :
+
+```typescript
+await this.creator.events.createAndStoreEvent({
+  smartAssetId: parseInt(this.smartAssetId),
+  content,
+  eventId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+});
 ```
 
 ```typescript
@@ -323,6 +463,16 @@ public async createEvent(
 ): Promise<CreatedEvent>
 ```
 
+Implementation example :
+
+```typescript
+await this.creator.events.createEvent({
+  smartAssetId: parseInt(this.smartAssetId),
+  uri: this.uri,
+  eventId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+});
+```
+
 ```typescript
 type CreatedEvent = {
   imprint: string;
@@ -341,44 +491,7 @@ The method can throw:
 - `InsufficientEventCreditsError` if the core address does not have enough event credits
 - `UnavailableEventIdError` if the event id is not available
 
-#### `updateTokenURI`
-
-Update the public URI of a smart asset.
-
-```typescript
-public async updateTokenURI(
-  smartAssetId: SmartAsset['certificateId'],
-  uri: string,
-  overrides: NonPayableOverrides = {}
-)
-```
-
-The method can throw:
-
-- `NotIssuerError` if the core address is not the issuer of the smart asset
-- `InvalidURIError` if the uri is not valid
-
-#### `updateSmartAsset`
-
-_⚠️ Requires the core address to have an identity URI_.
-
-Update the content of a smart asset in the Arianee privacy gateway and update its imprint on chain. Returns the imprint of the new content.
-
-```typescript
-public async updateSmartAsset(
-  smartAssetId: SmartAsset['certificateId'],
-  content: SmartAsset['content'],
-  overrides: NonPayableOverrides = {}
-): Promise<{ imprint: string }>
-```
-
-The method can throw different errors:
-
-- `InsufficientUpdateCreditsError` if the core address does not have enough update credits
-- `NoIdentityError` if the core address does not have an identity URI
-- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
-
-### Utils
+### <u>Utils</u>
 
 #### `isSmartAssetIdAvailable`
 

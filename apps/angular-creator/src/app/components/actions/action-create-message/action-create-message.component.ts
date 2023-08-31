@@ -28,7 +28,7 @@ export class ActionCreateMessageComponent implements Action {
 
     try {
       this.loading = true;
-      const createdMessage = await this.creator.createMessage({
+      const createdMessage = await this.creator.messages.createMessage({
         smartAssetId: parseInt(this.smartAssetId),
         uri: this.uri,
         messageId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
