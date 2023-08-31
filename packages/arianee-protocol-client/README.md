@@ -28,5 +28,11 @@ if (protocol instanceof ProtocolClientV1) {
   // you can call the contracts methods directly like that:
 
   const uri = await protocol.identityContract.addressURI('0x305051e9a023fe881EE21cA43fd90c460B427Caa');
+} else if (protocol instanceof ProtocolClientV2) {
+  // protocol deployed on the connected network is v2
 }
 ```
+
+## Protocol details resolver
+
+By default, the library uses our protocol details resolver API to fetch the `ProtocolDetails` when calling the `connect` method. If you don't want to use our API, you can pass your own protocol resolver by setting the optional `protocolDetailsResolver` property in the constructor's options.

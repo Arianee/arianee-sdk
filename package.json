@@ -36,7 +36,6 @@
     "apps/*"
   ],
   "dependencies": {
-    "@arianee/0xcert-cert": "^2.0.2",
     "@angular/animations": "~16.0.0",
     "@angular/common": "~16.0.0",
     "@angular/compiler": "~16.0.0",
@@ -45,10 +44,12 @@
     "@angular/platform-browser": "~16.0.0",
     "@angular/platform-browser-dynamic": "~16.0.0",
     "@angular/router": "~16.0.0",
+    "@arianee/0xcert-cert": "^2.0.2",
     "@arianee/arianee-abi": "0.22.0",
+    "@arianee/contracts": "^1.0.3",
     "ajv": "^8.12.0",
     "axios": "^1.0.0",
-    "ethers": "^6.6.0",
+    "ethers": "6.7.0",
     "eventemitter3": "^5.0.1",
     "node-fetch": "^2.6.12",
     "rxjs": "~7.8.0",

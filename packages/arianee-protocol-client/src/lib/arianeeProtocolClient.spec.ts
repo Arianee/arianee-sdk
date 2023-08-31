@@ -25,6 +25,16 @@ describe('ArianeeProtocolClient', () => {
       const client = new ArianeeProtocolClient(Core.fromRandom());
       expect(client['fetchLike']).toBe(defaultFetchLike);
     });
+
+    it('should use the protocolDetailsResolver if passed', () => {
+      const mock = jest.fn();
+
+      const client = new ArianeeProtocolClient(Core.fromRandom(), {
+        protocolDetailsResolver: mock,
+      });
+
+      expect(client['protocolDetailsResolver']).toBe(mock);
+    });
   });
 
   describe('connect', () => {
@@ -58,7 +68,7 @@ describe('ArianeeProtocolClient', () => {
           protocolVersion: '1',
         };
 
-        jest
+        const getProtocolDetailsFromSlugSpy = jest
           .spyOn(client as any, 'getProtocolDetailsFromSlug')
           .mockResolvedValue(mockProtocolDetails);
 
@@ -70,8 +80,39 @@ describe('ArianeeProtocolClient', () => {
         );
 
         expect(protocol).toBeInstanceOf(ProtocolClientV1);
+        expect(getProtocolDetailsFromSlugSpy).toHaveBeenCalledWith('sokol');
       }
     );
+
+    it('should use the protocolDetailsResolver if set', async () => {
+      const mockWallet = {};
+      jest
+        .spyOn(ethersProxies, 'ethersWalletFromCore')
+        .mockReturnValue(mockWallet as any);
+
+      const mockProtocolDetails = {
+        httpProvider: 'https://provider.com/',
+        protocolVersion: '1',
+      };
+
+      const protocolDetailsResolver = jest
+        .fn()
+        .mockResolvedValue(mockProtocolDetails);
+
+      const client = new ArianeeProtocolClient(Core.fromRandom(), {
+        protocolDetailsResolver,
+      });
+
+      const protocol = await client.connect('sokol');
+
+      expect(ProtocolClientV1).toHaveBeenCalledWith(
+        mockWallet,
+        mockProtocolDetails
+      );
+
+      expect(protocol).toBeInstanceOf(ProtocolClientV1);
+      expect(protocolDetailsResolver).toHaveBeenCalledWith('sokol');
+    });
   });
 
   describe('getProtocolDetailsFromSlug', () => {
