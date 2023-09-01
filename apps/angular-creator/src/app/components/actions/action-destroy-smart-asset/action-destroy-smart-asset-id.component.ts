@@ -24,7 +24,7 @@ export class ActionDestroySmartAssetIdComponent implements Action {
         throw new Error('No ID set!');
       }
       this.loading = true;
-      await this.creator.destroySmartAsset(this.id);
+      await this.creator.smartAssets.destroySmartAsset(this.id);
     } catch (error) {
       console.error(error);
       alert('Error while reserving the smart asset ID, see console');

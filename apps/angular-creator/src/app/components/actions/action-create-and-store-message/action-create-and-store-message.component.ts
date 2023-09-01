@@ -46,7 +46,7 @@ export class ActionCreateAndStoreMessageComponent implements Action {
 
     try {
       this.loading = true;
-      const createdMessage = await this.creator.createAndStoreMessage({
+      const createdMessage = await this.creator.messages.createAndStoreMessage({
         smartAssetId: parseInt(this.smartAssetId),
         content,
         messageId: this.id && this.id !== '' ? parseInt(this.id) : undefined,

@@ -11,7 +11,7 @@ export default async () => {
 
   await creator.connect('testnet');
 
-  const smartAsset = await creator.createAndStoreSmartAsset({
+  const smartAsset = await creator.smartAssets.createAndStoreSmartAsset({
     content: {
       $schema:
         'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',

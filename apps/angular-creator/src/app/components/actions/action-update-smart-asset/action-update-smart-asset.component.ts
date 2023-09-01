@@ -43,7 +43,10 @@ export class ActionUpdateSmartAssetComponent implements Action {
     try {
       this.loading = true;
       this.result = JSON.stringify(
-        await this.creator.updateSmartAsset(this.smartAssetId, content),
+        await this.creator.smartAssets.updateSmartAsset(
+          this.smartAssetId,
+          content
+        ),
         null,
         2
       );

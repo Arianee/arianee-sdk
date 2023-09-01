@@ -22,7 +22,7 @@ export class ActionReserveSmartAssetIdComponent implements Action {
 
     try {
       this.loading = true;
-      await this.creator.reserveSmartAssetId(
+      await this.creator.smartAssets.reserveSmartAssetId(
         this.id ? parseInt(this.id.trim()) : undefined
       );
     } catch (error) {

@@ -27,7 +27,7 @@ export class ActionCreateSmartAssetComponent implements Action {
 
     try {
       this.loading = true;
-      const linkObject = await this.creator.createSmartAsset({
+      const linkObject = await this.creator.smartAssets.createSmartAsset({
         smartAssetId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
         uri: this.uri,
       });

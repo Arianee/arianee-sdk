@@ -25,7 +25,7 @@ export class ActionRecoverSmartAssetIdComponent implements Action {
       if (!this.id) {
         throw new Error('No ID set!');
       }
-      await this.creator.recoverSmartAsset(this.id);
+      await this.creator.smartAssets.recoverSmartAsset(this.id);
     } catch (error) {
       console.error(error);
       alert('Error while reserving the smart asset ID, see console');

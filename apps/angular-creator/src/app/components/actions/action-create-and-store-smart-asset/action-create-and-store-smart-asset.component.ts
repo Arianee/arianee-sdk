@@ -43,10 +43,12 @@ export class ActionCreateAndStoreSmartAssetComponent implements Action {
 
     try {
       this.loading = true;
-      const linkObject = await this.creator.createAndStoreSmartAsset({
-        smartAssetId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
-        content,
-      });
+      const linkObject =
+        await this.creator.smartAssets.createAndStoreSmartAsset({
+          smartAssetId:
+            this.id && this.id !== '' ? parseInt(this.id) : undefined,
+          content,
+        });
 
       this.result = JSON.stringify(linkObject, null, 2);
     } catch (error) {

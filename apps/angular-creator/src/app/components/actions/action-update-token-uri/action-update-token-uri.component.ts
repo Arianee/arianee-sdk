@@ -23,7 +23,7 @@ export class ActionUpdateTokenURIComponent implements Action {
 
     try {
       this.loading = true;
-      await this.creator.updateTokenURI(this.id, this.uri);
+      await this.creator.smartAssets.updateTokenURI(this.id, this.uri);
     } catch (error) {
       console.error(error);
 

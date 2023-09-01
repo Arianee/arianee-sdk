@@ -42,7 +42,10 @@ export class ActionSetRequestKeyComponent implements Action {
         };
       }
 
-      const linkObject = await this.creator.setRequestKey(this.id, tokenAccess);
+      const linkObject = await this.creator.smartAssets.setRequestKey(
+        this.id,
+        tokenAccess
+      );
 
       this.result = JSON.stringify(linkObject, null, 2);
     } catch (error) {
