@@ -1,32 +1,25 @@
-import Creator from '../creator';
-import { requiresConnection } from '../decorators/requiresConnection';
-import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
-import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
-import { checkCreateMessageParameters } from '../helpers/message/checkCreateMessageParameters';
-import { getCreateMessageParams } from '../helpers/message/getCreateMessageParams';
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import {
-  CreateAndStoreEventParameters,
-  CreateAndStoreMessageParameters,
-  CreatedEvent,
-  CreatedMessage,
-  CreateEventCommonParameters,
-  CreateEventParameters,
-  CreateMessageCommonParameters,
-  CreateMessageParameters,
-  CreateSmartAssetCommonParameters,
-  CreateSmartAssetParameters,
-  CreditType,
-  LinkObject,
-  TokenAccess,
-} from '../types';
 import {
   NonPayableOverrides,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import { ArianeeMessageI18N } from '@arianee/common-types';
+
+import Creator from '../creator';
+import { requiresConnection } from '../decorators/requiresConnection';
 import { ArianeePrivacyGatewayError } from '../errors';
+import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
+import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
+import { checkCreateMessageParameters } from '../helpers/message/checkCreateMessageParameters';
+import { getCreateMessageParams } from '../helpers/message/getCreateMessageParams';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';
+import {
+  CreateAndStoreMessageParameters,
+  CreatedMessage,
+  CreateMessageCommonParameters,
+  CreateMessageParameters,
+  CreditType,
+} from '../types';
 
 export default class Messages {
   constructor(private creator: Creator) {}
@@ -110,6 +103,9 @@ export default class Messages {
             this.creator.creatorAddress,
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );

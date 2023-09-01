@@ -1,8 +1,18 @@
+import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
+import {
+  NonPayableOverrides,
+  transactionWrapper,
+} from '@arianee/arianee-protocol-client';
+import { ArianeeEventI18N } from '@arianee/common-types';
+
 import Creator from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
+import { ArianeePrivacyGatewayError } from '../errors';
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
+import { checkCreateEventParameters } from '../helpers/event/checkCreateEventParameters';
+import { getCreateEventParams } from '../helpers/event/getCreateEventParams';
 import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
-import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
+import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreEventParameters,
   CreatedEvent,
@@ -11,15 +21,6 @@ import {
   CreateEventParameters,
   CreditType,
 } from '../types';
-import {
-  NonPayableOverrides,
-  transactionWrapper,
-} from '@arianee/arianee-protocol-client';
-import { ArianeeEventI18N } from '@arianee/common-types';
-import { ArianeePrivacyGatewayError } from '../errors';
-import { getContentFromURI } from '../helpers/uri/getContentFromURI';
-import { getCreateEventParams } from '../helpers/event/getCreateEventParams';
-import { checkCreateEventParameters } from '../helpers/event/checkCreateEventParameters';
 
 export default class Events {
   constructor(private creator: Creator) {}
@@ -126,6 +127,9 @@ export default class Events {
             this.creator.creatorAddress,
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );

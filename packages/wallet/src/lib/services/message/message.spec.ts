@@ -1,8 +1,9 @@
-import { Core } from '@arianee/core';
-import MessageService from './message';
-import WalletApiClient from '@arianee/wallet-api-client';
-import EventManager from '../eventManager/eventManager';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import { Core } from '@arianee/core';
+import WalletApiClient from '@arianee/wallet-api-client';
+
+import EventManager from '../eventManager/eventManager';
+import MessageService from './message';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');
@@ -171,6 +172,7 @@ describe('MessageService', () => {
         'mockProtocol',
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         }
       );
     });
@@ -211,6 +213,7 @@ describe('MessageService', () => {
         'mockProtocol',
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         }
       );
     });
@@ -251,6 +254,7 @@ describe('MessageService', () => {
         'mockProtocol',
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         }
       );
     });

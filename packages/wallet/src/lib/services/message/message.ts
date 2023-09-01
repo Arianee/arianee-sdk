@@ -1,17 +1,17 @@
-import { ChainType, Protocol, SmartAsset } from '@arianee/common-types';
-import { WalletAbstraction } from '@arianee/wallet-abstraction';
-import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
-import EventManager from '../eventManager/eventManager';
-import { DecentralizedMessage } from '@arianee/common-types';
-import {
-  WalletRewards,
-  getWalletReward,
-} from '../../utils/walletReward/walletReward';
 import ArianeeProtocolClient, {
   NonPayableOverrides,
 } from '@arianee/arianee-protocol-client';
 import { transactionWrapper } from '@arianee/arianee-protocol-client';
+import { ChainType, Protocol, SmartAsset } from '@arianee/common-types';
+import { DecentralizedMessage } from '@arianee/common-types';
+import { WalletAbstraction } from '@arianee/wallet-abstraction';
 
+import { getPreferredLanguages, I18NStrategy } from '../../utils/i18n';
+import {
+  getWalletReward,
+  WalletRewards,
+} from '../../utils/walletReward/walletReward';
+import EventManager from '../eventManager/eventManager';
 import MessageInstance from './instances/messageInstance';
 
 export default class MessageService<T extends ChainType> {
@@ -111,6 +111,9 @@ export default class MessageService<T extends ChainType> {
           overrides ?? {}
         );
       },
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
+      },
     });
   }
 
@@ -129,6 +132,9 @@ export default class MessageService<T extends ChainType> {
           activate,
           overrides ?? {}
         );
+      },
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
       },
     });
   }

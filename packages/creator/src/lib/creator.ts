@@ -126,6 +126,9 @@ export default class Creator {
           this.core.getAddress(),
           overrides
         ),
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
+      },
     });
   }
 }

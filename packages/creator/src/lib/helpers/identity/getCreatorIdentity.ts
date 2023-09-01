@@ -18,6 +18,9 @@ export const getCreatorIdentity = async (
     {
       protocolV1Action: async (protocolV1) =>
         await protocolV1.identityContract.addressURI(creator.core.getAddress()),
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
+      },
     },
     creator.connectOptions
   );
