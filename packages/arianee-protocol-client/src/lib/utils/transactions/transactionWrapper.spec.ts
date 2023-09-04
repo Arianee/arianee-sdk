@@ -1,6 +1,7 @@
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import ArianeeProtocolClient, {
   ProtocolClientV1,
+  ProtocolClientV2,
 } from '@arianee/arianee-protocol-client';
 import { Core } from '@arianee/core';
 import { ContractTransactionResponse } from 'ethers';
@@ -24,6 +25,12 @@ describe('transactionWrapper', () => {
   const mockProtocolClientV1 = new ProtocolClientV1({} as any, {} as any);
   Object.setPrototypeOf(mockProtocolClientV1, RealProtocolClientV1.prototype);
 
+  const RealProtocolClientV2 = jest.requireActual(
+    '@arianee/arianee-protocol-client'
+  ).ProtocolClientV2;
+  const mockProtocolClientV2 = new ProtocolClientV2({} as any, {} as any);
+  Object.setPrototypeOf(mockProtocolClientV2, RealProtocolClientV2.prototype);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -36,8 +43,9 @@ describe('transactionWrapper', () => {
     await expect(
       transactionWrapper(arianeeProtocolClient, 'mockProtocol', {
         protocolV1Action: async () => ({} as ContractTransactionResponse),
+        protocolV2Action: async () => ({} as ContractTransactionResponse),
       })
-    ).rejects.toThrowError(/is not yet supported/gi);
+    ).rejects.toThrowError(/The wrapper does not support/gi);
 
     expect(connectSpy).toHaveBeenCalledWith('mockProtocol', undefined);
   });
@@ -57,11 +65,40 @@ describe('transactionWrapper', () => {
       'mockProtocol',
       {
         protocolV1Action,
+        protocolV2Action() {
+          throw new Error('should not be called');
+        },
       }
     );
 
     expect(connectSpy).toHaveBeenCalledWith('mockProtocol', undefined);
     expect(protocolV1Action).toHaveBeenCalledWith(mockProtocolClientV1);
+    expect(receipt).toMatchObject({ mockReceipt: '0x123' });
+  });
+
+  it('should call the protocol v2 action, wait for the transaction and return the receipt', async () => {
+    const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+    const protocolV2Action = jest.fn().mockResolvedValue({
+      wait: waitSpy,
+    });
+
+    const connectSpy = jest
+      .spyOn(arianeeProtocolClient, 'connect')
+      .mockResolvedValue(mockProtocolClientV2);
+
+    const receipt = await transactionWrapper(
+      arianeeProtocolClient,
+      'mockProtocol',
+      {
+        protocolV1Action() {
+          throw new Error('should not be called');
+        },
+        protocolV2Action,
+      }
+    );
+
+    expect(connectSpy).toHaveBeenCalledWith('mockProtocol', undefined);
+    expect(protocolV2Action).toHaveBeenCalledWith(mockProtocolClientV2);
     expect(receipt).toMatchObject({ mockReceipt: '0x123' });
   });
 
@@ -77,8 +114,30 @@ describe('transactionWrapper', () => {
     await expect(
       transactionWrapper(arianeeProtocolClient, 'mockProtocol', {
         protocolV1Action,
+        protocolV2Action() {
+          throw new Error('should not be called');
+        },
       })
     ).rejects.toThrow(/error while executing the protocol v1 action/gi);
+  });
+
+  it('should throw if the protocol v2 action fails', async () => {
+    const protocolV2Action = jest
+      .fn()
+      .mockRejectedValue(new Error('v2 action error'));
+
+    jest
+      .spyOn(arianeeProtocolClient, 'connect')
+      .mockResolvedValue(mockProtocolClientV2);
+
+    await expect(
+      transactionWrapper(arianeeProtocolClient, 'mockProtocol', {
+        protocolV1Action() {
+          throw new Error('should not be called');
+        },
+        protocolV2Action,
+      })
+    ).rejects.toThrow(/error while executing the protocol v2 action/gi);
   });
 
   it('should throw if the wait method of the tx fails', async () => {
@@ -94,6 +153,9 @@ describe('transactionWrapper', () => {
     await expect(
       transactionWrapper(arianeeProtocolClient, 'mockProtocol', {
         protocolV1Action,
+        protocolV2Action() {
+          throw new Error('should not be called');
+        },
       })
     ).rejects.toThrow(/error while waiting for the transaction/gi);
   });
@@ -111,6 +173,9 @@ describe('transactionWrapper', () => {
     await expect(
       transactionWrapper(arianeeProtocolClient, 'mockProtocol', {
         protocolV1Action,
+        protocolV2Action() {
+          throw new Error('should not be called');
+        },
       })
     ).rejects.toThrow(/could not retrieve the receipt of the transaction/gi);
   });

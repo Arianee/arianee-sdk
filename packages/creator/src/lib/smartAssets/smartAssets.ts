@@ -1,15 +1,29 @@
-import Creator from '../creator';
-import { requiresConnection } from '../decorators/requiresConnection';
+import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import {
   NonPayableOverrides,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
+import {
+  ArianeeProductCertificateI18N,
+  SmartAsset,
+  TokenAccessType,
+} from '@arianee/common-types';
+import { getHostnameFromProtocolName } from '@arianee/utils';
+
+import Creator from '../creator';
+import { requiresConnection } from '../decorators/requiresConnection';
 import {
   ArianeePrivacyGatewayError,
   NotOwnerError,
   UnavailableSmartAssetIdError,
 } from '../errors';
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
+import { getTokenAccessParams } from '../helpers/getTokenAccessParams/getTokenAccessParams';
+import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
+import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
+import { checkCreateSmartAssetParameters } from '../helpers/smartAsset/checkCreateSmartAssetParameters';
+import { getCreateSmartAssetParams } from '../helpers/smartAsset/getCreateSmartAssetParams';
+import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreSmartAssetParameters,
   CreateSmartAssetCommonParameters,
@@ -18,19 +32,6 @@ import {
   LinkObject,
   TokenAccess,
 } from '../types';
-import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
-import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
-import { getCreateSmartAssetParams } from '../helpers/smartAsset/getCreateSmartAssetParams';
-import { checkCreateSmartAssetParameters } from '../helpers/smartAsset/checkCreateSmartAssetParameters';
-import { getHostnameFromProtocolName } from '@arianee/utils';
-import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import { getContentFromURI } from '../helpers/uri/getContentFromURI';
-import {
-  ArianeeProductCertificateI18N,
-  SmartAsset,
-  TokenAccessType,
-} from '@arianee/common-types';
-import { getTokenAccessParams } from '../helpers/getTokenAccessParams/getTokenAccessParams';
 
 export default class SmartAssets {
   constructor(private creator: Creator) {}
@@ -65,6 +66,9 @@ export default class SmartAssets {
             this.creator.core.getAddress(),
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -91,6 +95,9 @@ export default class SmartAssets {
             id,
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -115,6 +122,9 @@ export default class SmartAssets {
       {
         protocolV1Action: async (protocolV1) =>
           protocolV1.smartAssetContract.recoverTokenToIssuer(id, overrides),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -187,6 +197,9 @@ export default class SmartAssets {
             this.creator.creatorAddress,
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -224,6 +237,9 @@ export default class SmartAssets {
             tokenAccessType,
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -271,6 +287,9 @@ export default class SmartAssets {
             uri,
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -325,6 +344,9 @@ export default class SmartAssets {
             this.creator.creatorAddress,
             overrides
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );

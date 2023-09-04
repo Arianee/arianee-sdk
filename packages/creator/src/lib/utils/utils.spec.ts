@@ -111,6 +111,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -155,6 +156,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -165,6 +167,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -238,6 +241,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -275,6 +279,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -325,6 +330,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -389,6 +395,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -419,6 +426,7 @@ describe('Creator', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );

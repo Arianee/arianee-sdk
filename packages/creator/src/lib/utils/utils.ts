@@ -38,6 +38,9 @@ export default class Utils {
 
           return '';
         },
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -57,6 +60,9 @@ export default class Utils {
             message.sender === '0x0000000000000000000000000000000000000000'
           );
         },
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -71,6 +77,9 @@ export default class Utils {
         protocolV1Action: async (protocolV1) => {
           const tokenId = await protocolV1.eventContract.eventIdToToken(id);
           return tokenId === BigInt(0);
+        },
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
         },
       },
       this.creator.connectOptions
@@ -90,6 +99,9 @@ export default class Utils {
           protocolV1Action: async (protocolV1) => {
             return protocolV1.smartAssetContract.ownerOf(smartAssetId);
           },
+          protocolV2Action: async (protocolV2) => {
+            throw new Error('not yet implemented');
+          },
         },
         this.creator.connectOptions
       );
@@ -100,6 +112,9 @@ export default class Utils {
         {
           protocolV1Action: async (protocolV1) => {
             return protocolV1.smartAssetContract.tokenImprint(smartAssetId);
+          },
+          protocolV2Action: async (protocolV2) => {
+            throw new Error('not yet implemented');
           },
         },
         this.creator.connectOptions
@@ -135,6 +150,9 @@ export default class Utils {
             address ?? this.creator.core.getAddress(),
             creditType
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -148,6 +166,9 @@ export default class Utils {
       {
         protocolV1Action: async (protocolV1) =>
           protocolV1.storeContract.getCreditPrice(creditType),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -163,6 +184,9 @@ export default class Utils {
           protocolV1.ariaContract.balanceOf(
             address ?? this.creator.core.getAddress()
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -178,6 +202,9 @@ export default class Utils {
           protocolV1.getNativeBalance(
             address ?? this.creator.core.getAddress()
           ),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -244,6 +271,9 @@ export default class Utils {
             _spender
           );
         },
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -268,6 +298,9 @@ export default class Utils {
 
           return protocolV1.ariaContract.approve(_spender, amount);
         },
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -281,6 +314,9 @@ export default class Utils {
       {
         protocolV1Action: async (protocolV1) =>
           await protocolV1.smartAssetContract.ownerOf(id),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );
@@ -350,6 +386,9 @@ export default class Utils {
       {
         protocolV1Action: async (protocolV1) =>
           await protocolV1.smartAssetContract.issuerOf(id),
+        protocolV2Action: async (protocolV2) => {
+          throw new Error('not yet implemented');
+        },
       },
       this.creator.connectOptions
     );

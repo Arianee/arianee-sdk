@@ -1,18 +1,17 @@
-import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
-import * as getCreatorIdentityModule from '../helpers/identity/getCreatorIdentity';
-import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
-import * as getCreateSmartAssetParamsModule from '../helpers/smartAsset/getCreateSmartAssetParams';
-import * as checkCreateSmartAssetParametersModule from '../helpers/smartAsset/checkCreateSmartAssetParameters';
-import * as assertSmartAssetIssuedByModule from '../helpers/smartAsset/assertSmartAssetIssuedBy';
-import * as checkCreditsModule from '../helpers/checkCredits/checkCredits';
-
-import Core from '@arianee/core';
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import { ArianeePrivacyGatewayError } from '../errors';
+import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import { TokenAccessType } from '@arianee/common-types';
+import Core from '@arianee/core';
 
 import Creator from '../creator';
+import { ArianeePrivacyGatewayError } from '../errors';
+import * as checkCreditsModule from '../helpers/checkCredits/checkCredits';
+import * as getCreatorIdentityModule from '../helpers/identity/getCreatorIdentity';
+import * as assertSmartAssetIssuedByModule from '../helpers/smartAsset/assertSmartAssetIssuedBy';
+import * as checkCreateSmartAssetParametersModule from '../helpers/smartAsset/checkCreateSmartAssetParameters';
+import * as getCreateSmartAssetParamsModule from '../helpers/smartAsset/getCreateSmartAssetParams';
+import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import { CreditType } from '../types';
-import { TokenAccessType } from '@arianee/common-types';
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
 jest.spyOn(console, 'error').mockImplementation();
@@ -72,6 +71,7 @@ describe('SmartAssets', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -112,6 +112,7 @@ describe('SmartAssets', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -147,6 +148,7 @@ describe('SmartAssets', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -302,7 +304,9 @@ describe('SmartAssets', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
+
         undefined
       );
 
@@ -364,6 +368,7 @@ describe('SmartAssets', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
@@ -550,6 +555,7 @@ describe('SmartAssets', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );

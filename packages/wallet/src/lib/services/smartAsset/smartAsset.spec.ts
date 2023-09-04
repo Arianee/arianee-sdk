@@ -1,10 +1,11 @@
-import { Core } from '@arianee/core';
-import SmartAssetService from './smartAsset';
-import WalletApiClient from '@arianee/wallet-api-client';
-import EventManager from '../eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import { Core } from '@arianee/core';
+import WalletApiClient from '@arianee/wallet-api-client';
+
+import EventManager from '../eventManager/eventManager';
 import SmartAssetInstance from './instances/smartAssetInstance';
+import SmartAssetService from './smartAsset';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/arianee-access-token');
@@ -364,6 +365,7 @@ describe('SmartAssetService', () => {
         'testnet',
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         }
       );
     });
@@ -400,6 +402,7 @@ describe('SmartAssetService', () => {
         'mockProtocol',
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         }
       );
     });
@@ -436,6 +439,7 @@ describe('SmartAssetService', () => {
         'mockProtocol',
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         }
       );
     });
@@ -501,6 +505,7 @@ describe('SmartAssetService', () => {
           'testnet',
           {
             protocolV1Action: expect.any(Function),
+            protocolV2Action: expect.any(Function),
           }
         );
       }
@@ -543,6 +548,7 @@ describe('SmartAssetService', () => {
         'mockProtocol',
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         }
       );
     });

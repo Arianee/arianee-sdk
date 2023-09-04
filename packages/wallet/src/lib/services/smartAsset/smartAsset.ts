@@ -242,6 +242,9 @@ export default class SmartAssetService<T extends ChainType> {
           params?.overrides ?? {}
         );
       },
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
+      },
     });
   }
 
@@ -258,6 +261,9 @@ export default class SmartAssetService<T extends ChainType> {
           overrides
         );
       },
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
+      },
     });
   }
 
@@ -273,6 +279,9 @@ export default class SmartAssetService<T extends ChainType> {
           getWalletReward(protocolName, this.walletRewards),
           overrides
         );
+      },
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
       },
     });
   }
@@ -305,6 +314,9 @@ export default class SmartAssetService<T extends ChainType> {
           params?.overrides ?? {}
         );
       },
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
+      },
     });
 
     return `https://${getHostnameFromProtocolName(
@@ -326,6 +338,9 @@ export default class SmartAssetService<T extends ChainType> {
           tokenId,
           overrides
         );
+      },
+      protocolV2Action: async (protocolV2) => {
+        throw new Error('not yet implemented');
       },
     });
   }

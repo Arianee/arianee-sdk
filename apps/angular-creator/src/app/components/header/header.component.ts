@@ -58,6 +58,7 @@ export class HeaderComponent {
       2
     );
   }
+
   public get protocolVersion() {
     return this.creatorService.creator.getValue()?.connectedProtocolClient
       ?.protocolDetails.protocolVersion;
@@ -75,5 +76,9 @@ export class HeaderComponent {
       default:
         return 'red';
     }
+  }
+
+  public get connectedAddress() {
+    return this.creatorService.creator.getValue()?.core.getAddress();
   }
 }

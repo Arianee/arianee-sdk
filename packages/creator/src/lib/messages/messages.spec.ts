@@ -1,15 +1,15 @@
-import Creator from '../creator';
-import Core from '@arianee/core';
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
+import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import Core from '@arianee/core';
 
+import Creator from '../creator';
+import { ArianeePrivacyGatewayError } from '../errors';
 import * as checkCreditsModule from '../helpers/checkCredits/checkCredits';
 import * as getCreatorIdentityModule from '../helpers/identity/getCreatorIdentity';
 import * as checkCreateMessageParametersModule from '../helpers/message/checkCreateMessageParameters';
 import * as getCreateMessageParamsModule from '../helpers/message/getCreateMessageParams';
 import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
-import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { CreditType } from '../types';
-import { ArianeePrivacyGatewayError } from '../errors';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
@@ -167,6 +167,7 @@ describe('Messages', () => {
         creator['slug'],
         {
           protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
         },
         undefined
       );
