@@ -372,7 +372,44 @@ describe('SmartAssetService', () => {
   });
 
   describe('acceptEvent', () => {
-    it('should call transactionWrapper with correct params', async () => {
+    it('should call transactionWrapper with correct params (v2)', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      const acceptEventSpy = jest.fn();
+
+      await smartAssetService.acceptEvent('mockProtocol', '123', {
+        nonce: 123456,
+      });
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        eventHubContract: {
+          acceptEvent: acceptEventSpy,
+        },
+        protocolDetails: {
+          contractAdresses: {
+            nft: '0x0000',
+          },
+        },
+      } as any);
+
+      expect(acceptEventSpy).toHaveBeenCalledWith('0x0000', '123', '0x2');
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
+    it('should call transactionWrapper with correct params (v1)', async () => {
       const transactionWrapperSpy = jest
         .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
         .mockResolvedValue({
@@ -433,6 +470,43 @@ describe('SmartAssetService', () => {
       expect(refuseEventSpy).toHaveBeenCalledWith('123', '0x2', {
         nonce: 123456,
       });
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
+    it('should call transactionWrapper with correct params (V2)', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      const refuseEventSpy = jest.fn();
+
+      await smartAssetService.refuseEvent('mockProtocol', '123', {
+        nonce: 123456,
+      });
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        eventHubContract: {
+          refuseEvent: refuseEventSpy,
+        },
+        protocolDetails: {
+          contractAdresses: {
+            nft: '0x0000',
+          },
+        },
+      } as any);
+
+      expect(refuseEventSpy).toHaveBeenCalledWith('0x0000', '123');
 
       expect(transactionWrapperSpy).toHaveBeenCalledWith(
         arianeeProtocolClient,

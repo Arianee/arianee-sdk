@@ -262,7 +262,11 @@ export default class SmartAssetService<T extends ChainType> {
         );
       },
       protocolV2Action: async (protocolV2) => {
-        throw new Error('not yet implemented');
+        return protocolV2.eventHubContract.acceptEvent(
+          protocolV2.protocolDetails.contractAdresses.nft,
+          eventId,
+          getWalletReward(protocolName, this.walletRewards)
+        );
       },
     });
   }
@@ -281,7 +285,10 @@ export default class SmartAssetService<T extends ChainType> {
         );
       },
       protocolV2Action: async (protocolV2) => {
-        throw new Error('not yet implemented');
+        return protocolV2.eventHubContract.refuseEvent(
+          protocolV2.protocolDetails.contractAdresses.nft,
+          eventId
+        );
       },
     });
   }
