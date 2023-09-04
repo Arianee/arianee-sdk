@@ -3,6 +3,7 @@ import { defaultFetchLike } from '@arianee/utils';
 
 import {
   ProtocolDetails,
+  ProtocolDetailsResolver,
   ProtocolDetailsV1,
   ProtocolDetailsV2,
   ProtocolV1Versions,
@@ -15,21 +16,32 @@ import ProtocolClientV2 from './v2/protocolClientV2';
 
 export default class ArianeeProtocolClient {
   private fetchLike: typeof fetch;
+  private protocolDetailsResolver?: (slug: string) => Promise<ProtocolDetails>;
 
   constructor(
     private core: Core,
     options?: {
       fetchLike?: typeof fetch;
+      protocolDetailsResolver?: ProtocolDetailsResolver;
     }
   ) {
     this.fetchLike = options?.fetchLike ?? defaultFetchLike;
+
+    if (options?.protocolDetailsResolver)
+      this.protocolDetailsResolver = options.protocolDetailsResolver;
   }
 
   public async connect(
     slug: string,
     options?: { httpProvider: string }
   ): Promise<ProtocolClientV1 | ProtocolClientV2> {
-    const details = await this.getProtocolDetailsFromSlug(slug);
+    let details: ProtocolDetails;
+    if (this.protocolDetailsResolver) {
+      details = await this.protocolDetailsResolver(slug);
+    } else {
+      details = await this.getProtocolDetailsFromSlug(slug);
+    }
+
     const httpProvider = options?.httpProvider ?? details.httpProvider;
 
     const wallet = ethersWalletFromCore({
@@ -44,6 +56,7 @@ export default class ArianeeProtocolClient {
       '1': null,
       '1.1': null,
       '1.0': null,
+      '1.5': null,
     };
 
     const versions2: Record<ProtocolV2Versions, null> = {

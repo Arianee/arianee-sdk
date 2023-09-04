@@ -58,4 +58,22 @@ export class HeaderComponent {
       2
     );
   }
+  public get protocolVersion() {
+    return this.creatorService.creator.getValue()?.connectedProtocolClient
+      ?.protocolDetails.protocolVersion;
+  }
+
+  public get versionColor() {
+    switch (this.protocolVersion) {
+      case '1':
+      case '1.0':
+      case '1.1':
+      case '1.5':
+        return 'cyan';
+      case '2':
+        return 'gold';
+      default:
+        return 'red';
+    }
+  }
 }

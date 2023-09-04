@@ -5,7 +5,7 @@ export type ProtocolDetailsBase = {
 };
 
 export type ProtocolVersion = ProtocolV1Versions | ProtocolV2Versions;
-export type ProtocolV1Versions = '1' | '1.0' | '1.1';
+export type ProtocolV1Versions = '1' | '1.0' | '1.1' | '1.5';
 export type ProtocolV2Versions = '2';
 
 export interface ProtocolDetailsV1 extends ProtocolDetailsBase {
@@ -50,3 +50,7 @@ export enum ProtocolV2Feature {
   imprintUpdatable = 'imprintUpdatable',
   transferable = 'transferable',
 }
+
+export type ProtocolDetailsResolver = (
+  slug: string
+) => Promise<ProtocolDetails>;

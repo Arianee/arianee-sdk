@@ -2,21 +2,24 @@ import ArianeeProtocolClient, {
   NonPayableOverrides,
   ProtocolClientV1,
   ProtocolClientV2,
+  ProtocolDetailsResolver,
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
-import { defaultFetchLike, getHostnameFromProtocolName } from '@arianee/utils';
+import { defaultFetchLike } from '@arianee/utils';
+
 import { requiresConnection } from './decorators/requiresConnection';
+import Events from './events/events';
+import Messages from './messages/messages';
+import SmartAssets from './smartAssets/smartAssets';
 import { CreditType } from './types';
 import Utils from './utils/utils';
-import SmartAssets from './smartAssets/smartAssets';
-import Messages from './messages/messages';
-import Events from './events/events';
 
 export type CreatorParams = {
   creatorAddress: string;
   core: Core;
   fetchLike?: typeof fetch;
+  protocolDetailsResolver?: ProtocolDetailsResolver;
 };
 
 export default class Creator {
@@ -62,6 +65,7 @@ export default class Creator {
 
     this.arianeeProtocolClient = new ArianeeProtocolClient(this.core, {
       fetchLike: this.fetchLike,
+      protocolDetailsResolver: params.protocolDetailsResolver,
     });
 
     this.utils = new Utils(this);

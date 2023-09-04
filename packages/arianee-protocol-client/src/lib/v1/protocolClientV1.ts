@@ -2,7 +2,7 @@ import { ethers6_v1, ethers6_v1_1 } from '@arianee/arianee-abi';
 import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
-import { ProtocolDetailsV1 } from '../shared/types';
+import { ProtocolDetailsV1, ProtocolV1Versions } from '../shared/types';
 
 export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetailsV1> {
   public readonly storeContract:
@@ -48,7 +48,15 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
 
     const { protocolVersion } = protocolDetails;
 
-    if (!['1', '1.0', '1.1', '1.5'].includes(protocolVersion))
+    // use a record enforce exhaustive check
+    const versions1: Record<ProtocolV1Versions, null> = {
+      '1': null,
+      '1.1': null,
+      '1.0': null,
+      '1.5': null,
+    };
+
+    if (!Object.keys(versions1).includes(protocolVersion))
       throw new Error(
         'ProtocolClientV1 is not compatible with protocol v' + protocolVersion
       );

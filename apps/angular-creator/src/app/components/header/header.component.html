@@ -5,7 +5,18 @@
     <span>{{ creatorService.connected ? 'Connected' : 'Disconnected' }}</span>
   </div>
   <div class="details" *ngIf="creatorService.connected">
-    <b>Protocol details ({{ this.creatorService.creator.getValue()?.slug }})</b>
+    <b
+      >Protocol details ({{ this.creatorService.creator.getValue()?.slug }})
+      (<span
+        [ngStyle]="{
+          color: versionColor,
+          background: '#000',
+          padding: '0px 6px',
+          borderRadius: '4px'
+        }"
+        >v{{ protocolVersion }}</span
+      >)</b
+    >
     <textarea
       [value]="protocolDetails"
       spellcheck="false"
@@ -18,6 +29,7 @@
       <label>Slug</label>
       <select name="slug" [(ngModel)]="slug">
         <option value="testnet">testnet</option>
+        <option value="v2-testnet-temp">v2-testnet-temp</option>
         <option value="mainnet">mainnet</option>
         <option value="polygon">polygon</option>
         <option value="arianeeSupernet">arianeeSupernet</option>

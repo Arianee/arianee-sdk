@@ -50,6 +50,23 @@ describe('Creator', () => {
 
       expect(creator['fetchLike']).toBe(fetchLike);
     });
+
+    it('should use passed protocolDetailsResolver if passed', () => {
+      const protocolDetailsResolver = jest.fn();
+
+      const creator = new Creator({
+        core,
+        creatorAddress,
+        protocolDetailsResolver,
+      });
+
+      expect(
+        arianeeProtocolClientModule.ArianeeProtocolClient
+      ).toHaveBeenCalledWith(creator['core'], {
+        fetchLike: expect.any(Function),
+        protocolDetailsResolver,
+      });
+    });
   });
 
   describe('connect', () => {
