@@ -36,3 +36,28 @@ if (protocol instanceof ProtocolClientV1) {
 ## Protocol details resolver
 
 By default, the library uses our protocol details resolver API to fetch the `ProtocolDetails` when calling the `connect` method. If you don't want to use our API, you can pass your own protocol resolver by setting the optional `protocolDetailsResolver` property in the constructor's options.
+
+## Protocol v2 optional features
+
+The version two of the Arianee protocol has optional features. You can use the `requiresV2Feature` helper to assert that a certain feature is enabled before doing a call or transaction. The helper will throw an `UnavailableFeatureError` if the required feature is not enabled.
+
+```typescript
+import { requiresV2Feature, UnavailableFeatureError} from '@arianee/arianee-protocol-client';
+
+async burnSmartAsset() {
+
+  const protocol: ProtocolClientV2 = ...;
+
+  try {
+    requiresV2Feature(ProtocolV2Feature.burnable, protocol);
+    // code after this line will be executed if and only if the feature is enabled
+
+    ...
+  } catch (e) {
+    if(e instanceof UnavailableFeatureError) {
+      // the burnable feature is not enabled on the connected network
+      // you can't burn the smart asset
+    }
+  }
+}
+```
