@@ -39,7 +39,13 @@ export default class Utils {
           return '';
         },
         protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
+          try {
+            await protocolV2.smartAssetBaseContract.ownerOf(id);
+          } catch {
+            isFree = true;
+          }
+
+          return '';
         },
       },
       this.creator.connectOptions

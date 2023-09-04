@@ -44,7 +44,7 @@ describe('SmartAssets', () => {
         .spyOn(creator.utils, 'isSmartAssetIdAvailable')
         .mockResolvedValue(true);
 
-      jest
+      const creditBalanceSpy = jest
         .spyOn(creator.utils, 'getCreditBalance')
         .mockResolvedValue(BigInt(1));
 
@@ -64,7 +64,45 @@ describe('SmartAssets', () => {
         },
       } as any);
 
+      expect(creditBalanceSpy).toHaveBeenCalledWith(CreditType.smartAsset);
       expect(reserveTokenSpy).toHaveBeenCalledWith(123, expect.any(String), {});
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+    });
+    it('should call the v2 contract with correct params and return the id', async () => {
+      jest
+        .spyOn(creator.utils, 'isSmartAssetIdAvailable')
+        .mockResolvedValue(true);
+
+      const creditBalanceSpy = jest
+        .spyOn(creator.utils, 'getCreditBalance')
+        .mockResolvedValue(BigInt(1));
+
+      const reserveTokenSpy = jest.fn();
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.smartAssets.reserveSmartAssetId(123);
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        smartAssetBaseContract: {
+          reserveToken: reserveTokenSpy,
+        },
+      } as any);
+
+      expect(creditBalanceSpy).not.toHaveBeenCalled(); // should not call this method , because it's only for protocol v1
+      expect(reserveTokenSpy).toHaveBeenCalledWith(expect.any(String), 123);
 
       expect(transactionWrapperSpy).toHaveBeenCalledWith(
         creator['arianeeProtocolClient'],

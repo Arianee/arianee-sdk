@@ -48,27 +48,29 @@ export default class SmartAssets {
       }
     }
 
-    await checkCreditsBalance(
-      this.creator.utils,
-      CreditType.smartAsset,
-      BigInt(1)
-    );
-
     const _id = id ?? (await this.creator.utils.getAvailableSmartAssetId());
 
     return transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.storeContract.reserveToken(
+        protocolV1Action: async (protocolV1) => {
+          await checkCreditsBalance(
+            this.creator.utils,
+            CreditType.smartAsset,
+            BigInt(1)
+          );
+          return protocolV1.storeContract.reserveToken(
             _id,
             this.creator.core.getAddress(),
             overrides
-          ),
-        protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
+          );
         },
+        protocolV2Action: async (protocolV2) =>
+          protocolV2.smartAssetBaseContract.reserveToken(
+            this.creator.core.getAddress(),
+            _id
+          ),
       },
       this.creator.connectOptions
     );
