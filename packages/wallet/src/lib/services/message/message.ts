@@ -111,9 +111,12 @@ export default class MessageService<T extends ChainType> {
           overrides ?? {}
         );
       },
-      protocolV2Action: async (protocolV2) => {
-        throw new Error('not yet implemented');
-      },
+      protocolV2Action: async (protocolV2) =>
+        protocolV2.messageHubContract.markMessageAsRead(
+          protocolV2.protocolDetails.contractAdresses.nft,
+          messageId,
+          getWalletReward(protocolName, this.walletRewards)
+        ),
     });
   }
 

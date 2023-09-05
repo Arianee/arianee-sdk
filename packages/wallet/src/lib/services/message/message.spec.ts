@@ -176,6 +176,44 @@ describe('MessageService', () => {
         }
       );
     });
+    it('should call the v2 contract with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const readMessageSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+
+      await messageService.readMessage('mockProtocol', '123');
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        messageHubContract: {
+          markMessageAsRead: readMessageSpy,
+        },
+        protocolDetails: {
+          contractAdresses: {
+            nft: '0x0000',
+          },
+        },
+      } as any);
+
+      expect(readMessageSpy).toHaveBeenCalledWith('0x0000', '123', '0x2');
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
   });
 
   describe('blackListAddress', () => {
