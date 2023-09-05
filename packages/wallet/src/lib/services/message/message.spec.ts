@@ -255,6 +255,49 @@ describe('MessageService', () => {
         }
       );
     });
+    it('should call the v2 contract with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const addMsgPerTokenBlacklistSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+      const removeMsgPerTokenBlacklistSpy = jest.fn();
+
+      await messageService.blackListAddress('mockProtocol', '0x123', '23');
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        rulesManagerContract: {
+          addMsgPerTokenBlacklist: addMsgPerTokenBlacklistSpy,
+          removeMsgPerTokenBlacklist: removeMsgPerTokenBlacklistSpy,
+        },
+        protocolDetails: {
+          contractAdresses: {
+            nft: '0x2',
+          },
+        },
+      } as any);
+
+      expect(addMsgPerTokenBlacklistSpy).toHaveBeenCalledWith('0x2', '23', [
+        '0x123',
+      ]);
+      expect(removeMsgPerTokenBlacklistSpy).not.toHaveBeenCalled();
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
   });
 
   describe('unblackListAddress', () => {
@@ -286,6 +329,49 @@ describe('MessageService', () => {
         false,
         {}
       );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
+    it('should call the v2 contract with correct params', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
+      const addMsgPerTokenBlacklistSpy = jest.fn();
+      const removeMsgPerTokenBlacklistSpy = jest.fn().mockResolvedValue({
+        wait: waitSpy,
+      });
+
+      await messageService.unblackListAddress('mockProtocol', '0x123', '23');
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        rulesManagerContract: {
+          addMsgPerTokenBlacklist: addMsgPerTokenBlacklistSpy,
+          removeMsgPerTokenBlacklist: removeMsgPerTokenBlacklistSpy,
+        },
+        protocolDetails: {
+          contractAdresses: {
+            nft: '0x2',
+          },
+        },
+      } as any);
+
+      expect(removeMsgPerTokenBlacklistSpy).toHaveBeenCalledWith('0x2', '23', [
+        '0x123',
+      ]);
+      expect(addMsgPerTokenBlacklistSpy).not.toHaveBeenCalled();
 
       expect(transactionWrapperSpy).toHaveBeenCalledWith(
         arianeeProtocolClient,

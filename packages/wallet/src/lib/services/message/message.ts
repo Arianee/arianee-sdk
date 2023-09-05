@@ -137,7 +137,19 @@ export default class MessageService<T extends ChainType> {
         );
       },
       protocolV2Action: async (protocolV2) => {
-        throw new Error('not yet implemented');
+        if (activate) {
+          return protocolV2.rulesManagerContract.addMsgPerTokenBlacklist(
+            protocolV2.protocolDetails.contractAdresses.nft,
+            smartAssetId,
+            [messageSender]
+          );
+        } else {
+          return protocolV2.rulesManagerContract.removeMsgPerTokenBlacklist(
+            protocolV2.protocolDetails.contractAdresses.nft,
+            smartAssetId,
+            [messageSender]
+          );
+        }
       },
     });
   }
