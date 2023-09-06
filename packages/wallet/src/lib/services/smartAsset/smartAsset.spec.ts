@@ -655,7 +655,7 @@ describe('SmartAssetService', () => {
   });
 
   describe('transfer', () => {
-    it('should call transactionWrapper with correct params', async () => {
+    it('should call transactionWrapper with correct params (protocol v1)', async () => {
       const transactionWrapperSpy = jest
         .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
         .mockResolvedValue({
@@ -672,6 +672,46 @@ describe('SmartAssetService', () => {
 
       await protocolV1Action({
         smartAssetContract: {
+          transferFrom: transferFromSpy,
+        },
+      } as any);
+
+      expect(transferFromSpy).toHaveBeenCalledWith(
+        core.getAddress(),
+        '0x000456',
+        '123',
+        {
+          nonce: 123456,
+        }
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
+
+    it('should call transactionWrapper with correct params (protocol v2)', async () => {
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      const transferFromSpy = jest.fn();
+
+      await smartAssetService.transfer('mockProtocol', '123', '0x000456', {
+        nonce: 123456,
+      });
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        smartAssetBaseContract: {
           transferFrom: transferFromSpy,
         },
       } as any);
