@@ -1,5 +1,8 @@
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
-import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import ArianeeProtocolClient, {
+  ProtocolV2Feature,
+  requiresV2Feature,
+} from '@arianee/arianee-protocol-client';
 import {
   NonPayableOverrides,
   transactionWrapper,
@@ -15,6 +18,7 @@ import Core from '@arianee/core';
 import {
   generateRandomPassphrase,
   getHostnameFromProtocolName,
+  isProtocolV2FromSlug,
 } from '@arianee/utils';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import WalletApiClient from '@arianee/wallet-api-client';
@@ -322,13 +326,31 @@ export default class SmartAssetService<T extends ChainType> {
         );
       },
       protocolV2Action: async (protocolV2) => {
-        throw new Error('not yet implemented');
+        // check if feature is enabled
+        if (accessType === TokenAccessType.request) {
+          requiresV2Feature(ProtocolV2Feature.transferable, protocolV2);
+
+          return protocolV2.smartAssetBaseContract.setTokenTransferKey(
+            tokenId,
+            passphraseWallet.getAddress()
+          );
+        } else {
+          return protocolV2.smartAssetBaseContract.setTokenViewKey(
+            tokenId,
+            passphraseWallet.getAddress()
+          );
+        }
       },
     });
 
-    return `https://${getHostnameFromProtocolName(
-      protocolName
-    )}${suffix}/${tokenId},${_passphrase}`;
+    // add protocol version to link if protocol is v2
+    if (isProtocolV2FromSlug(protocolName)) {
+      return `https://arian.ee${suffix}/${tokenId},${_passphrase},${protocolName}`;
+    } else {
+      return `https://${getHostnameFromProtocolName(
+        protocolName
+      )}${suffix}/${tokenId},${_passphrase}`;
+    }
   }
 
   public async transfer(

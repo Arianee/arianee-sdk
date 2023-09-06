@@ -532,7 +532,7 @@ describe('SmartAssetService', () => {
         expectedAccessType: 1,
       },
     ])(
-      'should call transactionWrapper with correct params and return the link',
+      'should call transactionWrapper with correct params and return the link (protocol v1)',
       async ({ linkType, expectedAccessType, expectedLink }) => {
         const transactionWrapperSpy = jest
           .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
@@ -577,6 +577,74 @@ describe('SmartAssetService', () => {
         expect(transactionWrapperSpy).toHaveBeenCalledWith(
           arianeeProtocolClient,
           'testnet',
+          {
+            protocolV1Action: expect.any(Function),
+            protocolV2Action: expect.any(Function),
+          }
+        );
+      }
+    );
+
+    it.each([
+      {
+        linkType: 'proof',
+        expectedLink: 'https://arian.ee/proof/123,twpmfcvwup35,137-0-arianee-0',
+        expectedAccessType: 2,
+      },
+      {
+        linkType: 'requestOwnership',
+        expectedLink: 'https://arian.ee/123,twpmfcvwup35,137-0-arianee-0',
+        expectedAccessType: 1,
+      },
+    ])(
+      'should call transactionWrapper with correct params and return the link (protocol v2)',
+      async ({ linkType, expectedAccessType, expectedLink }) => {
+        const transactionWrapperSpy = jest
+          .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+          .mockResolvedValue({
+            mockReceipt: '0x123',
+          } as any);
+
+        const setTokenKey = jest.fn();
+
+        const link = await smartAssetService.createLink(
+          linkType as 'proof' | 'requestOwnership',
+          '137-0-arianee-0',
+          '123',
+          {
+            passphrase: 'twpmfcvwup35',
+            overrides: {
+              nonce: 123456,
+            },
+          }
+        );
+
+        const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+        if (linkType === 'requestOwnership') {
+          await protocolV2Action({
+            smartAssetBaseContract: {
+              setTokenTransferKey: setTokenKey,
+            },
+          } as any);
+        } else {
+          await protocolV2Action({
+            smartAssetBaseContract: {
+              setTokenViewKey: setTokenKey,
+            },
+          } as any);
+        }
+
+        expect(link).toEqual(expectedLink);
+
+        expect(setTokenKey).toHaveBeenCalledWith(
+          '123',
+          '0x01cAF71551aadbe6dA1b8c2Be652b3874f8A91Dc'
+        );
+
+        expect(transactionWrapperSpy).toHaveBeenCalledWith(
+          arianeeProtocolClient,
+          '137-0-arianee-0',
           {
             protocolV1Action: expect.any(Function),
             protocolV2Action: expect.any(Function),
