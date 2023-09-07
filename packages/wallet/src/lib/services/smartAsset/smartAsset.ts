@@ -369,7 +369,14 @@ export default class SmartAssetService<T extends ChainType> {
         );
       },
       protocolV2Action: async (protocolV2) => {
-        throw new Error('not yet implemented');
+        requiresV2Feature(ProtocolV2Feature.transferable, protocolV2);
+
+        return protocolV2.smartAssetBaseContract.transferFrom(
+          this.core.getAddress(),
+          to,
+          tokenId,
+          overrides
+        );
       },
     });
   }
