@@ -83,27 +83,33 @@ export default class Messages {
       uri,
     });
 
-    await checkCreditsBalance(
-      this.creator.utils,
-      CreditType.message,
-      BigInt(1)
-    );
-
     const imprint = await this.creator.utils.calculateImprint(params.content);
 
     await transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.storeContract.createMessage(
+        protocolV1Action: async (protocolV1) => {
+          await checkCreditsBalance(
+            this.creator.utils,
+            CreditType.message,
+            BigInt(1)
+          );
+          return protocolV1.storeContract.createMessage(
             messageId,
             smartAssetId,
             imprint,
             this.creator.creatorAddress,
             overrides
-          ),
+          );
+        },
         protocolV2Action: async (protocolV2) => {
+          // await checkCreditsBalance(
+          //   this.creator.utils,
+          //   CreditType.message,
+          //   BigInt(1),
+          //   protocolV2.protocolDetails.contractAdresses.message
+          // );
           throw new Error('not yet implemented');
         },
       },

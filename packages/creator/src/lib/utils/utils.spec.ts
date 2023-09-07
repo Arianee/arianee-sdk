@@ -307,11 +307,14 @@ describe('Creator', () => {
         );
 
       const balance1 = await creator.utils.getCreditBalance(
-        CreditType.smartAsset
+        CreditType.smartAsset,
+        undefined,
+        undefined
       );
       const balance2 = await creator.utils.getCreditBalance(
         CreditType.event,
-        '0x123'
+        '0x123',
+        undefined
       );
 
       expect(balanceOfSpy).toHaveBeenNthCalledWith(
@@ -324,6 +327,53 @@ describe('Creator', () => {
         '0x123',
         CreditType.event
       );
+
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(balance1).toEqual(1);
+      expect(balance2).toEqual(2);
+    });
+    it('should call the creditHistoryContract balanceOf method with correct params and return it (V2)', async () => {
+      const balanceOfSpy = jest
+        .fn()
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(2);
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV2Action({
+            creditManagerContract: {
+              balanceOf: balanceOfSpy,
+            },
+          } as any)
+        );
+
+      const balance1 = await creator.utils.getCreditBalance(
+        CreditType.smartAsset,
+        undefined,
+        '0xevent'
+      );
+      const balance2 = await creator.utils.getCreditBalance(
+        CreditType.event,
+        '0x123',
+        '0xevent'
+      );
+
+      expect(balanceOfSpy).toHaveBeenNthCalledWith(
+        1,
+        core.getAddress(),
+        '0xevent'
+      );
+      expect(balanceOfSpy).toHaveBeenNthCalledWith(2, '0x123', '0xevent');
 
       expect(callWrapperSpy).toHaveBeenCalledWith(
         creator['arianeeProtocolClient'],
@@ -420,6 +470,40 @@ describe('Creator', () => {
       const available = await creator.utils.isEventIdAvailable(123);
 
       expect(eventIdToTokenSpy).toHaveBeenCalledWith(123);
+
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(available).toBeTruthy();
+    });
+    it('should return true if the token associated to the event id is 0 (V2)', async () => {
+      const eventIdToEventsIndexSpy = jest.fn().mockResolvedValue(BigInt(0));
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV2Action({
+            eventHubContract: {
+              eventIdToEventsIndex: eventIdToEventsIndexSpy,
+            },
+            protocolDetails: {
+              contractAdresses: {
+                nft: '0x123',
+              },
+            },
+          } as any)
+        );
+
+      const available = await creator.utils.isEventIdAvailable(123);
+
+      expect(eventIdToEventsIndexSpy).toHaveBeenCalledWith('0x123', 123);
 
       expect(callWrapperSpy).toHaveBeenCalledWith(
         creator['arianeeProtocolClient'],

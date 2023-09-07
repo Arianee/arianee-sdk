@@ -14,6 +14,8 @@ import { BigNumberish } from 'ethers';
 import Creator from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import { InvalidContentError, ProtocolCompatibilityError } from '../errors';
+import { MissingCreditContractAddressError } from '../errors/MissingCreditTypeContractAddressError';
+import { MissingCreditTypeError } from '../errors/MissingCreditTypeError';
 import { CreditType } from '../types/credit';
 
 export default class Utils {
@@ -85,7 +87,12 @@ export default class Utils {
           return tokenId === BigInt(0);
         },
         protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
+          const tokenId =
+            await protocolV2.eventHubContract.eventIdToEventsIndex(
+              protocolV2.protocolDetails.contractAdresses.nft,
+              id
+            );
+          return tokenId === BigInt(0);
         },
       },
       this.creator.connectOptions
@@ -144,20 +151,35 @@ export default class Utils {
 
   @requiresConnection()
   public async getCreditBalance(
-    creditType: CreditType,
-    address?: string
+    creditType?: CreditType,
+    address?: string,
+    contractAddress?: string
   ): Promise<bigint> {
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.creditHistoryContract.balanceOf(
+        protocolV1Action: async (protocolV1) => {
+          if (creditType === undefined) {
+            throw new MissingCreditTypeError(
+              'Missing creditType parameter in getCreditBalance'
+            );
+          }
+          return protocolV1.creditHistoryContract.balanceOf(
             address ?? this.creator.core.getAddress(),
             creditType
-          ),
+          );
+        },
         protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
+          if (!contractAddress) {
+            throw new MissingCreditContractAddressError(
+              'Missing contractAddress parameter in getCreditBalance'
+            );
+          }
+          return protocolV2.creditManagerContract.balanceOf(
+            address ?? this.creator.core.getAddress(),
+            contractAddress
+          );
         },
       },
       this.creator.connectOptions

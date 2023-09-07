@@ -189,6 +189,102 @@ describe('Events', () => {
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
       expect(afterTransactionSpy).toHaveBeenCalledWith(456);
     });
+    it('should call the v2 contract with correct params and return the id and imprint', async () => {
+      const content = {
+        $schema: 'test',
+      };
+
+      const getCreateEventParamsSpy = jest
+        .spyOn(getCreateEventParamsModule as any, 'getCreateEventParams')
+        .mockResolvedValue({
+          smartAssetId: 123,
+          eventId: 456,
+          content,
+          uri: '',
+        });
+
+      const checkCreateEventParametersSpy = jest
+        .spyOn(
+          checkCreateEventParametersModule as any,
+          'checkCreateEventParameters'
+        )
+        .mockImplementation();
+
+      const checkCreditsBalanceSpy = jest
+        .spyOn(checkCreditsModule, 'checkCreditsBalance')
+        .mockImplementation();
+
+      const calculateImprintSpy = jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue(
+          '0x0000000000000000000000000000000000000000000000000000000000000111'
+        );
+
+      const afterTransactionSpy = jest.fn();
+
+      const createEventSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation(async (_, __, actions) => {
+          await actions.protocolV2Action({
+            eventHubContract: {
+              createEvent: createEventSpy,
+            },
+            protocolDetails: {
+              contractAdresses: {
+                nft: '0x0000',
+              },
+            },
+          } as any);
+
+          return null as any;
+        });
+
+      await creator.events['createEventCommon'](
+        {
+          content,
+          smartAssetId: 123,
+          eventId: 456,
+        },
+        afterTransactionSpy
+      );
+
+      expect(createEventSpy).toHaveBeenCalledWith(
+        '0x0000',
+        456,
+        123,
+        '0x0000000000000000000000000000000000000000000000000000000000000111',
+        '',
+        creatorAddress
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(checkCreateEventParametersSpy).toHaveBeenCalled();
+      expect(checkCreditsBalanceSpy).toHaveBeenCalledWith(
+        creator['utils'],
+        CreditType.event,
+        BigInt(1),
+        undefined
+      );
+      expect(getCreateEventParamsSpy).toHaveBeenCalledWith(creator['utils'], {
+        content,
+        smartAssetId: 123,
+        eventId: 456,
+      });
+
+      expect(calculateImprintSpy).toHaveBeenCalledWith(content);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(456);
+    });
   });
 
   describe('storeEvent', () => {
