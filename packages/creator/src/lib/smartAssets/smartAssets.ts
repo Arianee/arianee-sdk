@@ -9,6 +9,7 @@ import {
   TokenAccessType,
 } from '@arianee/common-types';
 import { getHostnameFromProtocolName } from '@arianee/utils';
+import { ethers } from 'ethers';
 
 import Creator from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
@@ -339,6 +340,7 @@ export default class SmartAssets {
             CreditType.smartAsset,
             BigInt(1)
           );
+
           return protocolV1.storeContract.hydrateToken(
             smartAssetId,
             imprint,
@@ -351,7 +353,22 @@ export default class SmartAssets {
           );
         },
         protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
+          return protocolV2.smartAssetBaseContract.hydrateToken(
+            {
+              tokenId: smartAssetId,
+              imprint,
+              viewKey: publicKey,
+              transferKey: initialKeyIsRequestKey
+                ? publicKey
+                : ethers.ZeroAddress,
+              creatorProvider: this.creator.creatorAddress,
+              otherParams: [
+                uri ? ethers.hexlify(ethers.toUtf8Bytes(uri)) : ethers.ZeroHash,
+                ethers.toBeHex(tokenRecoveryTimestamp, 32),
+              ],
+            },
+            overrides
+          );
         },
       },
       this.creator.connectOptions
