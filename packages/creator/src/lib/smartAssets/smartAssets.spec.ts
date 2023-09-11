@@ -371,6 +371,115 @@ describe('SmartAssets', () => {
 
       expect(afterTransactionSpy).toHaveBeenCalledWith(123);
     });
+
+    it('should call the v2 contract with correct params and return the id', async () => {
+      const content = {
+        $schema: 'test',
+      };
+
+      const calculateImprintSpy = jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue(
+          '0x0000000000000000000000000000000000000000000000000000000000000111'
+        );
+
+      const checkCreateSmartAssetParametersSpy = jest
+        .spyOn(
+          checkCreateSmartAssetParametersModule as any,
+          'checkCreateSmartAssetParameters'
+        )
+        .mockImplementation();
+
+      const checkCreditsBalanceSpy = jest
+        .spyOn(checkCreditsModule, 'checkCreditsBalance')
+        .mockImplementation();
+
+      const getCreateSmartAssetParams = jest
+        .spyOn(
+          getCreateSmartAssetParamsModule as any,
+          'getCreateSmartAssetParams'
+        )
+        .mockResolvedValue({
+          smartAssetId: 123,
+          initialKeyIsRequestKey: true,
+          passphrase: 'be6qhkoijals',
+          publicKey: '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+          tokenRecoveryTimestamp: 123456789,
+          content: content,
+          uri: 'https://mock.com/',
+        });
+
+      const hydrateTokenSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      const afterTransactionSpy = jest.fn();
+
+      await creator.smartAssets['createSmartAssetCommon'](
+        {
+          tokenAccess: {
+            fromPassphrase: 'be6qhkoijals',
+          },
+          content,
+          smartAssetId: 123,
+          tokenRecoveryTimestamp: 123456789,
+          sameRequestOwnershipPassphrase: true,
+        },
+        afterTransactionSpy
+      );
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        smartAssetBaseContract: {
+          hydrateToken: hydrateTokenSpy,
+        },
+      } as any);
+
+      expect(hydrateTokenSpy).toHaveBeenCalledWith(
+        {
+          tokenId: 123,
+          imprint:
+            '0x0000000000000000000000000000000000000000000000000000000000000111',
+          viewKey: '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+          transferKey: '0xad2b04f0b16C18e2b3cABb301c4B6Df549a161bA',
+          creatorProvider: creatorAddress,
+          otherParams: [
+            '0x68747470733a2f2f6d6f636b2e636f6d2f',
+            '0x00000000000000000000000000000000000000000000000000000000075bcd15',
+          ],
+        },
+        {}
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(checkCreateSmartAssetParametersSpy).toHaveBeenCalled();
+      expect(checkCreditsBalanceSpy).not.toHaveBeenCalled();
+      expect(getCreateSmartAssetParams).toHaveBeenCalledWith(creator['utils'], {
+        tokenAccess: {
+          fromPassphrase: 'be6qhkoijals',
+        },
+        content,
+        smartAssetId: 123,
+        tokenRecoveryTimestamp: 123456789,
+        sameRequestOwnershipPassphrase: true,
+      });
+
+      expect(calculateImprintSpy).toHaveBeenCalledWith(content);
+
+      expect(afterTransactionSpy).toHaveBeenCalledWith(123);
+    });
   });
 
   describe('setTokenAccess', () => {
