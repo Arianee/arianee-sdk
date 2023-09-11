@@ -369,6 +369,73 @@ describe('SmartAssetService', () => {
         }
       );
     });
+    it('should call the v2 contract with correct params', async () => {
+      const requestTokenSpy = jest.fn();
+      const balanceOfSpy = jest.fn().mockReturnValue(1);
+
+      const service = new SmartAssetService({
+        walletAbstraction: walletApiClient,
+        eventManager: eventManager,
+        i18nStrategy: defaultI18nStrategy,
+        arianeeAccessToken: arianeeAccessToken,
+        arianeeProtocolClient: arianeeProtocolClient,
+        walletRewards: walletRewards,
+        core: Core.fromPrivateKey(
+          '0xe5ca26599b7210485f8a4a4d1d1c1ba89752ca7b9be2f566665e730f952552e0'
+        ),
+      });
+
+      const getSpy = jest
+        .spyOn(service, 'get')
+        .mockResolvedValue({ data: { issuer: '0xissuer' } } as any);
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
+
+      await service.claim('testnet', '86208174', 'gx2mhc408880', {
+        overrides: {
+          nonce: 123456,
+        },
+      });
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        creditManagerContract: {
+          balanceOf: balanceOfSpy,
+        },
+        protocolDetails: {
+          contractAdresses: {
+            nft: '0x123',
+          },
+        },
+        smartAssetBaseContract: {
+          requestToken: requestTokenSpy,
+        },
+      } as any);
+
+      expect(balanceOfSpy).toHaveBeenCalledWith('0xissuer', '0x123');
+
+      expect(requestTokenSpy).toHaveBeenCalledWith(
+        86208174,
+        '0xd4de91e2b2348eb67c4837e0fdc5772e40a42a427528c3a97dbc9a2f61cf05547648a8ec36647f709f00ba1376c9b454b92c017c4c85163e117db28f64c522d61c',
+        '0x44BccE8aE7c47d3e0666441F946B4065A3286c23',
+        false,
+        '0x1'
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'testnet',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
   });
 
   describe('acceptEvent', () => {
