@@ -184,21 +184,25 @@ export default class SmartAssets {
       this.creator.utils
     );
 
-    await checkCreditsBalance(this.creator.utils, CreditType.update, BigInt(1));
-
     const imprint = await this.creator.utils.calculateImprint(content);
 
     await transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.storeContract.updateSmartAsset(
+        protocolV1Action: async (protocolV1) => {
+          await checkCreditsBalance(
+            this.creator.utils,
+            CreditType.update,
+            BigInt(1)
+          );
+          return protocolV1.storeContract.updateSmartAsset(
             smartAssetId,
             imprint,
             this.creator.creatorAddress,
             overrides
-          ),
+          );
+        },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
         },
@@ -323,20 +327,19 @@ export default class SmartAssets {
       smartAssetId,
     });
 
-    await checkCreditsBalance(
-      this.creator.utils,
-      CreditType.smartAsset,
-      BigInt(1)
-    );
-
     const imprint = await this.creator.utils.calculateImprint(params.content);
 
     await transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.storeContract.hydrateToken(
+        protocolV1Action: async (protocolV1) => {
+          await checkCreditsBalance(
+            this.creator.utils,
+            CreditType.smartAsset,
+            BigInt(1)
+          );
+          return protocolV1.storeContract.hydrateToken(
             smartAssetId,
             imprint,
             uri,
@@ -345,7 +348,8 @@ export default class SmartAssets {
             initialKeyIsRequestKey,
             this.creator.creatorAddress,
             overrides
-          ),
+          );
+        },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
         },

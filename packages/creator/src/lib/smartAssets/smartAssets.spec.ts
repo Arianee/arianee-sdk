@@ -64,7 +64,11 @@ describe('SmartAssets', () => {
         },
       } as any);
 
-      expect(creditBalanceSpy).toHaveBeenCalledWith(CreditType.smartAsset);
+      expect(creditBalanceSpy).toHaveBeenCalledWith(
+        CreditType.smartAsset,
+        undefined,
+        undefined
+      );
       expect(reserveTokenSpy).toHaveBeenCalledWith(123, expect.any(String), {});
 
       expect(transactionWrapperSpy).toHaveBeenCalledWith(

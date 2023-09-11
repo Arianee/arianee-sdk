@@ -110,25 +110,42 @@ export default class Events {
       uri,
     });
 
-    await checkCreditsBalance(this.creator.utils, CreditType.event, BigInt(1));
-
     const imprint = await this.creator.utils.calculateImprint(params.content);
 
     await transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.storeContract.createEvent(
+        protocolV1Action: async (protocolV1) => {
+          await checkCreditsBalance(
+            this.creator.utils,
+            CreditType.event,
+            BigInt(1)
+          );
+          return protocolV1.storeContract.createEvent(
             eventId,
             smartAssetId,
             imprint,
             uri,
             this.creator.creatorAddress,
             overrides
-          ),
+          );
+        },
         protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
+          await checkCreditsBalance(
+            this.creator.utils,
+            CreditType.event,
+            BigInt(1),
+            protocolV2.protocolDetails.contractAdresses.event
+          );
+          return protocolV2.eventHubContract.createEvent(
+            protocolV2.protocolDetails.contractAdresses.nft,
+            eventId,
+            smartAssetId,
+            imprint,
+            uri,
+            this.creator.creatorAddress
+          );
         },
       },
       this.creator.connectOptions

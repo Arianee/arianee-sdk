@@ -9,9 +9,14 @@ import Utils from '../../utils/utils';
 export const checkCreditsBalance = async (
   utils: Utils,
   creditType: CreditType,
-  minAmount = BigInt(1)
+  minAmount = BigInt(1),
+  contractAddress?: string
 ): Promise<void> => {
-  const creditsBalance = await utils.getCreditBalance(creditType);
+  const creditsBalance = await utils.getCreditBalance(
+    creditType,
+    undefined,
+    contractAddress
+  );
 
   if (creditsBalance >= minAmount) return;
 
