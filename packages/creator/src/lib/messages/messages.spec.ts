@@ -187,6 +187,100 @@ describe('Messages', () => {
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
       expect(afterTransactionSpy).toHaveBeenCalledWith(456);
     });
+    it('should call the v2 contract with correct params and return the id and imprint', async () => {
+      const content = {
+        $schema: 'test',
+      };
+
+      const getCreateMessageParamsSpy = jest
+        .spyOn(getCreateMessageParamsModule as any, 'getCreateMessageParams')
+        .mockResolvedValue({
+          smartAssetId: 123,
+          messageId: 456,
+          content,
+        });
+
+      const checkCreateMessageParametersSpy = jest
+        .spyOn(
+          checkCreateMessageParametersModule as any,
+          'checkCreateMessageParameters'
+        )
+        .mockImplementation();
+
+      const checkCreditsBalanceSpy = jest
+        .spyOn(checkCreditsModule, 'checkCreditsBalance')
+        .mockImplementation();
+
+      const calculateImprintSpy = jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue(
+          '0x0000000000000000000000000000000000000000000000000000000000000111'
+        );
+
+      const afterTransactionSpy = jest.fn();
+
+      const sendMessageSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation(async (_, __, actions) => {
+          await actions.protocolV2Action({
+            messageHubContract: {
+              sendMessage: sendMessageSpy,
+            },
+            protocolDetails: {
+              contractAdresses: {
+                message: '0xmessage',
+              },
+            },
+          } as any);
+
+          return null as any;
+        });
+
+      await creator.messages['createMessageCommon'](
+        {
+          content,
+          smartAssetId: 123,
+          messageId: 456,
+        },
+        afterTransactionSpy
+      );
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        '0xmessage',
+        123,
+        456,
+        '0x0000000000000000000000000000000000000000000000000000000000000111',
+        creatorAddress
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+
+      expect(checkCreateMessageParametersSpy).toHaveBeenCalled();
+      expect(checkCreditsBalanceSpy).toHaveBeenCalledWith(
+        creator['utils'],
+        CreditType.message,
+        BigInt(1),
+        '0xmessage'
+      );
+      expect(getCreateMessageParamsSpy).toHaveBeenCalledWith(creator['utils'], {
+        content,
+        smartAssetId: 123,
+        messageId: 456,
+      });
+
+      expect(calculateImprintSpy).toHaveBeenCalledWith(content);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(456);
+    });
   });
 
   describe('storeMessage', () => {

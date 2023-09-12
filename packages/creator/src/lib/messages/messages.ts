@@ -104,13 +104,19 @@ export default class Messages {
           );
         },
         protocolV2Action: async (protocolV2) => {
-          // await checkCreditsBalance(
-          //   this.creator.utils,
-          //   CreditType.message,
-          //   BigInt(1),
-          //   protocolV2.protocolDetails.contractAdresses.message
-          // );
-          throw new Error('not yet implemented');
+          await checkCreditsBalance(
+            this.creator.utils,
+            CreditType.message,
+            BigInt(1),
+            protocolV2.protocolDetails.contractAdresses.message
+          );
+          return protocolV2.messageHubContract.sendMessage(
+            protocolV2.protocolDetails.contractAdresses.message,
+            smartAssetId,
+            messageId,
+            imprint,
+            this.creator.creatorAddress
+          );
         },
       },
       this.creator.connectOptions
