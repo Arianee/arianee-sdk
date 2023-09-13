@@ -9,7 +9,7 @@ export type smartAssetInfo = {
   createAt: string;
   updatedAt: string;
   imprint?: string;
-  requestKey: string;
-  viewKey: string;
-  proofKey: string;
+  requestKey?: string;
+  viewKey?: string;
+  proofKey?: string;
 };
