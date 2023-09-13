@@ -247,7 +247,28 @@ export default class SmartAssetService<T extends ChainType> {
         );
       },
       protocolV2Action: async (protocolV2) => {
-        throw new Error('not yet implemented');
+        // Get the issuer of the NFT
+        const {
+          data: { issuer },
+        } = await this.get(protocolName, {
+          id: tokenId,
+          passphrase,
+        });
+        // Check if the issuer has enough credit for the claim
+        const credit = await protocolV2.creditManagerContract.balanceOf(
+          issuer,
+          protocolV2.protocolDetails.contractAdresses.nft
+        );
+        if (credit === BigInt(0)) {
+          throw new Error('Issuer has not enough credit to claim this token');
+        }
+        return protocolV2.smartAssetBaseContract.requestToken(
+          parseInt(tokenId),
+          signature,
+          _receiver,
+          false,
+          walletReward
+        );
       },
     });
   }
