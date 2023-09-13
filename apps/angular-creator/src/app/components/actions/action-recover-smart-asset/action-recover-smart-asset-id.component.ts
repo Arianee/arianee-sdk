@@ -28,7 +28,7 @@ export class ActionRecoverSmartAssetIdComponent implements Action {
       await this.creator.smartAssets.recoverSmartAsset(this.id);
     } catch (error) {
       console.error(error);
-      alert('Error while reserving the smart asset ID, see console');
+      alert('Error while recovering the smart asset ID, see console');
     } finally {
       this.loading = false;
     }
