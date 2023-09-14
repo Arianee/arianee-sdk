@@ -491,6 +491,31 @@ The method can throw:
 - `InsufficientEventCreditsError` if the core address does not have enough event credits
 - `UnavailableEventIdError` if the event id is not available
 
+### <u>Identities</u>
+
+#### `updateIdentity`
+
+_⚠️ Requires the core address to have an identity URI_.
+
+Updates the identity of the core address with passed URI and imprint.
+
+```typescript
+public async updateIdentity(
+  {
+    uri,
+    imprint,
+  }: {
+    uri: string;
+    imprint: string;
+  },
+  overrides: NonPayableOverrides = {}
+)
+```
+
+The method can throw:
+
+- `NoIdentityError` if the core address does not have an identity URI
+
 ### <u>Utils</u>
 
 #### `isSmartAssetIdAvailable`

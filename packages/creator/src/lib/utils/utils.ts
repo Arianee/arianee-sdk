@@ -5,6 +5,7 @@ import {
   transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import {
+  ArianeeBrandIdentityI18N,
   ArianeeEventI18N,
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
@@ -369,6 +370,7 @@ export default class Utils {
       | ArianeeProductCertificateI18N
       | ArianeeMessageI18N
       | ArianeeEventI18N
+      | ArianeeBrandIdentityI18N
   ): Promise<string> {
     let cert: Cert;
 
