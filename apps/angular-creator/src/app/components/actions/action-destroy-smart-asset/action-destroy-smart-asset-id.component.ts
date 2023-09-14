@@ -27,7 +27,7 @@ export class ActionDestroySmartAssetIdComponent implements Action {
       await this.creator.smartAssets.destroySmartAsset(this.id);
     } catch (error) {
       console.error(error);
-      alert('Error while reserving the smart asset ID, see console');
+      alert('Error while destroying the smart asset ID, see console');
     } finally {
       this.loading = false;
     }

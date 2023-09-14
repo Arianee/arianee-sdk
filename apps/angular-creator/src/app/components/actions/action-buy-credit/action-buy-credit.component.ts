@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import Creator, { CreditType } from '@arianee/creator';
 import { Action } from '../action';
-import { generateRandomPassphrase } from '../../../../../../../packages/utils/src';
+import { isConnectedToV2Protocol } from '../../../helpers/isConnectedToV2Protocol';
+import { getV2ContractAddressForCreditType } from '../../../helpers/getV2ContractAddressForCreditType';
 
 @Component({
   selector: 'app-action-buy-credit',
@@ -29,10 +30,17 @@ export class ActionBuyCreditComponent implements Action {
 
     try {
       this.loading = true;
-      await this.creator.buyCredit(
-        parseInt(this.creditType) as CreditType,
-        parseInt(this.amount.trim())
-      );
+
+      const isV2Protocol = isConnectedToV2Protocol(this.creator);
+
+      if (isV2Protocol) {
+        throw new Error('cannot yet buy credits on v2 (not implemented)');
+      } else {
+        await this.creator.buyCredit(
+          parseInt(this.creditType) as CreditType,
+          parseInt(this.amount.trim())
+        );
+      }
     } catch (error) {
       console.error(error);
       alert('Error, see console');
