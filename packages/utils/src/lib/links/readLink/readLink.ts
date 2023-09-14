@@ -48,10 +48,10 @@ export const readLink = (link: string): ReadLink => {
 
 const WHITELABEL_HOSTNAMES_TO_PROTOCOL_NAME: Record<string, Protocol['name']> =
   {
-    'arianee.net': 'mainnet',
-    'test.arianee.net': 'testnet',
     'test.arian.ee': 'testnet',
     'arian.ee': 'mainnet',
+    'arianee.net': 'mainnet',
+    'test.arianee.net': 'testnet',
     'poly.arian.ee': 'polygon',
     'testnet.aria.fyi': 'testnet',
     'arialabs.arian.ee': 'mainnet',
