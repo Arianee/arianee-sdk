@@ -1,9 +1,14 @@
 import { Provider, Signer } from 'ethers';
 
+import GasStation from '../utils/gasStation/gasStation';
 import { ProtocolDetails } from './types';
 
 export abstract class ProtocolClientBase<T extends ProtocolDetails> {
-  constructor(protected signer: Signer, private _protocolDetails: T) {}
+  constructor(
+    protected signer: Signer,
+    private _protocolDetails: T,
+    public readonly gasStation: GasStation
+  ) {}
 
   public get protocolDetails(): T {
     return {

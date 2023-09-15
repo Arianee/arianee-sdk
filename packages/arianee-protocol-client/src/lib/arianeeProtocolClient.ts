@@ -43,12 +43,13 @@ export default class ArianeeProtocolClient {
     }
 
     const httpProvider = options?.httpProvider ?? details.httpProvider;
+    const gasStation = new GasStation(details.gasStation, this.fetchLike);
 
     const wallet = ethersWalletFromCore({
       core: this.core,
       httpProvider,
       chainId: details.chainId,
-      gasStation: new GasStation(details.gasStation, this.fetchLike),
+      gasStation,
     });
 
     // use a record for versions1 and versions2 to enforce exhaustive check
@@ -64,15 +65,23 @@ export default class ArianeeProtocolClient {
     };
 
     if (Object.keys(versions1).includes(details.protocolVersion)) {
-      return new ProtocolClientV1(wallet, {
-        ...(details as ProtocolDetailsV1),
-        httpProvider,
-      });
+      return new ProtocolClientV1(
+        wallet,
+        {
+          ...(details as ProtocolDetailsV1),
+          httpProvider,
+        },
+        gasStation
+      );
     } else if (Object.keys(versions2).includes(details.protocolVersion)) {
-      return new ProtocolClientV2(wallet, {
-        ...(details as ProtocolDetailsV2),
-        httpProvider,
-      });
+      return new ProtocolClientV2(
+        wallet,
+        {
+          ...(details as ProtocolDetailsV2),
+          httpProvider,
+        },
+        gasStation
+      );
     }
 
     throw new Error(

@@ -11,7 +11,8 @@ describe('ProtocolClientV2', () => {
           {} as unknown as Signer,
           {
             protocolVersion: '1',
-          } as unknown as ProtocolDetailsV2
+          } as unknown as ProtocolDetailsV2,
+          {} as any // gasStation
         )
     ).toThrowError(/not compatible with protocol v1/gi);
   });

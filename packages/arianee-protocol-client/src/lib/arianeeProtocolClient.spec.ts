@@ -76,7 +76,8 @@ describe('ArianeeProtocolClient', () => {
 
         expect(ProtocolClientV1).toHaveBeenCalledWith(
           mockWallet,
-          expectedProtocolDetails
+          expectedProtocolDetails,
+          expect.anything()
         );
 
         expect(protocol).toBeInstanceOf(ProtocolClientV1);
@@ -107,7 +108,8 @@ describe('ArianeeProtocolClient', () => {
 
       expect(ProtocolClientV1).toHaveBeenCalledWith(
         mockWallet,
-        mockProtocolDetails
+        mockProtocolDetails,
+        expect.anything()
       );
 
       expect(protocol).toBeInstanceOf(ProtocolClientV1);

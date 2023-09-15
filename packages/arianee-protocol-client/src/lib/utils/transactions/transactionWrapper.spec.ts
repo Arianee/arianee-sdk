@@ -22,13 +22,21 @@ describe('transactionWrapper', () => {
   const RealProtocolClientV1 = jest.requireActual(
     '@arianee/arianee-protocol-client'
   ).ProtocolClientV1;
-  const mockProtocolClientV1 = new ProtocolClientV1({} as any, {} as any);
+  const mockProtocolClientV1 = new ProtocolClientV1(
+    {} as any,
+    {} as any,
+    {} as any
+  );
   Object.setPrototypeOf(mockProtocolClientV1, RealProtocolClientV1.prototype);
 
   const RealProtocolClientV2 = jest.requireActual(
     '@arianee/arianee-protocol-client'
   ).ProtocolClientV2;
-  const mockProtocolClientV2 = new ProtocolClientV2({} as any, {} as any);
+  const mockProtocolClientV2 = new ProtocolClientV2(
+    {} as any,
+    {} as any,
+    {} as any
+  );
   Object.setPrototypeOf(mockProtocolClientV2, RealProtocolClientV2.prototype);
 
   beforeEach(() => {

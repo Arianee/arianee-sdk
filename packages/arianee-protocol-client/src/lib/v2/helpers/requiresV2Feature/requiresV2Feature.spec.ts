@@ -29,7 +29,8 @@ describe('requiresV2Feature', () => {
 
   const protocolClientV2NoFeatures: ProtocolClientV2 = new ProtocolClientV2(
     mockSigner as any,
-    protocolDetailsV2NoFeatures
+    protocolDetailsV2NoFeatures,
+    {} as any
   );
 
   const protocolClientV2AllFeatures: ProtocolClientV2 = new ProtocolClientV2(
@@ -43,7 +44,8 @@ describe('requiresV2Feature', () => {
         imprintUpdatable: true,
         transferable: true,
       },
-    }
+    },
+    {} as any
   );
 
   it.each([
@@ -87,7 +89,8 @@ describe('requiresV2Feature', () => {
 
     const protocolClientV2Malformed = new ProtocolClientV2(
       mockSigner as any,
-      malformedProtocolDetails as any
+      malformedProtocolDetails as any,
+      {} as any // gasStation
     );
 
     expect(() =>
