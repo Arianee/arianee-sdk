@@ -15,11 +15,7 @@ import {
   TokenAccessType,
 } from '@arianee/common-types';
 import Core from '@arianee/core';
-import {
-  generateRandomPassphrase,
-  getHostnameFromProtocolName,
-  isProtocolV2FromSlug,
-} from '@arianee/utils';
+import { createLink, generateRandomPassphrase } from '@arianee/utils';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import WalletApiClient from '@arianee/wallet-api-client';
 import { ContractTransactionReceipt, ethers } from 'ethers';
@@ -364,14 +360,12 @@ export default class SmartAssetService<T extends ChainType> {
       },
     });
 
-    // add protocol version to link if protocol is v2
-    if (isProtocolV2FromSlug(protocolName)) {
-      return `https://arian.ee${suffix}/${tokenId},${_passphrase},${protocolName}`;
-    } else {
-      return `https://${getHostnameFromProtocolName(
-        protocolName
-      )}${suffix}/${tokenId},${_passphrase}`;
-    }
+    return createLink({
+      slug: protocolName,
+      tokenId,
+      passphrase: _passphrase,
+      suffix,
+    });
   }
 
   public async transfer(

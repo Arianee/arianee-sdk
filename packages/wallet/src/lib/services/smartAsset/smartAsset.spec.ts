@@ -590,12 +590,12 @@ describe('SmartAssetService', () => {
     it.each([
       {
         linkType: 'proof',
-        expectedLink: 'https://test.arianee.net/proof/123,twpmfcvwup35',
+        expectedLink: 'https://test.arian.ee/proof/123,twpmfcvwup35',
         expectedAccessType: 2,
       },
       {
         linkType: 'requestOwnership',
-        expectedLink: 'https://test.arianee.net/123,twpmfcvwup35',
+        expectedLink: 'https://test.arian.ee/123,twpmfcvwup35',
         expectedAccessType: 1,
       },
     ])(

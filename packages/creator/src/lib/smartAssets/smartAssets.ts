@@ -8,7 +8,7 @@ import {
   SmartAsset,
   TokenAccessType,
 } from '@arianee/common-types';
-import { getHostnameFromProtocolName } from '@arianee/utils';
+import { createLink } from '@arianee/utils';
 import { ethers } from 'ethers';
 
 import Creator from '../creator';
@@ -436,9 +436,11 @@ export default class SmartAssets {
     passphrase?: string
   ): LinkObject {
     const deeplink = passphrase
-      ? `https://${getHostnameFromProtocolName(
-          this.creator.slug!
-        )}/${smartAssetId},${passphrase}`
+      ? createLink({
+          slug: this.creator.slug!,
+          tokenId: smartAssetId.toString(),
+          passphrase,
+        })
       : undefined;
 
     return {

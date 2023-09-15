@@ -1,7 +1,8 @@
-import Wallet from '@arianee/wallet';
 import { ChainType, Language } from '@arianee/common-types';
-import { arianeeAccessToken } from '../utils/wallet';
+import Wallet from '@arianee/wallet';
 import { useState } from 'react';
+
+import { arianeeAccessToken } from '../utils/wallet';
 
 export interface WalletHeaderProps {
   wallet: Wallet<ChainType>;
