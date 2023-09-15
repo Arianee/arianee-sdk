@@ -3,6 +3,7 @@ import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
 import { ProtocolDetailsV1, ProtocolV1Versions } from '../shared/types';
+import GasStation from '../utils/gasStation/gasStation';
 
 export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetailsV1> {
   public readonly storeContract:
@@ -43,8 +44,12 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
     | ethers6_v1.ArianeeUpdate
     | ethers6_v1_1.ArianeeUpdate;
 
-  constructor(signer: Signer, protocolDetails: ProtocolDetailsV1) {
-    super(signer, protocolDetails);
+  constructor(
+    signer: Signer,
+    protocolDetails: ProtocolDetailsV1,
+    gasStation: GasStation
+  ) {
+    super(signer, protocolDetails, gasStation);
 
     const { protocolVersion } = protocolDetails;
 

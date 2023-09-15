@@ -28,6 +28,7 @@ import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
 import { ProtocolDetailsV2, ProtocolV2Versions } from '../shared/types';
+import GasStation from '../utils/gasStation/gasStation';
 
 export default class ProtocolClientV2 extends ProtocolClientBase<ProtocolDetailsV2> {
   public readonly creditManagerContract: CreditManager;
@@ -43,8 +44,12 @@ export default class ProtocolClientV2 extends ProtocolClientBase<ProtocolDetails
   public readonly smartAssetURIStorageOverridableContract: SmartAssetURIStorageOverridable;
   public readonly ownershipRegistryContract: OwnershipRegistry;
 
-  constructor(signer: Signer, protocolDetails: ProtocolDetailsV2) {
-    super(signer, protocolDetails);
+  constructor(
+    signer: Signer,
+    protocolDetails: ProtocolDetailsV2,
+    gasStation: GasStation
+  ) {
+    super(signer, protocolDetails, gasStation);
 
     this.checkVersion();
 
