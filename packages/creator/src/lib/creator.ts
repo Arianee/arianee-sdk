@@ -10,6 +10,7 @@ import { defaultFetchLike } from '@arianee/utils';
 
 import { requiresConnection } from './decorators/requiresConnection';
 import Events from './events/events';
+import Identities from './identities/identities';
 import Messages from './messages/messages';
 import SmartAssets from './smartAssets/smartAssets';
 import { CreditType } from './types';
@@ -55,6 +56,7 @@ export default class Creator {
   public readonly smartAssets: SmartAssets;
   public readonly messages: Messages;
   public readonly events: Events;
+  public readonly identities: Identities;
 
   constructor(params: CreatorParams) {
     const { fetchLike, core, creatorAddress } = params;
@@ -72,6 +74,7 @@ export default class Creator {
     this.smartAssets = new SmartAssets(this);
     this.messages = new Messages(this);
     this.events = new Events(this);
+    this.identities = new Identities(this);
   }
 
   public async connect(
