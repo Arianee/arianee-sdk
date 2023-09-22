@@ -3,7 +3,7 @@ import { ProtocolDetailsV2 } from '@arianee/arianee-protocol-client';
 
 export const getV2ContractAddressForCreditType = (
   creditType: number,
-  creator: Creator
+  creator: Creator<'WAIT_TRANSACTION_RECEIPT'>
 ): string => {
   const v2ProtocolDetails = creator.connectedProtocolClient
     ?.protocolDetails as ProtocolDetailsV2;

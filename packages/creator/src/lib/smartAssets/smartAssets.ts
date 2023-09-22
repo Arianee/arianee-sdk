@@ -1,17 +1,18 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import {
-  NonPayableOverrides,
-  transactionWrapper,
-} from '@arianee/arianee-protocol-client';
+import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import {
   ArianeeProductCertificateI18N,
   SmartAsset,
   TokenAccessType,
 } from '@arianee/common-types';
 import { createLink } from '@arianee/utils';
-import { ethers } from 'ethers';
+import {
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+  ethers,
+} from 'ethers';
 
-import Creator from '../creator';
+import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import {
   ArianeePrivacyGatewayError,
@@ -34,8 +35,8 @@ import {
   TokenAccess,
 } from '../types';
 
-export default class SmartAssets {
-  constructor(private creator: Creator) {}
+export default class SmartAssets<Strategy extends TransactionStrategy> {
+  constructor(private creator: Creator<Strategy>) {}
 
   @requiresConnection()
   public async reserveSmartAssetId(
@@ -51,7 +52,7 @@ export default class SmartAssets {
 
     const _id = id ?? (await this.creator.utils.getAvailableSmartAssetId());
 
-    return transactionWrapper(
+    return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -74,7 +75,11 @@ export default class SmartAssets {
           ),
       },
       this.creator.connectOptions
-    );
+    ) as Promise<
+      Strategy extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 
   @requiresConnection()
@@ -87,7 +92,7 @@ export default class SmartAssets {
     if (smartAssetOwner !== this.creator.core.getAddress())
       throw new NotOwnerError('You are not the owner of this smart asset');
 
-    return transactionWrapper(
+    return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -103,7 +108,11 @@ export default class SmartAssets {
         },
       },
       this.creator.connectOptions
-    );
+    ) as Promise<
+      Strategy extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 
   @requiresConnection()
@@ -119,7 +128,7 @@ export default class SmartAssets {
       this.creator.utils
     );
 
-    return transactionWrapper(
+    return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -130,7 +139,11 @@ export default class SmartAssets {
         },
       },
       this.creator.connectOptions
-    );
+    ) as Promise<
+      Strategy extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 
   @requiresConnection()
@@ -187,7 +200,7 @@ export default class SmartAssets {
 
     const imprint = await this.creator.utils.calculateImprint(content);
 
-    await transactionWrapper(
+    await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -232,7 +245,7 @@ export default class SmartAssets {
 
     const { publicKey, passphrase } = getTokenAccessParams(tokenAccess);
 
-    await transactionWrapper(
+    await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -284,7 +297,7 @@ export default class SmartAssets {
 
     await getContentFromURI(uri, this.creator.fetchLike);
 
-    await transactionWrapper(
+    await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -330,7 +343,7 @@ export default class SmartAssets {
 
     const imprint = await this.creator.utils.calculateImprint(params.content);
 
-    await transactionWrapper(
+    await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {

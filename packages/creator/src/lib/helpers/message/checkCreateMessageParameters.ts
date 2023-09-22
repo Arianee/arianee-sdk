@@ -1,12 +1,14 @@
-import Creator from '../../creator';
+import Creator, { TransactionStrategy } from '../../creator';
 import { UnavailableMessageIdError } from '../../errors';
 import {
   CreateMessageParameters,
   CreateMessageParametersBase,
 } from '../../types';
 
-export const checkCreateMessageParameters = async (
-  creator: Creator,
+export const checkCreateMessageParameters = async <
+  Strategy extends TransactionStrategy
+>(
+  creator: Creator<Strategy>,
   params: CreateMessageParametersBase | CreateMessageParameters
 ) => {
   if (!params.smartAssetId) throw new Error('Smart asset id required');

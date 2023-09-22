@@ -18,12 +18,13 @@ jest.spyOn(console, 'error').mockImplementation();
 describe('Events', () => {
   const core = Core.fromRandom();
   const creatorAddress = `0x${'a'.repeat(40)}`;
-  let creator: Creator;
+  let creator: Creator<'WAIT_TRANSACTION_RECEIPT'>;
 
   beforeEach(() => {
     creator = new Creator({
       core,
       creatorAddress,
+      transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
     });
 
     Object.defineProperty(Creator.prototype, 'connected', {

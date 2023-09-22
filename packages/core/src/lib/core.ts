@@ -18,7 +18,9 @@ export default class Core {
     | undefined;
 
   public sendTransaction!:
-    | ((transaction: TransactionRequest) => Promise<TransactionResponse>)
+    | ((
+        transaction: TransactionRequest
+      ) => Promise<TransactionResponse | { skipResponse: true }>)
     | undefined;
 
   public getAddress!: () => string;

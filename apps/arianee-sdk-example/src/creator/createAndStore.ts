@@ -7,6 +7,7 @@ export default async () => {
   const creator = new Creator({
     core: Core.fromPrivateKey(process.env.PRIVATE_KEY),
     creatorAddress: '0x6C0084Bb281dcE6B0f0cc86191086531A50dDf04',
+    transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
   });
 
   await creator.connect('testnet');

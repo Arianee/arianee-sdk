@@ -11,7 +11,7 @@ import { Action } from '../action';
   styleUrls: ['./action-request-testnet-aria20.component.scss'],
 })
 export class ActionRequestTestnetAria20Component implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public result: string | null = null;
   public loading = false;

@@ -1,14 +1,15 @@
+import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import {
-  NonPayableOverrides,
-  transactionWrapper,
-} from '@arianee/arianee-protocol-client';
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+} from 'ethers';
 
-import Creator from '../creator';
+import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
 
-export default class Identities {
-  constructor(private creator: Creator) {}
+export default class Identities<Strategy extends TransactionStrategy> {
+  constructor(private creator: Creator<Strategy>) {}
 
   @requiresConnection()
   public async updateIdentity(
@@ -24,7 +25,7 @@ export default class Identities {
     // assert creator wallet has an identity
     await getCreatorIdentity(this.creator);
 
-    return transactionWrapper(
+    return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -40,6 +41,10 @@ export default class Identities {
         },
       },
       this.creator.connectOptions
-    );
+    ) as Promise<
+      Strategy extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 }

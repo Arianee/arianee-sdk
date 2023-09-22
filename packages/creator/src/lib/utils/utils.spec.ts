@@ -14,12 +14,13 @@ describe('Creator', () => {
   );
   const publicKey = '0x655F362F23cA6B937a2418F882097Ea3B2b14Ef0';
   const creatorAddress = `0x${'a'.repeat(40)}`;
-  let creator: Creator;
+  let creator: Creator<'WAIT_TRANSACTION_RECEIPT'>;
 
   beforeEach(() => {
     creator = new Creator({
       core,
       creatorAddress,
+      transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
     });
 
     Object.defineProperty(Creator.prototype, 'connected', {
@@ -205,6 +206,7 @@ describe('Creator', () => {
       const creator = new Creator({
         core: Core.fromRandom(),
         creatorAddress: '0x' + 'a'.repeat(40),
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
         fetchLike: fetch,
       });
       const imprint = await creator.utils.calculateImprint(content);
@@ -408,6 +410,7 @@ describe('Creator', () => {
         core: Core.fromRandom(),
         creatorAddress: '0x' + 'a'.repeat(40),
         fetchLike: mockedFetch as unknown as typeof fetch,
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
       Object.defineProperty(creator, 'slug', {

@@ -1,3 +1,4 @@
+import { TransactionStrategy } from '../../creator';
 import {
   CreateSmartAssetParameters,
   CreateSmartAssetParametersBase,
@@ -5,8 +6,10 @@ import {
 import Utils from '../../utils/utils';
 import { getTokenAccessParams } from '../getTokenAccessParams/getTokenAccessParams';
 
-export const getCreateSmartAssetParams = async (
-  utils: Utils,
+export const getCreateSmartAssetParams = async <
+  Strategy extends TransactionStrategy
+>(
+  utils: Utils<Strategy>,
   params: CreateSmartAssetParametersBase | CreateSmartAssetParameters
 ) => {
   const smartAssetId =

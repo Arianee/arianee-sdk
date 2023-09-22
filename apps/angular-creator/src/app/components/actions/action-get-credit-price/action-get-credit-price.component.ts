@@ -9,7 +9,7 @@ import { isConnectedToV2Protocol } from '../../../helpers/isConnectedToV2Protoco
   styleUrls: ['./action-get-credit-price.component.scss'],
 })
 export class ActionGetCreditPriceComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public creditType: string = '0';
   public result: string | null = null;

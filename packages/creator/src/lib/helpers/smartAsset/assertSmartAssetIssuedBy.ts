@@ -1,9 +1,12 @@
 import { SmartAsset } from '@arianee/common-types';
 
+import { TransactionStrategy } from '../../creator';
 import { NotIssuerError } from '../../errors';
 import Utils from '../../utils/utils';
 
-export const assertSmartAssetIssuedBy = async (
+export const assertSmartAssetIssuedBy = async <
+  Strategy extends TransactionStrategy
+>(
   {
     smartAssetId,
     expectedIssuer,
@@ -11,7 +14,7 @@ export const assertSmartAssetIssuedBy = async (
     smartAssetId: SmartAsset['certificateId'];
     expectedIssuer: string;
   },
-  utils: Utils
+  utils: Utils<Strategy>
 ) => {
   const issuer = await utils.getSmartAssetIssuer(smartAssetId);
 

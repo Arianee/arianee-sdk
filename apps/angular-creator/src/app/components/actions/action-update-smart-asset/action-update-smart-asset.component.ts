@@ -13,7 +13,7 @@ import { ArianeeProductCertificateI18N } from '@arianee/common-types';
 })
 export class ActionUpdateSmartAssetComponent implements Action {
   public result: string | null = null;
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public smartAssetId: string = '';
   public content: string = JSON.stringify(

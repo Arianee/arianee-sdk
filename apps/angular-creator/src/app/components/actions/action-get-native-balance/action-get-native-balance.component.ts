@@ -8,7 +8,7 @@ import { Action } from '../action';
   styleUrls: ['./action-get-native-balance.component.scss'],
 })
 export class ActionGetNativeBalanceComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public result: string | null = null;
   public loading = false;

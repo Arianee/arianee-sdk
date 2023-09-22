@@ -1,3 +1,4 @@
+import { TransactionStrategy } from '../../creator';
 import {
   InsufficientEventCreditsError,
   InsufficientMessageCreditsError,
@@ -6,8 +7,8 @@ import {
 import { CreditType } from '../../types';
 import Utils from '../../utils/utils';
 
-export const checkCreditsBalance = async (
-  utils: Utils,
+export const checkCreditsBalance = async <Strategy extends TransactionStrategy>(
+  utils: Utils<Strategy>,
   creditType: CreditType,
   minAmount = BigInt(1),
   contractAddress?: string

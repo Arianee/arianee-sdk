@@ -17,7 +17,7 @@ import { ArianeeMessageI18N } from '../../../../../../../packages/common-types/s
 })
 export class ActionCreateAndStoreMessageComponent implements Action {
   public result: string | null = null;
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public smartAssetId: string = '';
   public id: string | null = null;

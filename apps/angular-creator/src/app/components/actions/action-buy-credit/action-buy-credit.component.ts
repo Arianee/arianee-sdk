@@ -10,7 +10,7 @@ import { getV2ContractAddressForCreditType } from '../../../helpers/getV2Contrac
   styleUrls: ['./action-buy-credit.component.scss'],
 })
 export class ActionBuyCreditComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public creditType: string = '0';
   public amount: string | null = null;

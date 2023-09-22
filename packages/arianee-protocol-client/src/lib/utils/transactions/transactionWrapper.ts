@@ -14,7 +14,7 @@ export type NonPayableOverrides = Omit<
   'value' | 'blockTag' | 'enableCcipRead'
 >;
 
-export const transactionWrapper = async (
+export const noWaitTransactionWrapper = async (
   arianeeProtocolClient: ArianeeProtocolClient,
   protocolName: Protocol['name'],
   actions: {
@@ -26,7 +26,7 @@ export const transactionWrapper = async (
     ) => Promise<ContractTransactionResponse>;
   },
   connectOptions?: Parameters<ArianeeProtocolClient['connect']>[1]
-): Promise<ContractTransactionReceipt> => {
+): Promise<ContractTransactionResponse> => {
   const protocol = await arianeeProtocolClient.connect(
     protocolName,
     connectOptions
@@ -58,7 +58,31 @@ export const transactionWrapper = async (
     }
   }
 
+  return tx;
+};
+
+export const transactionWrapper = async (
+  arianeeProtocolClient: ArianeeProtocolClient,
+  protocolName: Protocol['name'],
+  actions: {
+    protocolV1Action: (
+      v1: ProtocolClientV1
+    ) => Promise<ContractTransactionResponse>;
+    protocolV2Action: (
+      v2: ProtocolClientV2
+    ) => Promise<ContractTransactionResponse>;
+  },
+  connectOptions?: Parameters<ArianeeProtocolClient['connect']>[1]
+): Promise<ContractTransactionReceipt> => {
+  const tx = await noWaitTransactionWrapper(
+    arianeeProtocolClient,
+    protocolName,
+    actions,
+    connectOptions
+  );
+
   let receipt: ContractTransactionReceipt | null;
+
   try {
     receipt = await tx.wait();
   } catch (e) {

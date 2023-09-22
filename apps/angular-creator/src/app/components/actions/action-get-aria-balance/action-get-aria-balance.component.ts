@@ -8,7 +8,7 @@ import { Action } from '../action';
   styleUrls: ['./action-get-aria-balance.component.scss'],
 })
 export class ActionGetAriaBalanceComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public creditType: string = '0';
   public result: string | null = null;

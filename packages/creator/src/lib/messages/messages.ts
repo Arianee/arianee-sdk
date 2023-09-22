@@ -1,11 +1,8 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import {
-  NonPayableOverrides,
-  transactionWrapper,
-} from '@arianee/arianee-protocol-client';
+import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import { ArianeeMessageI18N } from '@arianee/common-types';
 
-import Creator from '../creator';
+import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import { ArianeePrivacyGatewayError } from '../errors';
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
@@ -21,8 +18,8 @@ import {
   CreditType,
 } from '../types';
 
-export default class Messages {
-  constructor(private creator: Creator) {}
+export default class Messages<Strategy extends TransactionStrategy> {
+  constructor(private creator: Creator<Strategy>) {}
 
   @requiresConnection()
   public async createAndStoreMessage(
@@ -85,7 +82,7 @@ export default class Messages {
 
     const imprint = await this.creator.utils.calculateImprint(params.content);
 
-    await transactionWrapper(
+    await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {

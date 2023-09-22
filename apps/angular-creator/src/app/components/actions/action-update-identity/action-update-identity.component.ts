@@ -9,7 +9,7 @@ import { ArianeeBrandIdentityI18N } from '../../../../../../../packages/common-t
   styleUrls: ['./action-update-identity.component.scss'],
 })
 export class ActionUpdateIdentityComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public uri: string = '';
   public result: string | null = null;

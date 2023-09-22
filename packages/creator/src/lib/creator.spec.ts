@@ -11,12 +11,13 @@ jest.spyOn(console, 'error').mockImplementation();
 describe('Creator', () => {
   const core = Core.fromRandom();
   const creatorAddress = `0x${'a'.repeat(40)}`;
-  let creator: Creator;
+  let creator: Creator<'WAIT_TRANSACTION_RECEIPT'>;
 
   beforeEach(() => {
     creator = new Creator({
       core,
       creatorAddress,
+      transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
     });
 
     Object.defineProperty(Creator.prototype, 'connected', {
@@ -35,6 +36,7 @@ describe('Creator', () => {
       const creator = new Creator({
         core,
         creatorAddress,
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
       expect(creator['fetchLike']).toBe(defaultFetchLike);
@@ -46,6 +48,7 @@ describe('Creator', () => {
         core,
         creatorAddress,
         fetchLike,
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
       expect(creator['fetchLike']).toBe(fetchLike);
@@ -58,6 +61,7 @@ describe('Creator', () => {
         core,
         creatorAddress,
         protocolDetailsResolver,
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
       expect(
@@ -81,6 +85,7 @@ describe('Creator', () => {
       const creator = new Creator({
         core,
         creatorAddress,
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
       await expect(creator.connect('slug')).rejects.toThrow(
@@ -101,6 +106,7 @@ describe('Creator', () => {
       const creator = new Creator({
         core,
         creatorAddress,
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
       const connected = await creator.connect('slug');

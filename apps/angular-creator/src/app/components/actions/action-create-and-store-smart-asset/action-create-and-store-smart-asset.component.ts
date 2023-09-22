@@ -13,7 +13,7 @@ import { ArianeeProductCertificateI18N } from '../../../../../../../packages/com
   styleUrls: ['./action-create-and-store-smart-asset.component.scss'],
 })
 export class ActionCreateAndStoreSmartAssetComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public id: string | null = null;
   public content: string = JSON.stringify(
