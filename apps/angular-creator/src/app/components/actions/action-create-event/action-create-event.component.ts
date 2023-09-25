@@ -13,7 +13,7 @@ import { Action } from '../action';
 })
 export class ActionCreateEventComponent implements Action {
   public result: string | null = null;
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public smartAssetId: string = '';
   public id: string | null = null;

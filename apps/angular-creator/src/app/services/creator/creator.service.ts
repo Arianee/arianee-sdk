@@ -9,8 +9,8 @@ import { ProtocolDetails } from '@arianee/arianee-protocol-client';
   providedIn: 'root',
 })
 export class CreatorService {
-  private _creator: BehaviorSubject<Creator | null> =
-    new BehaviorSubject<Creator | null>(null);
+  private _creator: BehaviorSubject<Creator<'WAIT_TRANSACTION_RECEIPT'> | null> =
+    new BehaviorSubject<Creator<'WAIT_TRANSACTION_RECEIPT'> | null>(null);
 
   public get connected() {
     return this._creator.getValue()?.connected || false;
@@ -63,6 +63,7 @@ export class CreatorService {
       new Creator({
         core,
         creatorAddress,
+        transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
         fetchLike: (input, init) =>
           defaultFetchLike(input, {
             ...init,

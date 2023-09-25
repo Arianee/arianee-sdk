@@ -4,7 +4,7 @@ The Core class is a TypeScript class that provides an interface for signing mess
 
 ## Usage
 
-You can instanciante core with :
+You can instantiate core with :
 
 - Mnemonic
 - Passphrase
@@ -20,13 +20,21 @@ Core.fromPrivateKey(privateKey);
 Core.fromRandom();
 ```
 
-The returned instance will have 2 method:
+The returned instance will have 4 methods (see [TransactionLike](https://docs.ethers.org/v6/api/transaction/#TransactionLike)):
 
-- signMessage(message:string)
-- signTransaction(transaction:[TransactionLike](https://docs.ethers.org/v6/api/transaction/#TransactionLike))
-- getAddress():string
+```typescript
+signMessage(message:string)
 
-If you need to implement core with an external wallet (like metamask), you need to instantiate the class with 2 functions:
+signTransaction(transaction: TransactionLike))
+
+sendTransaction(transaction: TransactionRequest) : Promise<TransactionResponse | { skipResponse: true }>
+
+getAddress():string
+```
+
+**Note**: If you are using `sendTransaction` in an asynchronous context (e.g. adding the transaction to a queue instead of sending it directly), you **must** return `{ skipResponse: true }` instead of a `TransactionResponse` so that the `@arianee/*` packages won't try to fetch the transaction receipt.
+
+If you need to implement core with an external wallet (like metamask), you need to instantiate the class with 3 functions:
 
 - signMessage is a function that behaves like the [signMessage from ethers](https://docs.ethers.io/v6/api/signer/#Signer-signMessage)
 - signTransaction is a function that behaves like the [signTransaction from ethers](https://docs.ethers.io/v6/api/signer/#Signer-signTransaction)

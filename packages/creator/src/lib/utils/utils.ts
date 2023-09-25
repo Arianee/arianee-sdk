@@ -1,26 +1,27 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Cert } from '@arianee/0xcert-cert';
-import {
-  callWrapper,
-  transactionWrapper,
-} from '@arianee/arianee-protocol-client';
+import { callWrapper } from '@arianee/arianee-protocol-client';
 import {
   ArianeeBrandIdentityI18N,
   ArianeeEventI18N,
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
 } from '@arianee/common-types';
-import { BigNumberish } from 'ethers';
+import {
+  BigNumberish,
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+} from 'ethers';
 
-import Creator from '../creator';
+import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import { InvalidContentError, ProtocolCompatibilityError } from '../errors';
 import { MissingCreditContractAddressError } from '../errors/MissingCreditTypeContractAddressError';
 import { MissingCreditTypeError } from '../errors/MissingCreditTypeError';
 import { CreditType } from '../types/credit';
 
-export default class Utils {
-  constructor(private creator: Creator) {}
+export default class Utils<Strategy extends TransactionStrategy> {
+  constructor(private creator: Creator<Strategy>) {}
 
   @requiresConnection()
   public async isSmartAssetIdAvailable(id: number): Promise<boolean> {
@@ -76,7 +77,7 @@ export default class Utils {
       this.creator.connectOptions
     );
   }
-  // to test
+
   @requiresConnection()
   public async isEventIdAvailable(id: number): Promise<boolean> {
     return callWrapper(
@@ -313,7 +314,7 @@ export default class Utils {
     spender: { address: string } | 'STORE_CONTRACT_ADDRESS',
     amount: BigNumberish = '10000000000000000000000000000'
   ) {
-    return transactionWrapper(
+    return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -332,7 +333,11 @@ export default class Utils {
         },
       },
       this.creator.connectOptions
-    );
+    ) as Promise<
+      Strategy extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 
   @requiresConnection()

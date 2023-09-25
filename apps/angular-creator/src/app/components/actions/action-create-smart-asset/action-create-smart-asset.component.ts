@@ -12,7 +12,7 @@ import { Action } from '../action';
   styleUrls: ['./action-create-smart-asset.component.scss'],
 })
 export class ActionCreateSmartAssetComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public id: string | null = null;
   public uri: string = '';

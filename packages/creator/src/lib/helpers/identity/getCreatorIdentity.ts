@@ -2,11 +2,11 @@
 import { callWrapper } from '@arianee/arianee-protocol-client';
 import { ArianeeBrandIdentityI18N } from '@arianee/common-types';
 
-import Creator from '../../creator';
+import Creator, { TransactionStrategy } from '../../creator';
 import { MalformedIdentityError, NoIdentityError } from '../../errors';
 
-export const getCreatorIdentity = async (
-  creator: Creator
+export const getCreatorIdentity = async <Strategy extends TransactionStrategy>(
+  creator: Creator<Strategy>
 ): Promise<
   ArianeeBrandIdentityI18N & {
     rpcEndpoint: NonNullable<ArianeeBrandIdentityI18N['rpcEndpoint']>;

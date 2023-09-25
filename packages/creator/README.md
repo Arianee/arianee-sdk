@@ -12,7 +12,7 @@ npm install @arianee/creator @arianee/core
 
 ## Usage
 
-Instantiate a new `Creator` instance and pass the required params `core` and `creatorAddress`. \
+Instantiate a new `Creator` instance and pass the required params `core`, `creatorAddress` and `transactionStrategy`.
 
 ```typescript
 import { Creator } from '@arianee/creator';
@@ -21,6 +21,7 @@ import { Core } from '@arianee/core';
 const creator = new Creator({
   core: Core.fromRandom(),
   creatorAddress: '0x...',
+  transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
 });
 ```
 
@@ -41,6 +42,28 @@ You then need to connect to the desired protocol instance using the `connect` me
 ```
 
 Most methods of the library require a connection prior to being used. If you try to use a method without being connected, it will throw a `NotConnectedError`.
+
+## Constructor
+
+The constructor takes different parameters:
+
+```typescript
+export type TransactionStrategy = 'WAIT_TRANSACTION_RECEIPT' | 'DO_NOT_WAIT_TRANSACTION_RECEIPT';
+
+export type CreatorParams<T extends TransactionStrategy> = {
+  creatorAddress: string;
+  core: Core;
+  transactionStrategy: T;
+  fetchLike?: typeof fetch;
+  protocolDetailsResolver?: ProtocolDetailsResolver;
+};
+```
+
+- `creatorAddress`: the address that will receive the Arianee protocol rewards
+- `core`: an `@arianee/core` instance
+- `transactionStrategy`: either to wait for transaction receipt or not. **The recommended value for most users is `'WAIT_TRANSACTION_RECEIPT'`**. If `'WAIT_TRANSACTION_RECEIPT'` is passed, the `Creator` will wait for the transaction receipt, ensuring that the transaction has been successful, and methods will return a `ContractTransactionReceipt`. If `'DO_NOT_WAIT_TRANSACTION_RECEIPT'` is passed, the `Creator` will not wait for the receipt and methods will return a `ContractTransactionResponse`. This means the transaction might fail without notification. The latter is suitable for programs that utilize transaction queues and cannot wait for transaction confirmations. If the `@arianee/core` instance you are using has a custom `sendTransaction` method for queuing transactions (one that resolves to `{ skipResponse: true }`), you need to use `'DO_NOT_WAIT_TRANSACTION_RECEIPT'`.
+- `fetchLike`: this is the fetch-like function used for making HTTP requests. It can be any function that has the same signature as the `fetch` function. By default, it uses the `defaultFetchLike` of `@arianee/utils`.
+- `protocolDetailsResolver`: you can provide a custom protocol details resolver, it can be any function that has the same signature as the `protocolDetailsResolver` function of `@arianee/arianee-protocol-client`.
 
 ## Examples
 

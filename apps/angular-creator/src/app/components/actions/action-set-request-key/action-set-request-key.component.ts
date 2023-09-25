@@ -8,7 +8,7 @@ import { Action } from '../action';
   styleUrls: ['./action-set-request-key.component.scss'],
 })
 export class ActionSetRequestKeyComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public id: string | null = null;
   public passphrase: string | null = null;

@@ -8,7 +8,7 @@ import { Action } from '../action';
   styleUrls: ['./action-recover-smart-asset-id.component.scss'],
 })
 export class ActionRecoverSmartAssetIdComponent implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public id: string | null = null;
   public result: string | null = null;

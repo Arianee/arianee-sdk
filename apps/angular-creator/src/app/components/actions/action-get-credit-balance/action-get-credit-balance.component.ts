@@ -11,7 +11,7 @@ import { getV2ContractAddressForCreditType } from '../../../helpers/getV2Contrac
   styleUrls: ['./action-get-credit-balance.component.scss'],
 })
 export class ActionGetCreditBalance implements Action {
-  @Input() creator: Creator | null = null;
+  @Input() creator: Creator<'WAIT_TRANSACTION_RECEIPT'> | null = null;
 
   public id: string | null = null;
   public creditType: string = '0';
