@@ -1,3 +1,4 @@
+export * from './lib/chain/chain';
 export * from './lib/fetchLike/defaultFetchLike';
 export * from './lib/links/createLink/createLink';
 export * from './lib/links/readLink/readLink';
