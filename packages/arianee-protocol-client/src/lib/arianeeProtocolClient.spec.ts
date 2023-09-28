@@ -5,6 +5,8 @@ import { defaultFetchLike } from '@arianee/utils';
 import ArianeeProtocolClient from './arianeeProtocolClient';
 import * as ethersProxies from './utils/ethersCustom/ethersCustom';
 import ProtocolClientV1 from './v1/protocolClientV1';
+import { ProtocolDetailsV1, ProtocolDetailsV2 } from '@arianee/common-types';
+import { mock } from 'node:test';
 
 jest.mock('@arianee/core');
 jest.mock('./v1/protocolClientV1');
@@ -123,34 +125,73 @@ describe('ArianeeProtocolClient', () => {
 
       await expect(
         client['getProtocolDetailsFromSlug']('unknownSlug')
-      ).rejects.toThrow('No protocol with slug unknownSlug found');
+      ).rejects.toThrow(/Failed to fetch protocol details on arianee api/);
     });
 
-    it('should return the protocol details', async () => {
+    it('should return the correct protocol v1 details', async () => {
+      const mockProtocolDetails: ProtocolDetailsV1 = {
+        protocolVersion: '1.0',
+        chainId: 77,
+        httpProvider: 'https://sokol.arianee.net',
+        gasStation: 'https://cert.arianee.net/gasStation/testnet.json',
+        contractAdresses: {
+          aria: '0xB81AFe27c103bcd42f4026CF719AF6D802928765',
+          creditHistory: '0x9C868D9bf85CA649f219204D16d99A240cB1F011',
+          eventArianee: '0x8e8de8fe625c376f6d4fb2fc351337268a73388b',
+          identity: '0x6f5d3ac15576f0da108cde3b7bbbf8f89eb8e7b2',
+          smartAsset: '0x512C1FCF401133680f373a386F3f752b98070BC5',
+          store: '0x5360DbFF3546b920431A20268D2B5DFf8bF9b4dD',
+          whitelist: '0x3579669219DC20Aa79E74eEFD5fB2EcB0CE5fE0D',
+          message: '0xadD562C6c8D8755E0FaB1c12705831E759b77D00',
+          userAction: '0x6bDb54FB6227C360b95F9A08Fb670f8207D3476f',
+          updateSmartAssets: '0x3ae108bF0Ee8bB9D810BfC80aC73394ee1509C7b',
+        },
+      };
+
       fetchLike.mockResolvedValue({
         ok: true,
-        json: async () => ({
-          contractAdresses: {
-            contractName: '0x46F48FbdedAa6F5500993BEDE9539ef85F4BeE8e',
-          },
-          protocolVersion: '1',
-          httpProvider: 'https://polygon.arianee.net',
-          gasStation: 'https://gasstation.arianee.com/137',
-          chainId: 137,
-        }),
+        json: async () => mockProtocolDetails,
       });
 
       await expect(
-        client['getProtocolDetailsFromSlug']('unknownSlug')
-      ).resolves.toEqual({
+        client['getProtocolDetailsFromSlug']('testnet')
+      ).resolves.toEqual(mockProtocolDetails);
+    });
+
+    it('should return the correct protocol v2 details', async () => {
+      const mockProtocolDetails: ProtocolDetailsV2 = {
+        protocolVersion: '2.0',
+        chainId: 77,
+        httpProvider: 'https://sokol.arianee.net',
+        gasStation: 'https://gasstation.arianee.com/77',
         contractAdresses: {
-          contractName: '0x46F48FbdedAa6F5500993BEDE9539ef85F4BeE8e',
+          nft: '0xab459bf433187B78c66323Bf56e1E59bE1D405b6',
+          ownershipRegistry: '0x40b6851Af149C70A7A5b7694dBD76f0A81a3F576',
+          eventHub: '0xF45577b9B8a33EC58169c5c0f936F55e095Cf660',
+          messageHub: '0x6271B6D8Dc92649e60b96806450D8C49802486Eb',
+          rulesManager: '0xeF104AcFEaA0cff8eE9f9c5426bb4a2A818d26D4',
+          creditManager: '0x6709a7e7FE038Dc32925Ba5A14704a7eD1e6bD2F',
         },
-        httpProvider: 'https://polygon.arianee.net',
-        gasStation: 'https://gasstation.arianee.com/137',
-        chainId: 137,
-        protocolVersion: '1',
+        nftInterfaces: {
+          ERC721: true,
+          SmartAsset: true,
+          SmartAssetBurnable: true,
+          SmartAssetRecoverable: true,
+          SmartAssetSoulbound: false,
+          SmartAssetUpdatable: true,
+          SmartAssetURIStorage: true,
+          SmartAssetURIStorageOverridable: false,
+        },
+      };
+
+      fetchLike.mockResolvedValue({
+        ok: true,
+        json: async () => mockProtocolDetails,
       });
+
+      await expect(
+        client['getProtocolDetailsFromSlug']('77-2.0-test-0')
+      ).resolves.toEqual(mockProtocolDetails);
     });
   });
 });

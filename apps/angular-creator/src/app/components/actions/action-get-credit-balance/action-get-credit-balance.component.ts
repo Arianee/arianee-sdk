@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
-import Creator, { CreditType } from '@arianee/creator';
+import Creator from '@arianee/creator';
 import { Action } from '../action';
-import { ProtocolDetailsV2 } from '@arianee/arianee-protocol-client';
 import { isConnectedToV2Protocol } from '../../../helpers/isConnectedToV2Protocol';
 import { getV2ContractAddressForCreditType } from '../../../helpers/getV2ContractAddressForCreditType';
 

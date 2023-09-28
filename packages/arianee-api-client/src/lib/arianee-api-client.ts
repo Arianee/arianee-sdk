@@ -1,9 +1,9 @@
 import {
   ArianeeBrandIdentityI18N,
-  BlockchainEvent,
   blockchainEventsName,
   ChainType,
   Protocol,
+  ProtocolDetails,
   SmartContractNames,
   UnnestedBlockchainEvent,
 } from '@arianee/common-types';
@@ -166,6 +166,18 @@ export class ArianeeApiClient {
       return this.fetchArianeeApi(
         `/identity/${protocolName}/${address}`,
         'fetch identity on arianee api'
+      );
+    },
+  };
+
+  public protocol = {
+    getProtocolDetails: async (
+      slugOrNetwork: string
+    ): Promise<ProtocolDetails> => {
+      const queryParams = `?q=${slugOrNetwork}`;
+      return this.fetchArianeeApi(
+        `/network${queryParams}`,
+        'fetch protocol details on arianee api'
       );
     },
   };

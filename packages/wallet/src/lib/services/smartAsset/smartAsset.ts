@@ -1,7 +1,6 @@
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient, {
-  ProtocolV2Feature,
-  requiresV2Feature,
+  checkV2NftInterface,
 } from '@arianee/arianee-protocol-client';
 import {
   NonPayableOverrides,
@@ -345,7 +344,11 @@ export default class SmartAssetService<T extends ChainType> {
       protocolV2Action: async (protocolV2) => {
         // check if feature is enabled
         if (accessType === TokenAccessType.request) {
-          requiresV2Feature(ProtocolV2Feature.transferable, protocolV2);
+          checkV2NftInterface({
+            nftInterface: 'SmartAssetSoulbound',
+            protocolClientV2: protocolV2,
+            need: 'NotImplemented',
+          });
 
           return protocolV2.smartAssetBaseContract.setTokenTransferKey(
             tokenId,
@@ -384,7 +387,11 @@ export default class SmartAssetService<T extends ChainType> {
         );
       },
       protocolV2Action: async (protocolV2) => {
-        requiresV2Feature(ProtocolV2Feature.transferable, protocolV2);
+        checkV2NftInterface({
+          nftInterface: 'SmartAssetSoulbound',
+          protocolClientV2: protocolV2,
+          need: 'NotImplemented',
+        });
 
         return protocolV2.smartAssetBaseContract.transferFrom(
           this.core.getAddress(),

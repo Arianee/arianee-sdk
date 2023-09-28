@@ -2,8 +2,8 @@ import { ethers6_v1, ethers6_v1_1 } from '@arianee/arianee-abi';
 import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
-import { ProtocolDetailsV1, ProtocolV1Versions } from '../shared/types';
 import GasStation from '../utils/gasStation/gasStation';
+import { ProtocolDetailsV1, ProtocolV1Versions } from '@arianee/common-types';
 
 export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetailsV1> {
   public readonly storeContract:
@@ -56,8 +56,8 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
     // use a record enforce exhaustive check
     const versions1: Record<ProtocolV1Versions, null> = {
       '1': null,
-      '1.1': null,
       '1.0': null,
+      '1.1': null,
       '1.5': null,
     };
 

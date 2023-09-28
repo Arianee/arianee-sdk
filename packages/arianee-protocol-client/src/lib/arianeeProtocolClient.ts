@@ -1,34 +1,43 @@
 import Core from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
+import { ArianeeApiClient } from '@arianee/arianee-api-client';
 
-import {
-  ProtocolDetails,
-  ProtocolDetailsResolver,
-  ProtocolDetailsV1,
-  ProtocolDetailsV2,
-  ProtocolV1Versions,
-  ProtocolV2Versions,
-} from './shared/types';
+import { ProtocolDetailsResolver } from './shared/types';
 import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
 import GasStation from './utils/gasStation/gasStation';
 import ProtocolClientV1 from './v1/protocolClientV1';
 import ProtocolClientV2 from './v2/protocolClientV2';
+import {
+  ProtocolDetails,
+  ProtocolDetailsV1,
+  ProtocolDetailsV2,
+  ProtocolV1Versions,
+  ProtocolV2Versions,
+} from '@arianee/common-types';
 
 export default class ArianeeProtocolClient {
   private fetchLike: typeof fetch;
   private protocolDetailsResolver?: (slug: string) => Promise<ProtocolDetails>;
+  private arianeeApiClient: ArianeeApiClient;
 
   constructor(
     private core: Core,
     options?: {
       fetchLike?: typeof fetch;
+      arianeeApiUrl?: string;
       protocolDetailsResolver?: ProtocolDetailsResolver;
     }
   ) {
     this.fetchLike = options?.fetchLike ?? defaultFetchLike;
 
-    if (options?.protocolDetailsResolver)
+    this.arianeeApiClient = new ArianeeApiClient(
+      options?.arianeeApiUrl ?? 'https://api.arianee.com',
+      this.fetchLike
+    );
+
+    if (options?.protocolDetailsResolver) {
       this.protocolDetailsResolver = options.protocolDetailsResolver;
+    }
   }
 
   public async connect(
@@ -55,13 +64,13 @@ export default class ArianeeProtocolClient {
     // use a record for versions1 and versions2 to enforce exhaustive check
     const versions1: Record<ProtocolV1Versions, null> = {
       '1': null,
-      '1.1': null,
       '1.0': null,
+      '1.1': null,
       '1.5': null,
     };
 
     const versions2: Record<ProtocolV2Versions, null> = {
-      '2': null,
+      '2.0': null,
     };
 
     if (Object.keys(versions1).includes(details.protocolVersion)) {
@@ -92,23 +101,7 @@ export default class ArianeeProtocolClient {
   private async getProtocolDetailsFromSlug(
     slug: string
   ): Promise<ProtocolDetails> {
-    const response = await this.fetchLike(
-      `https://cert.arianee.org/contractAddresses/${slug}.json`
-    );
-
-    if (!response.ok) {
-      throw new Error(`No protocol with slug ${slug} found`);
-    }
-
-    const json = await response.json();
-
-    if (!('protocolVersion' in json)) {
-      throw new Error(
-        `Invalid protocol details format for slug ${slug}, no protocolVersion key found`
-      );
-    }
-
-    return json;
+    return this.arianeeApiClient.protocol.getProtocolDetails(slug);
   }
 }
 
