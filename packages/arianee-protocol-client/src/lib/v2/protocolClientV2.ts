@@ -27,8 +27,8 @@ import {
 import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
-import { ProtocolDetailsV2, ProtocolV2Versions } from '../shared/types';
 import GasStation from '../utils/gasStation/gasStation';
+import { ProtocolDetailsV2, ProtocolV2Versions } from '@arianee/common-types';
 
 export default class ProtocolClientV2 extends ProtocolClientBase<ProtocolDetailsV2> {
   public readonly creditManagerContract: CreditManager;
@@ -54,17 +54,17 @@ export default class ProtocolClientV2 extends ProtocolClientBase<ProtocolDetails
     this.checkVersion();
 
     this.creditManagerContract = CreditManager__factory.connect(
-      this.protocolDetails.contractAdresses.credit,
+      this.protocolDetails.contractAdresses.creditManager,
       this.signer
     );
 
     this.eventHubContract = EventHub__factory.connect(
-      this.protocolDetails.contractAdresses.event,
+      this.protocolDetails.contractAdresses.eventHub,
       this.signer
     );
 
     this.messageHubContract = MessageHub__factory.connect(
-      this.protocolDetails.contractAdresses.message,
+      this.protocolDetails.contractAdresses.messageHub,
       this.signer
     );
 
@@ -120,7 +120,7 @@ export default class ProtocolClientV2 extends ProtocolClientBase<ProtocolDetails
 
     // use a record enforce exhaustive check
     const versions2: Record<ProtocolV2Versions, null> = {
-      '2': null,
+      '2.0': null,
     };
 
     if (!Object.keys(versions2).includes(protocolVersion))

@@ -231,7 +231,7 @@ describe('Messages', () => {
             },
             protocolDetails: {
               contractAdresses: {
-                message: '0xmessage',
+                messageHub: '0xmessage',
               },
             },
           } as any);

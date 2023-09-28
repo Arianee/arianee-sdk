@@ -1,3 +1,3 @@
-import { UnavailableFeatureError } from './UnavailableFeatureError';
+import { CheckV2NftInterfaceError } from './CheckV2NftInterfaceError';
 
-export { UnavailableFeatureError };
+export { CheckV2NftInterfaceError };

@@ -105,10 +105,10 @@ export default class Messages<Strategy extends TransactionStrategy> {
             this.creator.utils,
             CreditType.message,
             BigInt(1),
-            protocolV2.protocolDetails.contractAdresses.message
+            protocolV2.protocolDetails.contractAdresses.messageHub
           );
           return protocolV2.messageHubContract.sendMessage(
-            protocolV2.protocolDetails.contractAdresses.message,
+            protocolV2.protocolDetails.contractAdresses.messageHub,
             smartAssetId,
             messageId,
             imprint,

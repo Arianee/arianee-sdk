@@ -1,7 +1,7 @@
 import { Provider, Signer } from 'ethers';
 
 import GasStation from '../utils/gasStation/gasStation';
-import { ProtocolDetails } from './types';
+import { ProtocolDetails } from '@arianee/common-types';
 
 export abstract class ProtocolClientBase<T extends ProtocolDetails> {
   constructor(

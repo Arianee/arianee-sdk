@@ -1,6 +1,7 @@
 import ArianeeProtocolClient, {
   ProtocolClientV2,
 } from '@arianee/arianee-protocol-client';
+import { ProtocolDetailsV2 } from '@arianee/common-types';
 import Core from '@arianee/core';
 
 export default async () => {
@@ -10,28 +11,33 @@ export default async () => {
 
   const slug = 'test-v2';
 
+  const mockProtocolDetails: ProtocolDetailsV2 = {
+    protocolVersion: '2.0',
+    chainId: 77,
+    httpProvider: 'https://sokol.arianee.net',
+    gasStation: 'https://gasstation.arianee.com/77',
+    contractAdresses: {
+      nft: '0xab459bf433187B78c66323Bf56e1E59bE1D405b6',
+      ownershipRegistry: '0x40b6851Af149C70A7A5b7694dBD76f0A81a3F576',
+      eventHub: '0xF45577b9B8a33EC58169c5c0f936F55e095Cf660',
+      messageHub: '0x6271B6D8Dc92649e60b96806450D8C49802486Eb',
+      rulesManager: '0xeF104AcFEaA0cff8eE9f9c5426bb4a2A818d26D4',
+      creditManager: '0x6709a7e7FE038Dc32925Ba5A14704a7eD1e6bD2F',
+    },
+    nftInterfaces: {
+      ERC721: true,
+      SmartAsset: true,
+      SmartAssetBurnable: true,
+      SmartAssetRecoverable: true,
+      SmartAssetSoulbound: false,
+      SmartAssetUpdatable: true,
+      SmartAssetURIStorage: true,
+      SmartAssetURIStorageOverridable: false,
+    },
+  };
+
   const client = new ArianeeProtocolClient(core, {
-    protocolDetailsResolver: async () => ({
-      httpProvider: 'https://sokol.arianee.net',
-      gasStation: 'https://cert.arianee.net/gasStation/testnet.json',
-      chainId: 77,
-      contractAdresses: {
-        nft: '0xf844b35F51a2df1Af7A7b86dA1C0CfAfa51A5BCA',
-        ownership: '0xA5177B6F7c5F1a79E51e27423ddCE90c728B966c',
-        rulesManager: '0x6C39Da7C40dB161b1aF17bE40389AF618fd6a8Cf',
-        event: '0x0D70d06F3a56E9d662815410Fa4D05191471e763',
-        message: '0x57792bDBbC3e74975E68931307db9E1d330c670c',
-        credit: '0xef4C3E30114748732474Ca813A539dE9eFd3c694',
-      },
-      collectionFeatures: {
-        burnable: false,
-        recoverable: false,
-        uriUpdatable: false,
-        imprintUpdatable: false,
-        transferable: true,
-      },
-      protocolVersion: '2',
-    }),
+    protocolDetailsResolver: async () => mockProtocolDetails,
   });
 
   const protocol = await client.connect(slug);

@@ -1,5 +1,5 @@
 import Creator, { CreditType } from '@arianee/creator';
-import { ProtocolDetailsV2 } from '@arianee/arianee-protocol-client';
+import { ProtocolDetailsV2 } from '@arianee/common-types';
 
 export const getV2ContractAddressForCreditType = (
   creditType: number,
@@ -14,10 +14,10 @@ export const getV2ContractAddressForCreditType = (
       contractAddress = v2ProtocolDetails.contractAdresses.nft;
       break;
     case CreditType.event:
-      contractAddress = v2ProtocolDetails.contractAdresses.event;
+      contractAddress = v2ProtocolDetails.contractAdresses.eventHub;
       break;
     case CreditType.message:
-      contractAddress = v2ProtocolDetails.contractAdresses.message;
+      contractAddress = v2ProtocolDetails.contractAdresses.messageHub;
       break;
     case CreditType.update:
       contractAddress = v2ProtocolDetails.contractAdresses.nft;

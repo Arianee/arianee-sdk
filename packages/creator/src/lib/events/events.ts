@@ -133,7 +133,7 @@ export default class Events<Strategy extends TransactionStrategy> {
             this.creator.utils,
             CreditType.event,
             BigInt(1),
-            protocolV2.protocolDetails.contractAdresses.event
+            protocolV2.protocolDetails.contractAdresses.eventHub
           );
           return protocolV2.eventHubContract.createEvent(
             protocolV2.protocolDetails.contractAdresses.nft,

@@ -71,7 +71,7 @@ export class HeaderComponent {
       case '1.1':
       case '1.5':
         return 'cyan';
-      case '2':
+      case '2.0':
         return 'gold';
       default:
         return 'red';
