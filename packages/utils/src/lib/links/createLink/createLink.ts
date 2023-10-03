@@ -1,6 +1,5 @@
 import { isProtocolV2FromSlug } from '../../slug/slug';
 import { getHostnameFromProtocolName } from '../readLink/readLink';
-import { IdentityInstance } from '@arianee/wallet';
 import { BrandIdentity } from '@arianee/common-types';
 
 /**
@@ -22,12 +21,11 @@ export const createLink = ({
   suffix?: string;
   tokenId: string;
   passphrase: string;
-  brandIdentity?: IdentityInstance<BrandIdentity>;
+  brandIdentity?: BrandIdentity;
 }) => {
   let customDomain: string | undefined;
   if (brandIdentity) {
     customDomain = extractCustomDomainFromBrandIdentity(brandIdentity);
-    console.log('customDomain', customDomain);
   }
 
   if (isProtocolV2FromSlug(slug)) {
@@ -39,15 +37,17 @@ export const createLink = ({
   }
 };
 
-const extractCustomDomainFromBrandIdentity = (
-  brandIdentity: IdentityInstance<BrandIdentity>
-) => {
+/**
+ * Extracts the custom domain located in brand identity external contents if any
+ * @param brandIdentity the brand identity
+ * @returns the custom domain or undefined
+ */
+const extractCustomDomainFromBrandIdentity = (brandIdentity: BrandIdentity) => {
   let customDomain: string | undefined;
 
-  const deepLinkDomainUrl =
-    brandIdentity?.data?.rawContent?.externalContents?.find(
-      (ec) => ec.type === 'deepLinkDomain'
-    )?.url;
+  const deepLinkDomainUrl = brandIdentity?.rawContent?.externalContents?.find(
+    (ec) => ec.type === 'deepLinkDomain'
+  )?.url;
   if (deepLinkDomainUrl && deepLinkDomainUrl?.length > 0) {
     customDomain = deepLinkDomainUrl;
     if (customDomain.startsWith('http://')) {

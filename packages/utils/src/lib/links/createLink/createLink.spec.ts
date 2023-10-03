@@ -1,21 +1,17 @@
-import { IdentityInstance } from '@arianee/wallet';
 import { BrandIdentity } from '@arianee/common-types';
 import { createLink } from './createLink';
 
 const getTestBrandIdentity = (
   customDomain: string
-): { data: Pick<BrandIdentity, 'rawContent'> } => ({
-  data: {
-    rawContent: {
-      $schema:
-        'https://cert.arianee.org/version1/ArianeeBrandIdentity-i18n.json',
-      externalContents: [
-        {
-          type: 'deepLinkDomain',
-          url: customDomain,
-        },
-      ],
-    },
+): Pick<BrandIdentity, 'rawContent'> => ({
+  rawContent: {
+    $schema: 'https://cert.arianee.org/version1/ArianeeBrandIdentity-i18n.json',
+    externalContents: [
+      {
+        type: 'deepLinkDomain',
+        url: customDomain,
+      },
+    ],
   },
 });
 
@@ -75,7 +71,7 @@ describe('createLink', () => {
           suffix,
           tokenId,
           passphrase,
-          brandIdentity: brandIdentity as IdentityInstance<BrandIdentity>,
+          brandIdentity: brandIdentity as BrandIdentity,
         })
       ).toEqual(expectedLink);
     }
