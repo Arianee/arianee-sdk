@@ -176,7 +176,7 @@ export class ArianeeApiClient {
     ): Promise<ProtocolDetails> => {
       const queryParams = `?q=${slugOrNetwork}`;
       return this.fetchArianeeApi(
-        `/network${queryParams}`,
+        `/protocol${queryParams}`,
         'fetch protocol details on arianee api'
       );
     },
