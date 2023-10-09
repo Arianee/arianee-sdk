@@ -220,6 +220,47 @@ The method can throw different errors:
 - `UnavailableSmartAssetIdError` if the smart asset id is not available
 - `InsufficientSmartAssetCreditsError` if the core address does not have enough smart asset credits
 
+#### `createSmartAssetRaw`
+
+Create a smart asset and return a `LinkObject`. This method does not store the content in the Arianee Privacy Gateway nor retrieve the content from an URI, use `createAndStoreSmartAsset` or `createSmartAsset` instead if you need to.
+
+```typescript
+public async createSmartAssetRaw(
+  params: CreateSmartAssetCommonParameters,
+  overrides: NonPayableOverrides = {}
+): Promise<LinkObject>
+```
+
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.createSmartAssetRaw({
+  smartAssetId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+  content,
+});
+```
+
+```typescript
+interface CreateSmartAssetCommonParameters {
+  smartAssetId?: number;
+  tokenAccess?: { fromPassphrase: string } | { address: string };
+  tokenRecoveryTimestamp?: number;
+  sameRequestOwnershipPassphrase?: boolean;
+  content: ArianeeProductCertificateI18N;
+}
+
+type LinkObject = {
+  smartAssetId: SmartAsset['certificateId'];
+  deeplink?: string;
+  passphrase?: string;
+};
+```
+
+The method can throw different errors:
+
+- `UnavailableSmartAssetIdError` if the smart asset id is not available
+- `InsufficientSmartAssetCreditsError` if the core address does not have enough smart asset credits
+
 #### `updateSmartAsset`
 
 _⚠️ Requires the core address to have an identity URI_.
