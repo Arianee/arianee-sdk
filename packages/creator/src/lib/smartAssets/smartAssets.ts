@@ -183,6 +183,14 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
   }
 
   @requiresConnection()
+  public async createSmartAssetRaw(
+    params: CreateSmartAssetCommonParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<LinkObject> {
+    return this.createSmartAssetCommon(params, null, overrides);
+  }
+
+  @requiresConnection()
   public async updateSmartAsset(
     smartAssetId: SmartAsset['certificateId'],
     content: SmartAsset['content'],
