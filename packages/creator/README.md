@@ -263,9 +263,7 @@ The method can throw different errors:
 
 #### `updateSmartAsset`
 
-_⚠️ Requires the core address to have an identity URI_.
-
-Update the content of a smart asset in the Arianee privacy gateway and update its imprint on chain. Returns the imprint of the new content.
+Update the certificate content imprint on chain. Returns the imprint of the new content.
 
 ```typescript
 public async updateSmartAsset(
@@ -279,6 +277,31 @@ Implementation example :
 
 ```typescript
 await this.creator.smartAssets.updateSmartAsset(this.smartAssetId, content);
+```
+
+The method can throw different errors:
+
+- `InsufficientUpdateCreditsError` if the core address does not have enough update credits
+- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
+
+#### `updateAndStoreSmartAsset`
+
+_⚠️ Requires the core address to have an identity URI_.
+
+Update the content of a smart asset in the Arianee privacy gateway and update its imprint on chain. Returns the imprint of the new content.
+
+```typescript
+public async updateAndStoreSmartAsset(
+  smartAssetId: SmartAsset['certificateId'],
+  content: SmartAsset['content'],
+  overrides: NonPayableOverrides = {}
+): Promise<{ imprint: string }>
+```
+
+Implementation example :
+
+```typescript
+await this.creator.smartAssets.updateAndStoreSmartAsset(this.smartAssetId, content);
 ```
 
 The method can throw different errors:
