@@ -471,6 +471,45 @@ The method can throw:
 - `InsufficientMessageCreditsError` if the core address does not have enough message credits
 - `UnavailableMessageIdError` if the message id is not available
 
+#### `createMessageRaw`
+
+Create a message and return a `CreatedMessage`. This method does not store the content in the Arianee Privacy Gateway nor retrieve the content from an URI, use `createAndStoreMessage` or `createMessage` instead if you need to.
+
+```typescript
+public async createMessageRaw(
+  params: CreateMessageCommonParameters,
+  overrides: NonPayableOverrides = {}
+): Promise<CreatedMessage>
+```
+
+Implementation example :
+
+```typescript
+await this.creator.messages.createMessageRaw({
+  smartAssetId: parseInt(this.smartAssetId),
+  content,
+  messageId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+});
+```
+
+```typescript
+type CreatedMessage = {
+  imprint: string;
+  id: number;
+};
+
+interface CreateMessageCommonParameters {
+  messageId?: number;
+  smartAssetId: number;
+  content: ArianeeMessageI18N;
+}
+```
+
+The method can throw:
+
+- `InsufficientMessageCreditsError` if the core address does not have enough message credits
+- `UnavailableMessageIdError` if the message id is not available
+
 ### <u>Events </u>
 
 #### `createAndStoreEvent`

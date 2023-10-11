@@ -58,6 +58,14 @@ export default class Messages<Strategy extends TransactionStrategy> {
   }
 
   @requiresConnection()
+  public async createMessageRaw(
+    params: CreateMessageCommonParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedMessage> {
+    return this.createMessageCommon(params, null, overrides);
+  }
+
+  @requiresConnection()
   private async createMessageCommon(
     params: CreateMessageCommonParameters,
     afterTransaction:
