@@ -594,7 +594,7 @@ describe('SmartAssets', () => {
   });
 
   describe('updateSmartAsset', () => {
-    it('should call make an update transaction and call updateSmartAssetContent', async () => {
+    it('should do an update transaction and call updateSmartAssetContent', async () => {
       const content = {
         $schema: 'mock',
       };
@@ -613,10 +613,6 @@ describe('SmartAssets', () => {
       const calculateImprintSpy = jest
         .spyOn(creator.utils, 'calculateImprint')
         .mockResolvedValue('0xmock');
-
-      const updateSmartAssetContentSpy = jest
-        .spyOn(creator.smartAssets as any, 'updateSmartAssetContent')
-        .mockImplementation();
 
       const updateSmartAssetSpy = jest.fn();
 
@@ -652,13 +648,36 @@ describe('SmartAssets', () => {
         BigInt(1)
       );
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
-      expect(updateSmartAssetContentSpy).toBeCalledWith(123, content);
       expect(updateSmartAssetSpy).toHaveBeenCalledWith(
         '123',
         '0xmock',
         creatorAddress,
         {}
       );
+    });
+  });
+  describe('updateAndStoreSmartAsset', () => {
+    it('should call updateSmartAsset and call updateSmartAssetContent', async () => {
+      const content = {
+        $schema: 'mock',
+      };
+
+      const updateSmartAssetSpy = jest
+        .spyOn(creator.smartAssets, 'updateSmartAsset')
+        .mockImplementation(async () => ({ imprint: 'mockImprint' }));
+
+      const updateSmartAssetContentSpy = jest
+        .spyOn(creator.smartAssets as any, 'updateSmartAssetContent')
+        .mockImplementation();
+
+      const { imprint } = await creator.smartAssets.updateAndStoreSmartAsset(
+        '123',
+        content
+      );
+
+      expect(updateSmartAssetContentSpy).toHaveBeenCalledWith(123, content);
+      expect(updateSmartAssetSpy).toHaveBeenCalledWith('123', content, {});
+      expect(imprint).toEqual('mockImprint');
     });
   });
 

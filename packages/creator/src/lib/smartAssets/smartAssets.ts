@@ -232,11 +232,25 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.connectOptions
     );
 
-    await this.updateSmartAssetContent(parseInt(smartAssetId), content);
-
     return {
       imprint,
     };
+  }
+
+  @requiresConnection()
+  public async updateAndStoreSmartAsset(
+    smartAssetId: SmartAsset['certificateId'],
+    content: SmartAsset['content'],
+    overrides: NonPayableOverrides = {}
+  ) {
+    const { imprint } = await this.updateSmartAsset(
+      smartAssetId,
+      content,
+      overrides
+    );
+    await this.updateSmartAssetContent(parseInt(smartAssetId), content);
+
+    return { imprint };
   }
 
   @requiresConnection()
