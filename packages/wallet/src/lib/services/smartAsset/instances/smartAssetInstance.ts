@@ -1,13 +1,14 @@
-import { SmartAsset, Event, ChainType } from '@arianee/common-types';
-import ArianeeEventInstance from './arianeeEventInstance';
-import SmartAssetService from '../smartAsset';
+import { ChainType, Event, SmartAsset } from '@arianee/common-types';
 import { ContractTransactionReceipt } from 'ethers';
+
+import SmartAssetService from '../smartAsset';
+import ArianeeEventInstance from './arianeeEventInstance';
 
 export default class SmartAssetInstance<T extends ChainType> {
   public readonly data: SmartAsset;
   public readonly arianeeEvents: ArianeeEventInstance<T>[];
 
-  private passphrase?: string;
+  readonly passphrase?: string;
   private userAddress: string;
 
   constructor(
