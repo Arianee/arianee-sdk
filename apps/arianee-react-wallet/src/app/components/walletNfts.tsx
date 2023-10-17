@@ -1,22 +1,25 @@
+import { ChainType, Language } from '@arianee/common-types';
 import Wallet, {
   ArianeeEventReceivedEvent,
+  SmartAssetInstance,
   SmartAssetReceivedEvent,
   SmartAssetTransferedEvent,
   SmartAssetUpdatedEvent,
-  SmartAssetInstance,
 } from '@arianee/wallet';
 import { useCallback, useEffect, useState } from 'react';
-import { ChainType, Language } from '@arianee/common-types';
+
 import { getTime } from '../utils/misc';
 import Nft from './nft';
 
 export interface WalletNftsProps {
-  wallet: Wallet<ChainType>;
+  wallet: Wallet<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
   language: Language;
 }
 
 export default function WalletNfts({ wallet, language }: WalletNftsProps) {
-  const [nfts, setNfts] = useState<SmartAssetInstance<ChainType>[]>([]);
+  const [nfts, setNfts] = useState<
+    SmartAssetInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [brandsFilter, setBrandsFilter] = useState<string | 'all'>('all');
 

@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import Wallet from './wallet';
-import Core from '@arianee/core';
-import WalletApiClient from '@arianee/wallet-api-client';
-import IdentityService from './services/identity/identity';
-import SmartAssetService from './services/smartAsset/smartAsset';
-import MessageService from './services/message/message';
-import EventManager from './services/eventManager/eventManager';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import Core from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
 import { MemoryStorage } from '@arianee/utils';
+import WalletApiClient from '@arianee/wallet-api-client';
+
+import EventManager from './services/eventManager/eventManager';
+import IdentityService from './services/identity/identity';
+import MessageService from './services/message/message';
+import SmartAssetService from './services/smartAsset/smartAsset';
+import Wallet from './wallet';
 
 jest.mock('@arianee/core');
 jest.mock('@arianee/wallet-api-client');
@@ -206,6 +207,7 @@ describe('Wallet', () => {
         i18nStrategy: 'raw',
         arianeeProtocolClient: expect.any(ArianeeProtocolClient),
         walletRewards: wallet['walletRewards'],
+        wallet,
       });
     });
 
@@ -222,6 +224,7 @@ describe('Wallet', () => {
         arianeeProtocolClient: expect.any(ArianeeProtocolClient),
         walletRewards: wallet['walletRewards'],
         core: wallet['core'],
+        wallet,
       });
     });
 

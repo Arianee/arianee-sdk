@@ -1,15 +1,16 @@
+import { ChainType, Language } from '@arianee/common-types';
 import Wallet, {
   MessageInstance,
   MessageReadEvent,
   MessageReceivedEvent,
 } from '@arianee/wallet';
 import { useEffect, useState } from 'react';
-import { ChainType, Language } from '@arianee/common-types';
+
 import { getTime } from '../utils/misc';
 import Message from './message';
 
 export interface WalletMessagesProps {
-  wallet: Wallet<ChainType>;
+  wallet: Wallet<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
   language: Language;
 }
 
@@ -17,7 +18,9 @@ export default function WalletMessages({
   wallet,
   language,
 }: WalletMessagesProps) {
-  const [messages, setMessages] = useState<MessageInstance<ChainType>[]>([]);
+  const [messages, setMessages] = useState<
+    MessageInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [eventsLog, setEventsLog] = useState<string>('');

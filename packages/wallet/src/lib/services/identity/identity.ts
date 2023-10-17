@@ -4,7 +4,8 @@ import {
   ChainType,
 } from '@arianee/common-types';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
-import { I18NStrategy, getPreferredLanguages } from '../../utils/i18n';
+
+import { getPreferredLanguages, I18NStrategy } from '../../utils/i18n';
 import EventManager from '../eventManager/eventManager';
 
 export type IdentityInstance<T extends BrandIdentity | BrandIdentityWithOwned> =

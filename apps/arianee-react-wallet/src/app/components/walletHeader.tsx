@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { arianeeAccessToken } from '../utils/wallet';
 
 export interface WalletHeaderProps {
-  wallet: Wallet<ChainType>;
+  wallet: Wallet<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
   language: Language;
   setChainType: (newChainType: ChainType) => void;
   setUserLanguage: (newLanguage: Language) => void;

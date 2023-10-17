@@ -1,10 +1,10 @@
+import { ChainType } from '@arianee/common-types';
 import { MessageInstance } from '@arianee/wallet';
 import { TransactionReceipt } from 'ethers';
 import { useEffect, useState } from 'react';
-import { ChainType } from '@arianee/common-types';
 
 export interface MessageProps {
-  messageInstance: MessageInstance<ChainType>;
+  messageInstance: MessageInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
   index: number;
 }
 

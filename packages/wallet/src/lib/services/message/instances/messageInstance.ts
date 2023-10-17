@@ -1,14 +1,18 @@
-import { DecentralizedMessage, ChainType } from '@arianee/common-types';
-import MessageService from '../message';
-import { ContractTransactionReceipt } from 'ethers';
+import { ChainType, DecentralizedMessage } from '@arianee/common-types';
 
-export default class MessageInstance<T extends ChainType> {
+import { TransactionStrategy } from '../../../wallet';
+import MessageService from '../message';
+
+export default class MessageInstance<
+  T extends ChainType,
+  S extends TransactionStrategy
+> {
   constructor(
-    private messageService: MessageService<T>,
+    private messageService: MessageService<T, S>,
     public readonly data: DecentralizedMessage
   ) {}
 
-  public async readMessage(): Promise<ContractTransactionReceipt> {
+  public async readMessage() {
     return this.messageService.readMessage(
       this.data.protocol.name,
       this.data.id

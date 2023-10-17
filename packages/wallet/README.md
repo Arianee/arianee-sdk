@@ -21,6 +21,7 @@ Default values are:
 - `arianeeAccessToken`: a `ArianeeAccessToken` instance from `@arianee/arianee-access-token` using the core instance derived from passed auth
 - `arianeeAccessTokenPrefix`: an optional `string` that can be added before the arianee access token payload to sign. This is useful to let the user know what they are signing and why.
 - `storage`: a `MemoryStorage` from `@arianee/utils`
+- `transactionStrategy`: either to wait for transaction receipt or not. **The recommended value for most users is `'WAIT_TRANSACTION_RECEIPT'` (its default value)**. If `'WAIT_TRANSACTION_RECEIPT'` is passed, the `Wallet` will wait for the transaction receipt, ensuring that the transaction has been successful, and methods will return a `ContractTransactionReceipt`. If `'DO_NOT_WAIT_TRANSACTION_RECEIPT'` is passed, the `Wallet` will not wait for the receipt and methods will return a `ContractTransactionResponse`. This means the transaction might fail without notification. The latter is suitable for programs that utilize transaction queues and cannot wait for transaction confirmations. If the `@arianee/core` instance you are using has a custom `sendTransaction` method for queuing transactions (one that resolves to `{ skipResponse: true }`), you need to use `'DO_NOT_WAIT_TRANSACTION_RECEIPT'`.
 
 First, you need to import the `Wallet` class:
 

@@ -1,17 +1,18 @@
-import { EventEmitter } from 'eventemitter3';
-import { WalletAbstraction } from '@arianee/wallet-abstraction';
-import { EventMap } from './types/events';
-import WrappedEventEmitter from './helpers/wrappedEventEmitter';
+import { ArianeeApiClient } from '@arianee/arianee-api-client';
 import {
-  UnnestedBlockchainEvent,
+  blockchainEventsName,
   BrandIdentity,
   ChainType,
   SmartAsset,
-  blockchainEventsName,
+  UnnestedBlockchainEvent,
 } from '@arianee/common-types';
-import { ArianeeApiClient } from '@arianee/arianee-api-client';
+import { WalletAbstraction } from '@arianee/wallet-abstraction';
+import { EventEmitter } from 'eventemitter3';
+
 import { checksumAddress } from '../../utils/address/address';
 import { hashCode } from '../../utils/hash';
+import WrappedEventEmitter from './helpers/wrappedEventEmitter';
+import { EventMap } from './types/events';
 
 type WrappedEventEmitters = {
   readonly [eventName in keyof EventMap]: WrappedEventEmitter<eventName>;
