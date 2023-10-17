@@ -7,15 +7,15 @@ import {
   SmartContractNames,
   UnnestedBlockchainEvent,
 } from '@arianee/common-types';
-
-import { blockchainEventFilters } from './types/blockchainEventFilters';
-import { smartAssetInfo } from './types/smartAssetInfo';
-import { decentralizedMessageInfo } from './types/decentralizedMessageInfo';
-import { brandIdentityInfo } from './types/brandIdentityInfo';
-import { convertObjectToDotNotation } from './utils/dotNotation/dotNotation';
-import { contractNameToArianeeApiContractName } from './utils/contracts/contractName';
-import { ArianeeEvent } from './types/arianeeEvent';
 import { defaultFetchLike } from '@arianee/utils';
+
+import { ArianeeEvent } from './types/arianeeEvent';
+import { blockchainEventFilters } from './types/blockchainEventFilters';
+import { brandIdentityInfo } from './types/brandIdentityInfo';
+import { decentralizedMessageInfo } from './types/decentralizedMessageInfo';
+import { smartAssetInfo } from './types/smartAssetInfo';
+import { contractNameToArianeeApiContractName } from './utils/contracts/contractName';
+import { convertObjectToDotNotation } from './utils/dotNotation/dotNotation';
 
 export class ArianeeApiClient {
   private fetchLike: typeof fetch;
@@ -166,6 +166,15 @@ export class ArianeeApiClient {
       return this.fetchArianeeApi(
         `/identity/${protocolName}/${address}`,
         'fetch identity on arianee api'
+      );
+    },
+    getMessage: async (
+      protocolName: Protocol['name'],
+      messageId: string
+    ): Promise<decentralizedMessageInfo> => {
+      return this.fetchArianeeApi(
+        `/report/message/${protocolName}/${messageId}`,
+        'fetch message on arianee api'
       );
     },
   };
