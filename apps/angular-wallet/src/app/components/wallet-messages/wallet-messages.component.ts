@@ -13,7 +13,8 @@ import { ChainType } from '@arianee/common-types';
   styleUrls: ['./wallet-messages.component.scss'],
 })
 export class WalletMessages implements OnInit {
-  public messages: MessageInstance<ChainType>[] = [];
+  public messages: MessageInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>[] =
+    [];
   public loading = false;
 
   public eventsLog = '';
