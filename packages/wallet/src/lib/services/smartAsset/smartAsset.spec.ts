@@ -3,6 +3,7 @@ import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { Core } from '@arianee/core';
 import WalletApiClient from '@arianee/wallet-api-client';
 
+import Wallet from '../../wallet';
 import EventManager from '../eventManager/eventManager';
 import SmartAssetInstance from './instances/smartAssetInstance';
 import SmartAssetService from './smartAsset';
@@ -34,7 +35,10 @@ const defaultI18nStrategy = {
 };
 
 describe('SmartAssetService', () => {
-  let smartAssetService: SmartAssetService<'testnet'>;
+  let smartAssetService: SmartAssetService<
+    'testnet',
+    'WAIT_TRANSACTION_RECEIPT'
+  >;
   const core = Core.fromRandom();
   const walletApiClient = new WalletApiClient('testnet', core);
   const arianeeAccessToken = new ArianeeAccessToken(core);
@@ -51,6 +55,11 @@ describe('SmartAssetService', () => {
     '0x123456',
     jest.fn()
   );
+
+  const transactionWrapperSpy = jest.fn();
+  const wallet = {
+    transactionWrapper: transactionWrapperSpy,
+  };
 
   const getSmartAssetSpy = jest
     .spyOn(walletApiClient, 'getSmartAsset')
@@ -75,6 +84,7 @@ describe('SmartAssetService', () => {
       arianeeProtocolClient: arianeeProtocolClient,
       walletRewards: walletRewards,
       core: core,
+      wallet: wallet as unknown as Wallet,
     });
   });
 
@@ -291,6 +301,7 @@ describe('SmartAssetService', () => {
         arianeeProtocolClient: arianeeProtocolClient,
         walletRewards: walletRewards,
         core: core,
+        wallet: wallet as unknown as Wallet,
       });
 
       await expect(
@@ -325,13 +336,12 @@ describe('SmartAssetService', () => {
         core: Core.fromPrivateKey(
           '0xe5ca26599b7210485f8a4a4d1d1c1ba89752ca7b9be2f566665e730f952552e0'
         ),
+        wallet: wallet as unknown as Wallet,
       });
 
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({
+        mockReceipt: '0x123',
+      } as any);
 
       await service.claim('testnet', '86208174', 'gx2mhc408880', {
         overrides: {
@@ -383,17 +393,14 @@ describe('SmartAssetService', () => {
         core: Core.fromPrivateKey(
           '0xe5ca26599b7210485f8a4a4d1d1c1ba89752ca7b9be2f566665e730f952552e0'
         ),
+        wallet: wallet as unknown as Wallet,
       });
 
       const getSpy = jest
         .spyOn(service, 'get')
         .mockResolvedValue({ data: { issuer: '0xissuer' } } as any);
 
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
 
       await service.claim('testnet', '86208174', 'gx2mhc408880', {
         overrides: {
@@ -440,11 +447,7 @@ describe('SmartAssetService', () => {
 
   describe('acceptEvent', () => {
     it('should call transactionWrapper with correct params (v2)', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
 
       const acceptEventSpy = jest.fn();
 
@@ -477,11 +480,7 @@ describe('SmartAssetService', () => {
       );
     });
     it('should call transactionWrapper with correct params (v1)', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
 
       const acceptEventSpy = jest.fn();
 
@@ -514,11 +513,7 @@ describe('SmartAssetService', () => {
 
   describe('refuseEvent', () => {
     it('should call transactionWrapper with correct params', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
 
       const refuseEventSpy = jest.fn();
 
@@ -548,11 +543,7 @@ describe('SmartAssetService', () => {
       );
     });
     it('should call transactionWrapper with correct params (V2)', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
 
       const refuseEventSpy = jest.fn();
 
@@ -601,11 +592,9 @@ describe('SmartAssetService', () => {
     ])(
       'should call transactionWrapper with correct params and return the link (protocol v1)',
       async ({ linkType, expectedAccessType, expectedLink }) => {
-        const transactionWrapperSpy = jest
-          .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-          .mockResolvedValue({
-            mockReceipt: '0x123',
-          } as any);
+        transactionWrapperSpy.mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
 
         const addTokenAccessSpy = jest.fn();
 
@@ -666,11 +655,9 @@ describe('SmartAssetService', () => {
     ])(
       'should call transactionWrapper with correct params and return the link (protocol v2)',
       async ({ linkType, expectedAccessType, expectedLink }) => {
-        const transactionWrapperSpy = jest
-          .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-          .mockResolvedValue({
-            mockReceipt: '0x123',
-          } as any);
+        transactionWrapperSpy.mockResolvedValue({
+          mockReceipt: '0x123',
+        } as any);
 
         const setTokenKey = jest.fn();
 
@@ -723,11 +710,7 @@ describe('SmartAssetService', () => {
 
   describe('transfer', () => {
     it('should call transactionWrapper with correct params (protocol v1)', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
 
       const transferFromSpy = jest.fn();
 
@@ -763,11 +746,7 @@ describe('SmartAssetService', () => {
     });
 
     it('should call transactionWrapper with correct params (protocol v2)', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
 
       const transferFromSpy = jest.fn();
 

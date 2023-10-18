@@ -14,7 +14,7 @@ import { ChainType } from '@arianee/common-types';
   styleUrls: ['./wallet-nfts.component.scss'],
 })
 export class WalletNfts implements OnInit {
-  public nfts: SmartAssetInstance<ChainType>[] = [];
+  public nfts: SmartAssetInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>[] = [];
   public loading = false;
 
   public eventsLog = '';

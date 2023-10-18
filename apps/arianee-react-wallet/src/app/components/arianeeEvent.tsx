@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 import { ChainType } from '@arianee/common-types';
 
 export interface ArianeeEventProps {
-  event: SmartAssetInstance<ChainType>['arianeeEvents'][number];
+  event: SmartAssetInstance<
+    ChainType,
+    'WAIT_TRANSACTION_RECEIPT'
+  >['arianeeEvents'][number];
   refreshNfts: () => void;
 }
 

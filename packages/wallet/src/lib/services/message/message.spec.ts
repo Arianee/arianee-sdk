@@ -2,6 +2,7 @@ import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { Core } from '@arianee/core';
 import WalletApiClient from '@arianee/wallet-api-client';
 
+import Wallet from '../../wallet';
 import EventManager from '../eventManager/eventManager';
 import MessageService from './message';
 
@@ -23,7 +24,7 @@ const defaultI18nStrategy = {
 };
 
 describe('MessageService', () => {
-  let messageService: MessageService<'testnet'>;
+  let messageService: MessageService<'testnet', 'WAIT_TRANSACTION_RECEIPT'>;
   const walletApiClient = new WalletApiClient('testnet', Core.fromRandom());
   const core = Core.fromRandom();
   const arianeeProtocolClient =
@@ -39,6 +40,11 @@ describe('MessageService', () => {
     '0x123456',
     jest.fn()
   );
+
+  const transactionWrapperSpy = jest.fn();
+  const wallet = {
+    transactionWrapper: transactionWrapperSpy,
+  };
 
   const getReceivedMessagesSpy = jest
     .spyOn(walletApiClient, 'getReceivedMessages')
@@ -57,6 +63,7 @@ describe('MessageService', () => {
       i18nStrategy: defaultI18nStrategy,
       arianeeProtocolClient: arianeeProtocolClient,
       walletRewards: walletRewards,
+      wallet: wallet as unknown as Wallet,
     });
   });
 
@@ -144,11 +151,9 @@ describe('MessageService', () => {
 
   describe('readMessage', () => {
     it('should call the v1 contract with correct params', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({
+        mockReceipt: '0x123',
+      } as any);
 
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const readMessageSpy = jest.fn().mockResolvedValue({
@@ -177,11 +182,9 @@ describe('MessageService', () => {
       );
     });
     it('should call the v2 contract with correct params', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({
+        mockReceipt: '0x123',
+      } as any);
 
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const readMessageSpy = jest.fn().mockResolvedValue({
@@ -189,7 +192,6 @@ describe('MessageService', () => {
       });
 
       await messageService.readMessage('mockProtocol', '123');
-
       const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
 
       await protocolV2Action({
@@ -218,11 +220,9 @@ describe('MessageService', () => {
 
   describe('blackListAddress', () => {
     it('should call the v1 contract with correct params', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({
+        mockReceipt: '0x123',
+      } as any);
 
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const addBlacklistedAddressSpy = jest.fn().mockResolvedValue({
@@ -256,11 +256,9 @@ describe('MessageService', () => {
       );
     });
     it('should call the v2 contract with correct params', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({
+        mockReceipt: '0x123',
+      } as any);
 
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const addMsgPerTokenBlacklistSpy = jest.fn().mockResolvedValue({
@@ -302,11 +300,9 @@ describe('MessageService', () => {
 
   describe('unblackListAddress', () => {
     it('should call the v1 contract with correct params', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({
+        mockReceipt: '0x123',
+      } as any);
 
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const addBlacklistedAddressSpy = jest.fn().mockResolvedValue({
@@ -340,11 +336,9 @@ describe('MessageService', () => {
       );
     });
     it('should call the v2 contract with correct params', async () => {
-      const transactionWrapperSpy = jest
-        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
-        .mockResolvedValue({
-          mockReceipt: '0x123',
-        } as any);
+      transactionWrapperSpy.mockResolvedValue({
+        mockReceipt: '0x123',
+      } as any);
 
       const waitSpy = jest.fn().mockResolvedValue({ mockReceipt: '0x123' });
       const addMsgPerTokenBlacklistSpy = jest.fn();

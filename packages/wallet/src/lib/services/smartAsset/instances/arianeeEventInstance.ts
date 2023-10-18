@@ -4,11 +4,14 @@ import {
   Event,
   Protocol,
 } from '@arianee/common-types';
-import SmartAssetService from '../smartAsset';
-import { ContractTransactionReceipt } from 'ethers';
 
-export default class ArianeeEventInstance<T extends ChainType>
-  implements Event
+import { TransactionStrategy } from '../../../wallet';
+import SmartAssetService from '../smartAsset';
+
+export default class ArianeeEventInstance<
+  T extends ChainType,
+  S extends TransactionStrategy
+> implements Event
 {
   public readonly id: string;
   public readonly certificateId: string;
@@ -21,7 +24,7 @@ export default class ArianeeEventInstance<T extends ChainType>
   public readonly protocol: Protocol;
 
   constructor(
-    private smartAssetService: SmartAssetService<T>,
+    private smartAssetService: SmartAssetService<T, S>,
     private isOwner: boolean,
     {
       id,
@@ -46,7 +49,7 @@ export default class ArianeeEventInstance<T extends ChainType>
     this.protocol = protocol;
   }
 
-  public async acceptEvent(): Promise<ContractTransactionReceipt> {
+  public async acceptEvent() {
     if (!this.isOwner)
       throw new Error(
         `User needs to be owner of the smart asset to accept the event (event: ${this.id}, smart asset: ${this.certificateId})`
@@ -55,7 +58,7 @@ export default class ArianeeEventInstance<T extends ChainType>
     return this.smartAssetService.acceptEvent(this.protocol.name, this.id);
   }
 
-  public async refuseEvent(): Promise<ContractTransactionReceipt> {
+  public async refuseEvent() {
     if (!this.isOwner)
       throw new Error(
         `User needs to be owner of the smart asset to refuse the event (event: ${this.id}, smart asset: ${this.certificateId})`

@@ -1,24 +1,32 @@
-import { ChainType } from '@arianee/common-types';
-import { WalletAbstraction } from '@arianee/wallet-abstraction';
-import Core from '@arianee/core';
-import WalletApiClient from '@arianee/wallet-api-client';
-import SmartAssetService from './services/smartAsset/smartAsset';
-import MessageService from './services/message/message';
-import IdentityService from './services/identity/identity';
-import { I18NStrategy } from './utils/i18n';
-import EventManager, {
-  EventManagerParams,
-} from './services/eventManager/eventManager';
 import {
   ArianeeAccessToken,
   PayloadOverride,
 } from '@arianee/arianee-access-token';
-import { WalletRewards } from './utils/walletReward/walletReward';
-import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
+import ArianeeProtocolClient, {
+  noWaitTransactionWrapper,
+  transactionWrapper as _transactionWrapper,
+} from '@arianee/arianee-protocol-client';
+import { ChainType } from '@arianee/common-types';
+import Core from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
 import { MemoryStorage } from '@arianee/utils';
+import { WalletAbstraction } from '@arianee/wallet-abstraction';
+import WalletApiClient from '@arianee/wallet-api-client';
 
-export type WalletParams<T extends ChainType> = {
+import EventManager, {
+  EventManagerParams,
+} from './services/eventManager/eventManager';
+import IdentityService from './services/identity/identity';
+import MessageService from './services/message/message';
+import SmartAssetService from './services/smartAsset/smartAsset';
+import { I18NStrategy } from './utils/i18n';
+import { WalletRewards } from './utils/walletReward/walletReward';
+
+export type TransactionStrategy =
+  | 'WAIT_TRANSACTION_RECEIPT'
+  | 'DO_NOT_WAIT_TRANSACTION_RECEIPT';
+
+export type WalletParams<T extends ChainType, S extends TransactionStrategy> = {
   chainType?: T;
   walletAbstraction?: WalletAbstraction;
   auth?: { core: Core } | { privateKey: string } | { mnemonic: string };
@@ -29,9 +37,13 @@ export type WalletParams<T extends ChainType> = {
   arianeeAccessTokenPrefix?: string;
   walletRewards?: WalletRewards;
   storage?: Storage;
+  transactionStrategy?: S;
 };
 
-export default class Wallet<T extends ChainType = 'testnet'> {
+export default class Wallet<
+  T extends ChainType = 'testnet',
+  S extends TransactionStrategy = 'WAIT_TRANSACTION_RECEIPT'
+> {
   private _chainType: T;
   private walletAbstraction: WalletAbstraction;
   private core: Core;
@@ -43,11 +55,16 @@ export default class Wallet<T extends ChainType = 'testnet'> {
   private walletRewards: WalletRewards;
   private storage: Storage;
 
-  private _smartAsset: SmartAssetService<T>;
+  private _smartAsset: SmartAssetService<T, S>;
   private _identity: IdentityService<T>;
-  private _message: MessageService<T>;
+  private _message: MessageService<T, S>;
 
-  constructor(params?: WalletParams<T>) {
+  private readonly transactionStrategy: S;
+  public readonly transactionWrapper:
+    | typeof _transactionWrapper
+    | typeof noWaitTransactionWrapper;
+
+  constructor(params?: WalletParams<T, S>) {
     const {
       chainType,
       walletAbstraction,
@@ -65,6 +82,14 @@ export default class Wallet<T extends ChainType = 'testnet'> {
     this.core = this.getCoreFromAuth(auth);
     this.i18nStrategy = i18nStrategy ?? 'raw';
     this.arianeeAccessTokenPrefix = arianeeAccessTokenPrefix;
+
+    this.transactionStrategy =
+      params?.transactionStrategy ?? <S>'WAIT_TRANSACTION_RECEIPT';
+
+    this.transactionWrapper =
+      this.transactionStrategy === 'WAIT_TRANSACTION_RECEIPT'
+        ? _transactionWrapper
+        : noWaitTransactionWrapper;
 
     this.fetchLike = fetchLike ?? defaultFetchLike;
 
@@ -112,6 +137,7 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       walletRewards: this.walletRewards,
       arianeeProtocolClient,
       core: this.core,
+      wallet: this,
     });
 
     this._identity = new IdentityService<T>(
@@ -120,16 +146,17 @@ export default class Wallet<T extends ChainType = 'testnet'> {
       this.i18nStrategy
     );
 
-    this._message = new MessageService<T>({
+    this._message = new MessageService<T, S>({
       walletAbstraction: this.walletAbstraction,
       eventManager: this.eventManager,
       i18nStrategy: this.i18nStrategy,
       walletRewards: this.walletRewards,
       arianeeProtocolClient,
+      wallet: this,
     });
   }
 
-  private getCoreFromAuth(auth: WalletParams<T>['auth']) {
+  private getCoreFromAuth(auth: WalletParams<T, S>['auth']) {
     if (!auth) {
       return Core.fromRandom();
     }

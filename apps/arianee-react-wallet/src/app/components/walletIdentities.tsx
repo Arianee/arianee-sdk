@@ -11,7 +11,7 @@ import {
 import { getTime } from '../utils/misc';
 
 export interface WalletIdentitiesProps {
-  wallet: Wallet<ChainType>;
+  wallet: Wallet<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
   language: Language;
 }
 

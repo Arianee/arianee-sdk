@@ -2,10 +2,7 @@ import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient, {
   checkV2NftInterface,
 } from '@arianee/arianee-protocol-client';
-import {
-  NonPayableOverrides,
-  transactionWrapper,
-} from '@arianee/arianee-protocol-client';
+import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import {
   ChainType,
   Event,
@@ -17,17 +14,25 @@ import Core from '@arianee/core';
 import { createLink, generateRandomPassphrase } from '@arianee/utils';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import WalletApiClient from '@arianee/wallet-api-client';
-import { ContractTransactionReceipt, ethers } from 'ethers';
+import {
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+  ethers,
+} from 'ethers';
 
 import { getPreferredLanguages, I18NStrategy } from '../../utils/i18n';
 import {
   getWalletReward,
   WalletRewards,
 } from '../../utils/walletReward/walletReward';
+import Wallet, { TransactionStrategy } from '../../wallet';
 import EventManager from '../eventManager/eventManager';
 import SmartAssetInstance from './instances/smartAssetInstance';
 
-export default class SmartAssetService<T extends ChainType> {
+export default class SmartAssetService<
+  T extends ChainType,
+  S extends TransactionStrategy
+> {
   public readonly received: EventManager<T>['smartAssetReceived'];
   public readonly transferred: EventManager<T>['smartAssetTransferred'];
   /**
@@ -43,6 +48,7 @@ export default class SmartAssetService<T extends ChainType> {
   private arianeeProtocolClient: ArianeeProtocolClient;
   private walletRewards: WalletRewards;
   private core: Core;
+  private wallet: Wallet<T, S>;
 
   constructor({
     walletAbstraction,
@@ -52,6 +58,7 @@ export default class SmartAssetService<T extends ChainType> {
     arianeeProtocolClient,
     walletRewards,
     core,
+    wallet,
   }: {
     walletAbstraction: WalletAbstraction;
     eventManager: EventManager<T>;
@@ -60,6 +67,7 @@ export default class SmartAssetService<T extends ChainType> {
     arianeeProtocolClient: ArianeeProtocolClient;
     walletRewards: WalletRewards;
     core: Core;
+    wallet: Wallet<T, S>;
   }) {
     this.walletAbstraction = walletAbstraction;
     this.eventManager = eventManager;
@@ -68,6 +76,7 @@ export default class SmartAssetService<T extends ChainType> {
     this.arianeeProtocolClient = arianeeProtocolClient;
     this.walletRewards = walletRewards;
     this.core = core;
+    this.wallet = wallet;
 
     this.received = this.eventManager.smartAssetReceived;
     this.transferred = this.eventManager.smartAssetTransferred;
@@ -90,7 +99,7 @@ export default class SmartAssetService<T extends ChainType> {
       passphrase?: string;
     },
     params?: { i18nStrategy?: I18NStrategy }
-  ): Promise<SmartAssetInstance<T>> {
+  ): Promise<SmartAssetInstance<T, S>> {
     const preferredLanguages = getPreferredLanguages(
       params?.i18nStrategy ?? this.i18nStrategy
     );
@@ -128,7 +137,7 @@ export default class SmartAssetService<T extends ChainType> {
   async getOwned(params?: {
     onlyFromBrands?: string[];
     i18nStrategy?: I18NStrategy;
-  }): Promise<SmartAssetInstance<T>[]> {
+  }): Promise<SmartAssetInstance<T, S>[]> {
     const { onlyFromBrands, i18nStrategy } = params ?? {};
 
     const preferredLanguages = getPreferredLanguages(
@@ -167,7 +176,7 @@ export default class SmartAssetService<T extends ChainType> {
     link: string,
     resolveFinalNft = false,
     i18nStrategy?: I18NStrategy
-  ): Promise<SmartAssetInstance<T>> {
+  ): Promise<SmartAssetInstance<T, S>> {
     if (!(this.walletAbstraction instanceof WalletApiClient))
       throw new Error(
         'The wallet abstraction you use do not support this method (try using @arianee/wallet-api-client)'
@@ -207,7 +216,7 @@ export default class SmartAssetService<T extends ChainType> {
     tokenId: SmartAsset['certificateId'],
     passphrase: string,
     params?: { receiver?: string; overrides?: NonPayableOverrides }
-  ): Promise<ContractTransactionReceipt> {
+  ) {
     const requestWallet = Core.fromPassPhrase(passphrase);
     const _receiver = params?.receiver ?? this.core.getAddress();
 
@@ -227,90 +236,114 @@ export default class SmartAssetService<T extends ChainType> {
 
     const walletReward = getWalletReward(protocolName, this.walletRewards);
 
-    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
-      protocolV1Action: async (v1) => {
-        return v1.storeContract[
-          'requestToken(uint256,bytes32,bool,address,bytes,address)'
-        ](
-          parseInt(tokenId),
-          messageHash,
-          false,
-          walletReward,
-          signature,
-          _receiver,
-          params?.overrides ?? {}
-        );
-      },
-      protocolV2Action: async (protocolV2) => {
-        // Get the issuer of the NFT
-        const {
-          data: { issuer },
-        } = await this.get(protocolName, {
-          id: tokenId,
-          passphrase,
-        });
-        // Check if the issuer has enough credit for the claim
-        const credit = await protocolV2.creditManagerContract.balanceOf(
-          issuer,
-          protocolV2.protocolDetails.contractAdresses.nft
-        );
-        if (credit === BigInt(0)) {
-          throw new Error('Issuer has not enough credit to claim this token');
-        }
-        return protocolV2.smartAssetBaseContract.requestToken(
-          parseInt(tokenId),
-          signature,
-          _receiver,
-          false,
-          walletReward
-        );
-      },
-    });
+    return this.wallet.transactionWrapper(
+      this.arianeeProtocolClient,
+      protocolName,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.storeContract[
+            'requestToken(uint256,bytes32,bool,address,bytes,address)'
+          ](
+            parseInt(tokenId),
+            messageHash,
+            false,
+            walletReward,
+            signature,
+            _receiver,
+            params?.overrides ?? {}
+          );
+        },
+        protocolV2Action: async (protocolV2) => {
+          // Get the issuer of the NFT
+          const {
+            data: { issuer },
+          } = await this.get(protocolName, {
+            id: tokenId,
+            passphrase,
+          });
+          // Check if the issuer has enough credit for the claim
+          const credit = await protocolV2.creditManagerContract.balanceOf(
+            issuer,
+            protocolV2.protocolDetails.contractAdresses.nft
+          );
+          if (credit === BigInt(0)) {
+            throw new Error('Issuer has not enough credit to claim this token');
+          }
+          return protocolV2.smartAssetBaseContract.requestToken(
+            parseInt(tokenId),
+            signature,
+            _receiver,
+            false,
+            walletReward
+          );
+        },
+      }
+    ) as Promise<
+      S extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 
   public async acceptEvent(
     protocolName: Protocol['name'],
     eventId: Event['id'],
     overrides: NonPayableOverrides = {}
-  ): Promise<ContractTransactionReceipt> {
-    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
-      protocolV1Action: async (v1) => {
-        return v1.storeContract.acceptEvent(
-          eventId,
-          getWalletReward(protocolName, this.walletRewards),
-          overrides
-        );
-      },
-      protocolV2Action: async (protocolV2) => {
-        return protocolV2.eventHubContract.acceptEvent(
-          protocolV2.protocolDetails.contractAdresses.nft,
-          eventId,
-          getWalletReward(protocolName, this.walletRewards)
-        );
-      },
-    });
+  ) {
+    return this.wallet.transactionWrapper(
+      this.arianeeProtocolClient,
+      protocolName,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.storeContract.acceptEvent(
+            eventId,
+            getWalletReward(protocolName, this.walletRewards),
+            overrides
+          );
+        },
+        protocolV2Action: async (protocolV2) => {
+          return protocolV2.eventHubContract.acceptEvent(
+            protocolV2.protocolDetails.contractAdresses.nft,
+            eventId,
+            getWalletReward(protocolName, this.walletRewards)
+          );
+        },
+      }
+    ) as Promise<
+      S extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 
   public async refuseEvent(
     protocolName: Protocol['name'],
     eventId: Event['id'],
     overrides: NonPayableOverrides = {}
-  ): Promise<ContractTransactionReceipt> {
-    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
-      protocolV1Action: async (v1) => {
-        return v1.storeContract.refuseEvent(
-          eventId,
-          getWalletReward(protocolName, this.walletRewards),
-          overrides
-        );
-      },
-      protocolV2Action: async (protocolV2) => {
-        return protocolV2.eventHubContract.refuseEvent(
-          protocolV2.protocolDetails.contractAdresses.nft,
-          eventId
-        );
-      },
-    });
+  ) {
+    return this.wallet.transactionWrapper(
+      this.arianeeProtocolClient,
+      protocolName,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.storeContract.refuseEvent(
+            eventId,
+            getWalletReward(protocolName, this.walletRewards),
+            overrides
+          );
+        },
+        protocolV2Action: async (protocolV2) => {
+          return protocolV2.eventHubContract.refuseEvent(
+            protocolV2.protocolDetails.contractAdresses.nft,
+            eventId
+          );
+        },
+      }
+    ) as Promise<
+      S extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 
   public async createLink(
@@ -331,37 +364,41 @@ export default class SmartAssetService<T extends ChainType> {
         : TokenAccessType.proof;
     const suffix = linkType === 'requestOwnership' ? '' : '/proof';
 
-    await transactionWrapper(this.arianeeProtocolClient, protocolName, {
-      protocolV1Action: async (v1) => {
-        return v1.smartAssetContract.addTokenAccess(
-          tokenId,
-          passphraseWallet.getAddress(),
-          true,
-          accessType,
-          params?.overrides ?? {}
-        );
-      },
-      protocolV2Action: async (protocolV2) => {
-        // check if feature is enabled
-        if (accessType === TokenAccessType.request) {
-          checkV2NftInterface({
-            nftInterface: 'SmartAssetSoulbound',
-            protocolClientV2: protocolV2,
-            need: 'NotImplemented',
-          });
+    await this.wallet.transactionWrapper(
+      this.arianeeProtocolClient,
+      protocolName,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.smartAssetContract.addTokenAccess(
+            tokenId,
+            passphraseWallet.getAddress(),
+            true,
+            accessType,
+            params?.overrides ?? {}
+          );
+        },
+        protocolV2Action: async (protocolV2) => {
+          // check if feature is enabled
+          if (accessType === TokenAccessType.request) {
+            checkV2NftInterface({
+              nftInterface: 'SmartAssetSoulbound',
+              protocolClientV2: protocolV2,
+              need: 'NotImplemented',
+            });
 
-          return protocolV2.smartAssetBaseContract.setTokenTransferKey(
-            tokenId,
-            passphraseWallet.getAddress()
-          );
-        } else {
-          return protocolV2.smartAssetBaseContract.setTokenViewKey(
-            tokenId,
-            passphraseWallet.getAddress()
-          );
-        }
-      },
-    });
+            return protocolV2.smartAssetBaseContract.setTokenTransferKey(
+              tokenId,
+              passphraseWallet.getAddress()
+            );
+          } else {
+            return protocolV2.smartAssetBaseContract.setTokenViewKey(
+              tokenId,
+              passphraseWallet.getAddress()
+            );
+          }
+        },
+      }
+    );
 
     return createLink({
       slug: protocolName,
@@ -376,31 +413,39 @@ export default class SmartAssetService<T extends ChainType> {
     tokenId: SmartAsset['certificateId'],
     to: string,
     overrides: NonPayableOverrides = {}
-  ): Promise<ContractTransactionReceipt> {
-    return transactionWrapper(this.arianeeProtocolClient, protocolName, {
-      protocolV1Action: async (v1) => {
-        return v1.smartAssetContract.transferFrom(
-          this.core.getAddress(),
-          to,
-          tokenId,
-          overrides
-        );
-      },
-      protocolV2Action: async (protocolV2) => {
-        checkV2NftInterface({
-          nftInterface: 'SmartAssetSoulbound',
-          protocolClientV2: protocolV2,
-          need: 'NotImplemented',
-        });
+  ) {
+    return this.wallet.transactionWrapper(
+      this.arianeeProtocolClient,
+      protocolName,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.smartAssetContract.transferFrom(
+            this.core.getAddress(),
+            to,
+            tokenId,
+            overrides
+          );
+        },
+        protocolV2Action: async (protocolV2) => {
+          checkV2NftInterface({
+            nftInterface: 'SmartAssetSoulbound',
+            protocolClientV2: protocolV2,
+            need: 'NotImplemented',
+          });
 
-        return protocolV2.smartAssetBaseContract.transferFrom(
-          this.core.getAddress(),
-          to,
-          tokenId,
-          overrides
-        );
-      },
-    });
+          return protocolV2.smartAssetBaseContract.transferFrom(
+            this.core.getAddress(),
+            to,
+            tokenId,
+            overrides
+          );
+        },
+      }
+    ) as Promise<
+      S extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
   }
 }
 

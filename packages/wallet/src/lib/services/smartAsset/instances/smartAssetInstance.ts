@@ -1,18 +1,21 @@
 import { ChainType, Event, SmartAsset } from '@arianee/common-types';
-import { ContractTransactionReceipt } from 'ethers';
 
+import { TransactionStrategy } from '../../../wallet';
 import SmartAssetService from '../smartAsset';
 import ArianeeEventInstance from './arianeeEventInstance';
 
-export default class SmartAssetInstance<T extends ChainType> {
+export default class SmartAssetInstance<
+  T extends ChainType,
+  S extends TransactionStrategy
+> {
   public readonly data: SmartAsset;
-  public readonly arianeeEvents: ArianeeEventInstance<T>[];
+  public readonly arianeeEvents: ArianeeEventInstance<T, S>[];
 
   readonly passphrase?: string;
   private userAddress: string;
 
   constructor(
-    private smartAssetService: SmartAssetService<T>,
+    private smartAssetService: SmartAssetService<T, S>,
     params: { data: SmartAsset; arianeeEvents: Event[]; userAddress: string },
     opts?: { passphrase?: string }
   ) {
@@ -41,7 +44,7 @@ export default class SmartAssetInstance<T extends ChainType> {
     return this.data.owner?.toLowerCase() === this.userAddress.toLowerCase();
   }
 
-  public async claim(receiver?: string): Promise<ContractTransactionReceipt> {
+  public async claim(receiver?: string) {
     if (this.isOwner)
       throw new Error('User is already owner of the smart asset');
 

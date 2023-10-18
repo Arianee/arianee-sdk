@@ -10,7 +10,10 @@ import WalletNfts from './components/walletNfts';
 import { getWallet } from './utils/wallet';
 
 export function App() {
-  const [wallet, setWallet] = useState<Wallet<ChainType> | null>(null);
+  const [wallet, setWallet] = useState<Wallet<
+    ChainType,
+    'WAIT_TRANSACTION_RECEIPT'
+  > | null>(null);
   const [walletApiUrl, setWalletApiUrl] = useState<string | null>(null);
   const [chainType, setChainType] = useState<ChainType>('testnet');
   const [userLanguage, setUserLanguage] = useState<Language>('en-US');
