@@ -1,4 +1,8 @@
 {
   "name": "@arianee/arianee-api-client",
+<<<<<<< HEAD
   "version": "1.6.1"
+=======
+  "version": "1.7.0"
+>>>>>>> a52c548 (chore: bump all)
 }
