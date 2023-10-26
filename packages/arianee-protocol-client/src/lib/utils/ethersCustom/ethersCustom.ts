@@ -64,12 +64,14 @@ export class CoreWallet extends Wallet {
 
   override async estimateGas(tx: TransactionRequest): Promise<bigint> {
     try {
+      // delete all reference to gas/gasprice in tx to avoid throw in estimate gas if wallet has no fund. (it should be funded by the protocol anyway)
+      delete tx.gasPrice;
+      delete tx.gasLimit;
+      delete tx.maxFeePerGas;
+      delete tx.maxPriorityFeePerGas;
       const estimate = await super.estimateGas(tx);
       return estimate;
     } catch (e: any) {
-      if (e.message.includes('insufficient funds for gas')) {
-        return BigInt(0);
-      }
       throw new Error(e);
     }
   }
