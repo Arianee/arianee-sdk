@@ -31,7 +31,7 @@ import SmartAssetInstance from './instances/smartAssetInstance';
 
 export default class SmartAssetService<
   T extends ChainType,
-  S extends TransactionStrategy
+  S extends TransactionStrategy = 'WAIT_TRANSACTION_RECEIPT'
 > {
   public readonly received: EventManager<T>['smartAssetReceived'];
   public readonly transferred: EventManager<T>['smartAssetTransferred'];

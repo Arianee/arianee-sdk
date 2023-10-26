@@ -5,7 +5,7 @@ import MessageService from '../message';
 
 export default class MessageInstance<
   T extends ChainType,
-  S extends TransactionStrategy
+  S extends TransactionStrategy = 'WAIT_TRANSACTION_RECEIPT'
 > {
   constructor(
     private messageService: MessageService<T, S>,

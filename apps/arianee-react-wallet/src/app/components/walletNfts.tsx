@@ -12,7 +12,7 @@ import { getTime } from '../utils/misc';
 import Nft from './nft';
 
 export interface WalletNftsProps {
-  wallet: Wallet<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
+  wallet: Wallet<ChainType>;
   language: Language;
 }
 

@@ -10,7 +10,7 @@ import { getTime } from '../utils/misc';
 import Message from './message';
 
 export interface WalletMessagesProps {
-  wallet: Wallet<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
+  wallet: Wallet<ChainType>;
   language: Language;
 }
 

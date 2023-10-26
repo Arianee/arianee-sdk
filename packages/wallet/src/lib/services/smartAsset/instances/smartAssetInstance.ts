@@ -6,7 +6,7 @@ import ArianeeEventInstance from './arianeeEventInstance';
 
 export default class SmartAssetInstance<
   T extends ChainType,
-  S extends TransactionStrategy
+  S extends TransactionStrategy = 'WAIT_TRANSACTION_RECEIPT'
 > {
   public readonly data: SmartAsset;
   public readonly arianeeEvents: ArianeeEventInstance<T, S>[];

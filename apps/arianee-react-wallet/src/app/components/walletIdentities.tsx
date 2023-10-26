@@ -1,17 +1,18 @@
-import Wallet, {
-  IdentityInstance,
-  IdentityUpdatedEvent,
-} from '@arianee/wallet';
-import { useEffect, useState } from 'react';
 import {
   BrandIdentityWithOwned,
   ChainType,
   Language,
 } from '@arianee/common-types';
+import Wallet, {
+  IdentityInstance,
+  IdentityUpdatedEvent,
+} from '@arianee/wallet';
+import { useEffect, useState } from 'react';
+
 import { getTime } from '../utils/misc';
 
 export interface WalletIdentitiesProps {
-  wallet: Wallet<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
+  wallet: Wallet<ChainType>;
   language: Language;
 }
 
