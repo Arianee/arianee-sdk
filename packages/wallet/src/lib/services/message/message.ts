@@ -20,7 +20,7 @@ import MessageInstance from './instances/messageInstance';
 
 export default class MessageService<
   T extends ChainType,
-  S extends TransactionStrategy
+  S extends TransactionStrategy = 'WAIT_TRANSACTION_RECEIPT'
 > {
   public readonly received: EventManager<T>['messageReceived'];
   public readonly read: EventManager<T>['messageRead'];

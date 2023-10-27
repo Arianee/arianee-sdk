@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import ArianeeEvent from './arianeeEvent';
 
 export interface NftProps {
-  smartAssetInstance: SmartAssetInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
+  smartAssetInstance: SmartAssetInstance<ChainType>;
   index: number;
   refreshNfts: () => void;
 }

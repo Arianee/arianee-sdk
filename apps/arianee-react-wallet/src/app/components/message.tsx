@@ -4,7 +4,7 @@ import { TransactionReceipt } from 'ethers';
 import { useEffect, useState } from 'react';
 
 export interface MessageProps {
-  messageInstance: MessageInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>;
+  messageInstance: MessageInstance<ChainType>;
   index: number;
 }
 
