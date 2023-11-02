@@ -85,6 +85,14 @@ export default class Events<Strategy extends TransactionStrategy> {
   }
 
   @requiresConnection()
+  public async createEventRaw(
+    params: CreateEventCommonParameters,
+    overrides: NonPayableOverrides = {}
+  ): Promise<CreatedEvent> {
+    return this.createEventCommon(params, null, overrides);
+  }
+
+  @requiresConnection()
   private async createEventCommon(
     params: CreateEventCommonParameters,
     afterTransaction:
@@ -94,7 +102,7 @@ export default class Events<Strategy extends TransactionStrategy> {
       | null,
 
     overrides: NonPayableOverrides = {}
-  ): Promise<CreatedMessage> {
+  ): Promise<CreatedEvent> {
     const { smartAssetId, eventId, uri } = await getCreateEventParams(
       this.creator.utils,
       params
