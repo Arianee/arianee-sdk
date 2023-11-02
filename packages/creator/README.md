@@ -617,6 +617,45 @@ The method can throw:
 - `InsufficientEventCreditsError` if the core address does not have enough event credits
 - `UnavailableEventIdError` if the event id is not available
 
+#### `createEventRaw`
+
+Create an event and return a `CreatedEvent`. This method does not store the content in the Arianee Privacy Gateway nor retrieve the content from an URI, use `createAndStoreEvent` or `createEvent` instead if you need to.
+
+```typescript
+public async createEventRaw(
+  params: CreateEventCommonParameters,
+  overrides: NonPayableOverrides = {}
+): Promise<CreatedEvent>
+```
+
+Implementation example :
+
+```typescript
+await this.creator.messages.createEventRaw({
+  smartAssetId: parseInt(this.smartAssetId),
+  content,
+  eventId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+});
+```
+
+```typescript
+type CreatedEvent = {
+  imprint: string;
+  id: number;
+};
+
+interface CreateEventCommonParameters {
+  eventId?: number;
+  smartAssetId: number;
+  content: ArianeeMessageI18N;
+}
+```
+
+The method can throw:
+
+- `InsufficientEventCreditsError` if the core address does not have enough event credits
+- `UnavailableEventIdError` if the event id is not available
+
 ### <u>Identities</u>
 
 #### `updateIdentity`
