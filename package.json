@@ -49,7 +49,7 @@
     "@arianee/arianee-abi": "0.22.0",
     "@arianee/contracts": "^1.0.3",
     "ajv": "^8.12.0",
-    "axios": "^1.0.0",
+    "axios": "^1.6.0",
     "ethers": "6.7.0",
     "eventemitter3": "^5.0.1",
     "node-fetch": "^2.6.12",
