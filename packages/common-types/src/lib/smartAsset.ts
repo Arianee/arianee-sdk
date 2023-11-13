@@ -13,4 +13,8 @@ export interface SmartAsset {
   protocol: Protocol;
   blockchainEvents: BlockchainEvent[];
   isAuthentic: boolean;
+  recover: {
+    isRecoverable: boolean;
+    timestamp: number;
+  };
 }
