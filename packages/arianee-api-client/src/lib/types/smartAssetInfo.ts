@@ -12,4 +12,5 @@ export type smartAssetInfo = {
   requestKey?: string;
   viewKey?: string;
   proofKey?: string;
+  tokenRecoveryTimestamp?: string;
 };
