@@ -159,6 +159,15 @@ export class ArianeeApiClient {
         'fetch nft arianee events on arianee api'
       );
     },
+    getArianeeEvent: async (
+      protocolName: Protocol['name'],
+      eventId: string
+    ): Promise<ArianeeEvent> => {
+      return this.fetchArianeeApi(
+        `/report/arianeeEvent/${protocolName}/${eventId}`,
+        'fetch arianeeEvent on arianee api'
+      );
+    },
     getIdentity: async (
       protocolName: Protocol['name'],
       address: string
