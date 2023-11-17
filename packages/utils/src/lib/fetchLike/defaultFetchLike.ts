@@ -23,9 +23,9 @@ export const defaultFetchLike = (
 
   const controller = new AbortController();
   const timeout = init?.timeout ?? 30000;
-
+  let timeoutInstance: ReturnType<typeof setTimeout>;
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => {
+    timeoutInstance = setTimeout(() => {
       controller.abort();
       reject(new Error(`Request to ${input} timed out after ${timeout}ms`));
     }, timeout);
@@ -37,6 +37,8 @@ export const defaultFetchLike = (
     signal: controller.signal,
     ...init,
     redirect: 'follow',
+  }).finally(() => {
+    clearTimeout(timeoutInstance);
   });
 
   return Promise.race([fetchPromise, timeoutPromise]) as Promise<Response>;
