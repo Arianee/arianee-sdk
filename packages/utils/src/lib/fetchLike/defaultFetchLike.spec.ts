@@ -1,6 +1,6 @@
-import _fetch from 'node-fetch';
-import { defaultFetchLike } from './defaultFetchLike';
+import fetch from 'node-fetch';
 
+import { defaultFetchLike } from './defaultFetchLike';
 jest.mock('node-fetch');
 
 declare const global: {
@@ -9,8 +9,10 @@ declare const global: {
 
 describe('defaultFetchLike', () => {
   it('should use dom fetch if window is defined and call it with correct params', async () => {
-    const mockedFetch = jest.fn();
-    global.window!.fetch = mockedFetch;
+    const mockedFetch = jest.fn().mockImplementation(() => {
+      return Promise.resolve();
+    });
+    global.window!.fetch = mockedFetch as unknown as typeof fetch;
 
     await defaultFetchLike('https://test.com/', {
       timeout: 2000,
@@ -26,12 +28,14 @@ describe('defaultFetchLike', () => {
   });
 
   it('should use node-fetch if window is not defined and call it with correct params', async () => {
+    (fetch as unknown as jest.Mock).mockReturnValue(Promise.resolve());
+
     await defaultFetchLike('https://test.com/', {
       timeout: 2000,
       method: 'post',
     });
 
-    expect(_fetch).toHaveBeenCalledWith('https://test.com/', {
+    expect(fetch).toHaveBeenCalledWith('https://test.com/', {
       signal: expect.any(AbortSignal),
       method: 'post',
       redirect: 'follow',
@@ -39,9 +43,7 @@ describe('defaultFetchLike', () => {
   });
 
   it('should throw if the request timeouts', async () => {
-    const mockedFetch = _fetch as unknown as jest.Mock<typeof _fetch>;
-
-    mockedFetch.mockImplementation(
+    (fetch as unknown as jest.Mock).mockImplementation(
       () =>
         new Promise<void>((resolve, _) => {
           setTimeout(() => resolve(), 3000);
