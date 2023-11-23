@@ -17,7 +17,7 @@ const ArianeeContracts = Object.keys(ArianeeFactories).map((key) => {
 interface DecodedArianeeTransaction {
   contractName: string;
   functionName: string;
-  functionArgs: Result;
+  functionArgs: { name: string; type: string; value: any }[];
   from: string;
   to: string;
 }
@@ -54,7 +54,13 @@ function decodeTransaction(
   return {
     contractName: matchingContractName!,
     functionName: decoded.name,
-    functionArgs: decoded.args,
+    functionArgs: decoded.args.map((argValue, argIndex) => {
+      return {
+        name: decoded?.fragment.inputs[argIndex].name!,
+        type: decoded?.fragment.inputs[argIndex].type!,
+        value: argValue,
+      };
+    }),
     from: from.toString(),
     to: to.toString(),
   };
