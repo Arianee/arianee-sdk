@@ -56,8 +56,8 @@ function decodeTransaction(
     functionName: decoded.name,
     functionArgs: decoded.args.map((argValue, argIndex) => {
       return {
-        name: decoded?.fragment.inputs[argIndex].name!,
-        type: decoded?.fragment.inputs[argIndex].type!,
+        name: decoded!.fragment.inputs[argIndex].name,
+        type: decoded!.fragment.inputs[argIndex].type,
         value: argValue,
       };
     }),
