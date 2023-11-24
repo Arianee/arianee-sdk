@@ -1,18 +1,19 @@
-import {
-  Interface,
-  Result,
-  TransactionDescription,
-  TransactionRequest,
-} from 'ethers';
+import { Interface, TransactionDescription, TransactionRequest } from 'ethers';
 import { ethers6_v1, ethers6_v1_1 } from '@arianee/arianee-abi';
 
-const ArianeeFactories = { ...ethers6_v1.factories, ...ethers6_v1_1.factories };
-const ArianeeContracts = Object.keys(ArianeeFactories).map((key) => {
+const ArianeeFactoriesV1 = Object.keys(ethers6_v1.factories).map((key) => {
   return {
-    name: key.split('__')[0],
-    abi: (ArianeeFactories as any)[key].abi,
+    name: `${key.split('__')[0]}_v1`,
+    abi: (ethers6_v1.factories as any)[key].abi,
   };
 });
+const ArianeeFactoriesV1_1 = Object.keys(ethers6_v1_1.factories).map((key) => {
+  return {
+    name: `${key.split('__')[0]}_v1-1`,
+    abi: (ethers6_v1.factories as any)[key].abi,
+  };
+});
+const ArianeeContracts = [...ArianeeFactoriesV1, ...ArianeeFactoriesV1_1];
 
 interface DecodedArianeeTransaction {
   contractName: string;
