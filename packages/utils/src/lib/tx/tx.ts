@@ -18,8 +18,6 @@ interface DecodedArianeeTransaction {
   contractName: string;
   functionName: string;
   functionArgs: { name: string; type: string; value: any }[];
-  from: string;
-  to: string;
 }
 
 class DecodedArianeeTransactionError extends Error {
@@ -32,10 +30,8 @@ class DecodedArianeeTransactionError extends Error {
 function decodeTransaction(
   transactionRequest: TransactionRequest
 ): DecodedArianeeTransaction {
-  const { data, value, from, to } = transactionRequest;
+  const { data, value } = transactionRequest;
   if (!data) throw new DecodedArianeeTransactionError('Missing data');
-  if (!from) throw new DecodedArianeeTransactionError('Missing from');
-  if (!to) throw new DecodedArianeeTransactionError('Missing to');
 
   let matchingContractName: string | null = null;
   let decoded: TransactionDescription | null = null;
@@ -61,8 +57,6 @@ function decodeTransaction(
         value: argValue,
       };
     }),
-    from: from.toString(),
-    to: to.toString(),
   };
 }
 
