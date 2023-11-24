@@ -9,7 +9,7 @@ describe('tx', () => {
       to: '0x5360DbFF3546b920431A20268D2B5DFf8bF9b4dD',
     };
     const decodedTx = decodeTransaction(transactionRequest);
-    expect(decodedTx.contractName).toBe('ArianeeStore');
+    expect(decodedTx.contractName).toBe('ArianeeStore_v1');
     expect(decodedTx.functionName).toBe('updateSmartAsset');
     expect(decodedTx.functionArgs.map((fnArg) => fnArg.value)).toEqual([
       BigInt(14844460),
@@ -25,7 +25,7 @@ describe('tx', () => {
       to: '0x512C1FCF401133680f373a386F3f752b98070BC5',
     };
     const decodedTx = decodeTransaction(transactionRequest);
-    expect(decodedTx.contractName).toBe('ArianeeStore');
+    expect(decodedTx.contractName).toBe('ArianeeStore_v1');
     expect(decodedTx.functionName).toBe('createMessage');
     expect(decodedTx.functionArgs.map((fnArg) => fnArg.value)).toEqual([
       BigInt(588056993),
@@ -42,7 +42,7 @@ describe('tx', () => {
       to: '0x5360DbFF3546b920431A20268D2B5DFf8bF9b4dD',
     };
     const decodedTx = decodeTransaction(transactionRequest);
-    expect(decodedTx.contractName).toBe('ArianeeSmartAsset');
+    expect(decodedTx.contractName).toBe('ArianeeSmartAsset_v1');
     expect(decodedTx.functionName).toBe('hydrateToken');
     expect(decodedTx.functionArgs.map((fnArg) => fnArg.value)).toEqual([
       BigInt(358397882),
@@ -62,7 +62,7 @@ describe('tx', () => {
       to: '0x512C1FCF401133680f373a386F3f752b98070BC5',
     };
     const decodedTx = decodeTransaction(transactionRequest);
-    expect(decodedTx.contractName).toBe('ArianeeSmartAsset');
+    expect(decodedTx.contractName).toBe('ArianeeSmartAsset_v1');
     expect(decodedTx.functionName).toBe('addTokenAccess');
     expect(decodedTx.functionArgs.map((fnArg) => fnArg.value)).toEqual([
       BigInt(14555433),
