@@ -447,6 +447,40 @@ export default class SmartAssetService<
         : ContractTransactionResponse
     >;
   }
+
+  public async safeTransferFrom(
+    protocolName: Protocol['name'],
+    tokenId: SmartAsset['certificateId'],
+    to: string,
+    overrides: NonPayableOverrides = {}
+  ) {
+    return this.wallet.transactionWrapper(
+      this.arianeeProtocolClient,
+      protocolName,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.smartAssetContract[
+            'safeTransferFrom(address,address,uint256)'
+          ](this.core.getAddress(), to, tokenId, overrides);
+        },
+        protocolV2Action: async (protocolV2) => {
+          checkV2NftInterface({
+            nftInterface: 'SmartAssetSoulbound',
+            protocolClientV2: protocolV2,
+            need: 'NotImplemented',
+          });
+
+          return protocolV2.smartAssetBaseContract[
+            'safeTransferFrom(address,address,uint256)'
+          ](this.core.getAddress(), to, tokenId, overrides);
+        },
+      }
+    ) as Promise<
+      S extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
+  }
 }
 
 export { SmartAssetService as SmartAsset };

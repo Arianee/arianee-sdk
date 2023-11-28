@@ -781,4 +781,88 @@ describe('SmartAssetService', () => {
       );
     });
   });
+
+  describe('safeTransferFrom', () => {
+    it('should call transactionWrapper with correct params (protocol v1)', async () => {
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
+
+      const safeTransferFromSpy = jest.fn();
+
+      await smartAssetService.safeTransferFrom(
+        'mockProtocol',
+        '123',
+        '0x000456',
+        {
+          nonce: 123456,
+        }
+      );
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        smartAssetContract: {
+          'safeTransferFrom(address,address,uint256)': safeTransferFromSpy,
+        },
+      } as any);
+
+      expect(safeTransferFromSpy).toHaveBeenCalledWith(
+        core.getAddress(),
+        '0x000456',
+        '123',
+        {
+          nonce: 123456,
+        }
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
+
+    it('should call transactionWrapper with correct params (protocol v2)', async () => {
+      transactionWrapperSpy.mockResolvedValue({ mockReceipt: '0x123' } as any);
+
+      const safeTransferFromSpy = jest.fn();
+
+      await smartAssetService.safeTransferFrom(
+        'mockProtocol',
+        '123',
+        '0x000456',
+        {
+          nonce: 123456,
+        }
+      );
+
+      const { protocolV2Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV2Action({
+        smartAssetBaseContract: {
+          'safeTransferFrom(address,address,uint256)': safeTransferFromSpy,
+        },
+      } as any);
+
+      expect(safeTransferFromSpy).toHaveBeenCalledWith(
+        core.getAddress(),
+        '0x000456',
+        '123',
+        {
+          nonce: 123456,
+        }
+      );
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        arianeeProtocolClient,
+        'mockProtocol',
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        }
+      );
+    });
+  });
 });
