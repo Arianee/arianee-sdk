@@ -1,6 +1,6 @@
 {
   "name": "@arianee/wallet-api-client",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "dependencies": {
     "node-fetch": "^2.6.7"
   }
