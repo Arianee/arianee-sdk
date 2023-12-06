@@ -4,6 +4,8 @@ import {
   SigningKey,
   TransactionLike,
   TransactionResponse,
+  TypedDataDomain,
+  TypedDataField,
 } from 'ethers';
 import { TransactionRequest } from 'ethers/lib.esm';
 
@@ -25,6 +27,14 @@ export default class Core {
 
   public getAddress!: () => string;
 
+  public signTypedData!:
+    | ((
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, any>
+      ) => Promise<{ signature: string }>)
+    | undefined;
+
   constructor(params: {
     signMessage: (
       message: string
@@ -37,6 +47,13 @@ export default class Core {
       | undefined;
     sendTransaction?:
       | ((transaction: TransactionRequest) => Promise<TransactionResponse>)
+      | undefined;
+    signTypedData?:
+      | ((
+          domain: TypedDataDomain,
+          types: Record<string, Array<TypedDataField>>,
+          value: Record<string, any>
+        ) => Promise<{ signature: string }>)
       | undefined;
   }) {
     if (
@@ -67,6 +84,7 @@ export default class Core {
     this.signMessage = params.signMessage;
     this.signTransaction = params.signTransaction;
     this.sendTransaction = params.sendTransaction;
+    this.signTypedData = params.signTypedData;
   }
 
   static fromWallet(wallet: ethers.Wallet): Core {
@@ -80,6 +98,14 @@ export default class Core {
         return { transaction: data, signature };
       },
       getAddress: () => wallet.address,
+      signTypedData: async (
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, any>
+      ) => {
+        const signature = await wallet.signTypedData(domain, types, value);
+        return { signature };
+      },
     });
   }
 
