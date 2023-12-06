@@ -78,4 +78,36 @@ describe('core', () => {
     const core = Core.fromRandom();
     expect(core.getAddress()).toBeDefined();
   });
+
+  it('should return sign typed data', async () => {
+    const core = Core.fromMnemonic(
+      'between pulse elite special cinnamon poem gauge rhythm book sorry collect consider'
+    );
+
+    const typedData = {
+      domain: {
+        name: 'YourDappName',
+        version: '1.0',
+        chainId: 77,
+        verifyingContract: '0xD60349c24dB7F1053086eF0D6364b64B1e0313f0',
+      },
+      types: {
+        Person: [{ name: 'name', type: 'string' }],
+      },
+      primaryType: 'Person',
+      message: {
+        name: 'John Doe',
+      },
+    };
+
+    const { signature } = await core.signTypedData!(
+      typedData.domain,
+      typedData.types,
+      typedData.message
+    );
+
+    expect(signature).toEqual(
+      '0xd02be5134c1563bf99902b363a0dfc1019916ff6c792ac46294ea41744216d296be2a137605489270d73a639db321b787b36b9fba71e13f633145b06338464a21c'
+    );
+  });
 });
