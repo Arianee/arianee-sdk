@@ -1,51 +1,56 @@
-import invariant from 'ts-invariant'
-import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
-import { BigNumberish } from '@ethersproject/bignumber'
-import { _TypedDataEncoder } from '@ethersproject/hash'
-import { permit721Domain } from './domain'
-import { MaxSigDeadline, MaxUnorderedNonce, MaxTokenId } from './constants'
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from '@ethersproject/abstract-signer';
+import { BigNumberish } from '@ethersproject/bignumber';
+import { _TypedDataEncoder } from '@ethersproject/hash';
+import invariant from 'ts-invariant';
+
+import { MaxSigDeadline, MaxTokenId, MaxUnorderedNonce } from './constants';
+import { permit721Domain } from './domain';
 
 export interface Witness {
-  witness: any
-  witnessTypeName: string
-  witnessType: Record<string, TypedDataField[]>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  witness: any;
+  witnessTypeName: string;
+  witnessType: Record<string, TypedDataField[]>;
 }
 
 export interface TokenPermissions {
-  token: string
-  tokenId: BigNumberish
+  token: string;
+  tokenId: BigNumberish;
 }
 
 export interface PermitTransferFrom {
-  permitted: TokenPermissions
-  spender: string
-  nonce: BigNumberish
-  deadline: BigNumberish
+  permitted: TokenPermissions;
+  spender: string;
+  nonce: BigNumberish;
+  deadline: BigNumberish;
 }
 
 export interface PermitBatchTransferFrom {
-  permitted: TokenPermissions[]
-  spender: string
-  nonce: BigNumberish
-  deadline: BigNumberish
+  permitted: TokenPermissions[];
+  spender: string;
+  nonce: BigNumberish;
+  deadline: BigNumberish;
 }
 
 export type PermitTransferFromData = {
-  domain: TypedDataDomain
-  types: Record<string, TypedDataField[]>
-  values: PermitTransferFrom
-}
+  domain: TypedDataDomain;
+  types: Record<string, TypedDataField[]>;
+  values: PermitTransferFrom;
+};
 
 export type PermitBatchTransferFromData = {
-  domain: TypedDataDomain
-  types: Record<string, TypedDataField[]>
-  values: PermitBatchTransferFrom
-}
+  domain: TypedDataDomain;
+  types: Record<string, TypedDataField[]>;
+  values: PermitBatchTransferFrom;
+};
 
 const TOKEN_PERMISSIONS = [
   { name: 'token', type: 'address' },
   { name: 'tokenId', type: 'uint256' },
-]
+];
 
 const PERMIT_TRANSFER_FROM_TYPES = {
   PermitTransferFrom: [
@@ -55,7 +60,7 @@ const PERMIT_TRANSFER_FROM_TYPES = {
     { name: 'deadline', type: 'uint256' },
   ],
   TokenPermissions: TOKEN_PERMISSIONS,
-}
+};
 
 const PERMIT_BATCH_TRANSFER_FROM_TYPES = {
   PermitBatchTransferFrom: [
@@ -65,9 +70,11 @@ const PERMIT_BATCH_TRANSFER_FROM_TYPES = {
     { name: 'deadline', type: 'uint256' },
   ],
   TokenPermissions: TOKEN_PERMISSIONS,
-}
+};
 
-function permitTransferFromWithWitnessType(witness: Witness): Record<string, TypedDataField[]> {
+function permitTransferFromWithWitnessType(
+  witness: Witness
+): Record<string, TypedDataField[]> {
   return {
     PermitWitnessTransferFrom: [
       { name: 'permitted', type: 'TokenPermissions' },
@@ -78,10 +85,12 @@ function permitTransferFromWithWitnessType(witness: Witness): Record<string, Typ
     ],
     TokenPermissions: TOKEN_PERMISSIONS,
     ...witness.witnessType,
-  }
+  };
 }
 
-function permitBatchTransferFromWithWitnessType(witness: Witness): Record<string, TypedDataField[]> {
+function permitBatchTransferFromWithWitnessType(
+  witness: Witness
+): Record<string, TypedDataField[]> {
   return {
     PermitBatchWitnessTransferFrom: [
       { name: 'permitted', type: 'TokenPermissions[]' },
@@ -92,17 +101,20 @@ function permitBatchTransferFromWithWitnessType(witness: Witness): Record<string
     ],
     TokenPermissions: TOKEN_PERMISSIONS,
     ...witness.witnessType,
-  }
+  };
 }
 
-function isPermitTransferFrom(permit: PermitTransferFrom | PermitBatchTransferFrom): permit is PermitTransferFrom {
-  return !Array.isArray(permit.permitted)
+function isPermitTransferFrom(
+  permit: PermitTransferFrom | PermitBatchTransferFrom
+): permit is PermitTransferFrom {
+  return !Array.isArray(permit.permitted);
 }
 
 export abstract class SignatureTransfer {
   /**
    * Cannot be constructed.
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   // return the data to be sent in a eth_signTypedData RPC call
@@ -113,28 +125,36 @@ export abstract class SignatureTransfer {
     chainId: number,
     witness?: Witness
   ): PermitTransferFromData | PermitBatchTransferFromData {
-    invariant(MaxSigDeadline.gte(permit.deadline), 'SIG_DEADLINE_OUT_OF_RANGE')
-    invariant(MaxUnorderedNonce.gte(permit.nonce), 'NONCE_OUT_OF_RANGE')
+    invariant(MaxSigDeadline.gte(permit.deadline), 'SIG_DEADLINE_OUT_OF_RANGE');
+    invariant(MaxUnorderedNonce.gte(permit.nonce), 'NONCE_OUT_OF_RANGE');
 
-    const domain = permit721Domain(permit721Address, chainId)
+    const domain = permit721Domain(permit721Address, chainId);
     if (isPermitTransferFrom(permit)) {
-      validateTokenPermissions(permit.permitted)
-      const types = witness ? permitTransferFromWithWitnessType(witness) : PERMIT_TRANSFER_FROM_TYPES
-      const values = witness ? Object.assign(permit, { witness: witness.witness }) : permit
+      validateTokenPermissions(permit.permitted);
+      const types = witness
+        ? permitTransferFromWithWitnessType(witness)
+        : PERMIT_TRANSFER_FROM_TYPES;
+      const values = witness
+        ? Object.assign(permit, { witness: witness.witness })
+        : permit;
       return {
         domain,
         types,
         values,
-      }
+      };
     } else {
-      permit.permitted.forEach(validateTokenPermissions)
-      const types = witness ? permitBatchTransferFromWithWitnessType(witness) : PERMIT_BATCH_TRANSFER_FROM_TYPES
-      const values = witness ? Object.assign(permit, { witness: witness.witness }) : permit
+      permit.permitted.forEach(validateTokenPermissions);
+      const types = witness
+        ? permitBatchTransferFromWithWitnessType(witness)
+        : PERMIT_BATCH_TRANSFER_FROM_TYPES;
+      const values = witness
+        ? Object.assign(permit, { witness: witness.witness })
+        : permit;
       return {
         domain,
         types,
         values,
-      }
+      };
     }
   }
 
@@ -144,11 +164,16 @@ export abstract class SignatureTransfer {
     chainId: number,
     witness?: Witness
   ): string {
-    const { domain, types, values } = SignatureTransfer.getPermitData(permit, permit721Address, chainId, witness)
-    return _TypedDataEncoder.hash(domain, types, values)
+    const { domain, types, values } = SignatureTransfer.getPermitData(
+      permit,
+      permit721Address,
+      chainId,
+      witness
+    );
+    return _TypedDataEncoder.hash(domain, types, values);
   }
 }
 
 function validateTokenPermissions(permissions: TokenPermissions) {
-  invariant(MaxTokenId.gte(permissions.tokenId), 'TOKEN_ID_OUT_OF_RANGE')
+  invariant(MaxTokenId.gte(permissions.tokenId), 'TOKEN_ID_OUT_OF_RANGE');
 }

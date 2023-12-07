@@ -1,5 +1,5 @@
-import { SignatureTransfer } from './signatureTransfer'
-import { MaxUnorderedNonce, MaxTokenId, MaxSigDeadline } from './constants'
+import { MaxSigDeadline, MaxTokenId, MaxUnorderedNonce } from './constants';
+import { SignatureTransfer } from './signatureTransfer';
 
 describe('SignatureTransfer', () => {
   describe('Max values', () => {
@@ -18,8 +18,8 @@ describe('SignatureTransfer', () => {
           '0x0000000000000000000000000000000000000000',
           1
         )
-      ).not.toThrow()
-    })
+      ).not.toThrow();
+    });
 
     it('nonce out of range', () => {
       expect(() =>
@@ -36,8 +36,8 @@ describe('SignatureTransfer', () => {
           '0x0000000000000000000000000000000000000000',
           1
         )
-      ).toThrow('NONCE_OUT_OF_RANGE')
-    })
+      ).toThrow('NONCE_OUT_OF_RANGE');
+    });
 
     it('token id out of range', () => {
       expect(() =>
@@ -54,8 +54,8 @@ describe('SignatureTransfer', () => {
           '0x0000000000000000000000000000000000000000',
           1
         )
-      ).toThrow('TOKEN_ID_OUT_OF_RANGE')
-    })
+      ).toThrow('TOKEN_ID_OUT_OF_RANGE');
+    });
 
     it('deadline out of range', () => {
       expect(() =>
@@ -72,9 +72,9 @@ describe('SignatureTransfer', () => {
           '0x0000000000000000000000000000000000000000',
           1
         )
-      ).toThrow('SIG_DEADLINE_OUT_OF_RANGE')
-    })
-  })
+      ).toThrow('SIG_DEADLINE_OUT_OF_RANGE');
+    });
+  });
 
   it('non-batch, no witness', () => {
     expect(
@@ -91,8 +91,10 @@ describe('SignatureTransfer', () => {
         '0x0000000000000000000000000000000000000000',
         1
       )
-    ).toBe('0xc9cb1598e894e8d3da3605fad9d21af0f36a9b7d5a5f134b6313046f88beff07')
-  })
+    ).toBe(
+      '0xc9cb1598e894e8d3da3605fad9d21af0f36a9b7d5a5f134b6313046f88beff07'
+    );
+  });
 
   it('non-batch, witness', () => {
     expect(
@@ -111,11 +113,15 @@ describe('SignatureTransfer', () => {
         {
           witnessTypeName: 'MockWitness',
           witnessType: { MockWitness: [{ name: 'mock', type: 'uint256' }] },
-          witness: { mock: '0x0000000000000000000000000000000000000000000000000000000000000000' },
+          witness: {
+            mock: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
         }
       )
-    ).toBe('0xd209568be669b1fdc9977125530208893e896382f8bb748cf3387dc95ff7d223')
-  })
+    ).toBe(
+      '0xd209568be669b1fdc9977125530208893e896382f8bb748cf3387dc95ff7d223'
+    );
+  });
 
   it('batch, no witness', () => {
     expect(
@@ -134,8 +140,10 @@ describe('SignatureTransfer', () => {
         '0x0000000000000000000000000000000000000000',
         1
       )
-    ).toBe('0xf767db40633ba61fd2d2ae4f6e589804678d31edbefe6a1c2de5a79d9fc33b31')
-  })
+    ).toBe(
+      '0xf767db40633ba61fd2d2ae4f6e589804678d31edbefe6a1c2de5a79d9fc33b31'
+    );
+  });
 
   it('batch, witness', () => {
     expect(
@@ -156,9 +164,13 @@ describe('SignatureTransfer', () => {
         {
           witnessTypeName: 'MockWitness',
           witnessType: { MockWitness: [{ name: 'mock', type: 'uint256' }] },
-          witness: { mock: '0x0000000000000000000000000000000000000000000000000000000000000000' },
+          witness: {
+            mock: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
         }
       )
-    ).toBe('0x1bb742c8ce2509c211d18e09202444363c2c26557feb9c1ae7e55f7466decfe1')
-  })
-})
+    ).toBe(
+      '0x1bb742c8ce2509c211d18e09202444363c2c26557feb9c1ae7e55f7466decfe1'
+    );
+  });
+});
