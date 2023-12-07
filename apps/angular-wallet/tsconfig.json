@@ -38,7 +38,8 @@
       "@arianee/arianee-protocol-client": [
         "packages/arianee-protocol-client/src/index.ts"
       ],
-      "@arianee/creator": ["packages/creator/src/index.ts"]
+      "@arianee/creator": ["packages/creator/src/index.ts"],
+      "@arianee/permit721-sdk": ["packages/permit721-sdk/src/index.ts"]
     },
     "esModuleInterop": true
   },

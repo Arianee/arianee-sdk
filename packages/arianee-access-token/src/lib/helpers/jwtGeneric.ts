@@ -1,4 +1,4 @@
-import { ArianeeAccessTokenPayload } from '../types/arianeeAccessTokenPayload';
+import { ArianeeAccessTokenPayload } from '../types/ArianeeAccessTokenPayload';
 import { JwtHeaderInterface } from '../types/JwtHeaderInterface';
 
 export class JWTGeneric {
