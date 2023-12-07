@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ArianeeAccessToken } from './arianee-access-token';
 import { Core } from '@arianee/core';
-import * as timeBeforeExpModule from './helpers/timeBeforeExp';
 import { MemoryStorage } from '@arianee/utils';
+
+import { ArianeeAccessToken } from './arianee-access-token';
+import * as timeBeforeExpModule from './helpers/timeBeforeExp';
 
 describe('arianeeAccessToken', () => {
   beforeEach(() => {
@@ -26,6 +27,25 @@ describe('arianeeAccessToken', () => {
         storage,
       });
 
+      expect(arianeeAccessToken['storage']).toBe(storage);
+    });
+
+    it('should set the initial walletAccessToken if passed', () => {
+      const storage = {
+        setItem: jest.fn(),
+      } as unknown as Storage;
+
+      const arianeeAccessToken = new ArianeeAccessToken(core, {
+        storage,
+        initialValues: {
+          walletAccessToken: 'mockToken',
+        },
+      });
+
+      expect(storage.setItem).toHaveBeenCalledWith(
+        'arianee__lastAAT',
+        'mockToken'
+      );
       expect(arianeeAccessToken['storage']).toBe(storage);
     });
   });
@@ -92,6 +112,25 @@ describe('arianeeAccessToken', () => {
       const aat2 = await aatGenerator.getValidWalletAccessToken();
       expect(aat1).toBe(aat2);
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns the passed initial token if it is valid', async () => {
+      const initialAAT =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjE4NzQ3NDQ3MDY2NjEsImlhdCI6MTcwMTk0NDcwNjY2MX0=.0xc325b872a4ea65b89ba8846685920b90155fcb8c9d87c06dd4fcdbc708ad4f1a4dc67029b946f44284d0442eee03b08ee9bba1de5bfd6769fd2bbd86363456b41c';
+
+      const aatGenerator = new ArianeeAccessToken(core, {
+        initialValues: {
+          walletAccessToken: initialAAT,
+        },
+      });
+
+      const spy = jest.spyOn(aatGenerator, 'createWalletAccessToken');
+
+      const aat1 = await aatGenerator.getValidWalletAccessToken();
+      const aat2 = await aatGenerator.getValidWalletAccessToken();
+      expect(aat1).toBe(aat2);
+      expect(aat1).toBe(initialAAT);
+      expect(spy).not.toHaveBeenCalled();
     });
 
     it('creates a new token if the existing token is expired', async () => {
