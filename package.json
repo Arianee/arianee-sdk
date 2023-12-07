@@ -54,6 +54,7 @@
     "eventemitter3": "^5.0.1",
     "node-fetch": "^2.6.12",
     "rxjs": "~7.8.0",
+    "ts-invariant": "^0.10.3",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
   },
