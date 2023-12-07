@@ -3,7 +3,7 @@
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
-import { defaultFetchLike } from '@arianee/utils';
+import * as utils from '@arianee/utils';
 import { MemoryStorage } from '@arianee/utils';
 import WalletApiClient from '@arianee/wallet-api-client';
 
@@ -22,6 +22,14 @@ jest.mock('./services/message/message');
 jest.mock('./services/smartAsset/smartAsset');
 jest.mock('./services/eventManager/eventManager');
 
+jest.mock('@arianee/utils', () => {
+  const originalUtils = jest.requireActual('@arianee/utils');
+  return {
+    ...originalUtils,
+    retryFetchLike: jest.fn(),
+  };
+});
+
 const mockedAddress = '0x123456';
 const getAddresSpy = jest.spyOn(Wallet.prototype, 'getAddress');
 
@@ -36,9 +44,17 @@ describe('Wallet', () => {
   });
 
   describe('constructor', () => {
-    it('should use the defaultFetchLike if no fetch like passed', () => {
+    it('should use a retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+      (utils.retryFetchLike as jest.Mock).mockReturnValue(
+        utils.defaultFetchLike
+      );
+
       const wallet = new Wallet();
-      expect(wallet['fetchLike']).toBe(defaultFetchLike);
+      expect(wallet['fetchLike']).toBe(utils.defaultFetchLike);
+      expect(utils.retryFetchLike).toHaveBeenCalledWith(
+        utils.defaultFetchLike,
+        2
+      );
     });
 
     it('should use testnet as default chain type', () => {

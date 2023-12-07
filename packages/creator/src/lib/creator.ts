@@ -7,7 +7,7 @@ import ArianeeProtocolClient, {
   transactionWrapper as _transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
-import { defaultFetchLike } from '@arianee/utils';
+import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
 import { ContractTransactionReceipt } from 'ethers';
 import { ContractTransactionResponse } from 'ethers/lib.esm';
 
@@ -77,7 +77,7 @@ export default class Creator<Strategy extends TransactionStrategy> {
 
     this.core = core;
     this.creatorAddress = creatorAddress;
-    this.fetchLike = fetchLike ?? defaultFetchLike;
+    this.fetchLike = fetchLike ?? retryFetchLike(defaultFetchLike);
 
     this.transactionStrategy = params.transactionStrategy;
 

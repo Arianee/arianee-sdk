@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-    node: circleci/node@5.1.0
+  node: circleci/node@5.1.0
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
       - node/install-packages
       - run:
           name: Run tests
-          command: npm run test:all
+          command: npm run test:all -- --runInBand
 
 workflows:
   test:
@@ -38,4 +38,3 @@ workflows:
       - lint
       - test-libraries
       - build
-

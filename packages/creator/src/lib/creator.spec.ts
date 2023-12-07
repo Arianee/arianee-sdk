@@ -1,11 +1,20 @@
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
-import { defaultFetchLike } from '@arianee/utils';
+import * as utils from '@arianee/utils';
 
 import Creator from './creator';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
+
+jest.mock('@arianee/utils', () => {
+  const originalUtils = jest.requireActual('@arianee/utils');
+  return {
+    ...originalUtils,
+    retryFetchLike: jest.fn(),
+  };
+});
+
 jest.spyOn(console, 'error').mockImplementation();
 
 describe('Creator', () => {
@@ -32,14 +41,19 @@ describe('Creator', () => {
   });
 
   describe('constructor', () => {
-    it('should use default fetch like if not passed', () => {
+    it('should use a retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+      (utils.retryFetchLike as jest.Mock).mockReturnValue(
+        utils.defaultFetchLike
+      );
+
       const creator = new Creator({
         core,
         creatorAddress,
         transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
-      expect(creator['fetchLike']).toBe(defaultFetchLike);
+      expect(creator['fetchLike']).toBe(utils.defaultFetchLike);
+      expect(utils.retryFetchLike).toHaveBeenCalledWith(utils.defaultFetchLike);
     });
 
     it('should use passed fetch like', () => {
