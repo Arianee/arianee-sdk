@@ -1,26 +1,6 @@
-// import { ISignatureTransfer as ISignatureTransferNs } from '@arianee/permit721-contracts';
-import { PermitTransferFrom as PermitTransferFromV5 } from '@arianee/permit721-sdk';
+import { PermitTransferFrom as PermitTransferFromV5 } from './signatureTransfer';
 import { TypedDataDomain as TypedDataDomainV5 } from '@ethersproject/abstract-signer';
-import { Overrides } from 'ethers';
 import { TypedDataDomain as TypedDataDomainV6 } from 'ethers';
-
-export function getNetworkOverrides(network: string) {
-  const networkOverrides: Overrides & { from?: string } = {};
-  switch (network) {
-    case 'sokol':
-      networkOverrides.maxPriorityFeePerGas = 1000000000;
-      break;
-  }
-  return networkOverrides;
-}
-
-export function isLocalNetwork(network: string) {
-  return ['hardhat', 'localhost', 'ganache'].includes(network);
-}
-
-export function capitalizeFirstChar(word: string) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
-}
 
 /**
  * Converts an expiration (in milliseconds) to a deadline (in seconds) suitable for the EVM.
@@ -31,6 +11,10 @@ export function toDeadline(expiration: number): number {
   return Math.floor((Date.now() + expiration) / 1000);
 }
 
+/**
+ * Converts a TypedDataDomainV5 to a TypedDataDomainV6.
+ * Utility function to convert a data domain from ethers v5 to v6.
+ */
 export function tddAdapter(tdd: TypedDataDomainV5): TypedDataDomainV6 {
   return {
     name: tdd.name,
@@ -41,6 +25,10 @@ export function tddAdapter(tdd: TypedDataDomainV5): TypedDataDomainV6 {
   };
 }
 
+/**
+ * Converts a PermitTransferFromV5 to a PermitTransferFromV6.
+ * Utility function to convert a permit transferFrom from ethers v5 to v6.
+ */
 export function ptfAdapter(ptf: PermitTransferFromV5): any {
   return {
     permitted: {

@@ -1,7 +1,7 @@
 import { JWTGeneric } from './jwtGeneric';
 import { Core } from '@arianee/core';
 import { ethers } from 'ethers';
-import { ArianeeAccessTokenPayload } from '../types/arianeeAccessTokenPayload';
+import { ArianeeAccessTokenPayload } from '../types/ArianeeAccessTokenPayload';
 
 describe('JWTGeneric', function () {
   const pubKey = '0x74FE09Db23Df5c35d2969B666f7AA94621E11D30';

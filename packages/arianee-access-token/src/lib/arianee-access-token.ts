@@ -1,5 +1,5 @@
 import { Core } from '@arianee/core';
-import { ArianeeAccessTokenPayload } from './types/arianeeAccessTokenPayload';
+import { ArianeeAccessTokenPayload } from './types/ArianeeAccessTokenPayload';
 import { JWTGeneric } from './helpers/jwtGeneric';
 import { ethers } from 'ethers';
 import { JwtHeaderInterface } from './types/JwtHeaderInterface';
