@@ -1,7 +1,7 @@
 export enum ProtocolName {
   testnet = 'testnet',
   mainnet = 'mainnet',
-  arianeeTestnet = 'arianeetestnet',
+  arianeeTestnet = 'arianeeTestnet',
   mumbai = 'mumbai',
   polygon = 'polygon',
   arialabs = 'arialabs',

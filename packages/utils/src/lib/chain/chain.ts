@@ -26,16 +26,24 @@ export const CHAIN_TYPE_IDS: {
 };
 export const chainIdsByChainType = (chainType: ChainType): number[] =>
   CHAIN_TYPE_IDS[chainType].map((element) => element.id);
+
 export const chainNamesByChainType = (chainType: ChainType): ProtocolName[] =>
   CHAIN_TYPE_IDS[chainType].map((element) => element.name);
 
-export const protocolNameToChainType = (protocolName: Protocol['name']) =>
-  Object.keys(CHAIN_TYPE_IDS).find((chainType) =>
+export const protocolNameToChainType = (protocolName: Protocol['name']) => {
+  const chainType = Object.keys(CHAIN_TYPE_IDS).find((chainType) =>
     CHAIN_TYPE_IDS[chainType as ChainType].find(
       (chain) => chain.name === protocolName
     )
   ) as ChainType;
-export const protocolNameToChainId = (protocolName: Protocol['name']) => {
+  if (chainType) return chainType;
+  console.warn('No matching chain type found, returning default chain type');
+  return 'mainnet'; // default chain type
+};
+
+export const protocolNameToChainId = (
+  protocolName: Protocol['name']
+): number => {
   if (protocolName.includes('-')) {
     return parseInt(protocolName.split('-')[0]);
   }
@@ -46,7 +54,8 @@ export const protocolNameToChainId = (protocolName: Protocol['name']) => {
     );
     if (chain) return chain.id;
   }
-  return undefined;
+  console.warn('No matching chain ID found, returning default chain ID');
+  return protocolNameToChainId('polygon'); // default chain id
 };
 
 export const getChainTypeOf = (protocolName: string): ChainType =>
