@@ -15,19 +15,18 @@ import {
   ProtocolV2Versions,
 } from '@arianee/common-types';
 
+export interface ArianeeProtocolClientOptions {
+  fetchLike?: typeof fetch;
+  arianeeApiUrl?: string;
+  protocolDetailsResolver?: ProtocolDetailsResolver;
+}
+
 export default class ArianeeProtocolClient {
   private fetchLike: typeof fetch;
   private protocolDetailsResolver?: (slug: string) => Promise<ProtocolDetails>;
   private arianeeApiClient: ArianeeApiClient;
 
-  constructor(
-    private core: Core,
-    options?: {
-      fetchLike?: typeof fetch;
-      arianeeApiUrl?: string;
-      protocolDetailsResolver?: ProtocolDetailsResolver;
-    }
-  ) {
+  constructor(private core: Core, options?: ArianeeProtocolClientOptions) {
     this.fetchLike = options?.fetchLike ?? defaultFetchLike;
 
     this.arianeeApiClient = new ArianeeApiClient(
