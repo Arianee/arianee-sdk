@@ -4,14 +4,30 @@ The ArianeeAccessToken class is a module that allows you to create and manage Ar
 
 ## Usage
 
-You need to instanciate the class with a core instance and a wallet address.
+You need to instantiate the class with a [Core](https://www.npmjs.com/package/@arianee/core) instance
 
 ```typescript
 const core = core.fromPrivateKey('0x...');
 const arianeeAccessToken = new ArianeeAccessToken(core);
 ```
 
-Then you can use the following methods:
+### Initial values
+
+You can pass initial values by setting the `initialValues` property in the constructor params. Possible initial values are:
+
+- `walletAccessToken`: the wallet scoped AAT to use at initialization (if invalid or expired, a new one will be generated when needed). Note that under the hood it calls the `setItem` method of the storage object optionally passed in the constructor, if you are using a custom storage, this would override the previously stored value.
+
+```typescript
+const instance = new ArianeeAccessToken(core, {
+  initialValues: {
+    walletAccessToken: 'eyJ0eXAiO...',
+  },
+});
+```
+
+### Methods
+
+You can use the following methods:
 
 ### `getValidWalletAccessToken(payloadOverride: PayloadOverride = {}, params?: { timeBeforeExp?: number; prefix?: string; }): Promise<string>`
 

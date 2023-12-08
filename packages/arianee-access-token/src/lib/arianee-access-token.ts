@@ -1,14 +1,16 @@
 import { Core } from '@arianee/core';
-import { ArianeeAccessTokenPayload } from './types/ArianeeAccessTokenPayload';
-import { JWTGeneric } from './helpers/jwtGeneric';
-import { ethers } from 'ethers';
-import { JwtHeaderInterface } from './types/JwtHeaderInterface';
-import { isExpInLessThan } from './helpers/timeBeforeExp';
 import { MemoryStorage } from '@arianee/utils';
+import { ethers } from 'ethers';
+
+import { JWTGeneric } from './helpers/jwtGeneric';
+import { isExpInLessThan } from './helpers/timeBeforeExp';
+import { ArianeeAccessTokenPayload } from './types/ArianeeAccessTokenPayload';
+import { JwtHeaderInterface } from './types/JwtHeaderInterface';
 
 export interface PayloadOverride {
   exp?: number;
   iat?: number;
+  [key: string]: string | number | object | undefined;
 }
 
 export class ArianeeAccessToken {
@@ -19,10 +21,22 @@ export class ArianeeAccessToken {
   constructor(
     private core: Core,
     params?: {
+      initialValues?: {
+        walletAccessToken?: string;
+      };
       storage?: Storage;
     }
   ) {
     this.storage = params?.storage ?? new MemoryStorage();
+
+    const initialWalletAccessToken = params?.initialValues?.walletAccessToken;
+
+    if (initialWalletAccessToken) {
+      this.storage.setItem(
+        ArianeeAccessToken.LAST_AAT_KEY,
+        initialWalletAccessToken
+      );
+    }
   }
 
   public async getValidWalletAccessToken(
@@ -112,7 +126,7 @@ export class ArianeeAccessToken {
   }
 
   private async generateAAT(
-    payload: Partial<ArianeeAccessTokenPayload> = {},
+    payload: Partial<ArianeeAccessTokenPayload> & PayloadOverride = {},
     prefix?: string
   ): Promise<string> {
     const signer = async (data: string) => {
