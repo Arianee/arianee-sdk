@@ -1,4 +1,19 @@
+export enum ProtocolName {
+  testnet = 'testnet',
+  mainnet = 'mainnet',
+  arianeeTestnet = 'arianeeTestnet',
+  mumbai = 'mumbai',
+  polygon = 'polygon',
+  arialabs = 'arialabs',
+  stadetoulousain = 'stadetoulousain',
+  ysl = 'ysl',
+  testnetSbt = 'testnetSbt',
+  arianeeSupernet = 'arianeeSupernet',
+  arianeesbt = 'arianeesbt',
+}
+
 export type Protocol = { name: string; chainId: number };
+export type ChainID = number;
 export type ChainType = 'mainnet' | 'testnet';
 
 export type ProtocolDetails = ProtocolDetailsV1 | ProtocolDetailsV2;
