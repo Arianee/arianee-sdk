@@ -14,6 +14,7 @@ import { ISignatureTransfer as ISignatureTransferNs } from '@arianee/permit721-c
 import { ptfAdapter } from '@arianee/permit721-sdk';
 import { PERMIT721_ADDRESS, PermitTransferFrom } from '@arianee/permit721-sdk';
 import { getChainTypeOf } from '@arianee/utils';
+import { Wallet } from '@arianee/wallet';
 import WalletApiClient from '@arianee/wallet-api-client';
 import { ethers } from 'ethers';
 
@@ -209,7 +210,11 @@ export class ServiceProvider {
         arianeeAccessToken: aat,
       }
     );
-    return walletApiClient.getSmartAsset(protocolSlug!, {
+
+    const wallet = new Wallet({
+      walletAbstraction: walletApiClient,
+    });
+    return wallet.smartAsset.get(protocolSlug!, {
       id: tokenId!,
     });
   }
