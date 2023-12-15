@@ -96,13 +96,16 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.smartAssetContract.transferFrom(
+        protocolV1Action: async (v1) => {
+          return v1.smartAssetContract[
+            'safeTransferFrom(address,address,uint256)'
+          ](
             this.creator.core.getAddress(),
             '0x000000000000000000000000000000000000dead',
             id,
             overrides
-          ),
+          );
+        },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
         },
