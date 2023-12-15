@@ -139,7 +139,7 @@ describe('SmartAssets', () => {
 
       await protocolV1Action({
         smartAssetContract: {
-          transferFrom: transferFromSpy,
+          ['safeTransferFrom(address,address,uint256)']: transferFromSpy,
         },
       } as any);
 
