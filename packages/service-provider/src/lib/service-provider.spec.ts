@@ -1,8 +1,8 @@
 import Core from '@arianee/core';
 import { PERMIT721_ADDRESS } from '@arianee/permit721-sdk';
-import WalletApiClient from '@arianee/wallet-api-client';
 
 import { ServiceProvider } from './service-provider';
+import Wallet from '@arianee/wallet';
 
 jest.spyOn(console, 'error').mockImplementation();
 
@@ -28,6 +28,7 @@ jest.mock('@arianee/arianee-protocol-client', () => {
   const ArianeeProtocolClient = jest.requireActual(
     '@arianee/arianee-protocol-client'
   );
+
   return {
     ...ArianeeProtocolClient,
     ArianeeProtocolClient: jest.fn().mockImplementation(() => {
@@ -41,11 +42,30 @@ jest.mock('@arianee/arianee-protocol-client', () => {
     }),
   };
 });
-jest.mock('@arianee/wallet-api-client');
 
-const MockedWalletApiClient = WalletApiClient as jest.MockedClass<
-  typeof WalletApiClient
->;
+const mockSmartAssetService = {
+  get: jest.fn().mockImplementation(() => {
+    return {
+      content: {
+        data: {
+          content: {
+            name: 'test',
+          },
+        },
+      },
+    };
+  }),
+};
+
+jest.mock('@arianee/wallet', () => {
+  return {
+    Wallet: jest.fn().mockImplementation(() => {
+      return {
+        smartAsset: mockSmartAssetService,
+      };
+    }),
+  };
+});
 
 describe('ServiceProvider', () => {
   const serviceProviderCore = Core.fromRandom();
@@ -98,8 +118,7 @@ describe('ServiceProvider', () => {
 
     const parsedSST = ServiceProvider.parseSST(VALID_SST);
 
-    const mockWalletApiClient = MockedWalletApiClient.mock.instances[0];
-    expect(mockWalletApiClient.getSmartAsset).toHaveBeenCalledWith(
+    expect(mockSmartAssetService.get).toHaveBeenCalledWith(
       parsedSST.payload.network,
       { id: parsedSST.payload.subId?.toString() }
     );

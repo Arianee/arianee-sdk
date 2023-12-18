@@ -212,6 +212,7 @@ export class ServiceProvider {
     );
 
     const wallet = new Wallet({
+      auth: { core },
       walletAbstraction: walletApiClient,
     });
     return wallet.smartAsset.get(protocolSlug!, {
