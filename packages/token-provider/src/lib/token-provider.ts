@@ -9,19 +9,27 @@ import ArianeeProtocolClient, {
 } from '@arianee/arianee-protocol-client';
 import { SmartAsset } from '@arianee/common-types';
 import Core from '@arianee/core';
-import { PermitTransferFrom, SignatureTransfer } from '@arianee/permit721-sdk';
+import {
+  PERMIT721_ADDRESS,
+  PermitTransferFrom,
+  SignatureTransfer,
+} from '@arianee/permit721-sdk';
 import { tddAdapter, toDeadline } from '@arianee/permit721-sdk';
 
 export const generateSST = async ({
   smartAsset,
   core,
   spender,
+  deadline,
+  nonce,
   permit721Address,
 }: {
   smartAsset: SmartAsset;
   core: Core;
   spender: string;
-  permit721Address: string;
+  deadline?: number;
+  nonce?: number;
+  permit721Address?: string;
 }) => {
   const aatInstance = new ArianeeAccessToken(core);
 
@@ -29,7 +37,7 @@ export const generateSST = async ({
     core,
     tokenId: smartAsset.certificateId,
     protocolName: smartAsset.protocol.name,
-    permit721Address,
+    permit721Address: permit721Address ?? PERMIT721_ADDRESS,
   });
 
   const arianeeProtocolClient = new ArianeeProtocolClient(core);
@@ -45,12 +53,12 @@ export const generateSST = async ({
       tokenId: parseInt(smartAsset.certificateId), // make sure it's a int since the subId is an int in an AAT
     },
     spender,
-    nonce: Math.floor(Math.random() * 1000000),
-    deadline: toDeadline(/* 30 days= */ 1000 * 60 * 60 * 24 * 30),
+    nonce: nonce ?? Math.floor(Math.random() * 1000000),
+    deadline: deadline ?? toDeadline(/* 30 days= */ 1000 * 60 * 60 * 24 * 30),
   };
   const { domain, types, values } = SignatureTransfer.getPermitData(
     permitTransferFrom,
-    permit721Address,
+    permit721Address ?? PERMIT721_ADDRESS,
     smartAsset.protocol.chainId
   );
 

@@ -39,7 +39,9 @@ const sst = await generateSST({
   core: core,
   smartAsset: smartAsset.data, // smart asset to generate a SST for
   spender: '0xSPENDER_ADDRESS', // the address that will be able to transfer the smart asset using the SST
-  permit721Address: '0xPERMIT_ADDRESS', // the address of the permit721 contract
+  deadline: 3600, // OPTIONAL: the deadline of the SST in seconds (default is 30 days), you can use the `toDeadline` function of `@arianee/permit721-sdk` if needed
+  nonce: 0, // OPTIONAL: the nonce of the SST (default is a random number between 0 and 1^6)
+  permit721Address: '0xPERMIT_ADDRESS', // OPTIONAL: the address of the permit721 contract (default is `PERMIT721_ADDRESS` constant of `@arianee/permit721-sdk`)
 });
 ```
 

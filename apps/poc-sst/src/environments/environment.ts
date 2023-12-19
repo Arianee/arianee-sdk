@@ -1,6 +1,8 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // When building for production, this file is replaced with `environment.prod.ts`.
 
+import { PERMIT721_ADDRESS } from '@arianee/permit721-sdk';
+
 export const environment = {
   production: false,
   serviceProviderCallbackUrl: window.location.href + 'provider',
@@ -10,5 +12,5 @@ export const environment = {
   network: 'testnet',
   httpProvider: 'https://sokol.arianee.net/',
   chainId: 77,
-  permit721Address: '0x1028DF8BB444284E8585AF68811285a434BFAD78',
+  permit721Address: PERMIT721_ADDRESS,
 };
