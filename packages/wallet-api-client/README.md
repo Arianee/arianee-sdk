@@ -1,4 +1,4 @@
-# Wallet API Client
+# @arianee/wallet-api-client
 
 WalletApiClient is a TypeScript client for the Arianee's Wallet API. It provides an easy-to-use interface to interact with all available API routes and handles the authorization process using the Core instance passed to the constructor or a smart asset's passphrase when provided. The client returns typed objects that match the return types of the API routes.
 

@@ -1,4 +1,4 @@
-## Arianee Privacy Gateway Client
+## @arianee/arianee-privacy-gateway-client
 
 This is a TypeScript library that provides a client to interact with the Arianee Privacy Gateway. The Arianee Privacy Gateway is used to retrieve content of private non-fungible tokens (NFTs).
 
