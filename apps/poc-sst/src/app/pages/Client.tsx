@@ -57,12 +57,18 @@ export function Client() {
         currentWallet={WALLETS[currentWalletName]}
         setCurrentWallet={setCurrentWalletName}
       />
-      <br />
+      <hr />
+      <h2>Checklist</h2>
+      <b>
+        1. If the transaction takes some time after clicking sell, your browser
+        may block the popup, ensure that you've allowed popups for this website!
+      </b>
       <br />
       <b>
-        If the transaction takes some time after clicking sell, your browser may
-        block the popup, ensure that you've allowed popups for this website
+        2. If the approve transaction is failing, ensure that there is enough
+        SPOA in the wallet you are using.
       </b>
+      <hr />
       {loading ? (
         <p>loading...</p>
       ) : (
