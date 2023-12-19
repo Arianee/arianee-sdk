@@ -1,4 +1,4 @@
-## @arianee/ariane-api-client
+## @arianee/arianee-api-client
 
 The `ariane-api-client` library allows you to interact with the Arianee blockchain through the Arianee API. It provides methods to get information related to multichain, network, and identities.
 
@@ -8,7 +8,6 @@ The `ariane-api-client` library allows you to interact with the Arianee blockcha
 
 - `arianeeApiUrl` (optional): A string representing the Arianee API URL. The default value is `'https://api.arianee.com'`.
 - `fetchLike` (optional): A function to perform HTTP requests. The default value is `fetch` if running in a browser environment, and `node-fetch` if running in a Node.js environment.
-
 
 ### Methods
 
@@ -46,6 +45,7 @@ Returns an array of `decentralizedMessageInfo` objects representing the received
 
 - `chainType`: A `ChainType` enum value representing the chain type (mainnet or testnet).
 - `address`: A string representing the recipient's address.
+
 ```typescript
 const messages = await client.multichain.getReceivedMessages('mainnet', '0x1234567890123456789012345678901234567890');
 ```
@@ -55,6 +55,7 @@ const messages = await client.multichain.getReceivedMessages('mainnet', '0x12345
 Returns a `brandIdentityInfo` object representing the brand identity associated with the specified address.
 
 - `address`: A string representing the brand identity address.
+
 ```typescript
 const identity = await client.multichain.getIdentity('0x1234567890123456789012345678901234567890');
 ```
@@ -71,6 +72,7 @@ Returns an array of `BlockchainEvent` objects corresponding to the specified par
 - `contractAddress`: A string representing the smart contract address.
 - `eventName`: A `blockchainEventsName` enum value representing the event name.
 - `filters` (optional): An object containing additional parameters to filter the events.
+
 ```typescript
 const events = await client.network.getEvents('polygon', '0x1234567890123456789012345678901234567890', 'Transfer');
 ```
@@ -83,15 +85,18 @@ Returns the number of events corresponding to the specified parameters.
 - `contractAddress`: A string representing the smart contract address.
 - `eventName`: A `blockchainEventsName` enum value representing the event name.
 - `filters` (optional): An object containing additional parameters to filter the events.
+
 ```typescript
 const events = await client.network.countEvents('polygon', '0x1234567890123456789012345678901234567890', 'Transfer');
 ```
+
 ##### `getOwnedNfts(protocol, address)`
 
 Returns an array of `smartAssetInfo` objects representing the owned NFTs by the specified address on a specific network.
 
 - `protocol`: A `Protocol` object representing the protocol (mainnet, testnet, polygon, arialabs...).
 - `address`: A string representing the owner's address.
+
 ```typescript
 const events = await client.network.getOwnedNfts('polygon', '0x1234567890123456789012345678901234567890');
 ```
@@ -102,6 +107,7 @@ Returns a `smartAssetInfo` objects representing a specific NFT on a specific net
 
 - `protocol`: A `Protocol` object representing the protocol (mainnet, testnet, polygon, arialabs...).
 - `tokenId`: A string representing the token id.
+
 ```typescript
 const events = await client.network.smartAssetInfo('polygon', '12');
 ```
@@ -112,6 +118,7 @@ Returns an array of `BlockchainEvent` objects representing an event in the block
 
 - `protocol`: A `Protocol` object representing the protocol (mainnet, testnet, polygon, arialabs...).
 - `tokenId`: A string representing the token id.
+
 ```typescript
 const events = await client.network.smartAssetInfo('polygon', '12');
 ```
@@ -122,6 +129,7 @@ Returns a string representing the owner of the specified NFT
 
 - `protocol`: A `Protocol` object representing the protocol (mainnet, testnet, polygon, arialabs...).
 - `tokenId`: A string representing the token id.
+
 ```typescript
 const events = await client.network.getNftOwner('polygon', '12');
 ```
@@ -132,6 +140,7 @@ Returns a `brandIdentityInfo` object representing the brand identity associated 
 
 - `protocol`: A `Protocol` object representing the protocol (mainnet, testnet, polygon, arialabs...).
 - `address`: A string representing the brand identity address.
+
 ```typescript
 const events = await client.network.getIdentity('polygon', '0x1234567890123456789012345678901234567890');
 ```

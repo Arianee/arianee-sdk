@@ -1,4 +1,4 @@
-# permit721-sdk
+# @arianee/permit721-sdk
 
 This library was generated with [Nx](https://nx.dev).
 

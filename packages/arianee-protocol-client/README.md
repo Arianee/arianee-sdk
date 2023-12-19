@@ -1,4 +1,4 @@
-# Arianee Protocol Client
+# @arianee/arianee-protocol-client
 
 A simple library that lets you interact with the Arianee protocols.
 
