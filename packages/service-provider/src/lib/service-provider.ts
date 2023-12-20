@@ -124,23 +124,32 @@ export class ServiceProvider {
           protocolSlug
         );
 
-        const owner = await smartAssetContract.ownerOf(tokenIdAsStr);
+        const owner = (
+          await smartAssetContract.ownerOf(tokenIdAsStr)
+        )?.toLowerCase();
+        const sstIssuer = parsedSST.payload.iss?.toLowerCase();
+        if (!sstIssuer) {
+          throw new Error('Invalid SST issuer');
+        }
+
         // Check if owner is the same as the one who signed the permit
-        if (owner !== parsedSST.payload.iss) {
+        if (owner !== sstIssuer) {
           throw new Error(
-            `Owner address ${owner} is not the same as the one who signed the permit ${parsedSST.payload.iss}`
+            `Owner address ${owner} is not the same as the one who signed the permit ${sstIssuer}`
           );
         }
 
         // Check if owner has approved Permit721 contract to transfer the token
-        const approvedAddress = await smartAssetContract.getApproved(
-          tokenIdAsStr
-        );
+        const approvedAddress = (
+          await smartAssetContract.getApproved(tokenIdAsStr)
+        )?.toLowerCase();
+        const permit721Address = PERMIT721_ADDRESS.toLowerCase();
+
         const isApproved =
-          approvedAddress && approvedAddress === PERMIT721_ADDRESS;
+          approvedAddress && approvedAddress === permit721Address;
         if (!isApproved)
           throw new Error(
-            `Owner ${owner} has not approved Permit721 contract ${PERMIT721_ADDRESS}`
+            `Owner ${owner} has not approved Permit721 contract ${permit721Address}`
           );
 
         if (performDryRun) {

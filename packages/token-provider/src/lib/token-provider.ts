@@ -33,11 +33,13 @@ export const generateSST = async ({
 }) => {
   const aatInstance = new ArianeeAccessToken(core);
 
+  const _permit721Address = permit721Address ?? PERMIT721_ADDRESS;
+
   await approvePermit721({
     core,
     tokenId: smartAsset.certificateId,
     protocolName: smartAsset.protocol.name,
-    permit721Address: permit721Address ?? PERMIT721_ADDRESS,
+    permit721Address: _permit721Address,
   });
 
   const arianeeProtocolClient = new ArianeeProtocolClient(core);
@@ -58,13 +60,13 @@ export const generateSST = async ({
   };
   const { domain, types, values } = SignatureTransfer.getPermitData(
     permitTransferFrom,
-    permit721Address ?? PERMIT721_ADDRESS,
+    _permit721Address,
     smartAsset.protocol.chainId
   );
 
   const permitSignature = (
     await core.signTypedData!(tddAdapter(domain), types, values)
-  ).signature;
+  )?.signature;
 
   const sst = await aatInstance.createCertificateArianeeAccessToken(
     parseInt(smartAsset.certificateId),
@@ -91,27 +93,25 @@ export const approvePermit721 = async ({
 }) => {
   const arianeeProtocolClient = new ArianeeProtocolClient(core);
 
-  const approvedAddress = await callWrapper(
-    arianeeProtocolClient,
-    protocolName,
-    {
+  const approvedAddress = (
+    await callWrapper(arianeeProtocolClient, protocolName, {
       protocolV1Action: (v1) => {
         return v1.smartAssetContract.getApproved(tokenId);
       },
       protocolV2Action: (v2) => {
         throw new Error('not yet implemented');
       },
-    }
-  );
+    })
+  )?.toLowerCase();
 
-  const PERMIT721_ADDRESS = permit721Address;
-  const isApproved = approvedAddress && approvedAddress === PERMIT721_ADDRESS;
+  const _permit721Address = permit721Address.toLowerCase();
+  const isApproved = approvedAddress && approvedAddress === _permit721Address;
 
   if (!isApproved) {
     await transactionWrapper(arianeeProtocolClient, protocolName, {
       protocolV1Action: (v1) => {
         return v1.smartAssetContract.approve(
-          PERMIT721_ADDRESS,
+          _permit721Address,
           tokenId
         ) as unknown as ReturnType<
           Parameters<typeof transactionWrapper>[2]['protocolV1Action']
