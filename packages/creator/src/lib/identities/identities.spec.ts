@@ -3,11 +3,16 @@ import Core from '@arianee/core';
 
 import Creator from '../creator';
 import * as getCreatorIdentityModule from '../helpers/identity/getCreatorIdentity';
+import { isIdentityApproved } from '../helpers/identity/isIdentityApproved';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
 jest.spyOn(console, 'error').mockImplementation();
-
+jest.mock('../helpers/identity/isIdentityApproved', () => {
+  return {
+    isIdentityApproved: jest.fn().mockResolvedValue(true),
+  };
+});
 describe('Identities', () => {
   const core = Core.fromRandom();
   const creatorAddress = `0x${'a'.repeat(40)}`;
@@ -71,7 +76,7 @@ describe('Identities', () => {
         undefined
       );
 
-      expect(getCreatorIdentitySpy).toHaveBeenCalledWith(creator);
+      expect(isIdentityApproved).toHaveBeenCalledWith(creator);
     });
 
     it('should throw if called on v2 protocol', async () => {
@@ -99,7 +104,7 @@ describe('Identities', () => {
         } as any)
       ).rejects.toThrowError(/not yet implemented/gi);
 
-      expect(getCreatorIdentitySpy).toHaveBeenCalledWith(creator);
+      expect(isIdentityApproved).toHaveBeenCalledWith(creator);
     });
   });
 });
