@@ -6,7 +6,8 @@ import {
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
-import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
+import { IdentityNotApproved } from '../errors/IdentityNotApproved';
+import { isIdentityApproved } from '../helpers/identity/isIdentityApproved';
 
 export default class Identities<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -22,8 +23,14 @@ export default class Identities<Strategy extends TransactionStrategy> {
     },
     overrides: NonPayableOverrides = {}
   ) {
-    // assert creator wallet has an identity
-    await getCreatorIdentity(this.creator);
+    // assert creator wallet identity is approved
+    const isCreatorIdentityApproved = await isIdentityApproved(this.creator);
+
+    if (!isCreatorIdentityApproved) {
+      throw new IdentityNotApproved(
+        `You need to approve your identity before updating it.`
+      );
+    }
 
     return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
