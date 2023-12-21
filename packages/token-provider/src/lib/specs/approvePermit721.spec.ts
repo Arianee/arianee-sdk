@@ -51,7 +51,7 @@ describe('approvePermit721', () => {
 
     expect(getApprovedSpy).toHaveBeenCalledWith('467440080');
     expect(approveSpy).toHaveBeenCalledWith(
-      '0x1028DF8BB444284E8585AF68811285a434BFAD78',
+      '0x1028df8bb444284e8585af68811285a434bfad78',
       '467440080'
     );
 
