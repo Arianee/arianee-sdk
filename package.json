@@ -22,6 +22,7 @@
     "test:utils": "nx test utils",
     "test:core": "nx test core",
     "test:creator": "nx test creator",
+    "test:token-provider": "nx test token-provider",
     "test:all": "nx run-many --target=test --all",
     "lint:all": "nx run-many --target=lint --all",
     "bump:all": "./scripts/bump.sh",

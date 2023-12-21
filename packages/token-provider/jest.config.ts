@@ -2,6 +2,7 @@
 export default {
   displayName: 'token-provider',
   preset: '../../jest.preset.js',
+  testEnvironment: 'jest-environment-node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
