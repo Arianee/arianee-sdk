@@ -66,7 +66,7 @@ describe('generateSST', () => {
       core,
       tokenId: '467440080',
       protocolName: 'testnet',
-      permit721Address: '0x1028DF8BB444284E8585AF68811285a434BFAD78',
+      permit721Address: '0x9d6ac3167db03d0b0aee75f5ed90c8b780f93585',
     });
   });
 });
