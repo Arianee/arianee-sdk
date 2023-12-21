@@ -13,6 +13,8 @@ export const CHAIN_TYPE_IDS: {
     { name: ProtocolName.mumbai, id: 80001 },
     { name: ProtocolName.arianeeTestnet, id: 42 },
     { name: ProtocolName.testnetSbt, id: 77 },
+    { name: ProtocolName.tezostestnet, id: 128123 },
+    { name: ProtocolName.supernettestnet, id: 999118981 },
   ],
   mainnet: [
     { name: ProtocolName.mainnet, id: 99 },
@@ -22,6 +24,7 @@ export const CHAIN_TYPE_IDS: {
     { name: ProtocolName.arialabs, id: 137 },
     { name: ProtocolName.arianeeSupernet, id: 11891 },
     { name: ProtocolName.arianeesbt, id: 11891 },
+    { name: ProtocolName.richemontsupernet, id: 11891 },
   ],
 };
 export const chainIdsByChainType = (chainType: ChainType): number[] =>
