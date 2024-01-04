@@ -302,7 +302,7 @@ export class ServiceProvider {
     payload: SmartAssetSharingTokenPayload;
     signature: string;
   } {
-    const parsedSST = ArianeeAccessToken.decodeJwt(sst);
+    const parsedSST = ArianeeAccessToken.decodeJwt(sst, true);
     return {
       header: parsedSST.header,
       payload: parsedSST.payload as SmartAssetSharingTokenPayload,
