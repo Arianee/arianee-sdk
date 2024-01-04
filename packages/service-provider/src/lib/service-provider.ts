@@ -85,7 +85,16 @@ export class ServiceProvider {
   }> {
     try {
       // An SST is valid if is a valid ArianeAccessToken AND a valid SmartAssetSharingToken
-      const isValidAAT = ArianeeAccessToken.isArianeeAccessTokenValid(sst);
+
+      /**
+       * We ignore the AAT expiration check here as we will check the SST expiration below.
+       * If the SST was generated using the @arianee/token-provider, the SST expiration will be the same as the AAT one.
+       * We do this to return a more accurate error message.
+       */
+      const isValidAAT = ArianeeAccessToken.isArianeeAccessTokenValid(
+        sst,
+        true
+      );
       if (!isValidAAT) {
         throw new Error('SST is not a valid AAT');
       }
