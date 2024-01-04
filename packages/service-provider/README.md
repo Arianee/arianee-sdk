@@ -36,6 +36,7 @@ To check if an SST is valid using the `isValidSST` function:
 const isValid = await serviceProvider.isValidSST({
   sst: 'eySST...', // an SST (Smart Asset Sharing Token)
   performDryRun: false, // OPTIONAL: set to true to perform a transfer dry run in addition to the other checks (default is false)
+  shouldThrow: false, // OPTIONAL: set to true to throw an error if the SST is not valid (default is false, prints a console error instead)
 });
 ```
 

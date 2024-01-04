@@ -53,7 +53,7 @@ export class ServiceProvider {
         );
       }
     } catch (err) {
-      console.error(`An error occurred while extracting SST: ${err} (${url})`);
+      console.error(`An error occurred while extracting SST: ${err}`);
       return undefined;
     }
   }
@@ -61,17 +61,20 @@ export class ServiceProvider {
   public async isValidSST({
     sst,
     performDryRun = false,
+    shouldThrow = false,
   }: {
     sst: string;
     performDryRun?: boolean;
+    shouldThrow?: boolean;
   }): Promise<boolean> {
-    const { valid } = await this._isValidSST(sst, performDryRun);
+    const { valid } = await this._isValidSST(sst, performDryRun, shouldThrow);
     return valid;
   }
 
   private async _isValidSST(
     sst: string,
-    performDryRun: boolean
+    performDryRun: boolean,
+    shouldThrow = false
   ): Promise<{
     valid: boolean;
     owner: string | undefined;
@@ -82,7 +85,16 @@ export class ServiceProvider {
   }> {
     try {
       // An SST is valid if is a valid ArianeAccessToken AND a valid SmartAssetSharingToken
-      const isValidAAT = ArianeeAccessToken.isArianeeAccessTokenValid(sst);
+
+      /**
+       * We ignore the AAT expiration check here as we will check the SST expiration below.
+       * If the SST was generated using the @arianee/token-provider, the SST expiration will be the same as the AAT one.
+       * We do this to return a more accurate error message.
+       */
+      const isValidAAT = ArianeeAccessToken.isArianeeAccessTokenValid(
+        sst,
+        true
+      );
       if (!isValidAAT) {
         throw new Error('SST is not a valid AAT');
       }
@@ -179,7 +191,8 @@ export class ServiceProvider {
         );
       }
     } catch (err) {
-      console.error(`An error occurred while validating SST: ${err} (${sst})`);
+      if (shouldThrow) throw err;
+      console.error(`An error occurred while validating SST: ${err}`);
       return {
         valid: false,
         owner: undefined,
@@ -197,13 +210,11 @@ export class ServiceProvider {
     sst: string;
     performDryRun?: boolean;
   }) {
-    const { valid, tokenId, protocolSlug } = await this._isValidSST(
+    const { tokenId, protocolSlug } = await this._isValidSST(
       sst,
-      performDryRun
+      performDryRun,
+      true // throw the underlying error if the SST is not valid
     );
-    if (!valid) {
-      throw new Error(`SST ${sst} is not valid`);
-    }
 
     const core = Core.fromRandom(); // We use a random core here, as we don't need to sign anything
     const aat = new ArianeeAccessToken(core, {
@@ -238,9 +249,12 @@ export class ServiceProvider {
     to: string;
     performDryRun?: boolean;
   }) {
-    const { valid, owner, tokenId, protocolSlug, permit, permitSig } =
-      await this._isValidSST(sst, false);
-    if (!valid) throw new Error(`SST ${sst} is not valid`);
+    const { owner, tokenId, protocolSlug, permit, permitSig } =
+      await this._isValidSST(
+        sst,
+        false, // don't perform dry run here, as its eventually done below
+        true // throw the underlying error if the SST is not valid
+      );
 
     const transferSmartAssetParams: Parameters<
       typeof this._transferSmartAsset
