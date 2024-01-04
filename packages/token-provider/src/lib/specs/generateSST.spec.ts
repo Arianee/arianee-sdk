@@ -35,7 +35,7 @@ describe('generateSST', () => {
       core,
       smartAsset: smartAsset.data,
       spender: SPENDER,
-      deadline: toDeadline(1000 * 60 * 60 * 24 * 7),
+      deadline: toDeadline(/* 7 days= */ 1000 * 60 * 60 * 24 * 7),
       nonce: 123456789,
     });
 

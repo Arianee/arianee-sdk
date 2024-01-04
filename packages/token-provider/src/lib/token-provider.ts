@@ -49,6 +49,9 @@ export const generateSST = async ({
   if (protocol instanceof ProtocolClientV2)
     throw new Error('unsupported protocol version');
 
+  const expUnixTimestamp =
+    deadline ?? toDeadline(/* 30 days= */ 1000 * 60 * 60 * 24 * 30);
+
   const permitTransferFrom: PermitTransferFrom = {
     permitted: {
       token: protocol.protocolDetails.contractAdresses.smartAsset,
@@ -56,7 +59,7 @@ export const generateSST = async ({
     },
     spender,
     nonce: nonce ?? Math.floor(Math.random() * 1000000),
-    deadline: deadline ?? toDeadline(/* 30 days= */ 1000 * 60 * 60 * 24 * 30),
+    deadline: expUnixTimestamp,
   };
   const { domain, types, values } = SignatureTransfer.getPermitData(
     permitTransferFrom,
@@ -74,6 +77,7 @@ export const generateSST = async ({
     {
       permit: permitTransferFrom,
       permitSig: permitSignature,
+      exp: expUnixTimestamp * 1000, // convert to ms, as AAT exp is in ms
     } as unknown as PayloadOverride
   );
 
