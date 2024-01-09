@@ -94,6 +94,7 @@ export type PictureType =
   | 'brandLogoHeader'
   | 'brandLogoHeaderReversed'
   | 'brandLogoSquare'
+  | 'brandLogoSquareReversed'
   | 'brandHomePicture'
   | 'brandItemBackgroundPicture'
   | 'itemBackgroundPicture'
