@@ -46,6 +46,7 @@ export interface ProtocolDetailsV1 extends ProtocolDetailsBase {
     userAction: string;
     updateSmartAssets: string;
   };
+  soulbound: boolean;
 }
 
 export interface ProtocolDetailsV2 extends ProtocolDetailsBase {

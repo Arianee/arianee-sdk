@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+import { ProtocolDetailsV1, ProtocolDetailsV2 } from '@arianee/common-types';
 import Core from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
 
 import ArianeeProtocolClient from './arianeeProtocolClient';
 import * as ethersProxies from './utils/ethersCustom/ethersCustom';
 import ProtocolClientV1 from './v1/protocolClientV1';
-import { ProtocolDetailsV1, ProtocolDetailsV2 } from '@arianee/common-types';
-import { mock } from 'node:test';
 
 jest.mock('@arianee/core');
 jest.mock('./v1/protocolClientV1');
@@ -146,6 +146,7 @@ describe('ArianeeProtocolClient', () => {
           userAction: '0x6bDb54FB6227C360b95F9A08Fb670f8207D3476f',
           updateSmartAssets: '0x3ae108bF0Ee8bB9D810BfC80aC73394ee1509C7b',
         },
+        soulbound: false,
       };
 
       fetchLike.mockResolvedValue({
