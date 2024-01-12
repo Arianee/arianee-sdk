@@ -537,9 +537,11 @@ The method can throw:
 
 #### `createAndStoreEvent`
 
-_⚠️ Requires the core address to have an identity URI_.
+_⚠️ Requires the core address to have an identity URI if not using true for `useSmartAssetIssuerPrivacyGateway`_.
 
-Create an event and store its content in the Arianee Privacy Gateway set in the core address's identity and return a `CreatedEvent`.
+Create an event and store its content in the Arianee Privacy Gateway set in the smart issuer's identity (or the core address's identity if `useSmartAssetIssuerPrivacyGateway` set to false) and return a `CreatedEvent`.
+
+Note on `useSmartAssetIssuerPrivacyGateway`, the default value is `true`. This means that default behaviour when using `createAndStoreEvent` is that the event content will be stored in the smart asset issuer`s privacy gateway instead of the event issuer's privacy gateway.
 
 ```typescript
 public async createAndStoreEvent(
@@ -548,7 +550,7 @@ public async createAndStoreEvent(
 ): Promise<CreatedEvent>
 ```
 
-Implemenation example :
+Implementation example :
 
 ```typescript
 await this.creator.events.createAndStoreEvent({
@@ -568,6 +570,7 @@ interface CreateAndStoreEventParameters {
   eventId?: number;
   smartAssetId: number;
   content: ArianeeEventI18N;
+  useSmartAssetIssuerPrivacyGateway?: boolean;
 }
 ```
 

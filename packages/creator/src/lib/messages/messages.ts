@@ -6,7 +6,7 @@ import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import { ArianeePrivacyGatewayError } from '../errors';
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
-import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
+import { getCreatorIdentity } from '../helpers/identity/getIdentity';
 import { checkCreateMessageParameters } from '../helpers/message/checkCreateMessageParameters';
 import { getCreateMessageParams } from '../helpers/message/getCreateMessageParams';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';

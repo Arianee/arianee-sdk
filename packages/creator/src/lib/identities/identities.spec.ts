@@ -2,7 +2,7 @@ import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
 
 import Creator from '../creator';
-import * as getCreatorIdentityModule from '../helpers/identity/getCreatorIdentity';
+import * as getCreatorIdentityModule from '../helpers/identity/getIdentity';
 import { isIdentityApproved } from '../helpers/identity/isIdentityApproved';
 
 jest.mock('@arianee/arianee-protocol-client');

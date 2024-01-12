@@ -1,5 +1,8 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
+import {
+  callWrapper,
+  NonPayableOverrides,
+} from '@arianee/arianee-protocol-client';
 import { ArianeeEventI18N } from '@arianee/common-types';
 
 import Creator, { TransactionStrategy } from '../creator';
@@ -8,12 +11,15 @@ import { ArianeePrivacyGatewayError } from '../errors';
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
 import { checkCreateEventParameters } from '../helpers/event/checkCreateEventParameters';
 import { getCreateEventParams } from '../helpers/event/getCreateEventParams';
-import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
+import {
+  getCreatorIdentity,
+  getIdentity,
+  IdentityWithRpcEndpoint,
+} from '../helpers/identity/getIdentity';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreEventParameters,
   CreatedEvent,
-  CreatedMessage,
   CreateEventCommonParameters,
   CreateEventParameters,
   CreditType,
@@ -27,12 +33,15 @@ export default class Events<Strategy extends TransactionStrategy> {
     params: CreateAndStoreEventParameters,
     overrides: NonPayableOverrides = {}
   ): Promise<CreatedEvent> {
-    await getCreatorIdentity(this.creator); // assert has identity
-
     return this.createEventCommon(
       params,
-      async (eventId) => {
-        await this.storeEvent(eventId, params.content);
+      async (smartAssetId, eventId) => {
+        await this.storeEvent(
+          smartAssetId,
+          eventId,
+          params.content,
+          params.useSmartAssetIssuerPrivacyGateway
+        );
       },
       overrides
     );
@@ -40,10 +49,31 @@ export default class Events<Strategy extends TransactionStrategy> {
 
   @requiresConnection()
   private async storeEvent(
+    smartAssetId: number,
     eventId: number,
-    content: CreateAndStoreEventParameters['content']
+    content: CreateAndStoreEventParameters['content'],
+    useSmartAssetIssuerPrivacyGateway = true
   ) {
-    const identity = await getCreatorIdentity(this.creator);
+    let identity: IdentityWithRpcEndpoint;
+
+    if (useSmartAssetIssuerPrivacyGateway) {
+      const issuer = await callWrapper(
+        this.creator.arianeeProtocolClient,
+        this.creator.slug!,
+        {
+          protocolV1Action: (protocolV1) =>
+            protocolV1.smartAssetContract.issuerOf(smartAssetId),
+          protocolV2Action: async (protocolV2) => {
+            throw new Error('not yet implemented');
+          },
+        },
+        this.creator.connectOptions
+      );
+
+      identity = await getIdentity(this.creator, issuer);
+    } else {
+      identity = await getCreatorIdentity(this.creator);
+    }
 
     const client = new ArianeePrivacyGatewayClient(
       this.creator.core,
@@ -97,6 +127,9 @@ export default class Events<Strategy extends TransactionStrategy> {
     params: CreateEventCommonParameters,
     afterTransaction:
       | ((
+          smartAssetId: NonNullable<
+            CreateEventCommonParameters['smartAssetId']
+          >,
           eventId: NonNullable<CreateEventCommonParameters['eventId']>
         ) => Promise<void>)
       | null,
@@ -156,7 +189,7 @@ export default class Events<Strategy extends TransactionStrategy> {
       this.creator.connectOptions
     );
 
-    if (afterTransaction) await afterTransaction(eventId);
+    if (afterTransaction) await afterTransaction(smartAssetId, eventId);
 
     return {
       id: eventId,

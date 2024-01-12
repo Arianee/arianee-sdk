@@ -8,6 +8,7 @@ export type CreateEventParametersBase = {
 export interface CreateAndStoreEventParameters
   extends CreateEventParametersBase {
   content: ArianeeEventI18N;
+  useSmartAssetIssuerPrivacyGateway?: boolean;
 }
 
 export interface CreateEventParameters extends CreateEventParametersBase {
