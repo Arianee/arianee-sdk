@@ -18,6 +18,7 @@ export class ActionCreateAndStoreEventComponent implements Action {
 
   public smartAssetId: string = '';
   public id: string | null = null;
+  public useSmartAssetIssuerPrivacyGateway = true;
   public content: string = JSON.stringify(
     {
       $schema: 'https://cert.arianee.org/version1/ArianeeEvent-i18n.json',
@@ -43,13 +44,15 @@ export class ActionCreateAndStoreEventComponent implements Action {
 
     try {
       this.loading = true;
-      const createdMessage = await this.creator.events.createAndStoreEvent({
+      const createdEvent = await this.creator.events.createAndStoreEvent({
         smartAssetId: parseInt(this.smartAssetId),
         content,
         eventId: this.id && this.id !== '' ? parseInt(this.id) : undefined,
+        useSmartAssetIssuerPrivacyGateway:
+          this.useSmartAssetIssuerPrivacyGateway,
       });
 
-      this.result = JSON.stringify(createdMessage, null, 2);
+      this.result = JSON.stringify(createdEvent, null, 2);
     } catch (error) {
       if (error instanceof InsufficientEventCreditsError) {
         alert('You do not have enough event credits!');

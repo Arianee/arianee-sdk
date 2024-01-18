@@ -7,7 +7,7 @@ import { ArianeePrivacyGatewayError } from '../errors';
 import * as checkCreditsModule from '../helpers/checkCredits/checkCredits';
 import * as checkCreateEventParametersModule from '../helpers/event/checkCreateEventParameters';
 import * as getCreateEventParamsModule from '../helpers/event/getCreateEventParams';
-import * as getCreatorIdentityModule from '../helpers/identity/getCreatorIdentity';
+import * as getIdentityModule from '../helpers/identity/getIdentity';
 import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import { CreditType } from '../types';
 
@@ -40,9 +40,7 @@ describe('Events', () => {
 
   describe('createAndStoreEvent', () => {
     it('should call createEventCommon with the correct params', async () => {
-      jest
-        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
-        .mockImplementation();
+      jest.spyOn(getIdentityModule, 'getCreatorIdentity').mockImplementation();
 
       const params = {
         content: {
@@ -188,7 +186,7 @@ describe('Events', () => {
       });
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
-      expect(afterTransactionSpy).toHaveBeenCalledWith(456);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(123, 456);
     });
     it('should call the v2 contract with correct params and return the id and imprint', async () => {
       const content = {
@@ -284,7 +282,7 @@ describe('Events', () => {
       });
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
-      expect(afterTransactionSpy).toHaveBeenCalledWith(456);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(123, 456);
     });
   });
 
@@ -294,25 +292,43 @@ describe('Events', () => {
         .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
         .mockRejectedValue('error');
 
-      jest
-        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
-        .mockImplementation();
+      jest.spyOn(getIdentityModule, 'getCreatorIdentity').mockImplementation();
 
       expect(
-        creator.events['storeEvent'](123, { $schema: 'mock' })
+        creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false)
       ).rejects.toThrow(/Arianee Privacy Gateway/gi);
       expect(
-        creator.events['storeEvent'](123, { $schema: 'mock' })
+        creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false)
       ).rejects.toThrowError(ArianeePrivacyGatewayError);
     });
 
-    it('should call eventCreate', async () => {
+    it("should call eventCreate and store it in the creator's identity privacy gateway", async () => {
       const spy = jest
         .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
         .mockImplementation();
 
-      jest
-        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+      jest.spyOn(getIdentityModule, 'getCreatorIdentity').mockImplementation(
+        () =>
+          ({
+            rpcEndpoint: 'https://mock.com',
+          } as any)
+      );
+
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
+
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+    });
+
+    it("should call eventCreate and store it in the smart asset issuer's identity privacy gateway", async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      const getIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getIdentity')
         .mockImplementation(
           () =>
             ({
@@ -320,12 +336,35 @@ describe('Events', () => {
             } as any)
         );
 
-      await creator.events['storeEvent'](123, { $schema: 'mock' });
+      const issuerOfSpy = jest.fn().mockResolvedValueOnce('0x123');
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: issuerOfSpy,
+            },
+          } as any)
+        );
+
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
 
       expect(spy).toHaveBeenCalledWith('https://mock.com', {
         eventId: '123',
         content: { $schema: 'mock' },
       });
+
+      expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
     });
   });
 });

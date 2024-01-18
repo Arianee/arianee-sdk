@@ -6,7 +6,7 @@ import Core from '@arianee/core';
 import Creator from '../creator';
 import { ArianeePrivacyGatewayError } from '../errors';
 import * as checkCreditsModule from '../helpers/checkCredits/checkCredits';
-import * as getCreatorIdentityModule from '../helpers/identity/getCreatorIdentity';
+import * as getCreatorIdentityModule from '../helpers/identity/getIdentity';
 import * as assertSmartAssetIssuedByModule from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 import * as checkCreateSmartAssetParametersModule from '../helpers/smartAsset/checkCreateSmartAssetParameters';
 import * as getCreateSmartAssetParamsModule from '../helpers/smartAsset/getCreateSmartAssetParams';

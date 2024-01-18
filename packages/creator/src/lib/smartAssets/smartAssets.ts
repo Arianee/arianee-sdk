@@ -21,7 +21,7 @@ import {
 } from '../errors';
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
 import { getTokenAccessParams } from '../helpers/getTokenAccessParams/getTokenAccessParams';
-import { getCreatorIdentity } from '../helpers/identity/getCreatorIdentity';
+import { getCreatorIdentity } from '../helpers/identity/getIdentity';
 import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 import { checkCreateSmartAssetParameters } from '../helpers/smartAsset/checkCreateSmartAssetParameters';
 import { getCreateSmartAssetParams } from '../helpers/smartAsset/getCreateSmartAssetParams';
