@@ -71,7 +71,7 @@ const WHITELABEL_HOSTNAMES_TO_PROTOCOL_NAME: Record<string, Protocol['name']> =
     'arianeesbt.arianee.net': 'arianeesbt',
     'sbt.panerai.com': 'arianeesbt',
     'paneraisbt.arianee.net': 'arianeesbt',
-    'supernettestnet.arianee.ee': 'supernettestnet',
+    'supernettestnet.arian.ee': 'supernettestnet',
   };
 
 export const getProtocolNameFromHostname = (
