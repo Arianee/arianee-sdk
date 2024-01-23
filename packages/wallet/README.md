@@ -143,6 +143,7 @@ wallet.smartAsset.claim(...);
 wallet.smartAsset.acceptEvent(...);
 wallet.smartAsset.refuseEvent(...);
 wallet.smartAsset.createLink(...);
+wallet.smartAsset.isProofValidFromLink(...);
 
 // events
 wallet.smartAsset.received // emits when user received a smart asset from someone
@@ -196,6 +197,42 @@ wallet.smartAsset.received.removeListener(listener);
 
 // remove all listeners
 wallet.smartAsset.received.removeAllListeners();
+```
+
+### Proofs
+
+Smart asset proofs can be verified using the `isProofValidFromLink` method either by importing it or from the `smartAsset` property of the `Wallet` class.
+
+If the proof is valid, the method resolves to true, otherwise it throws an error explaining why the proof is invalid.
+Possible errors are: `ProofCreatorIsNotOwnerError`, `ProofExpiredError`, `ProofKeyNotValidError`, `NotAProofLinkError`, `ProofKeyNotFoundError`.
+
+The method accepts one required parameter (the proof link) and two optional parameters (arianeeApiUrl and proofValidityWindow).
+
+- proofLink: the proof link to verify
+- arianeeApiUrl (optional): the url of arianee api to use to fetch NFT data etc.
+- proofValidityWindow (optional): the validity window of the proof in seconds. Default is 3 days (86400 \* 3). This means that any proof generated between now and 3 days ago is considered valid (if all the other criterias are valid).
+
+```typescript
+import Wallet, { isProofValidFromLink } from '@arianee/wallet';
+
+try {
+  const wallet = new Wallet();
+
+  const isValid = await wallet.smartAsset.isProofValidFromLink('https://test.arian.ee/proof/9995851,d8cbfwnz12lh');
+
+  console.log('isValid', isValid);
+} catch (e) {
+  console.log('Proof not valid', e?.message);
+}
+
+// or
+
+try {
+  const isValid = await isProofValidFromLink('https://test.arian.ee/proof/9995851,d8cbfwnz12lh');
+  console.log('isValid', isValid);
+} catch (e) {
+  console.log('Proof not valid', e?.message);
+}
 ```
 
 ## Tests

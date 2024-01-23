@@ -21,6 +21,7 @@ import {
 } from 'ethers';
 
 import { getPreferredLanguages, I18NStrategy } from '../../utils/i18n';
+import { isProofValidFromLink } from '../../utils/proof/isProofValidFromLink';
 import {
   getWalletReward,
   WalletRewards,
@@ -480,6 +481,12 @@ export default class SmartAssetService<
         ? ContractTransactionReceipt
         : ContractTransactionResponse
     >;
+  }
+
+  public async isProofValidFromLink(
+    ...params: Parameters<typeof isProofValidFromLink>
+  ) {
+    return isProofValidFromLink(...params);
   }
 }
 
