@@ -41,9 +41,12 @@ describe('MessageService', () => {
     jest.fn()
   );
 
+  const connectedWalletAddress = '0xABCDEF';
+
   const transactionWrapperSpy = jest.fn();
   const wallet = {
     transactionWrapper: transactionWrapperSpy,
+    getAddress: () => connectedWalletAddress,
   };
 
   const getReceivedMessagesSpy = jest
@@ -375,6 +378,47 @@ describe('MessageService', () => {
           protocolV2Action: expect.any(Function),
         }
       );
+    });
+
+    describe('isBlacklisted', () => {
+      it('should call the v1 contract with correct params and return the result', async () => {
+        const isBlacklistedSpy = jest.fn().mockResolvedValue(true);
+
+        const callWrapperSpy = jest
+          .spyOn(arianeeProtocolClientModule, 'callWrapper')
+          .mockImplementation(
+            async (_, __, actions) =>
+              await actions.protocolV1Action({
+                whitelistContract: {
+                  isBlacklisted: isBlacklistedSpy,
+                },
+              } as any)
+          );
+
+        const isBlacklisted = await messageService.isBlacklisted(
+          'testnet',
+          '0x123',
+          '1'
+        );
+
+        expect(isBlacklistedSpy).toHaveBeenCalledWith(
+          connectedWalletAddress,
+          '0x123',
+          '1'
+        );
+
+        expect(callWrapperSpy).toHaveBeenCalledWith(
+          arianeeProtocolClient,
+          'testnet',
+          {
+            protocolV1Action: expect.any(Function),
+            protocolV2Action: expect.any(Function),
+          },
+          undefined
+        );
+
+        expect(isBlacklisted).toBeTruthy();
+      });
     });
   });
 });
