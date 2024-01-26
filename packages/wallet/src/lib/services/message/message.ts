@@ -1,4 +1,5 @@
 import ArianeeProtocolClient, {
+  callWrapper,
   NonPayableOverrides,
 } from '@arianee/arianee-protocol-client';
 import { ChainType, Protocol, SmartAsset } from '@arianee/common-types';
@@ -208,6 +209,31 @@ export default class MessageService<
       smartAssetId,
       false,
       overrides
+    );
+  }
+
+  public async isBlacklisted(
+    protocolName: Protocol['name'],
+    sender: string,
+    smartAssetId: SmartAsset['certificateId'],
+    connectOptions?: Parameters<typeof callWrapper>[3]
+  ) {
+    return callWrapper(
+      this.arianeeProtocolClient,
+      protocolName,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.whitelistContract.isBlacklisted(
+            this.wallet.getAddress(),
+            sender,
+            smartAssetId
+          );
+        },
+        protocolV2Action: async (v2) => {
+          throw new Error('not yet implemented');
+        },
+      },
+      connectOptions
     );
   }
 }
