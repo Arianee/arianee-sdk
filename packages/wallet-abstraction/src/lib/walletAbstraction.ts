@@ -19,12 +19,26 @@ export interface WalletAbstraction {
     }
   ): SmartAsset | Promise<SmartAsset>;
 
+  getSmartAssetFromArianeeAccessToken(
+    arianeeAccessToken: string,
+    params?: {
+      preferredLanguages?: string[];
+    }
+  ): SmartAsset | Promise<SmartAsset>;
+
   getSmartAssetEvents(
     protocolName: Protocol['name'],
     smartAsset: {
       id: SmartAsset['certificateId'];
       passphrase?: string;
     },
+    params?: {
+      preferredLanguages?: string[];
+    }
+  ): Event[] | Promise<Event[]>;
+
+  getSmartAssetEventsFromArianeeAccessToken(
+    arianeeAccessToken: string,
     params?: {
       preferredLanguages?: string[];
     }

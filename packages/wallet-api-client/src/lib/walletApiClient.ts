@@ -1,4 +1,4 @@
-import { WalletAbstraction } from '@arianee/wallet-abstraction';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import {
   BrandIdentity,
   BrandIdentityWithOwned,
@@ -9,11 +9,12 @@ import {
   SmartAsset,
 } from '@arianee/common-types';
 import { Core } from '@arianee/core';
+import { defaultFetchLike, ReadLink } from '@arianee/utils';
+import { WalletAbstraction } from '@arianee/wallet-abstraction';
+
 import { WALLET_API_URL } from './constants';
 import { generateQueryString, removeTrailingSlash } from './helpers';
 import HttpClient, { AuthorizationType } from './helpers/httpClient';
-import { ArianeeAccessToken } from '@arianee/arianee-access-token';
-import { ReadLink, defaultFetchLike } from '@arianee/utils';
 
 export default class WalletApiClient<T extends ChainType>
   implements WalletAbstraction
@@ -95,6 +96,42 @@ export default class WalletApiClient<T extends ChainType>
     }
   }
 
+  async getSmartAssetFromArianeeAccessToken(
+    arianeeAccessToken: string,
+    params?: {
+      preferredLanguages?: string[];
+    }
+  ): Promise<SmartAsset> {
+    const { preferredLanguages } = params || {};
+
+    const { payload } = ArianeeAccessToken.decodeJwt(arianeeAccessToken);
+
+    if (payload?.sub !== 'certificate') {
+      throw new Error(`Arianee Access Token should be certificate scoped`);
+    }
+
+    const query = generateQueryString({
+      languages: preferredLanguages,
+    });
+
+    try {
+      const response = await this.httpClient.get(
+        `${this.apiURL}/arianee/smartAsset/${payload.network}/${payload.subId}${query}`,
+        {
+          authorization: `Bearer ${arianeeAccessToken}`,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error fetching smart asset: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (e) {
+      throw new Error(`Failed to fetch smart asset: ${(e as Error).message}`);
+    }
+  }
+
   async getSmartAssetEvents(
     protocolName: Protocol['name'],
     smartAsset: {
@@ -118,6 +155,46 @@ export default class WalletApiClient<T extends ChainType>
         url: `${this.apiURL}/arianee/events/${protocolName}/${id}${query}`,
         authorizationType,
       });
+
+      if (!response.ok) {
+        throw new Error(
+          `Error fetching smart asset events: ${response.statusText}`
+        );
+      }
+
+      return await response.json();
+    } catch (e) {
+      throw new Error(
+        `Failed to fetch smart asset events: ${(e as Error).message}`
+      );
+    }
+  }
+
+  async getSmartAssetEventsFromArianeeAccessToken(
+    arianeeAccessToken: string,
+    params?: {
+      preferredLanguages?: string[];
+    }
+  ): Promise<Event[]> {
+    const { preferredLanguages } = params || {};
+
+    const { payload } = ArianeeAccessToken.decodeJwt(arianeeAccessToken);
+
+    if (payload?.sub !== 'certificate') {
+      throw new Error(`Arianee Access Token should be certificate scoped`);
+    }
+
+    const query = generateQueryString({
+      languages: preferredLanguages,
+    });
+
+    try {
+      const response = await this.httpClient.get(
+        `${this.apiURL}/arianee/events/${payload.network}/${payload.subId}${query}`,
+        {
+          authorization: `Bearer ${arianeeAccessToken}`,
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
