@@ -100,6 +100,18 @@ export default class SmartAssetInstance<
       receiver
     );
   }
+
+  public async createArianeeAccessToken() {
+    if (!this.isOwner)
+      throw new Error(
+        `User needs to be owner of the smart asset (${this.certificateId}) to create a proof link`
+      );
+
+    return this.smartAssetService.createCertificateArianeeAccessToken(
+      this.certificateId,
+      this.protocolName
+    );
+  }
 }
 
 export { SmartAssetInstance };

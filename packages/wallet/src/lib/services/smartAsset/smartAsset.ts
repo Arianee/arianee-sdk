@@ -488,6 +488,16 @@ export default class SmartAssetService<
   ) {
     return isProofValidFromLink(...params);
   }
+
+  async createCertificateArianeeAccessToken(
+    certificateId: string,
+    network: string
+  ) {
+    return this.arianeeAccessToken.createCertificateArianeeAccessToken(
+      parseInt(certificateId),
+      network
+    );
+  }
 }
 
 export { SmartAssetService as SmartAsset };
