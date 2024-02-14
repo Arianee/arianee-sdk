@@ -43,13 +43,10 @@ export class JWTGeneric {
    * Set token to be verified or decoded
    * @param encodedToken
    */
-  public setToken(encodedToken: string) {
+  public setToken = (encodedToken: string) => {
     this.encodedToken = encodedToken;
-    return {
-      decode: this.decode.bind(this),
-      verify: this.verify.bind(this),
-    };
-  }
+    return this;
+  };
 
   private static base64Stringified(
     data: ArianeeAccessTokenPayload | JwtHeaderInterface
@@ -76,7 +73,7 @@ export class JWTGeneric {
    * Verify if signature was signed by pubKey and return true/false
    * @param pubKey
    */
-  private verify(pubKey: string, ignoreExpiration = false): boolean {
+  public verify = (pubKey: string, timeBeforeExp?: number): boolean => {
     if (!this.params.recover) {
       throw new Error('You should provide a decoder to verify your token');
     }
@@ -88,26 +85,47 @@ export class JWTGeneric {
 
     const decode = this.params.recover(signedMessage, signature);
 
-    const arePropertyValid = this.arePropertiesValid(payload, ignoreExpiration);
+    const arePropertyValid = this.arePropertiesValid(timeBeforeExp);
 
     if (!arePropertyValid) {
       return false;
     }
     return pubKey.toLowerCase() === decode.toLowerCase();
-  }
+  };
 
-  private arePropertiesValid = (
-    payload: ArianeeAccessTokenPayload,
-    ignoreExpiration = false
-  ) => {
-    if (payload.exp && !ignoreExpiration) {
-      const isExpired = new Date(payload.exp).getTime() < Date.now();
-      if (isExpired) {
-        return false;
-      }
+  /**
+   * Check if expiration is before now + timeBeforeExpInSec.
+   * If timeBeforeExpInSec === -1 we skip the expiration check
+   * ex: does my token expires in the next 10 minutes
+   * @param timeBeforeExpInSec
+   * @returns
+   */
+  public isExpValid = (timeBeforeExpInSec = 0): boolean => {
+    if (timeBeforeExpInSec === -1) {
+      return true;
     }
+    const decoded = this.decode();
+    const now = new Date().getTime();
+    const isExpInMilliseconds = decoded.payload.exp.toString().length === 13;
+    const expInMilliseconds = isExpInMilliseconds
+      ? decoded.payload.exp
+      : decoded.payload.exp * 1000;
+
+    return now + timeBeforeExpInSec * 1000 < expInMilliseconds;
+  };
+
+  public arePropertiesValid = (timeBeforeExpInSec = 0): boolean => {
+    const { payload } = this.decode();
+
+    const isExpired = !this.isExpValid(timeBeforeExpInSec);
+    if (isExpired) {
+      return false;
+    }
+
     if (payload.nbf) {
-      const isBefore = new Date(payload.nbf).getTime() > Date.now();
+      const nbfInMS = payload.nbf * 1000;
+      const isBefore = new Date(nbfInMS).getTime() > Date.now();
+      console.log(isBefore);
       if (isBefore) {
         return false;
       }
@@ -116,12 +134,12 @@ export class JWTGeneric {
     return true;
   };
 
-  private decode(): {
+  public decode = (): {
     prefix: string;
     header: JwtHeaderInterface;
     payload: ArianeeAccessTokenPayload;
     signature: string;
-  } {
+  } => {
     const headerType = this.encodedToken.includes(JWTGeneric.JWT_HEADER_ETH)
       ? JWTGeneric.JWT_HEADER_ETH
       : JWTGeneric.JWT_HEADER_secp256k1;
@@ -140,7 +158,7 @@ export class JWTGeneric {
       ) as unknown as ArianeeAccessTokenPayload,
       signature: signature,
     };
-  }
+  };
 
   private signature(prefix: string) {
     if (!this.params.signer) {

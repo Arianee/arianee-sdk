@@ -77,6 +77,7 @@ export const generateSST = async ({
     {
       permit: permitTransferFrom,
       permitSig: permitSignature,
+      // TODO: remove the * 1000 when sdk is deployed everywhere
       exp: expUnixTimestamp * 1000, // convert to ms, as AAT exp is in ms
     } as unknown as PayloadOverride
   );

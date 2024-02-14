@@ -3,7 +3,6 @@ import { MemoryStorage } from '@arianee/utils';
 import { ethers } from 'ethers';
 
 import { JWTGeneric } from './helpers/jwtGeneric';
-import { isExpInLessThan } from './helpers/timeBeforeExp';
 import { ArianeeAccessTokenPayload } from './types/ArianeeAccessTokenPayload';
 import { JwtHeaderInterface } from './types/JwtHeaderInterface';
 
@@ -50,7 +49,13 @@ export class ArianeeAccessToken {
 
     let aat = this.storage.getItem(ArianeeAccessToken.LAST_AAT_KEY);
 
-    if (!aat || isExpInLessThan(aat, timeBeforeExp)) {
+    const jwtGenerator = new JWTGeneric({});
+
+    const shouldRegenerateAAT = aat
+      ? !jwtGenerator.setToken(aat).arePropertiesValid() // if property are all valid, we don't need to regenerate AAT
+      : true;
+
+    if (!aat || shouldRegenerateAAT) {
       aat = await this.createWalletAccessToken(payloadOverride, prefix);
       this.storage.setItem(ArianeeAccessToken.LAST_AAT_KEY, aat);
     }
@@ -102,7 +107,8 @@ export class ArianeeAccessToken {
     const jwt = jwtGenerator.setToken(arianeeAccessToken);
     const iss = jwt.decode().payload.iss;
 
-    return jwt.verify(iss, ignoreExpiration);
+    const expBeforeExpiration = ignoreExpiration ? 0 : -1;
+    return jwt.verify(iss, expBeforeExpiration);
   }
 
   static decodeJwt(
@@ -133,12 +139,14 @@ export class ArianeeAccessToken {
       return (await this.core.signMessage(data)).signature;
     };
     const jwtGenerator = new JWTGeneric({ signer });
+    const nowInSeconds = Math.floor(Date.now() / 1000);
     const now = Date.now();
     const basicPayload: ArianeeAccessTokenPayload = {
       iss: this.core.getAddress(),
       sub: 'wallet',
+      // TODO: remove the * 1000 when sdk is deployed everywhere
       exp: now + 5 * 60 * 1000, // default to 5 minutes
-      iat: now,
+      iat: nowInSeconds,
       ...payload,
     };
 
