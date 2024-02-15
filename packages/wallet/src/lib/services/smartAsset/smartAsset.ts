@@ -128,6 +128,34 @@ export default class SmartAssetService<
     );
   }
 
+  async getFromArianeeAccessToken(
+    accessToken: string,
+    params?: { i18nStrategy?: I18NStrategy }
+  ): Promise<SmartAssetInstance<T, S>> {
+    const preferredLanguages = getPreferredLanguages(
+      params?.i18nStrategy ?? this.i18nStrategy
+    );
+
+    const [_smartAsset, arianeeEvents] = await Promise.all([
+      this.walletAbstraction.getSmartAssetFromArianeeAccessToken(accessToken, {
+        preferredLanguages,
+      }),
+
+      this.walletAbstraction.getSmartAssetEventsFromArianeeAccessToken(
+        accessToken,
+        {
+          preferredLanguages,
+        }
+      ),
+    ]);
+
+    return new SmartAssetInstance(this, {
+      data: _smartAsset,
+      arianeeEvents,
+      userAddress: this.core.getAddress(),
+    });
+  }
+
   /**
    * Returns all the smart assets and their events
    * owned by the user
