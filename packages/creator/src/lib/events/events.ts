@@ -4,6 +4,7 @@ import {
   NonPayableOverrides,
 } from '@arianee/arianee-protocol-client';
 import { ArianeeEventI18N } from '@arianee/common-types';
+import { ethers } from 'ethers';
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
@@ -70,7 +71,26 @@ export default class Events<Strategy extends TransactionStrategy> {
         this.creator.connectOptions
       );
 
-      identity = await getIdentity(this.creator, issuer);
+      // if the issuer address is defined (not the zero address)
+      if (issuer !== ethers.ZeroAddress) {
+        identity = await getIdentity(this.creator, issuer);
+      } else {
+        // otherwise, this is likely a reserved nft, we fallback to the owner address to get the identity (which is the same as the issuer)
+        const owner = await callWrapper(
+          this.creator.arianeeProtocolClient,
+          this.creator.slug!,
+          {
+            protocolV1Action: (protocolV1) =>
+              protocolV1.smartAssetContract.ownerOf(smartAssetId),
+            protocolV2Action: async (protocolV2) => {
+              throw new Error('not yet implemented');
+            },
+          },
+          this.creator.connectOptions
+        );
+
+        identity = await getIdentity(this.creator, owner);
+      }
     } else {
       identity = await getCreatorIdentity(this.creator);
     }
