@@ -31,14 +31,20 @@ export const callWrapper = async <T>(
       return await actions.protocolV1Action(protocol);
     } catch (e) {
       console.error(e);
-      throw new Error('Error while executing the protocol v1 action');
+      const message = e instanceof Error ? e.message : '';
+      throw new Error(
+        'Error while executing the protocol v1 action  ' + message
+      );
     }
   } else {
     try {
       return await actions.protocolV2Action(protocol);
     } catch (e) {
       console.error(e);
-      throw new Error('Error while executing the protocol v2 action');
+      const message = e instanceof Error ? e.message : '';
+      throw new Error(
+        'Error while executing the protocol v2 action ' + message
+      );
     }
   }
 };

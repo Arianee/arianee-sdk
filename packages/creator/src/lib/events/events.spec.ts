@@ -1,6 +1,7 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
+import { ethers } from 'ethers';
 
 import Creator from '../creator';
 import { ArianeePrivacyGatewayError } from '../errors';
@@ -356,6 +357,57 @@ describe('Events', () => {
       });
 
       expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
+      expect(callWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+    });
+
+    it("should call eventCreate and store it in the smart asset owner's identity privacy gateway if the issuer is the zero address (reserved nft case)", async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      const getIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://mock.com',
+            } as any)
+        );
+
+      const issuerOfSpy = jest.fn().mockResolvedValueOnce(ethers.ZeroAddress);
+      const ownerOfSpy = jest.fn().mockResolvedValueOnce('0x123');
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: issuerOfSpy,
+              ownerOf: ownerOfSpy,
+            },
+          } as any)
+        );
+
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
+
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+
+      expect(issuerOfSpy).toHaveBeenCalled();
+      expect(ownerOfSpy).toHaveBeenCalled();
+      expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
+
+      expect(callWrapperSpy).toHaveBeenCalledTimes(2);
       expect(callWrapperSpy).toHaveBeenCalledWith(
         creator['arianeeProtocolClient'],
         creator['slug'],

@@ -47,14 +47,20 @@ export const noWaitTransactionWrapper = async (
       tx = await actions.protocolV1Action(protocol);
     } catch (e) {
       console.error(e);
-      throw new Error('Error while executing the protocol v1 action');
+      const message = e instanceof Error ? e.message : '';
+      throw new Error(
+        'Error while executing the protocol v1 action ' + message
+      );
     }
   } else {
     try {
       tx = await actions.protocolV2Action(protocol);
     } catch (e) {
       console.error(e);
-      throw new Error('Error while executing the protocol v2 action');
+      const message = e instanceof Error ? e.message : '';
+      throw new Error(
+        'Error while executing the protocol v2 action ' + message
+      );
     }
   }
 
