@@ -44,6 +44,10 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
     | ethers6_v1.ArianeeUpdate
     | ethers6_v1_1.ArianeeUpdate;
 
+  public readonly arianeeLost:
+    | ethers6_v1.ArianeeLost
+    | ethers6_v1_1.ArianeeLost;
+
   constructor(
     signer: Signer,
     protocolDetails: ProtocolDetailsV1,
@@ -119,6 +123,11 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
 
     this.updateSmartAssetContract = ethers6.ArianeeUpdate__factory.connect(
       this.protocolDetails.contractAdresses.updateSmartAssets,
+      this.signer
+    );
+
+    this.arianeeLost = ethers6.ArianeeLost__factory.connect(
+      this.protocolDetails.contractAdresses.lost,
       this.signer
     );
   }
