@@ -6,7 +6,6 @@ import { SmartAsset } from '@arianee/common-types';
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
-import { getCreatorIdentity } from '../helpers/identity/getIdentity';
 import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 
 export default class LostAndStolen<Strategy extends TransactionStrategy> {
@@ -67,7 +66,6 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
     missingStatus: boolean;
     smartAssetId: SmartAsset['certificateId'];
   }> {
-    await getCreatorIdentity(this.creator); // assert has identity
     await assertSmartAssetIssuedBy(
       {
         smartAssetId,
@@ -123,7 +121,6 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
     stolenStatus: boolean;
     smartAssetId: SmartAsset['certificateId'];
   }> {
-    await getCreatorIdentity(this.creator); // assert has identity
     await assertSmartAssetIssuedBy(
       {
         smartAssetId,
