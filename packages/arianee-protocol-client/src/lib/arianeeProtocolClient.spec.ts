@@ -141,6 +141,7 @@ describe('ArianeeProtocolClient', () => {
           identity: '0x6f5d3ac15576f0da108cde3b7bbbf8f89eb8e7b2',
           smartAsset: '0x512C1FCF401133680f373a386F3f752b98070BC5',
           store: '0x5360DbFF3546b920431A20268D2B5DFf8bF9b4dD',
+          lost: '0x6f5d3ac15576f0da108cde3b7bbbf8f89eb8e7b2',
           whitelist: '0x3579669219DC20Aa79E74eEFD5fB2EcB0CE5fE0D',
           message: '0xadD562C6c8D8755E0FaB1c12705831E759b77D00',
           userAction: '0x6bDb54FB6227C360b95F9A08Fb670f8207D3476f',

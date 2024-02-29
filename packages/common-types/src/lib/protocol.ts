@@ -43,6 +43,7 @@ export interface ProtocolDetailsV1 extends ProtocolDetailsBase {
     whitelist: string;
     eventArianee: string;
     message: string;
+    lost: string;
     userAction: string;
     updateSmartAssets: string;
   };
