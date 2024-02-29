@@ -18,7 +18,7 @@ export const getTokenAccessParams = (
   } else if ('address' in tokenAccess) {
     publicKey = tokenAccess.address;
   } else if ('fromPassphrase' in tokenAccess) {
-    passphrase = tokenAccess.fromPassphrase;
+    passphrase = tokenAccess.fromPassphrase.trim();
     const wallet = Core.fromPassPhrase(passphrase);
     publicKey = wallet.getAddress();
   } else {
