@@ -2,6 +2,7 @@ import {
   ProtocolDetailsV2,
   ProtocolV2NftInterface,
 } from '@arianee/common-types';
+
 import { CheckV2NftInterfaceError } from '../../../errors';
 import ProtocolClientV2 from '../../protocolClientV2';
 import { checkV2NftInterface } from './checkV2NftInterface';

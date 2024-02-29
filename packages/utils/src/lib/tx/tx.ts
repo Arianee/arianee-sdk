@@ -1,5 +1,5 @@
-import { Interface, TransactionDescription, TransactionRequest } from 'ethers';
 import { ethers6_v1, ethers6_v1_1 } from '@arianee/arianee-abi';
+import { Interface, TransactionDescription, TransactionRequest } from 'ethers';
 
 const ArianeeFactoriesV1 = Object.keys(ethers6_v1.factories).map((key) => {
   return {
@@ -63,6 +63,6 @@ function decodeTransaction(
 
 export {
   DecodedArianeeTransaction,
-  decodeTransaction,
   DecodedArianeeTransactionError,
+  decodeTransaction,
 };

@@ -1,4 +1,5 @@
 import { ProtocolV2NftInterface } from '@arianee/common-types';
+
 import { CheckV2NftInterfaceError } from '../../../errors';
 import ProtocolClientV2 from '../../protocolClientV2';
 

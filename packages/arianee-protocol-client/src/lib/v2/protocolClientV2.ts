@@ -1,3 +1,4 @@
+import { ProtocolDetailsV2, ProtocolV2Versions } from '@arianee/common-types';
 import {
   CreditManager,
   CreditManager__factory,
@@ -28,7 +29,6 @@ import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
 import GasStation from '../utils/gasStation/gasStation';
-import { ProtocolDetailsV2, ProtocolV2Versions } from '@arianee/common-types';
 
 export default class ProtocolClientV2 extends ProtocolClientBase<ProtocolDetailsV2> {
   public readonly creditManagerContract: CreditManager;
