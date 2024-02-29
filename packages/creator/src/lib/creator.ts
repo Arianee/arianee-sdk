@@ -14,6 +14,7 @@ import { ContractTransactionResponse } from 'ethers/lib.esm';
 import { requiresConnection } from './decorators/requiresConnection';
 import Events from './events/events';
 import Identities from './identities/identities';
+import LostAndStolen from './lostAndStolen/lostAndStolen';
 import Messages from './messages/messages';
 import SmartAssets from './smartAssets/smartAssets';
 import { CreditType } from './types';
@@ -71,6 +72,7 @@ export default class Creator<Strategy extends TransactionStrategy> {
   public readonly messages: Messages<Strategy>;
   public readonly events: Events<Strategy>;
   public readonly identities: Identities<Strategy>;
+  public readonly lostAndStolen: LostAndStolen<Strategy>;
 
   constructor(params: CreatorParams<Strategy>) {
     const { fetchLike, core, creatorAddress } = params;
@@ -96,6 +98,7 @@ export default class Creator<Strategy extends TransactionStrategy> {
     this.messages = new Messages(this);
     this.events = new Events(this);
     this.identities = new Identities(this);
+    this.lostAndStolen = new LostAndStolen(this);
   }
 
   public async connect(
