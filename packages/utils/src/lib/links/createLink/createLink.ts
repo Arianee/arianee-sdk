@@ -1,6 +1,7 @@
+import { BrandIdentity } from '@arianee/common-types';
+
 import { isProtocolV2FromSlug } from '../../slug/slug';
 import { getHostnameFromProtocolName } from '../readLink/readLink';
-import { BrandIdentity } from '@arianee/common-types';
 
 /**
  * Creates a valid proof / request / view link for a smart asset based on the protocol slug

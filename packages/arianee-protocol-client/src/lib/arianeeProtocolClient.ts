@@ -1,12 +1,4 @@
-import Core from '@arianee/core';
-import { defaultFetchLike } from '@arianee/utils';
 import { ArianeeApiClient } from '@arianee/arianee-api-client';
-
-import { ProtocolDetailsResolver } from './shared/types';
-import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
-import GasStation from './utils/gasStation/gasStation';
-import ProtocolClientV1 from './v1/protocolClientV1';
-import ProtocolClientV2 from './v2/protocolClientV2';
 import {
   ProtocolDetails,
   ProtocolDetailsV1,
@@ -14,6 +6,14 @@ import {
   ProtocolV1Versions,
   ProtocolV2Versions,
 } from '@arianee/common-types';
+import Core from '@arianee/core';
+import { defaultFetchLike } from '@arianee/utils';
+
+import { ProtocolDetailsResolver } from './shared/types';
+import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
+import GasStation from './utils/gasStation/gasStation';
+import ProtocolClientV1 from './v1/protocolClientV1';
+import ProtocolClientV2 from './v2/protocolClientV2';
 
 export interface ArianeeProtocolClientOptions {
   fetchLike?: typeof fetch;

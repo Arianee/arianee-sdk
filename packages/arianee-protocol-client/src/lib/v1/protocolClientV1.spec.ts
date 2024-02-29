@@ -1,7 +1,7 @@
+import { ProtocolDetailsV1 } from '@arianee/common-types';
 import { Signer } from 'ethers';
 
 import ProtocolClientV1 from './protocolClientV1';
-import { ProtocolDetailsV1 } from '@arianee/common-types';
 
 describe('ProtocolClientV1', () => {
   it('should throw if instantiated with an invalid version', () => {

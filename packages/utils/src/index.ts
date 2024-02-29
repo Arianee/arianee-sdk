@@ -1,6 +1,7 @@
 export * from './lib/chain/chain';
 export * from './lib/fetchLike/defaultFetchLike';
 export * from './lib/fetchLike/retryFetchLike/retryFetchLike';
+export * from './lib/format';
 export * from './lib/links/createLink/createLink';
 export * from './lib/links/readLink/readLink';
 export * from './lib/mergeSmartAssetAndParentSmartAsset/mergeSmartAssetAndParentSmartAsset';
@@ -8,4 +9,3 @@ export * from './lib/passphrase/randomPassphrase';
 export * from './lib/slug/slug';
 export * from './lib/storage/memoryStorage';
 export * from './lib/tx/tx';
-export * from './lib/format';

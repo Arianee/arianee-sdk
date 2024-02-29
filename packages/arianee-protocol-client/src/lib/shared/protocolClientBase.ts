@@ -1,9 +1,9 @@
+import { ProtocolDetails } from '@arianee/common-types';
 import * as ethers6_permit721 from '@arianee/permit721-contracts';
 import { PERMIT721_ADDRESS } from '@arianee/permit721-sdk';
 import { Provider, Signer } from 'ethers';
 
 import GasStation from '../utils/gasStation/gasStation';
-import { ProtocolDetails } from '@arianee/common-types';
 
 export abstract class ProtocolClientBase<T extends ProtocolDetails> {
   public readonly permit721Contract: ethers6_permit721.Permit721;

@@ -1,4 +1,5 @@
 import { BrandIdentity } from '@arianee/common-types';
+
 import { createLink } from './createLink';
 
 const getTestBrandIdentity = (
