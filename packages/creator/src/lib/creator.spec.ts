@@ -3,10 +3,11 @@ import Core from '@arianee/core';
 import * as utils from '@arianee/utils';
 
 import Creator from './creator';
+import * as cachedFetchLikeModule from './helpers/cachedFetchLike/cachedFetchLike';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
-
+jest.mock('./helpers/cachedFetchLike/cachedFetchLike');
 jest.mock('@arianee/utils', () => {
   const originalUtils = jest.requireActual('@arianee/utils');
   return {
@@ -41,9 +42,15 @@ describe('Creator', () => {
   });
 
   describe('constructor', () => {
-    it('should use a retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+    it('should use a cachedFetchLike and retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+      const mockFetchLike = jest.fn();
+
       (utils.retryFetchLike as jest.Mock).mockReturnValue(
-        utils.defaultFetchLike
+        mockFetchLike as unknown as typeof utils.defaultFetchLike
+      );
+
+      (cachedFetchLikeModule.cachedFetchLike as jest.Mock).mockReturnValue(
+        mockFetchLike
       );
 
       const creator = new Creator({
@@ -52,8 +59,11 @@ describe('Creator', () => {
         transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
-      expect(creator['fetchLike']).toBe(utils.defaultFetchLike);
+      expect(creator['fetchLike']).toBe(mockFetchLike);
       expect(utils.retryFetchLike).toHaveBeenCalledWith(utils.defaultFetchLike);
+      expect(cachedFetchLikeModule.cachedFetchLike).toHaveBeenCalledWith(
+        mockFetchLike
+      );
     });
 
     it('should use passed fetch like', () => {
@@ -76,6 +86,7 @@ describe('Creator', () => {
         creatorAddress,
         protocolDetailsResolver,
         transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
+        arianeeApiUrl: 'https://mock.api.arianee.org',
       });
 
       expect(
@@ -83,6 +94,7 @@ describe('Creator', () => {
       ).toHaveBeenCalledWith(creator['core'], {
         fetchLike: expect.any(Function),
         protocolDetailsResolver,
+        arianeeApiUrl: 'https://mock.api.arianee.org',
       });
     });
   });

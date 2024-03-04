@@ -13,6 +13,7 @@ import { ContractTransactionResponse } from 'ethers/lib.esm';
 
 import { requiresConnection } from './decorators/requiresConnection';
 import Events from './events/events';
+import { cachedFetchLike } from './helpers/cachedFetchLike/cachedFetchLike';
 import Identities from './identities/identities';
 import LostAndStolen from './lostAndStolen/lostAndStolen';
 import Messages from './messages/messages';
@@ -30,6 +31,7 @@ export type CreatorParams<T extends TransactionStrategy> = {
   transactionStrategy: T;
   fetchLike?: typeof fetch;
   protocolDetailsResolver?: ProtocolDetailsResolver;
+  arianeeApiUrl?: string;
 };
 
 export default class Creator<Strategy extends TransactionStrategy> {
@@ -79,7 +81,8 @@ export default class Creator<Strategy extends TransactionStrategy> {
 
     this.core = core;
     this.creatorAddress = creatorAddress;
-    this.fetchLike = fetchLike ?? retryFetchLike(defaultFetchLike);
+    this.fetchLike =
+      fetchLike ?? cachedFetchLike(retryFetchLike(defaultFetchLike));
 
     this.transactionStrategy = params.transactionStrategy;
 
@@ -91,6 +94,7 @@ export default class Creator<Strategy extends TransactionStrategy> {
     this.arianeeProtocolClient = new ArianeeProtocolClient(this.core, {
       fetchLike: this.fetchLike,
       protocolDetailsResolver: params.protocolDetailsResolver,
+      arianeeApiUrl: params.arianeeApiUrl,
     });
 
     this.utils = new Utils(this);

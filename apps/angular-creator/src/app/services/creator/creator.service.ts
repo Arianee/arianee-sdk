@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import Creator from '@arianee/creator';
+import Creator, { cachedFetchLike } from '@arianee/creator';
 import Core from '@arianee/core';
 import { BehaviorSubject } from 'rxjs';
-import { defaultFetchLike } from '@arianee/utils';
+import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
 import { ProtocolDetails, ProtocolDetailsV2 } from '@arianee/common-types';
 
 @Injectable({
@@ -69,11 +69,14 @@ export class CreatorService {
         core,
         creatorAddress,
         transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
-        fetchLike: (input, init) =>
-          defaultFetchLike(input, {
-            ...init,
-            mode: 'cors',
-          }),
+        fetchLike: cachedFetchLike(
+          retryFetchLike((input, init) =>
+            defaultFetchLike(input, {
+              ...init,
+              mode: 'cors',
+            })
+          )
+        ),
         ...(protocolDetailsResolver ? { protocolDetailsResolver } : {}),
       })
     );
