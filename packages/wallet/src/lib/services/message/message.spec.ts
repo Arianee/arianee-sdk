@@ -10,6 +10,18 @@ jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');
 jest.mock('@arianee/arianee-protocol-client');
 
+jest.mock('@arianee/utils', () => {
+  const originalUtils = jest.requireActual('@arianee/utils');
+  return {
+    ...originalUtils,
+    calculateImprint: jest
+      .fn()
+      .mockResolvedValue(
+        '0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a'
+      ),
+  };
+});
+
 const mockMessageReceived = {} as any;
 const mockMessageRead = {} as any;
 Object.defineProperty(EventManager.prototype, 'messageReceived', {
@@ -101,7 +113,14 @@ describe('MessageService', () => {
         const id = '1';
         const protocolName = 'testnet';
 
-        getMessageSpy.mockResolvedValue({ mock: 'mock' } as any);
+        getMessageSpy.mockResolvedValue({
+          imprint:
+            '0x0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a',
+          rawContent: {
+            $schema:
+              'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
+          },
+        } as any);
 
         const instance = await messageService.get(id, protocolName, {
           i18nStrategy,
@@ -136,7 +155,16 @@ describe('MessageService', () => {
           ? i18nStrategy.useLanguages
           : defaultI18nStrategy.useLanguages;
 
-        getReceivedMessagesSpy.mockResolvedValue([{ mock: 'mock' } as any]);
+        getReceivedMessagesSpy.mockResolvedValue([
+          {
+            imprint:
+              '0x0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a',
+            rawContent: {
+              $schema:
+                'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
+            },
+          } as any,
+        ]);
 
         const instances = await messageService.getReceived({
           i18nStrategy,

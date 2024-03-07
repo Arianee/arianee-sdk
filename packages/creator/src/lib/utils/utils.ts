@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Cert } from '@arianee/0xcert-cert';
 import { callWrapper } from '@arianee/arianee-protocol-client';
 import {
   ArianeeBrandIdentityI18N,
@@ -7,6 +6,7 @@ import {
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
 } from '@arianee/common-types';
+import { calculateImprint } from '@arianee/utils';
 import {
   BigNumberish,
   ContractTransactionReceipt,
@@ -15,7 +15,7 @@ import {
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
-import { InvalidContentError, ProtocolCompatibilityError } from '../errors';
+import { ProtocolCompatibilityError } from '../errors';
 import { MissingCreditContractAddressError } from '../errors/MissingCreditTypeContractAddressError';
 import { MissingCreditTypeError } from '../errors/MissingCreditTypeError';
 import { CreditType } from '../types/credit';
@@ -356,20 +356,6 @@ export default class Utils<Strategy extends TransactionStrategy> {
     );
   }
 
-  private cleanObject(obj: any) {
-    for (const propName in obj) {
-      if (
-        obj[propName] &&
-        obj[propName].constructor === Array &&
-        obj[propName].length === 0
-      ) {
-        delete obj[propName];
-      }
-    }
-
-    return obj;
-  }
-
   public async calculateImprint(
     content:
       | ArianeeProductCertificateI18N
@@ -377,24 +363,7 @@ export default class Utils<Strategy extends TransactionStrategy> {
       | ArianeeEventI18N
       | ArianeeBrandIdentityI18N
   ): Promise<string> {
-    let cert: Cert;
-
-    try {
-      const $schema = await this.creator.fetchLike(content.$schema);
-      cert = new Cert({
-        schema: await $schema.json(),
-      });
-    } catch {
-      throw new InvalidContentError(
-        'The content is not valid (check that there is a $schema field and that it is valid)'
-      );
-    }
-
-    const cleanData = this.cleanObject(content);
-
-    const imprint = await cert.imprint(cleanData);
-
-    return '0x' + imprint;
+    return calculateImprint(content, this.creator.fetchLike);
   }
 
   @requiresConnection()

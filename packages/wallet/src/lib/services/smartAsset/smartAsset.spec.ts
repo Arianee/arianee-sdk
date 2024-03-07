@@ -13,6 +13,18 @@ jest.mock('@arianee/arianee-access-token');
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('../eventManager/eventManager');
 
+jest.mock('@arianee/utils', () => {
+  const originalUtils = jest.requireActual('@arianee/utils');
+  return {
+    ...originalUtils,
+    calculateImprint: jest
+      .fn()
+      .mockResolvedValue(
+        '0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a'
+      ),
+  };
+});
+
 const mockSmartAssetUpdated = {} as any;
 const mockSmartAssetReceived = {} as any;
 const mockSmartAssetTransferred = {} as any;
@@ -130,6 +142,15 @@ describe('SmartAssetService', () => {
           passphrase: 'mock',
         };
 
+        getSmartAssetSpy.mockResolvedValueOnce({
+          imprint:
+            '0x0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a',
+          rawContent: {
+            $schema:
+              'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
+          },
+        } as any);
+
         await smartAssetService.get(protocolName, smartAsset, {
           i18nStrategy,
         });
@@ -176,6 +197,12 @@ describe('SmartAssetService', () => {
         getOwnedSmartAssetsSpy.mockResolvedValueOnce([
           {
             certificateId: '1',
+            imprint:
+              '0x0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a',
+            rawContent: {
+              $schema:
+                'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
+            },
             protocol: {
               name: protocolName,
               chainId: 1,
@@ -183,6 +210,12 @@ describe('SmartAssetService', () => {
           } as any,
           {
             certificateId: '2',
+            imprint:
+              '0x0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a',
+            rawContent: {
+              $schema:
+                'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
+            },
             protocol: {
               name: protocolName,
               chainId: 1,

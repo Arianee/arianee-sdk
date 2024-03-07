@@ -12,4 +12,5 @@ export interface Event {
   rawContent: ArianeeEventI18N;
   imprint: string;
   protocol: Protocol;
+  isAuthentic: boolean;
 }

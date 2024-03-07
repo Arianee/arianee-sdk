@@ -8,12 +8,12 @@ import ArianeeProtocolClient, {
 } from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
 import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
+import { cachedFetchLike } from '@arianee/utils';
 import { ContractTransactionReceipt } from 'ethers';
 import { ContractTransactionResponse } from 'ethers/lib.esm';
 
 import { requiresConnection } from './decorators/requiresConnection';
 import Events from './events/events';
-import { cachedFetchLike } from './helpers/cachedFetchLike/cachedFetchLike';
 import Identities from './identities/identities';
 import LostAndStolen from './lostAndStolen/lostAndStolen';
 import Messages from './messages/messages';

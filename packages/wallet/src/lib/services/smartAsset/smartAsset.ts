@@ -21,6 +21,7 @@ import {
 } from 'ethers';
 
 import { getPreferredLanguages, I18NStrategy } from '../../utils/i18n';
+import { instanceFactory } from '../../utils/instanceFactory/instanceFactory';
 import { isProofValidFromLink } from '../../utils/proof/isProofValidFromLink';
 import {
   getWalletReward,
@@ -28,6 +29,7 @@ import {
 } from '../../utils/walletReward/walletReward';
 import Wallet, { TransactionStrategy } from '../../wallet';
 import EventManager from '../eventManager/eventManager';
+import ArianeeEventInstance from './instances/arianeeEventInstance';
 import SmartAssetInstance from './instances/smartAssetInstance';
 
 export default class SmartAssetService<
@@ -115,16 +117,29 @@ export default class SmartAssetService<
       }),
     ]);
 
-    return new SmartAssetInstance(
-      this,
-      {
-        data: _smartAsset,
-        arianeeEvents,
-        userAddress: this.core.getAddress(),
-      },
-      {
-        passphrase: smartAsset.passphrase,
-      }
+    const arianeeEventInstances = await Promise.all(
+      arianeeEvents.map((event) =>
+        instanceFactory<T, S, typeof ArianeeEventInstance<T, S>>(
+          ArianeeEventInstance,
+          [this, this.isOwnerOf(_smartAsset), event],
+          this.wallet.fetchLike
+        )
+      )
+    );
+
+    return instanceFactory<T, S, typeof SmartAssetInstance<T, S>>(
+      SmartAssetInstance,
+      [
+        this,
+        {
+          data: _smartAsset,
+          arianeeEvents: arianeeEventInstances,
+        },
+        {
+          passphrase: smartAsset.passphrase,
+        },
+      ],
+      this.wallet.fetchLike
     );
   }
 
@@ -149,11 +164,27 @@ export default class SmartAssetService<
       ),
     ]);
 
-    return new SmartAssetInstance(this, {
-      data: _smartAsset,
-      arianeeEvents,
-      userAddress: this.core.getAddress(),
-    });
+    const arianeeEventInstances = await Promise.all(
+      arianeeEvents.map((event) =>
+        instanceFactory<T, S, typeof ArianeeEventInstance<T, S>>(
+          ArianeeEventInstance,
+          [this, this.isOwnerOf(_smartAsset), event],
+          this.wallet.fetchLike
+        )
+      )
+    );
+
+    return instanceFactory<T, S, typeof SmartAssetInstance<T, S>>(
+      SmartAssetInstance,
+      [
+        this,
+        {
+          data: _smartAsset,
+          arianeeEvents: arianeeEventInstances,
+        },
+      ],
+      this.wallet.fetchLike
+    );
   }
 
   /**
@@ -190,11 +221,27 @@ export default class SmartAssetService<
           }
         );
 
-        return new SmartAssetInstance(this, {
-          data: smartAsset,
-          arianeeEvents,
-          userAddress: this.core.getAddress(),
-        });
+        const arianeeEventInstances = await Promise.all(
+          arianeeEvents.map((event) =>
+            instanceFactory<T, S, typeof ArianeeEventInstance<T, S>>(
+              ArianeeEventInstance,
+              [this, this.isOwnerOf(smartAsset), event],
+              this.wallet.fetchLike
+            )
+          )
+        );
+
+        return instanceFactory<T, S, typeof SmartAssetInstance<T, S>>(
+          SmartAssetInstance,
+          [
+            this,
+            {
+              data: smartAsset,
+              arianeeEvents: arianeeEventInstances,
+            },
+          ],
+          this.wallet.fetchLike
+        );
       })
     );
 
@@ -524,6 +571,12 @@ export default class SmartAssetService<
     return this.arianeeAccessToken.createCertificateArianeeAccessToken(
       parseInt(certificateId),
       network
+    );
+  }
+
+  public isOwnerOf(smartAsset: SmartAsset) {
+    return (
+      smartAsset.owner?.toLowerCase() === this.core.getAddress().toLowerCase()
     );
   }
 }

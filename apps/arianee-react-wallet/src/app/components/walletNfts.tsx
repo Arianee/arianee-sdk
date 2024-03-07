@@ -21,7 +21,9 @@ export default function WalletNfts({ wallet, language }: WalletNftsProps) {
     SmartAssetInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [brandsFilter, setBrandsFilter] = useState<string | 'all'>('all');
+  const [brandsFilter, setBrandsFilter] = useState<string | 'all'>(
+    '0x90d181a3e977E8CcD7822B711Bb3A83E79beaEFF'
+  );
 
   const [lastFetch, setLastFetch] = useState<Date>(new Date());
 

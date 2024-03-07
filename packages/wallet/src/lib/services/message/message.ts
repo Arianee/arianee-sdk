@@ -11,6 +11,7 @@ import {
 } from 'ethers';
 
 import { getPreferredLanguages, I18NStrategy } from '../../utils/i18n';
+import { instanceFactory } from '../../utils/instanceFactory/instanceFactory';
 import {
   getWalletReward,
   WalletRewards,
@@ -83,7 +84,11 @@ export default class MessageService<
       preferredLanguages,
     });
 
-    return new MessageInstance(this, message);
+    return instanceFactory<T, S, typeof MessageInstance<T, S>>(
+      MessageInstance,
+      [this, message],
+      this.wallet.fetchLike
+    );
   }
 
   /**
@@ -103,8 +108,14 @@ export default class MessageService<
       preferredLanguages,
     });
 
-    const messageInstances = messages.map(
-      (message) => new MessageInstance(this, message)
+    const messageInstances = await Promise.all(
+      messages.map(async (message) =>
+        instanceFactory<T, S, typeof MessageInstance<T, S>>(
+          MessageInstance,
+          [this, message],
+          this.wallet.fetchLike
+        )
+      )
     );
 
     return messageInstances;
