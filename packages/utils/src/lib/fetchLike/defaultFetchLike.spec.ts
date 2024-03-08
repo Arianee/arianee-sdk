@@ -12,6 +12,8 @@ describe('defaultFetchLike', () => {
     const mockedFetch = jest.fn().mockImplementation(() => {
       return Promise.resolve();
     });
+
+    global.window = {} as any;
     global.window!.fetch = mockedFetch as unknown as typeof fetch;
 
     await defaultFetchLike('https://test.com/', {

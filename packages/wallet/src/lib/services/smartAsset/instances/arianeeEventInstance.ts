@@ -22,6 +22,7 @@ export default class ArianeeEventInstance<
   public readonly rawContent: ArianeeEventI18N;
   public readonly imprint: string;
   public readonly protocol: Protocol;
+  public readonly isAuthentic: boolean;
 
   constructor(
     private smartAssetService: SmartAssetService<T, S>,
@@ -36,6 +37,7 @@ export default class ArianeeEventInstance<
       rawContent,
       imprint,
       protocol,
+      isAuthentic,
     }: Event
   ) {
     this.id = id;
@@ -47,6 +49,7 @@ export default class ArianeeEventInstance<
     this.rawContent = rawContent;
     this.imprint = imprint;
     this.protocol = protocol;
+    this.isAuthentic = isAuthentic;
   }
 
   public async acceptEvent() {

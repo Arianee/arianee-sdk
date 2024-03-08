@@ -25,6 +25,8 @@ export default function WalletMessages({
 
   const [eventsLog, setEventsLog] = useState<string>('');
 
+  const [loadMessages, setLoadMessages] = useState<boolean>(false);
+
   const pushToEventsLog = (message: string) => {
     setEventsLog((oldEventsLog) => message + '\n' + oldEventsLog);
   };
@@ -46,6 +48,11 @@ export default function WalletMessages({
   };
 
   useEffect(() => {
+    if (!loadMessages) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setEventsLog('');
 
@@ -66,12 +73,19 @@ export default function WalletMessages({
       wallet.message.received.removeAllListeners();
       wallet.message.read.removeAllListeners();
     };
-  }, [wallet, language]);
+  }, [wallet, language, loadMessages]);
 
   return (
     <div id="messages">
-      <h3>Messages {!loading ? `(${messages.length})` : null}</h3>
-      {loading ? (
+      <h3>
+        Messages {!loading ? `(${messages.length})` : null}{' '}
+        {!loadMessages && (
+          <button onClick={() => setLoadMessages(!loadMessages)}>
+            load all
+          </button>
+        )}
+      </h3>
+      {loadMessages && loading ? (
         <div>Loading...</div>
       ) : (
         <>

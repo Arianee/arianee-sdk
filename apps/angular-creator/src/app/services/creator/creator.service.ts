@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
-import Creator, { cachedFetchLike } from '@arianee/creator';
+import Creator from '@arianee/creator';
 import Core from '@arianee/core';
 import { BehaviorSubject } from 'rxjs';
-import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
+import {
+  defaultFetchLike,
+  retryFetchLike,
+  cachedFetchLike,
+} from '@arianee/utils';
 import { ProtocolDetails, ProtocolDetailsV2 } from '@arianee/common-types';
 
 @Injectable({

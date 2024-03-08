@@ -83,6 +83,7 @@ export default function WalletHeader({
         flexDirection: 'column',
         justifyContent: 'center',
         padding: '8px',
+        zIndex: '1000',
       }}
     >
       <div>

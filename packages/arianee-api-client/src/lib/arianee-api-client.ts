@@ -61,7 +61,7 @@ export class ArianeeApiClient {
 
       return this.fetchArianeeApi(
         `/multichain/${chainType}/contract/${arianeeApiContractName}/${eventName}${queryParams}`,
-        'fetch events on arianee api'
+        `fetch events on arianee api (${eventName}) ` + JSON.stringify(filters)
       );
     },
     getOwnedNfts: async (
@@ -71,7 +71,7 @@ export class ArianeeApiClient {
     ): Promise<smartAssetInfo[]> => {
       return this.fetchArianeeApi(
         `/multichain/${chainType}/nft/${address}/list?populateEvent=${populateEvents}`,
-        'fetch nfts on arianee api'
+        `fetch nfts on arianee api (${address} / ${chainType})`
       );
     },
     getReceivedMessages: async (
@@ -80,7 +80,7 @@ export class ArianeeApiClient {
     ): Promise<decentralizedMessageInfo[]> => {
       return this.fetchArianeeApi(
         `/multichain/${chainType}/dmessage/${address}/list`,
-        'fetch messages on arianee api'
+        `fetch messages on arianee api (${address} / ${chainType})`
       );
     },
     getIdentity: async (
@@ -88,7 +88,7 @@ export class ArianeeApiClient {
     ): Promise<{ [protocolName: string]: brandIdentityInfo }> => {
       return this.fetchArianeeApi(
         `/identity/${address}`,
-        'fetch identity on arianee api'
+        `fetch identity on arianee api (${address})`
       );
     },
   };
@@ -105,7 +105,7 @@ export class ArianeeApiClient {
         : '';
       return this.fetchArianeeApi(
         `/report/${chainId}/contract/${contractAddress}/${eventName}${queryParams}`,
-        'fetch events on arianee api'
+        `fetch events on arianee api (${eventName}) ` + JSON.stringify(filters)
       );
     },
     countEvents: async (
@@ -119,7 +119,7 @@ export class ArianeeApiClient {
         : '';
       return this.fetchArianeeApi(
         `/report/${chainId}/contract/${contractAddress}/${eventName}/count${queryParams}`,
-        'fetch count events on arianee api'
+        `fetch count events on arianee api (${chainId} / ${contractAddress} / ${eventName})`
       );
     },
     getOwnedNfts: async (
@@ -128,7 +128,7 @@ export class ArianeeApiClient {
     ): Promise<smartAssetInfo[]> => {
       return this.fetchArianeeApi(
         `/report/nft/${address}/list?network=${protocolName}`,
-        'fetch owned nft on arianee api'
+        `fetch owned nft on arianee api  (${address} / ${protocolName})`
       );
     },
     getNftOwner: async (
@@ -137,7 +137,7 @@ export class ArianeeApiClient {
     ): Promise<string> => {
       return this.fetchArianeeApi(
         `/report/nft/${protocolName}/ownerOf/${tokenId}`,
-        "fetch nft's owner on arianee api"
+        `fetch nft's owner on arianee api  (${tokenId})`
       );
     },
     getNft: async (
@@ -147,7 +147,7 @@ export class ArianeeApiClient {
     ): Promise<smartAssetInfo> => {
       return this.fetchArianeeApi(
         `/report/nft/${protocolName}/${tokenId}?populateEvent=${populateEvents}`,
-        'fetch nft on arianee api'
+        `fetch nft on arianee api (${protocolName} / ${tokenId})`
       );
     },
     getNftArianeeEvents: async (
@@ -156,7 +156,7 @@ export class ArianeeApiClient {
     ): Promise<ArianeeEvent[]> => {
       return this.fetchArianeeApi(
         `/report/nft/${protocolName}/${tokenId}/arianeeEvents`,
-        'fetch nft arianee events on arianee api'
+        `fetch nft arianee events on arianee api  (${protocolName} / ${tokenId})`
       );
     },
     getArianeeEvent: async (
@@ -165,7 +165,7 @@ export class ArianeeApiClient {
     ): Promise<ArianeeEvent> => {
       return this.fetchArianeeApi(
         `/report/arianeeEvent/${protocolName}/${eventId}`,
-        'fetch arianeeEvent on arianee api'
+        `fetch arianeeEvent on arianee api  (${protocolName} / ${eventId})`
       );
     },
     getIdentity: async (
@@ -174,7 +174,7 @@ export class ArianeeApiClient {
     ): Promise<ArianeeBrandIdentityI18N> => {
       return this.fetchArianeeApi(
         `/identity/${protocolName}/${address}`,
-        'fetch identity on arianee api'
+        `fetch identity on arianee api  (${protocolName} / ${address})`
       );
     },
     getMessage: async (
@@ -183,7 +183,7 @@ export class ArianeeApiClient {
     ): Promise<decentralizedMessageInfo> => {
       return this.fetchArianeeApi(
         `/report/message/${protocolName}/${messageId}`,
-        'fetch message on arianee api'
+        `fetch message on arianee api (${protocolName} / ${messageId})`
       );
     },
   };
@@ -195,7 +195,7 @@ export class ArianeeApiClient {
       const queryParams = `?q=${slugOrNetwork}`;
       return this.fetchArianeeApi(
         `/protocol${queryParams}`,
-        'fetch protocol details on arianee api'
+        `fetch protocol details on arianee api (${slugOrNetwork})`
       );
     },
   };

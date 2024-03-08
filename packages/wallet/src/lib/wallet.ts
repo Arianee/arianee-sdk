@@ -8,7 +8,11 @@ import ArianeeProtocolClient, {
 } from '@arianee/arianee-protocol-client';
 import { ChainType } from '@arianee/common-types';
 import Core from '@arianee/core';
-import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
+import {
+  cachedFetchLike,
+  defaultFetchLike,
+  retryFetchLike,
+} from '@arianee/utils';
 import { MemoryStorage } from '@arianee/utils';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import WalletApiClient from '@arianee/wallet-api-client';
@@ -48,7 +52,7 @@ export default class Wallet<
   private walletAbstraction: WalletAbstraction;
   private core: Core;
   private i18nStrategy: I18NStrategy;
-  private fetchLike: typeof fetch;
+  public readonly fetchLike: typeof fetch;
   private eventManager: EventManager<T>;
   private arianeeAccessToken: ArianeeAccessToken;
   private arianeeAccessTokenPrefix?: string;
@@ -91,7 +95,8 @@ export default class Wallet<
         ? _transactionWrapper
         : noWaitTransactionWrapper;
 
-    this.fetchLike = fetchLike ?? retryFetchLike(defaultFetchLike, 2);
+    this.fetchLike =
+      fetchLike ?? cachedFetchLike(retryFetchLike(defaultFetchLike, 2));
 
     this.storage = storage ?? new MemoryStorage();
 

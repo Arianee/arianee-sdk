@@ -1,10 +1,15 @@
 import { SmartAsset } from '@arianee/common-types';
+
 import SmartAssetService from '../smartAsset';
 import SmartAssetInstance from './smartAssetInstance';
 jest.mock('../smartAsset');
 
 describe('SmartAssetInstance', () => {
   const smartAssetService = new SmartAssetService({} as any);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (smartAssetService.isOwnerOf as jest.Mock).mockReturnValue(false);
+  });
 
   describe('claim', () => {
     it('should throw if called by the owner', async () => {
@@ -12,10 +17,11 @@ describe('SmartAssetInstance', () => {
         owner: '0x123',
       };
 
+      (smartAssetService.isOwnerOf as jest.Mock).mockReturnValue(true);
+
       const instance = new SmartAssetInstance(smartAssetService, {
         data: mockSmartAsset as any,
         arianeeEvents: [],
-        userAddress: '0x123',
       });
 
       await expect(instance.claim()).rejects.toThrow(/already owner/gi);
@@ -29,7 +35,6 @@ describe('SmartAssetInstance', () => {
       const instance = new SmartAssetInstance(smartAssetService, {
         data: mockSmartAsset as any,
         arianeeEvents: [],
-        userAddress: '0x456',
       });
 
       await expect(instance.claim()).rejects.toThrow(
@@ -47,7 +52,6 @@ describe('SmartAssetInstance', () => {
       const instance = new SmartAssetInstance(smartAssetService, {
         data: mockSmartAsset as any,
         arianeeEvents: [],
-        userAddress: '0x456',
       });
 
       await expect(instance.createProofLink()).rejects.toThrow(
@@ -65,7 +69,6 @@ describe('SmartAssetInstance', () => {
       const instance = new SmartAssetInstance(smartAssetService, {
         data: mockSmartAsset as any,
         arianeeEvents: [],
-        userAddress: '0x456',
       });
 
       await expect(instance.createRequestLink()).rejects.toThrow(
@@ -88,10 +91,13 @@ describe('SmartAssetInstance', () => {
           owner: '0x123',
         };
 
+        (smartAssetService.isOwnerOf as jest.Mock).mockReturnValue(
+          expectedIsOwner
+        );
+
         const instance = new SmartAssetInstance(smartAssetService, {
           data: mockSmartAsset as any,
           arianeeEvents: [],
-          userAddress,
         });
 
         expect(instance.isOwner).toBe(expectedIsOwner);
@@ -108,7 +114,6 @@ describe('SmartAssetInstance', () => {
       const instance = new SmartAssetInstance(smartAssetService, {
         data: mockSmartAsset as any,
         arianeeEvents: [],
-        userAddress: '0x456',
       });
 
       await expect(instance.transfer('0x0000')).rejects.toThrow(

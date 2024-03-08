@@ -46,12 +46,27 @@ export default function Nft({
   return (
     <div
       style={{
-        background: index % 2 === 0 ? '#bbb' : '#eee',
+        background: data.isAuthentic
+          ? index % 2 === 0
+            ? '#bbb'
+            : '#eee'
+          : '#e39594',
         padding: '16px',
         margin: '8px',
         borderRadius: '8px',
+        position: 'relative',
       }}
     >
+      <div
+        style={{
+          position: 'absolute',
+          right: '5px',
+          top: '5px',
+          fontSize: '12px',
+        }}
+      >
+        authenticity: {data.isAuthentic ? '✅' : '❌'}
+      </div>
       <h3>{data.content.name ?? 'unnamed'}</h3>
       <div
         className="actions"
@@ -83,6 +98,9 @@ export default function Nft({
         <a href={'#identity-' + data.issuer.toLowerCase()}>{data.issuer}</a>
       </div>
       <div>
+        <b>Imprint:</b> {data.imprint}
+      </div>
+      <div>
         <b>Content:</b>
         <br />
         <textarea
@@ -90,6 +108,16 @@ export default function Nft({
           readOnly={true}
           style={{ width: '300px', height: '50px' }}
           value={JSON.stringify(data.content, undefined, 4)}
+        ></textarea>
+      </div>
+      <div>
+        <b>Raw content:</b>
+        <br />
+        <textarea
+          spellCheck={false}
+          readOnly={true}
+          style={{ width: '300px', height: '50px' }}
+          value={JSON.stringify(data.rawContent, undefined, 4)}
         ></textarea>
       </div>
       <div>

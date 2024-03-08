@@ -3,16 +3,15 @@ import Core from '@arianee/core';
 import * as utils from '@arianee/utils';
 
 import Creator from './creator';
-import * as cachedFetchLikeModule from './helpers/cachedFetchLike/cachedFetchLike';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
-jest.mock('./helpers/cachedFetchLike/cachedFetchLike');
 jest.mock('@arianee/utils', () => {
   const originalUtils = jest.requireActual('@arianee/utils');
   return {
     ...originalUtils,
     retryFetchLike: jest.fn(),
+    cachedFetchLike: jest.fn(),
   };
 });
 
@@ -49,9 +48,7 @@ describe('Creator', () => {
         mockFetchLike as unknown as typeof utils.defaultFetchLike
       );
 
-      (cachedFetchLikeModule.cachedFetchLike as jest.Mock).mockReturnValue(
-        mockFetchLike
-      );
+      (utils.cachedFetchLike as jest.Mock).mockReturnValue(mockFetchLike);
 
       const creator = new Creator({
         core,
@@ -61,9 +58,7 @@ describe('Creator', () => {
 
       expect(creator['fetchLike']).toBe(mockFetchLike);
       expect(utils.retryFetchLike).toHaveBeenCalledWith(utils.defaultFetchLike);
-      expect(cachedFetchLikeModule.cachedFetchLike).toHaveBeenCalledWith(
-        mockFetchLike
-      );
+      expect(utils.cachedFetchLike).toHaveBeenCalledWith(mockFetchLike);
     });
 
     it('should use passed fetch like', () => {
