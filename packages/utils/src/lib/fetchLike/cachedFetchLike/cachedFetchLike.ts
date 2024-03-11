@@ -30,6 +30,12 @@ export const cachedFetchLike = (
         try {
           const response = await fetchLike(...params);
           const text = await response.text();
+
+          if (typeof Response === 'undefined') {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            global.Response = require('node-fetch').Response;
+          }
+
           const newResponse = new Response(text, { status: 200 });
 
           // prevent "body stream already read" error
