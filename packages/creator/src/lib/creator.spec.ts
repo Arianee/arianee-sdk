@@ -6,12 +6,12 @@ import Creator from './creator';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
-
 jest.mock('@arianee/utils', () => {
   const originalUtils = jest.requireActual('@arianee/utils');
   return {
     ...originalUtils,
     retryFetchLike: jest.fn(),
+    cachedFetchLike: jest.fn(),
   };
 });
 
@@ -41,10 +41,14 @@ describe('Creator', () => {
   });
 
   describe('constructor', () => {
-    it('should use a retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+    it('should use a cachedFetchLike and retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+      const mockFetchLike = jest.fn();
+
       (utils.retryFetchLike as jest.Mock).mockReturnValue(
-        utils.defaultFetchLike
+        mockFetchLike as unknown as typeof utils.defaultFetchLike
       );
+
+      (utils.cachedFetchLike as jest.Mock).mockReturnValue(mockFetchLike);
 
       const creator = new Creator({
         core,
@@ -52,8 +56,9 @@ describe('Creator', () => {
         transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
       });
 
-      expect(creator['fetchLike']).toBe(utils.defaultFetchLike);
+      expect(creator['fetchLike']).toBe(mockFetchLike);
       expect(utils.retryFetchLike).toHaveBeenCalledWith(utils.defaultFetchLike);
+      expect(utils.cachedFetchLike).toHaveBeenCalledWith(mockFetchLike);
     });
 
     it('should use passed fetch like', () => {
@@ -76,6 +81,7 @@ describe('Creator', () => {
         creatorAddress,
         protocolDetailsResolver,
         transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
+        arianeeApiUrl: 'https://mock.api.arianee.org',
       });
 
       expect(
@@ -83,6 +89,7 @@ describe('Creator', () => {
       ).toHaveBeenCalledWith(creator['core'], {
         fetchLike: expect.any(Function),
         protocolDetailsResolver,
+        arianeeApiUrl: 'https://mock.api.arianee.org',
       });
     });
   });

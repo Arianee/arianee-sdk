@@ -8,6 +8,7 @@ import ArianeeProtocolClient, {
 } from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
 import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
+import { cachedFetchLike } from '@arianee/utils';
 import { ContractTransactionReceipt } from 'ethers';
 import { ContractTransactionResponse } from 'ethers/lib.esm';
 
@@ -30,6 +31,7 @@ export type CreatorParams<T extends TransactionStrategy> = {
   transactionStrategy: T;
   fetchLike?: typeof fetch;
   protocolDetailsResolver?: ProtocolDetailsResolver;
+  arianeeApiUrl?: string;
 };
 
 export default class Creator<Strategy extends TransactionStrategy> {
@@ -79,7 +81,8 @@ export default class Creator<Strategy extends TransactionStrategy> {
 
     this.core = core;
     this.creatorAddress = creatorAddress;
-    this.fetchLike = fetchLike ?? retryFetchLike(defaultFetchLike);
+    this.fetchLike =
+      fetchLike ?? cachedFetchLike(retryFetchLike(defaultFetchLike));
 
     this.transactionStrategy = params.transactionStrategy;
 
@@ -91,6 +94,7 @@ export default class Creator<Strategy extends TransactionStrategy> {
     this.arianeeProtocolClient = new ArianeeProtocolClient(this.core, {
       fetchLike: this.fetchLike,
       protocolDetailsResolver: params.protocolDetailsResolver,
+      arianeeApiUrl: params.arianeeApiUrl,
     });
 
     this.utils = new Utils(this);

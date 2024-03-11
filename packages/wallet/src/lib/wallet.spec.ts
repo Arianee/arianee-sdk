@@ -27,6 +27,7 @@ jest.mock('@arianee/utils', () => {
   return {
     ...originalUtils,
     retryFetchLike: jest.fn(),
+    cachedFetchLike: jest.fn(),
   };
 });
 
@@ -44,17 +45,23 @@ describe('Wallet', () => {
   });
 
   describe('constructor', () => {
-    it('should use a retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+    it('should use a cachedFetchLike and retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+      const mockFetchLike = jest.fn();
+
       (utils.retryFetchLike as jest.Mock).mockReturnValue(
-        utils.defaultFetchLike
+        mockFetchLike as unknown as typeof utils.defaultFetchLike
       );
 
+      (utils.cachedFetchLike as jest.Mock).mockReturnValue(mockFetchLike);
+
       const wallet = new Wallet();
-      expect(wallet['fetchLike']).toBe(utils.defaultFetchLike);
+
+      expect(wallet['fetchLike']).toBe(mockFetchLike);
       expect(utils.retryFetchLike).toHaveBeenCalledWith(
         utils.defaultFetchLike,
         2
       );
+      expect(utils.cachedFetchLike).toHaveBeenCalledWith(mockFetchLike);
     });
 
     it('should use testnet as default chain type', () => {

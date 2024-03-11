@@ -36,7 +36,8 @@ export default function Message({ messageInstance, index }: MessageProps) {
         borderRadius: '8px',
       }}
     >
-      <h3>{data.content.title ?? 'untitled'}</h3>
+      <h3>{data.content.title ?? 'untitled'}</h3> authenticity: (
+      {messageInstance.data.isAuthentic ? '✅' : '❌'})
       <div className="receipt">
         {receipt && (
           <>
@@ -48,7 +49,6 @@ export default function Message({ messageInstance, index }: MessageProps) {
           </>
         )}
       </div>
-
       <div
         className="actions"
         style={{

@@ -92,7 +92,9 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(`Failed to fetch smart asset: ${(e as Error).message}`);
+      throw new Error(
+        `Failed to fetch smart asset (${id}): ${(e as Error).message}`
+      );
     }
   }
 
@@ -128,7 +130,11 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(`Failed to fetch smart asset: ${(e as Error).message}`);
+      throw new Error(
+        `Failed to fetch smart asset (subId ${payload.subId}): ${
+          (e as Error).message
+        }`
+      );
     }
   }
 
@@ -165,7 +171,9 @@ export default class WalletApiClient<T extends ChainType>
       return await response.json();
     } catch (e) {
       throw new Error(
-        `Failed to fetch smart asset events: ${(e as Error).message}`
+        `Failed to fetch smart asset events (smart asset id ${id}): ${
+          (e as Error).message
+        }`
       );
     }
   }
@@ -205,7 +213,9 @@ export default class WalletApiClient<T extends ChainType>
       return await response.json();
     } catch (e) {
       throw new Error(
-        `Failed to fetch smart asset events: ${(e as Error).message}`
+        `Failed to fetch smart asset events (subId ${payload.subId}): ${
+          (e as Error).message
+        }`
       );
     }
   }
@@ -264,7 +274,9 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(`Failed to fetch message: ${(e as Error).message}`);
+      throw new Error(
+        `Failed to fetch message (${id}): ${(e as Error).message}`
+      );
     }
   }
 
@@ -322,7 +334,7 @@ export default class WalletApiClient<T extends ChainType>
       return await response.json();
     } catch (e) {
       throw new Error(
-        `Failed to fetch brand identity: ${(e as Error).message}`
+        `Failed to fetch brand identity (${address}): ${(e as Error).message}`
       );
     }
   }

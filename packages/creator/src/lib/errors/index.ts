@@ -3,7 +3,6 @@ import { InsufficientEventCreditsError } from './InsufficientEventCreditsError';
 import { InsufficientMessageCreditsError } from './InsufficientMessageCreditsError';
 import { InsufficientSmartAssetCreditsError } from './InsufficientSmartAssetCreditsError';
 import { InsufficientUpdateCreditsError } from './InsufficientUpdateCreditsError';
-import { InvalidContentError } from './InvalidContentError';
 import { InvalidURIError } from './InvalidURIError';
 import { MalformedIdentityError } from './MalformedIdentityError';
 import { NoIdentityError } from './NoIdentityError';
@@ -21,7 +20,6 @@ export {
   InsufficientMessageCreditsError,
   InsufficientSmartAssetCreditsError,
   InsufficientUpdateCreditsError,
-  InvalidContentError,
   InvalidURIError,
   MalformedIdentityError,
   NoIdentityError,

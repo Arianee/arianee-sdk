@@ -1,4 +1,4 @@
-import { ChainType, Event, SmartAsset } from '@arianee/common-types';
+import { ChainType, SmartAsset } from '@arianee/common-types';
 
 import { TransactionStrategy } from '../../../wallet';
 import SmartAssetService from '../smartAsset';
@@ -12,22 +12,20 @@ export default class SmartAssetInstance<
   public readonly arianeeEvents: ArianeeEventInstance<T, S>[];
 
   readonly passphrase?: string;
-  private userAddress: string;
 
   constructor(
     private smartAssetService: SmartAssetService<T, S>,
-    params: { data: SmartAsset; arianeeEvents: Event[]; userAddress: string },
+    params: {
+      data: SmartAsset;
+      arianeeEvents: ArianeeEventInstance<T, S>[];
+    },
     opts?: { passphrase?: string }
   ) {
-    const { data, arianeeEvents, userAddress } = params;
+    const { data, arianeeEvents } = params;
 
-    this.userAddress = userAddress;
     this.data = data;
 
-    this.arianeeEvents = arianeeEvents.map(
-      (event) =>
-        new ArianeeEventInstance(this.smartAssetService, this.isOwner, event)
-    );
+    this.arianeeEvents = arianeeEvents;
 
     this.passphrase = opts?.passphrase;
   }
@@ -41,7 +39,7 @@ export default class SmartAssetInstance<
   }
 
   public get isOwner() {
-    return this.data.owner?.toLowerCase() === this.userAddress.toLowerCase();
+    return this.smartAssetService.isOwnerOf(this.data);
   }
 
   public async claim(receiver?: string) {

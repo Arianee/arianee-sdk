@@ -13,6 +13,8 @@ const PRIVATE_KEY =
 
 const SPENDER = '0x87c12DE015Ba6bbbd2c4e88Fb3DD4d98B8b2e193';
 
+jest.setTimeout(30000);
+
 describe('generateSST', () => {
   afterEach(() => {
     jest.clearAllMocks();

@@ -7,6 +7,7 @@ export interface DecentralizedMessage {
   content: ArianeeMessageI18N;
   rawContent: ArianeeMessageI18N;
   imprint: string;
+  isAuthentic: boolean;
   timestamp: number;
   isRead: boolean;
   sender: string;

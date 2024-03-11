@@ -11,4 +11,5 @@ export type decentralizedMessageInfo = {
   tokenId: string;
   createdAt: string;
   updatedAt: string;
+  imprint: string;
 };

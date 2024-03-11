@@ -46,7 +46,8 @@ export default function Message({ event, refreshNfts }: ArianeeEventProps) {
         margin: '4px 0',
       }}
     >
-      <b>{event.content.title ?? 'untitled event'}</b>
+      <b>{event.content.title ?? 'untitled event'}</b> (authenticity:{' '}
+      {event.isAuthentic ? '✅' : '❌'})
       <div className="receipt">
         {receipt && (
           <>
@@ -58,7 +59,6 @@ export default function Message({ event, refreshNfts }: ArianeeEventProps) {
           </>
         )}
       </div>
-
       <div
         className="actions"
         style={{
