@@ -485,10 +485,6 @@ describe('SmartAssets', () => {
 
   describe('setTokenAccess', () => {
     it('should call the v1 contract with correct params and return the id', async () => {
-      const getSmartAssetOwnerSpy = jest
-        .spyOn(creator.utils, 'getSmartAssetOwner')
-        .mockResolvedValue(core.getAddress());
-
       const addTokenAccessSpy = jest.fn();
 
       const transactionWrapperSpy = jest
@@ -524,8 +520,6 @@ describe('SmartAssets', () => {
         },
         undefined
       );
-
-      expect(getSmartAssetOwnerSpy).toHaveBeenCalledWith('123');
     });
   });
 

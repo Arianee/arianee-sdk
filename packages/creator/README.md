@@ -345,10 +345,6 @@ Implementation example :
 await this.creator.smartAssets.destroySmartAsset(this.id);
 ```
 
-The method can throw:
-
-- `NotOwnerError` if the core address is not the owner of the smart asset
-
 #### `setTokenAccess`
 
 A method to set the token access (request / view) of a smart asset owned by the core address.
@@ -361,10 +357,6 @@ public async setTokenAccess(
   overrides: NonPayableOverrides = {}
 ): Promise<LinkObject>
 ```
-
-The method can throw:
-
-- `NotOwnerError` if the core address is not the owner of the smart asset
 
 #### `setRequestKey`
 
@@ -383,10 +375,6 @@ Implementation example :
 ```typescript
 await this.creator.smartAssets.setRequestKey(this.id, tokenAccess);
 ```
-
-The method can throw:
-
-- `NotOwnerError` if the core address is not the owner of the smart asset
 
 #### `updateTokenURI`
 
