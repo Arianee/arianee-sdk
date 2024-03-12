@@ -16,7 +16,6 @@ import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import {
   ArianeePrivacyGatewayError,
-  NotOwnerError,
   UnavailableSmartAssetIdError,
 } from '../errors';
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
@@ -87,11 +86,6 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     id: string,
     overrides: NonPayableOverrides = {}
   ) {
-    const smartAssetOwner = await this.creator.utils.getSmartAssetOwner(id);
-
-    if (smartAssetOwner !== this.creator.core.getAddress())
-      throw new NotOwnerError('You are not the owner of this smart asset');
-
     return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -263,11 +257,6 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     tokenAccess?: TokenAccess,
     overrides: NonPayableOverrides = {}
   ): Promise<LinkObject> {
-    const owner = await this.creator.utils.getSmartAssetOwner(smartAssetId);
-
-    if (owner !== this.creator.core.getAddress())
-      throw new NotOwnerError('You are not the owner of this smart asset');
-
     const { publicKey, passphrase } = getTokenAccessParams(tokenAccess);
 
     await this.creator.transactionWrapper(
