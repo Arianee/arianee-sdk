@@ -3,7 +3,6 @@ import { Core } from '@arianee/core';
 import { MemoryStorage } from '@arianee/utils';
 
 import { ArianeeAccessToken } from './arianee-access-token';
-import * as timeBeforeExpModule from './helpers/timeBeforeExp';
 
 describe('arianeeAccessToken', () => {
   beforeEach(() => {
@@ -136,17 +135,11 @@ describe('arianeeAccessToken', () => {
     it('creates a new token if the existing token is expired', async () => {
       const aatGenerator = new ArianeeAccessToken(core);
       const spy = jest.spyOn(aatGenerator, 'createWalletAccessToken');
-      const isExpInLessThanSpy = jest.spyOn(
-        timeBeforeExpModule,
-        'isExpInLessThan'
-      );
-
       const aat1 = await aatGenerator.getValidWalletAccessToken({ exp: 0 });
       const aat2 = await aatGenerator.getValidWalletAccessToken();
 
       expect(aat1).not.toBe(aat2);
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(isExpInLessThanSpy).toHaveBeenCalledWith(aat1, 10);
     });
 
     it('creates a new token if there is no existing token', async () => {

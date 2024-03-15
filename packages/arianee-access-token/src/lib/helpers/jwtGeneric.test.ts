@@ -1,7 +1,10 @@
-import { JWTGeneric } from './jwtGeneric';
 import { Core } from '@arianee/core';
 import { ethers } from 'ethers';
+
 import { ArianeeAccessTokenPayload } from '../types/ArianeeAccessTokenPayload';
+import { JWTGeneric } from './jwtGeneric';
+
+const dateToSeconds = (date: Date) => Math.floor(date.getTime() / 1000);
 
 describe('JWTGeneric', function () {
   const pubKey = '0x74FE09Db23Df5c35d2969B666f7AA94621E11D30';
@@ -55,7 +58,7 @@ describe('JWTGeneric', function () {
     test('it should verify the right pubkey and say true', () => {
       const jwt = new JWTGeneric({ signer, recover });
 
-      const isAuthentic = jwt.setToken(expectedToken).verify(pubKey);
+      const isAuthentic = jwt.setToken(expectedToken).verify(pubKey, -1);
 
       expect(isAuthentic).toBeTruthy();
     });
@@ -63,42 +66,119 @@ describe('JWTGeneric', function () {
 
   describe('verify methods', () => {
     describe('exp', () => {
-      test('it should be false if expired', async () => {
-        const jwt = new JWTGeneric({ signer, recover });
-        const now = Date.now();
-        const exp = new Date();
-        exp.setMinutes(exp.getMinutes() - 5);
-        const payload: ArianeeAccessTokenPayload = {
-          sub: 'wallet',
-          iss: pubKey,
-          iat: now,
-          exp: exp.getTime(),
-        };
+      describe('in ms', () => {
+        test('it should be false if expired', async () => {
+          const jwt = new JWTGeneric({ signer, recover });
+          const exp = new Date();
+          exp.setMinutes(exp.getMinutes() - 5);
+          const payload: ArianeeAccessTokenPayload = {
+            sub: 'wallet',
+            iss: pubKey,
+            iat: dateToSeconds(new Date()),
+            exp: exp.getTime(),
+          };
 
-        const jwtService = await jwt.setPayload(payload);
-        const token = await jwtService.sign();
+          const jwtService = await jwt.setPayload(payload);
+          const token = await jwtService.sign();
 
-        const isAuthentic = jwt.setToken(token).verify(pubKey);
+          const isAuthentic = jwt.setToken(token).verify(pubKey);
 
-        expect(isAuthentic).toBeFalsy();
+          expect(isAuthentic).toBeFalsy();
+        });
+        test('it should be true if not expired', async () => {
+          const jwt = new JWTGeneric({ signer, recover });
+          const exp = new Date();
+          exp.setMinutes(exp.getMinutes() + 5);
+          const payload: ArianeeAccessTokenPayload = {
+            sub: 'wallet',
+            iss: pubKey,
+            iat: now,
+            exp: exp.getTime(),
+          };
+
+          const jwtService = await jwt.setPayload(payload);
+          const token = await jwtService.sign();
+
+          const isAuthentic = jwt.setToken(token).verify(pubKey);
+
+          expect(isAuthentic).toBeTruthy();
+        });
+
+        test('it should be skip exp check if verify is  -1', async () => {
+          const jwt = new JWTGeneric({ signer, recover });
+          const exp = new Date();
+          exp.setMinutes(exp.getMinutes() + 5);
+          const payload: ArianeeAccessTokenPayload = {
+            sub: 'wallet',
+            iss: pubKey,
+            iat: now,
+            exp: new Date(now - 5 * 60 * 1000).getTime(),
+          };
+
+          const jwtService = await jwt.setPayload(payload);
+          const token = await jwtService.sign();
+
+          const isAuthentic = jwt.setToken(token).verify(pubKey, -1);
+
+          expect(isAuthentic).toBeTruthy();
+        });
       });
-      test('it should be true if not expired', async () => {
-        const jwt = new JWTGeneric({ signer, recover });
-        const exp = new Date();
-        exp.setMinutes(exp.getMinutes() + 5);
-        const payload: ArianeeAccessTokenPayload = {
-          sub: 'wallet',
-          iss: pubKey,
-          iat: now,
-          exp: exp.getTime(),
-        };
+      describe('in seconds', () => {
+        test('it should be false if expired', async () => {
+          const jwt = new JWTGeneric({ signer, recover });
+          const exp = new Date();
+          exp.setMinutes(exp.getMinutes() - 5);
+          const payload: ArianeeAccessTokenPayload = {
+            sub: 'wallet',
+            iss: pubKey,
+            iat: dateToSeconds(new Date()),
+            exp: dateToSeconds(exp),
+          };
 
-        const jwtService = await jwt.setPayload(payload);
-        const token = await jwtService.sign();
+          const jwtService = await jwt.setPayload(payload);
+          const token = await jwtService.sign();
 
-        const isAuthentic = jwt.setToken(token).verify(pubKey);
+          const isAuthentic = jwt.setToken(token).verify(pubKey);
 
-        expect(isAuthentic).toBeTruthy();
+          expect(isAuthentic).toBeFalsy();
+        });
+        test('it should be true if not expired', async () => {
+          const jwt = new JWTGeneric({ signer, recover });
+          const exp = new Date();
+          exp.setMinutes(exp.getMinutes() + 5);
+          const payload: ArianeeAccessTokenPayload = {
+            sub: 'wallet',
+            iss: pubKey,
+            iat: now,
+            exp: exp.getTime(),
+          };
+
+          const jwtService = await jwt.setPayload(payload);
+          const token = await jwtService.sign();
+
+          const isAuthentic = jwt.setToken(token).verify(pubKey);
+
+          expect(isAuthentic).toBeTruthy();
+        });
+
+        test('it should be skip exp check if verify is  -1', async () => {
+          const jwt = new JWTGeneric({ signer, recover });
+          const exp = new Date();
+          exp.setMinutes(exp.getMinutes() + 5);
+          const payload: ArianeeAccessTokenPayload = {
+            sub: 'wallet',
+            iss: pubKey,
+            iat: now,
+            exp: dateToSeconds(new Date(now - 5 * 60 * 1000)),
+          };
+
+          const jwtService = await jwt.setPayload(payload);
+          const token = await jwtService.sign();
+
+          const isAuthentic = jwt.setToken(token).verify(pubKey, -1);
+
+          expect(isAuthentic).toBeTruthy();
+        });
       });
     });
     describe('nbf', () => {
@@ -110,8 +190,8 @@ describe('JWTGeneric', function () {
           sub: 'wallet',
           iss: pubKey,
           iat: now,
-          exp: now + 5 * 60 * 1000,
-          nbf: nbf.getTime(),
+          exp: dateToSeconds(new Date(now + 5 * 60 * 1000)),
+          nbf: dateToSeconds(nbf),
         };
 
         const jwtService = await jwt.setPayload(payload);
@@ -129,8 +209,8 @@ describe('JWTGeneric', function () {
           sub: 'wallet',
           iss: pubKey,
           iat: now,
-          exp: now + 5 * 60 * 1000,
-          nbf: nbf.getTime(),
+          exp: dateToSeconds(new Date(now + 5 * 60 * 1000)),
+          nbf: dateToSeconds(nbf),
         };
 
         const jwtService = await jwt.setPayload(payload);
@@ -147,7 +227,7 @@ describe('JWTGeneric', function () {
 
       const isAuthentic = jwt.setToken(expectedToken).verify(pubKey);
 
-      expect(isAuthentic).toBeTruthy();
+      expect(isAuthentic).toBeFalsy();
     });
   });
 });
