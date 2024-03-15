@@ -144,8 +144,7 @@ export class ArianeeAccessToken {
     const basicPayload: ArianeeAccessTokenPayload = {
       iss: this.core.getAddress(),
       sub: 'wallet',
-      // TODO: remove the * 1000 when sdk is deployed everywhere
-      exp: now + 5 * 60 * 1000, // default to 5 minutes
+      exp: now + 5 * 60, // default to 5 minutes
       iat: nowInSeconds,
       ...payload,
     };
