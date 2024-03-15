@@ -1,4 +1,5 @@
 import { Event } from '@arianee/common-types';
+
 import SmartAssetService from '../smartAsset';
 import ArianeeEventInstance from './arianeeEventInstance';
 jest.mock('../smartAsset');

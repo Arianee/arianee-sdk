@@ -1,4 +1,5 @@
 import { EventEmitter } from 'eventemitter3';
+
 import { WrappedEventEmitter } from './wrappedEventEmitter';
 
 jest.mock('eventemitter3');

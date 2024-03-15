@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import EventManager from './eventManager';
+import { ChainType, UnnestedBlockchainEvent } from '@arianee/common-types';
 import Core from '@arianee/core';
 import WalletApiClient from '@arianee/wallet-api-client';
-import { ChainType, UnnestedBlockchainEvent } from '@arianee/common-types';
+
+import EventManager from './eventManager';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('@arianee/core');

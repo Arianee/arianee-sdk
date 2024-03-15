@@ -1,6 +1,6 @@
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import { Core } from '@arianee/core';
 import WalletApiClient from '@arianee/wallet-api-client';
-import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 export default async () => {
   const core = Core.fromPrivateKey(

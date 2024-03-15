@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Core } from '@arianee/core';
-import ArianeePrivacyGatewayClient from './arianee-privacy-gateway-client';
 import { defaultFetchLike } from '@arianee/utils';
+
+import ArianeePrivacyGatewayClient from './arianee-privacy-gateway-client';
 
 const mockRpcCall = () => ({
   json: () => ({

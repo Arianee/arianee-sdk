@@ -1,4 +1,5 @@
 import { DecentralizedMessage } from '@arianee/common-types';
+
 import MessageService from '../message';
 import MessageInstance from './messageInstance';
 jest.mock('../message');
