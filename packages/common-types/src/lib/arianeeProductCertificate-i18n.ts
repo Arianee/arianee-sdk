@@ -1,3 +1,5 @@
+import { ArianeeEventI18N } from './arianeeEvent-i18n';
+
 export interface ArianeeProductCertificateI18N {
   $schema: string;
   language?: ProductLanguageCode;
@@ -39,6 +41,7 @@ export interface ArianeeProductCertificateI18N {
   background_color?: string;
   animation_url?: string;
   youtube_url?: string;
+  thread?: Thread;
 }
 
 export type ProductLanguageCode =
@@ -193,3 +196,54 @@ export interface ProductI18n {
   customAttributes?: ProductCustomAttribute[];
   transparencyItems?: ProductTransparencyItem[];
 }
+
+export type Thread = {
+  origin: ThreadPoint;
+  destination: ThreadPoint;
+  events: {
+    hydrate: ThreadEvent<ThreadHydrateReturnValues>;
+    transfers: ThreadEvent<ThreadTransferReturnValues>[];
+    arianeeEvents: ArianeeEventI18N[];
+  };
+}[];
+
+export type ThreadPoint = {
+  protocolName: string;
+  tokenId: number;
+  chainId: number;
+  smartContractAddress: string;
+};
+
+export type ThreadHydrateReturnValues = {
+  _tokenId: string;
+  _imprint: string;
+  _uri: string;
+  _initialKey: string;
+  _tokenRecoveryTimestamp: string;
+  _initialKeyIsRequestKey: boolean;
+  _tokenCreation: string;
+};
+
+export type ThreadTransferReturnValues = {
+  _from: string;
+  _to: string;
+  _tokenId: string;
+};
+
+export type ThreadEvent<ReturnValuesType> = {
+  address: string;
+  blockNumber: number;
+  transactionHash: string;
+  transactionIndex: number;
+  blockHash: string;
+  logIndex: number;
+  removed: boolean;
+  id: string;
+  returnValues: ReturnValuesType;
+  event: string;
+  signature: string;
+  raw: {
+    data: string;
+    topics: string[];
+  };
+};
