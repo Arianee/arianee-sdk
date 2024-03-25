@@ -121,4 +121,21 @@ describe('SmartAssetInstance', () => {
       );
     });
   });
+
+  describe('createTransferPermit', () => {
+    it('should throw if called by non owner', async () => {
+      const mockSmartAsset: Partial<SmartAsset> = {
+        owner: '0x123',
+      };
+
+      const instance = new SmartAssetInstance(smartAssetService, {
+        data: mockSmartAsset as any,
+        arianeeEvents: [],
+      });
+
+      await expect(instance.createTransferPermit('0x0000')).rejects.toThrow(
+        /User needs to be owner/gi
+      );
+    });
+  });
 });
