@@ -7,6 +7,19 @@
       "rules": {}
     },
     {
+      "files":["*.spec.ts"],
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": [
+          "error",
+          {
+            "allow": ["@arianee/wallet"]
+          }
+
+        ]
+
+      }
+    },
+    {
       "files": ["*.ts", "*.tsx"],
       "rules": {}
     },

@@ -110,6 +110,15 @@ export default class SmartAssetInstance<
       this.protocolName
     );
   }
+
+  public async createTransferPermit(spender: string) {
+    if (!this.isOwner)
+      throw new Error(
+        `User needs to be owner of the smart asset (${this.certificateId}) to create a transfer permit`
+      );
+
+    return this.smartAssetService.createTransferPermit(this.data, spender);
+  }
 }
 
 export { SmartAssetInstance };

@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/token-provider/src",
   "projectType": "library",
+  "implicitDependencies": ["!wallet"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",

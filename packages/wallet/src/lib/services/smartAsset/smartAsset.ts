@@ -11,6 +11,7 @@ import {
   TokenAccessType,
 } from '@arianee/common-types';
 import Core from '@arianee/core';
+import { generateSST } from '@arianee/token-provider';
 import { createLink, generateRandomPassphrase } from '@arianee/utils';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 import WalletApiClient from '@arianee/wallet-api-client';
@@ -578,6 +579,14 @@ export default class SmartAssetService<
     return (
       smartAsset.owner?.toLowerCase() === this.core.getAddress().toLowerCase()
     );
+  }
+
+  async createTransferPermit(smartAsset: SmartAsset, spender: string) {
+    return generateSST({
+      smartAsset,
+      core: this.core,
+      spender,
+    });
   }
 }
 
