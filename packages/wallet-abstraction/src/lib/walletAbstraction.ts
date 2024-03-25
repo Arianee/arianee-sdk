@@ -16,6 +16,7 @@ export interface WalletAbstraction {
     },
     params?: {
       preferredLanguages?: string[];
+      filterOutBridgedEvents?: boolean;
     }
   ): SmartAsset | Promise<SmartAsset>;
 
@@ -47,6 +48,7 @@ export interface WalletAbstraction {
   getOwnedSmartAssets(params?: {
     onlyFromBrands?: string[];
     preferredLanguages?: string[];
+    filterOutBridgedEvents?: boolean;
   }): SmartAsset[] | Promise<SmartAsset[]>;
 
   getReceivedMessages(params?: {

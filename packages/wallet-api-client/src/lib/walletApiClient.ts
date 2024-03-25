@@ -70,6 +70,7 @@ export default class WalletApiClient<T extends ChainType>
     },
     params?: {
       preferredLanguages?: string[];
+      filterOutBridgedEvents?: boolean;
     }
   ): Promise<SmartAsset> {
     const { id, passphrase } = smartAsset;
@@ -78,6 +79,7 @@ export default class WalletApiClient<T extends ChainType>
 
     const query = generateQueryString({
       languages: preferredLanguages,
+      filterOutBridgedEvents: params?.filterOutBridgedEvents ?? true,
     });
 
     try {
@@ -223,12 +225,14 @@ export default class WalletApiClient<T extends ChainType>
   async getOwnedSmartAssets(params?: {
     onlyFromBrands?: string[];
     preferredLanguages?: string[];
+    filterOutBridgedEvents?: boolean;
   }): Promise<SmartAsset[]> {
     const { preferredLanguages, onlyFromBrands } = params || {};
 
     const query = generateQueryString({
       brands: onlyFromBrands,
       languages: preferredLanguages,
+      filterOutBridgedEvents: params?.filterOutBridgedEvents ?? true,
     });
 
     try {
@@ -376,6 +380,7 @@ export default class WalletApiClient<T extends ChainType>
     params?: {
       resolveFinalNft?: boolean;
       arianeeAccessToken?: string;
+      filterOutBridgedEvents?: boolean;
     }
   ): Promise<ReadLink> {
     try {
@@ -387,6 +392,7 @@ export default class WalletApiClient<T extends ChainType>
           ...(params?.arianeeAccessToken && {
             arianeeAccessToken: params.arianeeAccessToken,
           }),
+          filterOutBridgedEvents: params?.filterOutBridgedEvents ?? true,
         }
       );
 
@@ -405,6 +411,7 @@ export default class WalletApiClient<T extends ChainType>
     params?: {
       resolveFinalNft?: boolean;
       arianeeAccessToken?: string;
+      filterOutBridgedEvents?: boolean;
     }
   ): Promise<SmartAsset> {
     try {
@@ -416,6 +423,7 @@ export default class WalletApiClient<T extends ChainType>
           ...(params?.arianeeAccessToken && {
             arianeeAccessToken: params.arianeeAccessToken,
           }),
+          filterOutBridgedEvents: params?.filterOutBridgedEvents,
         }
       );
 
