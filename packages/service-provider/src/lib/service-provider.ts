@@ -62,19 +62,27 @@ export class ServiceProvider {
     sst,
     performDryRun = false,
     shouldThrow = false,
+    ignoreExpiration = false,
   }: {
     sst: string;
     performDryRun?: boolean;
     shouldThrow?: boolean;
+    ignoreExpiration?: boolean;
   }): Promise<boolean> {
-    const { valid } = await this._isValidSST(sst, performDryRun, shouldThrow);
+    const { valid } = await this._isValidSST(
+      sst,
+      performDryRun,
+      shouldThrow,
+      ignoreExpiration
+    );
     return valid;
   }
 
   private async _isValidSST(
     sst: string,
     performDryRun: boolean,
-    shouldThrow = false
+    shouldThrow = false,
+    ignoreExpiration = false
   ): Promise<{
     valid: boolean;
     owner: string | undefined;
@@ -126,8 +134,9 @@ export class ServiceProvider {
       const protocolSlug = parsedSST.payload.network;
 
       const { permit, permitSig } = parsedSST.payload;
+
       const nowSeconds = Math.floor(Date.now() / 1000);
-      if (Number(permit.deadline) > nowSeconds) {
+      if (ignoreExpiration || Number(permit.deadline) > nowSeconds) {
         // Retrieve owner from ERC721 contract
         const { tokenId } = permit.permitted;
         const tokenIdAsStr = tokenId.toString();
