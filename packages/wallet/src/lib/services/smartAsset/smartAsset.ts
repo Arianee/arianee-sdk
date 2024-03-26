@@ -102,7 +102,7 @@ export default class SmartAssetService<
       id: SmartAsset['certificateId'];
       passphrase?: string;
     },
-    params?: { i18nStrategy?: I18NStrategy }
+    params?: { i18nStrategy?: I18NStrategy; filterOutBridgedEvents?: boolean }
   ): Promise<SmartAssetInstance<T, S>> {
     const preferredLanguages = getPreferredLanguages(
       params?.i18nStrategy ?? this.i18nStrategy
@@ -111,6 +111,7 @@ export default class SmartAssetService<
     const [_smartAsset, arianeeEvents] = await Promise.all([
       this.walletAbstraction.getSmartAsset(protocolName, smartAsset, {
         preferredLanguages,
+        filterOutBridgedEvents: params?.filterOutBridgedEvents,
       }),
 
       this.walletAbstraction.getSmartAssetEvents(protocolName, smartAsset, {
@@ -198,8 +199,10 @@ export default class SmartAssetService<
   async getOwned(params?: {
     onlyFromBrands?: string[];
     i18nStrategy?: I18NStrategy;
+    filterOutBridgedEvents?: boolean;
   }): Promise<SmartAssetInstance<T, S>[]> {
-    const { onlyFromBrands, i18nStrategy } = params ?? {};
+    const { onlyFromBrands, i18nStrategy, filterOutBridgedEvents } =
+      params ?? {};
 
     const preferredLanguages = getPreferredLanguages(
       i18nStrategy ?? this.i18nStrategy
@@ -208,6 +211,7 @@ export default class SmartAssetService<
     const smartAssets = await this.walletAbstraction.getOwnedSmartAssets({
       onlyFromBrands,
       preferredLanguages,
+      filterOutBridgedEvents,
     });
 
     const smartAssetsInstances = await Promise.all(
@@ -252,7 +256,8 @@ export default class SmartAssetService<
   async getFromLink(
     link: string,
     resolveFinalNft = false,
-    i18nStrategy?: I18NStrategy
+    i18nStrategy?: I18NStrategy,
+    filterOutBridgedEvents?: boolean
   ): Promise<SmartAssetInstance<T, S>> {
     if (!(this.walletAbstraction instanceof WalletApiClient))
       throw new Error(
@@ -269,8 +274,9 @@ export default class SmartAssetService<
               resolveFinalNft: true,
               arianeeAccessToken:
                 await this.arianeeAccessToken.getValidWalletAccessToken(),
+              filterOutBridgedEvents,
             }
-          : {}
+          : { filterOutBridgedEvents }
       );
 
       return await this.get(

@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Core } from '@arianee/core';
-import WalletApiClient from './walletApiClient';
-import _fetch from 'node-fetch';
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import { ChainType } from '@arianee/common-types';
+import { Core } from '@arianee/core';
+import { defaultFetchLike } from '@arianee/utils';
+import _fetch from 'node-fetch';
+
 import { WALLET_API_URL } from './constants';
 import HttpClient from './helpers/httpClient';
-import { ArianeeAccessToken } from '@arianee/arianee-access-token';
-import { defaultFetchLike } from '@arianee/utils';
+import WalletApiClient from './walletApiClient';
 
 declare const global: {
   window: { fetch: typeof fetch } | undefined;
@@ -85,11 +86,11 @@ describe('WalletApiClient', () => {
 
     it.each([
       {
-        expectedUrl: `https://mock/arianee/smartAsset/testnet/123456`,
+        expectedUrl: `https://mock/arianee/smartAsset/testnet/123456?filterOutBridgedEvents=true`,
         preferredLanguages: undefined,
       },
       {
-        expectedUrl: `https://mock/arianee/smartAsset/testnet/123456?languages=["fr-FR"]`,
+        expectedUrl: `https://mock/arianee/smartAsset/testnet/123456?languages=["fr-FR"]&filterOutBridgedEvents=true`,
         preferredLanguages: ['fr-FR'],
       },
     ])(
@@ -193,22 +194,22 @@ describe('WalletApiClient', () => {
   describe('getOwnedSmartAssets', () => {
     it.each([
       {
-        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned`,
+        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned?filterOutBridgedEvents=true`,
         preferredLanguages: undefined,
         onlyFromBrands: undefined,
       },
       {
-        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned?languages=["fr-FR"]`,
+        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned?languages=["fr-FR"]&filterOutBridgedEvents=true`,
         preferredLanguages: ['fr-FR'],
         onlyFromBrands: undefined,
       },
       {
-        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned?brands=["0x123"]`,
+        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned?brands=["0x123"]&filterOutBridgedEvents=true`,
         preferredLanguages: undefined,
         onlyFromBrands: ['0x123'],
       },
       {
-        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned?brands=["0x123"]&languages=["fr-FR"]`,
+        expectedUrl: `https://mock/arianee/smartAssets/testnet/owned?brands=["0x123"]&languages=["fr-FR"]&filterOutBridgedEvents=true`,
         preferredLanguages: ['fr-FR'],
         onlyFromBrands: ['0x123'],
       },
@@ -395,6 +396,7 @@ describe('WalletApiClient', () => {
           link: 'https://mock',
           arianeeAccessToken: 'aat',
           resolveFinalNft: true,
+          filterOutBridgedEvents: true,
         }
       );
 
