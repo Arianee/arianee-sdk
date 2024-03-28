@@ -28,23 +28,35 @@ export const instanceFactory = async <
   const instance = new (supportedClass as any)(...params);
 
   if (instance instanceof ArianeeEventInstance) {
-    const calculatedImprint = await calculateImprint(
-      instance.rawContent,
-      fetchLike
-    );
+    try {
+      const calculatedImprint = await calculateImprint(
+        instance.rawContent,
+        fetchLike
+      );
 
-    Object.assign(instance, {
-      isAuthentic:
-        calculatedImprint.toLowerCase() === instance.imprint.toLowerCase(),
-    });
+      Object.assign(instance, {
+        isAuthentic:
+          calculatedImprint.toLowerCase() === instance.imprint.toLowerCase(),
+      });
+    } catch (e) {
+      console.error('Error while calculating arianee event imprint', e);
+      Object.assign(instance, {
+        isAuthentic: false,
+      });
+    }
   } else {
-    const calculatedImprint = await calculateImprint(
-      instance.data.rawContent,
-      fetchLike
-    );
+    try {
+      const calculatedImprint = await calculateImprint(
+        instance.data.rawContent,
+        fetchLike
+      );
 
-    instance.data.isAuthentic =
-      calculatedImprint.toLowerCase() === instance.data.imprint.toLowerCase();
+      instance.data.isAuthentic =
+        calculatedImprint.toLowerCase() === instance.data.imprint.toLowerCase();
+    } catch (e) {
+      console.error('Error while calculating smart asset imprint', e);
+      instance.data.isAuthentic = false;
+    }
   }
 
   return instance as InstanceType<I>;
