@@ -116,7 +116,7 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
     );
 
     this.userActionContract = ethers6.ArianeeUserAction__factory.connect(
-      this.protocolDetails.contractAdresses.userAction ??
+      this.protocolDetails.contractAdresses.userAction ||
         '0x0000000000000000000000000000000000000000',
       this.signer
     );
