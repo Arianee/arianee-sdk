@@ -21,7 +21,7 @@ export interface EventData {
 export interface BlockchainEvent {
   eventData: EventData;
   protocol: Protocol;
-  timestamp: string;
+  timestamp: number;
   smartContractName: string;
   blockNumber: number;
   contractAddress: string;
@@ -29,7 +29,7 @@ export interface BlockchainEvent {
 
 export interface UnnestedBlockchainEvent extends EventData {
   protocol: Protocol;
-  timestamp: string;
+  timestamp: number;
   smartContractName: string;
   blockNumber: number;
   contractAddress: string;

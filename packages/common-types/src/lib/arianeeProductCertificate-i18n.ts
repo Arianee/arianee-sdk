@@ -242,6 +242,7 @@ export type ThreadEvent<ReturnValuesType> = {
   returnValues: ReturnValuesType;
   event: string;
   signature: string;
+  timestamp: number;
   raw: {
     data: string;
     topics: string[];
