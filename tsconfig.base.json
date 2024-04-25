@@ -31,6 +31,7 @@
       "@arianee/core": ["packages/core/src/index.ts"],
       "@arianee/creator": ["packages/creator/src/index.ts"],
       "@arianee/permit721-sdk": ["packages/permit721-sdk/src/index.ts"],
+      "@arianee/privacy-circuits": ["packages/privacy-circuits/src/index.ts"],
       "@arianee/service-provider": ["packages/service-provider/src/index.ts"],
       "@arianee/token-provider": ["packages/token-provider/src/index.ts"],
       "@arianee/utils": ["packages/utils/src/index.ts"],
