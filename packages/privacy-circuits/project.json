@@ -1,0 +1,47 @@
+{
+  "name": "privacy-circuits",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/privacy-circuits/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/privacy-circuits",
+        "main": "packages/privacy-circuits/src/index.ts",
+        "tsConfig": "packages/privacy-circuits/tsconfig.lib.json",
+        "assets": ["packages/privacy-circuits/*.md"]
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs privacy-circuits {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/privacy-circuits/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/privacy-circuits/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "build-circom": {
+      "command": "ts-node ./packages/privacy-circuits/build.mjs"
+    }
+  },
+  "tags": []
+}
