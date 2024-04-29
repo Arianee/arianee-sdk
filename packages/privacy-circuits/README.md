@@ -83,4 +83,38 @@ Run `nx test privacy-circuits` to execute the unit tests via [Jest](https://jest
 
 ## Trusted Setup Ceremony
 
-**TODO**
+The "Powers of Tau Ceremony" is a protocol used to generate public parameters for cryptographic systems that rely on zero-knowledge proofs. By involving multiple participants, the ceremony ensures that no single party can access the "Toxic Waste" — sensitive data whose exposure could compromise the system. This process distributes trust among various contributors by creating a Common Reference String (CSR), a crucial element used across different users and applications to construct and verify zero-knowledge proofs consistently and securely. This setup minimizes potential security risks and maintains the integrity of the cryptographic framework.
+
+### How to start the ceremony
+
+First, you need to have completed the installation steps described in the previous section.
+Once you are ready, you can start a new ceremony by running the following command:
+
+```bash
+npx snarkjs powersoftau new <curve> <power> <output-file>
+```
+
+_The `<power>` parameter allows you to control the limit of constraints that this ceremony output will be able to handle._
+_If you set the power to 12, the output will be able to handle up to 2^12 constraints._
+
+For example, to start a new ceremony for the BN128 curve with a power of 12, you can run the following command:
+
+```bash
+npx snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
+```
+
+The previous command will generate a new file named `pot12_0000.ptau` in the current directory.
+This file contains the initial contribution of the ceremony, you can share it with other participants to continue the process.
+
+### How to contribute to the ceremony
+
+To contribute to an existing ceremony, you need to run the following command:
+
+```bash
+npx snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name=<your-name> -v
+```
+
+_The `--name` parameter allows you to specify your name (preferably your GitHub username) to identify your contribution._
+
+The previous command will generate a new file named `pot12_0001.ptau` in the current directory.
+This file contains your contribution to the ceremony, you can share it with other participants to continue the process.
