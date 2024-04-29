@@ -118,3 +118,13 @@ _The `--name` parameter allows you to specify your name (preferably your GitHub 
 
 The previous command will generate a new file named `pot12_0001.ptau` in the current directory.
 This file contains your contribution to the ceremony, you can share it with other participants to continue the process.
+
+### Powers of Tau — 29/04/2024
+
+The Arianee Team has organized a Powers of Tau ceremony to generate the public parameters for the Arianee protocol.
+6 key members of the Arianee Team have participated in the ceremony to ensure the integrity of the process.
+
+The ceremony has been completed successfully, and the final public parameters are available in the following files:
+
+- [powersOfTau_final_12.ptau](https://github.com/Arianee/arianee-sdk/blob/main/packages/privacy-circuits/trusted-setup/powersOfTau_final_12.ptau) (SHA256: 0df85864ac82c4e3f3ef3375660c1b89036cc76b9c75ba1732f7de8b7daf2aac)
+- [powersOfTau_final_16.ptau](https://github.com/Arianee/arianee-sdk/blob/main/packages/privacy-circuits/trusted-setup/powersOfTau_final_16.ptau) (SHA256: a209f90a7140adfb0fed90b9e024df92aea9bd953f00f0cd80c9fd0b6d311dac)

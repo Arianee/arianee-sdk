@@ -9,7 +9,7 @@ const CIRCOM_BUILD_DIR = `${PRIVACY_CIRCUITS_DIR}/build`;
 const CIRCOM_SRC_DIR = `${PRIVACY_CIRCUITS_DIR}/src/circom`;
 const TRUSTED_SETUP_DIR = `${PRIVACY_CIRCUITS_DIR}/trusted-setup`;
 
-const DEFAULT_PTAU_FILE = 'powersOfTau28_hez_final_12.ptau';
+const DEFAULT_PTAU_FILE = 'powersOfTau_final_12.ptau';
 
 const PROVING_KEY_FILE = 'proving_key.zkey';
 const VERIFICATION_KEY_FILE = 'verification_key.json';
