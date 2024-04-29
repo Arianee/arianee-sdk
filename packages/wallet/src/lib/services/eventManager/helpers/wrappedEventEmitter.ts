@@ -1,4 +1,5 @@
 import { EventEmitter } from 'eventemitter3';
+
 import { EventMap } from '../types/events';
 
 export default class WrappedEventEmitter<E extends keyof EventMap> {

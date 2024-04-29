@@ -1,7 +1,8 @@
 import { Core } from '@arianee/core';
-import IdentityService from './identity';
 import WalletApiClient from '@arianee/wallet-api-client';
+
 import EventManager from '../eventManager/eventManager';
+import IdentityService from './identity';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');

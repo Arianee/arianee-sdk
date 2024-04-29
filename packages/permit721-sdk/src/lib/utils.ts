@@ -1,6 +1,7 @@
-import { PermitTransferFrom as PermitTransferFromV5 } from './signatureTransfer';
 import { TypedDataDomain as TypedDataDomainV5 } from '@ethersproject/abstract-signer';
 import { TypedDataDomain as TypedDataDomainV6 } from 'ethers';
+
+import { PermitTransferFrom as PermitTransferFromV5 } from './signatureTransfer';
 
 /**
  * Converts an expiration (in milliseconds) to a deadline (in seconds) suitable for the EVM.

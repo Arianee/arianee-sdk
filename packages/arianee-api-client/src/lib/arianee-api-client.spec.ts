@@ -1,4 +1,5 @@
 import { ChainType } from '@arianee/common-types';
+
 import { ArianeeApiClient } from './arianee-api-client';
 
 const fetchMock = jest.fn();

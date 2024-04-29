@@ -2,7 +2,6 @@ import Core from '@arianee/core';
 import { PERMIT721_ADDRESS } from '@arianee/permit721-sdk';
 
 import { ServiceProvider } from './service-provider';
-import Wallet from '@arianee/wallet';
 
 jest.spyOn(console, 'error').mockImplementation();
 

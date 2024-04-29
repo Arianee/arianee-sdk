@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import { Core } from '@arianee/core';
 import _fetch from 'node-fetch';
+
 import HttpClient from './httpClient';
-import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 
 jest.mock('node-fetch');
 

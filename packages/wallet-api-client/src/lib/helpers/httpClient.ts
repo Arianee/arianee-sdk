@@ -1,5 +1,5 @@
-import { Core } from '@arianee/core';
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import { Core } from '@arianee/core';
 
 export type AuthorizationType =
   | { certificateId: string; passphrase: string }
