@@ -98,3 +98,10 @@ async eventRead(
 ### Authentication
 
 The library supports two types of authentication: Arianee access tokens and message/signature authentication. If you pass an instance of the Core class as the auth parameter, the library will use an Arianee access token generated using the Core instance to authenticate requests. If you pass an object with a message and a signature property, the library will use message/signature authentication.
+
+### Errors
+
+Errors are automatically handled by the library, whenever an error is returned by the privacy gateway, the client will throw a `PrivacyGatewayError` with the following properties:
+
+- `message`: The error message.
+- `privacyGatewayErrorEnum`: The value of the PrivacyGatewayErrorEnum (from `@arianee/common-types`) associated to the error.
