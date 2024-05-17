@@ -4,9 +4,12 @@ import {
   ArianeeEventI18N,
   ArianeeMessageI18N,
   ArianeeProductCertificateI18N,
+  PrivacyGatewayErrorEnum,
 } from '@arianee/common-types';
 import { Core } from '@arianee/core';
 import { defaultFetchLike } from '@arianee/utils';
+
+import { PrivacyGatewayError } from './errors/PrivacyGatewayError';
 
 export type ArianeeAccessToken = string;
 export type RpcUrl = NonNullable<ArianeeBrandIdentityI18N['rpcEndpoint']>;
@@ -122,7 +125,7 @@ export default class ArianeePrivacyGatewayClient {
       authentification: authentication,
     });
 
-    return (await res.json()).result;
+    return this.handleRpcResponse(res.json());
   }
 
   public async certificateCreate(
@@ -131,18 +134,13 @@ export default class ArianeePrivacyGatewayClient {
       certificateId,
       content,
     }: { certificateId: string; content: ArianeeProductCertificateI18N }
-  ): Promise<{
-    jsonrpc: string;
-    id: number;
-    error?: { code: number; message: string };
-    result: string | null;
-  }> {
+  ): Promise<string> {
     const res = await this.rpcCall(rpcUrl, 'certificate.create', {
       certificateId,
       json: content,
     });
 
-    return res.json();
+    return this.handleRpcResponse(res.json());
   }
 
   public async updateRead(
@@ -171,7 +169,7 @@ export default class ArianeePrivacyGatewayClient {
       authentification: authentication,
     });
 
-    return (await res.json()).result;
+    return this.handleRpcResponse(res.json());
   }
 
   public async updateCreate(
@@ -180,17 +178,13 @@ export default class ArianeePrivacyGatewayClient {
       certificateId,
       content,
     }: { certificateId: string; content: ArianeeProductCertificateI18N }
-  ): Promise<{
-    jsonrpc: string;
-    id: number;
-    error?: { code: number; message: string };
-    result: string | null;
-  }> {
+  ): Promise<string> {
     const res = await this.rpcCall(rpcUrl, 'update.create', {
       certificateId,
       json: content,
     });
-    return res.json();
+
+    return this.handleRpcResponse(res.json());
   }
 
   public async messageRead(
@@ -214,23 +208,19 @@ export default class ArianeePrivacyGatewayClient {
       authentification: authentication,
     });
 
-    return (await res.json()).result;
+    return this.handleRpcResponse(res.json());
   }
 
   public async messageCreate(
     rpcUrl: RpcUrl,
     { messageId, content }: { messageId: string; content: ArianeeMessageI18N }
-  ): Promise<{
-    jsonrpc: string;
-    id: number;
-    error?: { code: number; message: string };
-    result: string | null;
-  }> {
+  ): Promise<string> {
     const res = await this.rpcCall(rpcUrl, 'message.create', {
       messageId,
       json: content,
     });
-    return res.json();
+
+    return this.handleRpcResponse(res.json());
   }
 
   public async eventRead(
@@ -262,23 +252,36 @@ export default class ArianeePrivacyGatewayClient {
       authentification: authentication,
     });
 
-    return (await res.json()).result;
+    return this.handleRpcResponse(res.json());
   }
 
   public async eventCreate(
     rpcUrl: RpcUrl,
     { eventId, content }: { eventId: string; content: ArianeeEventI18N }
-  ): Promise<{
-    jsonrpc: string;
-    id: number;
-    error?: { code: number; message: string };
-    result: string | null;
-  }> {
+  ): Promise<string> {
     const res = await this.rpcCall(rpcUrl, 'event.create', {
       eventId,
       json: content,
     });
-    return res.json();
+
+    return this.handleRpcResponse(res.json());
+  }
+
+  private async handleRpcResponse<T>(
+    res: Promise<{ result: T } | { error: { code: number; message: string } }>
+  ): Promise<T> {
+    const response = await res;
+
+    if ('error' in response) {
+      throw new PrivacyGatewayError(
+        response.error.message,
+        Object.values(PrivacyGatewayErrorEnum)[
+          response.error.code
+        ] as PrivacyGatewayErrorEnum
+      );
+    }
+
+    return response.result;
   }
 }
 export { ArianeePrivacyGatewayClient };
