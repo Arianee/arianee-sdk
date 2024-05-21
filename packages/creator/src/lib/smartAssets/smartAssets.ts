@@ -40,7 +40,8 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
   @requiresConnection()
   public async reserveSmartAssetId(
     id?: number,
-    overrides: NonPayableOverrides = {}
+    overrides: NonPayableOverrides = {},
+    skipCreditsCheck = false
   ) {
     if (id) {
       const isFree = await this.creator.utils.isSmartAssetIdAvailable(id);
@@ -56,11 +57,14 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (protocolV1) => {
-          await checkCreditsBalance(
-            this.creator.utils,
-            CreditType.smartAsset,
-            BigInt(1)
-          );
+          if (!skipCreditsCheck) {
+            await checkCreditsBalance(
+              this.creator.utils,
+              CreditType.smartAsset,
+              BigInt(1)
+            );
+          }
+
           return protocolV1.storeContract.reserveToken(
             _id,
             this.creator.core.getAddress(),
