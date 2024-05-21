@@ -41,7 +41,7 @@ describe('SmartAssets', () => {
 
   describe('reserveSmartAssetId', () => {
     it('should call the v1 contract with correct params and return the id', async () => {
-      jest
+      const isSmartAssetIdAvailableSpy = jest
         .spyOn(creator.utils, 'isSmartAssetIdAvailable')
         .mockResolvedValue(true);
 
@@ -65,6 +65,8 @@ describe('SmartAssets', () => {
         },
       } as any);
 
+      expect(isSmartAssetIdAvailableSpy).toHaveBeenCalledWith(123);
+
       expect(creditBalanceSpy).toHaveBeenCalledWith(
         CreditType.smartAsset,
         undefined,
@@ -83,7 +85,7 @@ describe('SmartAssets', () => {
       );
     });
     it('should skip credit check if skipCreditsCheck = true', async () => {
-      jest
+      const isSmartAssetIdAvailableSpy = jest
         .spyOn(creator.utils, 'isSmartAssetIdAvailable')
         .mockResolvedValue(true);
 
@@ -107,9 +109,9 @@ describe('SmartAssets', () => {
         },
       } as any);
 
+      expect(isSmartAssetIdAvailableSpy).not.toHaveBeenCalled();
       expect(creditBalanceSpy).not.toHaveBeenCalled();
       expect(reserveTokenSpy).toHaveBeenCalledWith(123, expect.any(String), {});
-
       expect(transactionWrapperSpy).toHaveBeenCalledWith(
         creator['arianeeProtocolClient'],
         creator['slug'],
