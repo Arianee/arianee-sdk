@@ -82,6 +82,44 @@ describe('SmartAssets', () => {
         undefined
       );
     });
+    it('should skip credit check if skipCreditsCheck = true', async () => {
+      jest
+        .spyOn(creator.utils, 'isSmartAssetIdAvailable')
+        .mockResolvedValue(true);
+
+      const creditBalanceSpy = jest
+        .spyOn(creator.utils, 'getCreditBalance')
+        .mockResolvedValue(BigInt(1));
+
+      const reserveTokenSpy = jest.fn();
+
+      const transactionWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
+
+      await creator.smartAssets.reserveSmartAssetId(123, {}, true);
+
+      const { protocolV1Action } = transactionWrapperSpy.mock.calls[0][2];
+
+      await protocolV1Action({
+        storeContract: {
+          reserveToken: reserveTokenSpy,
+        },
+      } as any);
+
+      expect(creditBalanceSpy).not.toHaveBeenCalled();
+      expect(reserveTokenSpy).toHaveBeenCalledWith(123, expect.any(String), {});
+
+      expect(transactionWrapperSpy).toHaveBeenCalledWith(
+        creator['arianeeProtocolClient'],
+        creator['slug'],
+        {
+          protocolV1Action: expect.any(Function),
+          protocolV2Action: expect.any(Function),
+        },
+        undefined
+      );
+    });
     it('should call the v2 contract with correct params and return the id', async () => {
       jest
         .spyOn(creator.utils, 'isSmartAssetIdAvailable')
