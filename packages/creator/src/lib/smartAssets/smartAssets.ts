@@ -41,9 +41,9 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
   public async reserveSmartAssetId(
     id?: number,
     overrides: NonPayableOverrides = {},
-    skipCreditsCheck = false
+    skipCheck = false
   ) {
-    if (id) {
+    if (id && !skipCheck) {
       const isFree = await this.creator.utils.isSmartAssetIdAvailable(id);
       if (!isFree) {
         throw new UnavailableSmartAssetIdError(`The id ${id} is not available`);
@@ -57,7 +57,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (protocolV1) => {
-          if (!skipCreditsCheck) {
+          if (!skipCheck) {
             await checkCreditsBalance(
               this.creator.utils,
               CreditType.smartAsset,
