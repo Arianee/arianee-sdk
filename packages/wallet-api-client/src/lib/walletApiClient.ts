@@ -71,6 +71,7 @@ export default class WalletApiClient<T extends ChainType>
     params?: {
       preferredLanguages?: string[];
       filterOutBridgedEvents?: boolean;
+      acceptCachedValue?: boolean;
     }
   ): Promise<SmartAsset> {
     const { id, passphrase } = smartAsset;
@@ -80,6 +81,7 @@ export default class WalletApiClient<T extends ChainType>
     const query = generateQueryString({
       languages: preferredLanguages,
       filterOutBridgedEvents: params?.filterOutBridgedEvents ?? true,
+      acceptCachedValue: params?.acceptCachedValue,
     });
 
     try {
