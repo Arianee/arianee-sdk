@@ -102,7 +102,11 @@ export default class SmartAssetService<
       id: SmartAsset['certificateId'];
       passphrase?: string;
     },
-    params?: { i18nStrategy?: I18NStrategy; filterOutBridgedEvents?: boolean }
+    params?: {
+      i18nStrategy?: I18NStrategy;
+      filterOutBridgedEvents?: boolean;
+      acceptCachedValue?: boolean;
+    }
   ): Promise<SmartAssetInstance<T, S>> {
     const preferredLanguages = getPreferredLanguages(
       params?.i18nStrategy ?? this.i18nStrategy
@@ -112,6 +116,7 @@ export default class SmartAssetService<
       this.walletAbstraction.getSmartAsset(protocolName, smartAsset, {
         preferredLanguages,
         filterOutBridgedEvents: params?.filterOutBridgedEvents,
+        acceptCachedValue: params?.acceptCachedValue,
       }),
 
       this.walletAbstraction.getSmartAssetEvents(protocolName, smartAsset, {

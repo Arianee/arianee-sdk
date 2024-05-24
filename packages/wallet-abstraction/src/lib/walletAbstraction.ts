@@ -17,6 +17,7 @@ export interface WalletAbstraction {
     params?: {
       preferredLanguages?: string[];
       filterOutBridgedEvents?: boolean;
+      acceptCachedValue?: boolean;
     }
   ): SmartAsset | Promise<SmartAsset>;
 
