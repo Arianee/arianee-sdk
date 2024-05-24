@@ -1,6 +1,10 @@
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
 import { Core } from '@arianee/core';
 
+import { BadRequestError } from '../errors/BadRequestError';
+import { ForbiddenError } from '../errors/ForbiddenError';
+import { NotFoundError } from '../errors/NotFoundError';
+
 export type AuthorizationType =
   | { certificateId: string; passphrase: string }
   | 'arianeeAccessToken';
@@ -60,7 +64,7 @@ export default class HttpClient {
   }
 
   public async get(url: string, extraHeaders: HeadersInit = {}) {
-    return this.fetchLike(url, {
+    const res = await this.fetchLike(url, {
       headers: {
         Accept: 'application/json, text/plain',
         'Content-Type': 'application/json;charset=UTF-8',
@@ -68,6 +72,8 @@ export default class HttpClient {
         ...extraHeaders,
       },
     });
+
+    return this.handleResponse(res);
   }
 
   public async post(
@@ -75,7 +81,7 @@ export default class HttpClient {
     data: { [key: string | number]: unknown },
     extraHeaders: HeadersInit = {}
   ) {
-    return this.fetchLike(url, {
+    const res = await this.fetchLike(url, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -85,5 +91,21 @@ export default class HttpClient {
         ...extraHeaders,
       },
     });
+
+    return this.handleResponse(res);
+  }
+
+  private async handleResponse(res: Response) {
+    if (res.status === 200) {
+      return res;
+    } else if (res.status === 400) {
+      throw new BadRequestError(res.statusText);
+    } else if (res.status === 403) {
+      throw new ForbiddenError(res.statusText);
+    } else if (res.status === 404) {
+      throw new NotFoundError(res.statusText);
+    } else {
+      throw new Error(res.statusText);
+    }
   }
 }
