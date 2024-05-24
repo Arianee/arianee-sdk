@@ -74,6 +74,8 @@ npm run build:all
 npm run publish:all
 ```
 
+npm i && npm run test:all && npm run bump:all && npm run build:all && npm run publish:all
+
 ### Nx Scoped Commands
 
 You can use any package-specific command through the Nx CLI. For example, to run the tests for the @arianee/core package, you can use the following command:
