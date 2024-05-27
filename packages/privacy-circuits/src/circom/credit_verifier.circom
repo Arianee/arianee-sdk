@@ -10,21 +10,24 @@ template CommitmentHasher() {
     signal input nullifierDerivationIndex;
     signal input secret;
     signal input creditType;
+    signal input issuerProxy;
 
     signal output commitment;
     signal output nullifierHash;
     
-    component commitmentHasher = Pedersen(504); // 248 (nullifier) + 248 (secret) + 8 (creditType)
+    component commitmentHasher = Pedersen(524); // 248 (nullifier) + 248 (secret) + 8 (creditType) + 20 (issuerProxy)
     component nullifierHasher = Pedersen(264); // 248 (nullifier) + 16 (nullifierDerivationIndex)
 
     component nullifierBits = Num2Bits(248);
     component nullifierDerivationIndexBits = Num2Bits(16);
     component secretBits = Num2Bits(248); 
     component creditTypeBits = Num2Bits(8);
+    component issuerProxyBits = Num2Bits(20);
     nullifierBits.in <== nullifier;
     nullifierDerivationIndexBits.in <== nullifierDerivationIndex;
     secretBits.in <== secret;
     creditTypeBits.in <== creditType;
+    issuerProxyBits.in <== issuerProxy;
 
     for (var i = 0; i < 248; i++) {
         commitmentHasher.in[i] <== nullifierBits.out[i];
@@ -38,6 +41,9 @@ template CommitmentHasher() {
     }
     for (var i = 496; i < 504; i++) {
         commitmentHasher.in[i] <== creditTypeBits.out[i - 496];
+    }
+    for (var i = 504; i < 524; i++) {
+        commitmentHasher.in[i] <== issuerProxyBits.out[i - 504];
     }
 
     commitment <== commitmentHasher.out[0];
@@ -54,11 +60,15 @@ template CreditVerifier(levels) {
     signal input pathIndices[levels];
 
     // Public inputs
-    signal input creditType;
-    signal input root;
-    signal input nullifierHash;
+    signal input pubRoot;
+    signal input pubCreditType;
+    signal input pubIssuerProxy;
+    signal input pubNullifierHash;
+    signal input pubIntentHash;
 
     // Ensure that nullifierDerivationIndex is in range 1-1000
+    // One nullifier can have up to 1000 different nullifierHashes
+    // In others words, one CreditNote can be spent up to 1000 times
     component nulDerIdxGeqt = GreaterEqThan(16);
     nulDerIdxGeqt.in[0] <== nullifierDerivationIndex;
     nulDerIdxGeqt.in[1] <== 1;
@@ -69,53 +79,59 @@ template CreditVerifier(levels) {
     nulDerIdxLeqt.in[1] <== 1000;
     nulDerIdxLeqt.out === 1;
 
-    // Ensure that creditType is in range 1-4
+    // Ensure that pubCreditType is in range 1-4
     component creTypGeqt = GreaterEqThan(8);
-    creTypGeqt.in[0] <== creditType;
+    creTypGeqt.in[0] <== pubCreditType;
     creTypGeqt.in[1] <== 1;
     creTypGeqt.out === 1;
 
     component creTypLeqt = LessEqThan(8);
-    creTypLeqt.in[0] <== creditType;
+    creTypLeqt.in[0] <== pubCreditType;
     creTypLeqt.in[1] <== 4;
     creTypLeqt.out === 1;
 
-    // Output nullifierHash and commitment
-    // nullifierHash = H(nullifier, nullifierDerivationIndex), where nullifierDerivationIndex is 1-1000, allowing for 1000 different nullifierHashes per nullifier
-    // commitment = H(nullifier, secret, creditType), where creditType is 1-4, creditType is public
+    // Output pubNullifierHash and commitment
+    // pubNullifierHash = H(nullifier, nullifierDerivationIndex), where nullifierDerivationIndex is 1-1000, allowing for 1000 different nullifierHashes per nullifier
+    // commitment = H(nullifier, secret, pubCreditType, pubIssuerProxy), where pubCreditType is 1-4, pubCreditType is public
     component hasher = CommitmentHasher();
     hasher.nullifier <== nullifier;
     hasher.nullifierDerivationIndex <== nullifierDerivationIndex;
     hasher.secret <== secret;
-    hasher.creditType <== creditType;
+    hasher.creditType <== pubCreditType;
+    hasher.issuerProxy <== pubIssuerProxy;
 
     // TODO: Remove this once tested with the proving sdk
     log("");
-    log("NullifierHash input is", nullifierHash);
+    log("NullifierHash input is", pubNullifierHash);
     log("NullifierHasher output is", hasher.nullifierHash);
 
     log("");
     log("CommitmentHasher output is", hasher.commitment);
 
-    hasher.nullifierHash === nullifierHash;
+    hasher.nullifierHash === pubNullifierHash;
 
     component tree = MerkleTreeChecker(levels);
     tree.leaf <== hasher.commitment;
-    tree.root <== root;
+    tree.root <== pubRoot;
     for (var i = 0; i < levels; i++) {
         tree.pathElements[i] <== pathElements[i];
         tree.pathIndices[i] <== pathIndices[i];
     }
+
+    // Dummy squares to prevent tampering pubIntentHash value
+    signal pubIntentHashSquared;
+
+    pubIntentHashSquared <== pubIntentHash * pubIntentHash;
 }
 
-component main { public [creditType, root, nullifierHash] } = CreditVerifier(31);
+component main { public [pubRoot, pubCreditType, pubIssuerProxy, pubNullifierHash, pubIntentHash] } = CreditVerifier(30);
 
-// N = 2^31 = 2 147 483 648
-// C = N * 1000 = 2 147 483 648 000
+// N = 2^30 = 1 073 741 824
+// C = N * 1000 = 1 073 741 824 000
 
-// U = 20 000
-// D = U * 15 = 300 000
-// M = D * 30 = 9 000 000
-// Y = M * 12 = 108 000 000
+// U (Average Daily Mint Vol.) = 20 000
+// D (Average Daily Mint Vol. x 15) = 300 000
+// M (Average Monthly Mint Vol.) = 9 000 000
+// Y (Average Yearly Mint Vol.) = 108 000 000
 
-// R = C / Y = 19.9
+// R (Average Yearly CreditNotePool Lifespan) = C / Y = 19.9
