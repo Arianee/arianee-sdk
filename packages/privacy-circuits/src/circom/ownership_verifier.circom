@@ -22,7 +22,7 @@ template OwnershipVerifier() {
 
     commitmentHasher.out === pubCommitmentHash;
 
-    // Dummy squares to prevent tampering pubScope values
+    // Dummy squares to prevent tampering pubIntentHashSquared and pubNonceSquared values
     signal pubIntentHashSquared;
     signal pubNonceSquared;
 
