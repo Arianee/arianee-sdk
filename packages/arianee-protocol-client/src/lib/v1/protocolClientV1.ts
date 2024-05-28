@@ -48,6 +48,11 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
     | ethers6_v1.ArianeeLost
     | ethers6_v1_1.ArianeeLost;
 
+  public readonly arianeeIssuerProxy?: ethers6_v1_1.ArianeeIssuerProxy;
+  public readonly arianeeCreditNotePool?: ethers6_v1_1.ArianeeCreditNotePool;
+
+  public readonly isPrivacyEnabled;
+
   constructor(
     signer: Signer,
     protocolDetails: ProtocolDetailsV1,
@@ -130,6 +135,32 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
       this.protocolDetails.contractAdresses.lost,
       this.signer
     );
+
+    if (this.protocolDetails.contractAdresses.issuerProxy) {
+      this.arianeeIssuerProxy =
+        ethers6_v1_1.ArianeeIssuerProxy__factory.connect(
+          this.protocolDetails.contractAdresses.issuerProxy,
+          this.signer
+        );
+    } else {
+      console.warn('No `issuerProxy` contract address found for this protocol');
+    }
+
+    if (this.protocolDetails.contractAdresses.creditNotePool) {
+      this.arianeeCreditNotePool =
+        ethers6_v1_1.ArianeeCreditNotePool__factory.connect(
+          this.protocolDetails.contractAdresses.creditNotePool,
+          this.signer
+        );
+    } else {
+      console.warn(
+        'No `creditNotePool` contract address found for this protocol'
+      );
+    }
+
+    // If issuerProxy is defined, we consider this version of the protocol as privacy enabled
+    // The creditNotePool will not be used in the first phase so we don't need to check it
+    this.isPrivacyEnabled = this.arianeeIssuerProxy !== undefined;
   }
 }
 

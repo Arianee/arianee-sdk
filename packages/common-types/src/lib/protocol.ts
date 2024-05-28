@@ -46,6 +46,8 @@ export interface ProtocolDetailsV1 extends ProtocolDetailsBase {
     lost: string;
     userAction: string;
     updateSmartAssets: string;
+    issuerProxy?: string;
+    creditNotePool?: string;
   };
   soulbound: boolean;
 }
