@@ -13,7 +13,7 @@ export const CHAIN_TYPE_IDS: {
     { name: ProtocolName.mumbai, id: 80001 },
     { name: ProtocolName.arianeeTestnet, id: 42 },
     { name: ProtocolName.testnetSbt, id: 77 },
-    { name: ProtocolName.tezostestnet, id: 128123 },
+    { name: ProtocolName.tezostestnet, id: 42793 },
     { name: ProtocolName.supernettestnet, id: 999118981 },
   ],
   mainnet: [
