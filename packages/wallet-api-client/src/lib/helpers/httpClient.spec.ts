@@ -8,7 +8,7 @@ import HttpClient from './httpClient';
 jest.mock('node-fetch');
 
 const mockedFetch = _fetch as jest.MockedFunction<typeof _fetch>;
-mockedFetch.mockImplementation(() => ({ mock: 'mock' } as any));
+mockedFetch.mockImplementation(() => ({ mock: 'mock', status: 200 } as any));
 
 const core = Core.fromMnemonic(
   'art success hello fold once ignore arrow damp note affair razor vital'

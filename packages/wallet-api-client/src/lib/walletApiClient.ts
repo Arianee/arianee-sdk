@@ -13,6 +13,9 @@ import { defaultFetchLike, ReadLink } from '@arianee/utils';
 import { WalletAbstraction } from '@arianee/wallet-abstraction';
 
 import { WALLET_API_URL } from './constants';
+import { BadRequestError } from './errors/BadRequestError';
+import { ForbiddenError } from './errors/ForbiddenError';
+import { NotFoundError } from './errors/NotFoundError';
 import { generateQueryString, removeTrailingSlash } from './helpers';
 import HttpClient, { AuthorizationType } from './helpers/httpClient';
 
@@ -96,7 +99,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch smart asset (${id}): ${(e as Error).message}`
       );
     }
@@ -134,7 +138,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch smart asset (subId ${payload.subId}): ${
           (e as Error).message
         }`
@@ -174,7 +179,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch smart asset events (smart asset id ${id}): ${
           (e as Error).message
         }`
@@ -216,7 +222,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch smart asset events (subId ${payload.subId}): ${
           (e as Error).message
         }`
@@ -250,7 +257,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch owned smart assets: ${(e as Error).message}`
       );
     }
@@ -280,7 +288,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch message (${id}): ${(e as Error).message}`
       );
     }
@@ -308,7 +317,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch received messages: ${(e as Error).message}`
       );
     }
@@ -339,7 +349,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch brand identity (${address}): ${(e as Error).message}`
       );
     }
@@ -369,7 +380,8 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to fetch owned smart assets brand identities: ${
           (e as Error).message
         }`
@@ -404,7 +416,10 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(`Failed to handle link: ${(e as Error).message}`);
+      throw this.handleError(
+        e,
+        `Failed to handle link: ${(e as Error).message}`
+      );
     }
   }
 
@@ -435,9 +450,20 @@ export default class WalletApiClient<T extends ChainType>
 
       return await response.json();
     } catch (e) {
-      throw new Error(
+      throw this.handleError(
+        e,
         `Failed to get smart asset from link (${link}): ${(e as Error).message}`
       );
     }
+  }
+
+  private handleError(e: unknown, message: string) {
+    if (
+      e instanceof BadRequestError ||
+      e instanceof ForbiddenError ||
+      e instanceof NotFoundError
+    )
+      return e;
+    return new Error(message);
   }
 }
