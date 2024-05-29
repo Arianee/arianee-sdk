@@ -203,8 +203,8 @@ export type Thread = {
   events: {
     hydrate: ThreadEvent<ThreadHydrateReturnValues>;
     transfers: ThreadEvent<ThreadTransferReturnValues>[];
-    arianeeEvents: ArianeeEventI18N[];
   };
+  arianeeEvents: ThreadArianeeEvent[];
 }[];
 
 export type ThreadPoint = {
@@ -246,5 +246,20 @@ export type ThreadEvent<ReturnValuesType> = {
   raw: {
     data: string;
     topics: string[];
+  };
+};
+
+export type ThreadArianeeEvent = {
+  id: string;
+  certificateId: string;
+  pending?: boolean;
+  sender: string;
+  timestamp: number;
+  content: ArianeeEventI18N;
+  rawContent: ArianeeEventI18N;
+  imprint: string;
+  protocol: {
+    name: string;
+    chainId: number;
   };
 };
