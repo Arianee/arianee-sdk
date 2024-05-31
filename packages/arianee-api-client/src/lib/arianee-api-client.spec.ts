@@ -1,12 +1,43 @@
 import { ChainType } from '@arianee/common-types';
+import * as utils from '@arianee/utils';
 
 import { ArianeeApiClient } from './arianee-api-client';
+
+jest.mock('@arianee/utils', () => {
+  const originalUtils = jest.requireActual('@arianee/utils');
+  return {
+    ...originalUtils,
+    retryFetchLike: jest.fn(),
+    cachedFetchLike: jest.fn(),
+  };
+});
 
 const fetchMock = jest.fn();
 
 describe('ArianeeApiClient', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+  });
+
+  it('should use a cachedFetchLike and retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+    const mockFetchLike = jest.fn();
+
+    (utils.retryFetchLike as jest.Mock).mockReturnValue(
+      mockFetchLike as unknown as typeof utils.defaultFetchLike
+    );
+
+    (utils.cachedFetchLike as jest.Mock).mockReturnValue(mockFetchLike);
+
+    const client = new ArianeeApiClient();
+
+    expect(client['fetchLike']).toBe(mockFetchLike);
+    expect(utils.retryFetchLike).toHaveBeenCalledWith(
+      utils.defaultFetchLike,
+      3
+    );
+    expect(utils.cachedFetchLike).toHaveBeenCalledWith(mockFetchLike, {
+      timeToLive: 5 * 60 * 1000,
+    });
   });
 
   it('should throw if reponse is not ok', async () => {
