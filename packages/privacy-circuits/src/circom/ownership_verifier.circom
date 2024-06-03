@@ -16,7 +16,7 @@ template OwnershipVerifier() {
     commitmentHasher.inputs[1] <== sig[1];
     commitmentHasher.inputs[2] <== sig[2];
 
-    // TODO: Remove this once tested with the proving sdk
+    // TODO: Remove this once ready to release
     log("PubHash input is", pubCommitmentHash);
     log("CommitmentHasher output is", commitmentHasher.out);
 

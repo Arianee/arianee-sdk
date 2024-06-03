@@ -47,7 +47,7 @@ export interface ProtocolDetailsV1 extends ProtocolDetailsBase {
     userAction: string;
     updateSmartAssets: string;
     issuerProxy?: string;
-    creditNotePool?: string;
+    creditNotePool?: string; // INFO: In the future, you might want to add multiple credit pools
   };
   soulbound: boolean;
 }

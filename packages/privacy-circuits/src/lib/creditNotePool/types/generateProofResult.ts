@@ -1,0 +1,7 @@
+import { Groth16Proof, PublicSignals } from 'snarkjs';
+
+export type CreditNotePoolGenerateProofResult = {
+  proof: Groth16Proof;
+  publicSignals: PublicSignals;
+  callData: string;
+};

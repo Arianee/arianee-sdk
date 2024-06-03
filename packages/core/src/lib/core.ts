@@ -1,6 +1,8 @@
 import {
+  BytesLike,
   ethers,
   Mnemonic,
+  Signature,
   SigningKey,
   TransactionLike,
   TransactionResponse,
@@ -10,9 +12,23 @@ import {
 import { TransactionRequest } from 'ethers/lib.esm';
 
 export default class Core {
+  public getAddress!: () => string;
+
   public signMessage!: (
     message: string
   ) => Promise<{ message: string; signature: string }>;
+  public signDigest!:
+    | ((
+        digest: BytesLike
+      ) => Promise<{ digest: BytesLike; signature: Signature }>)
+    | undefined;
+  public signTypedData!:
+    | ((
+        domain: TypedDataDomain,
+        types: Record<string, Array<TypedDataField>>,
+        value: Record<string, any>
+      ) => Promise<{ signature: string }>)
+    | undefined;
   public signTransaction!:
     | ((
         transaction: TransactionLike
@@ -25,28 +41,15 @@ export default class Core {
       ) => Promise<TransactionResponse | { skipResponse: true }>)
     | undefined;
 
-  public getAddress!: () => string;
-
-  public signTypedData!:
-    | ((
-        domain: TypedDataDomain,
-        types: Record<string, Array<TypedDataField>>,
-        value: Record<string, any>
-      ) => Promise<{ signature: string }>)
-    | undefined;
-
   constructor(params: {
+    getAddress: () => string;
     signMessage: (
       message: string
     ) => Promise<{ message: string; signature: string }>;
-    getAddress: () => string;
-    signTransaction?:
+    signDigest?:
       | ((
-          transaction: TransactionLike
-        ) => Promise<{ transaction: TransactionLike; signature: string }>)
-      | undefined;
-    sendTransaction?:
-      | ((transaction: TransactionRequest) => Promise<TransactionResponse>)
+          digest: BytesLike
+        ) => Promise<{ digest: BytesLike; signature: Signature }>)
       | undefined;
     signTypedData?:
       | ((
@@ -54,6 +57,14 @@ export default class Core {
           types: Record<string, Array<TypedDataField>>,
           value: Record<string, any>
         ) => Promise<{ signature: string }>)
+      | undefined;
+    signTransaction?:
+      | ((
+          transaction: TransactionLike
+        ) => Promise<{ transaction: TransactionLike; signature: string }>)
+      | undefined;
+    sendTransaction?:
+      | ((transaction: TransactionRequest) => Promise<TransactionResponse>)
       | undefined;
   }) {
     if (
@@ -82,22 +93,23 @@ export default class Core {
 
     this.getAddress = params.getAddress;
     this.signMessage = params.signMessage;
+    this.signDigest = params.signDigest;
+    this.signTypedData = params.signTypedData;
     this.signTransaction = params.signTransaction;
     this.sendTransaction = params.sendTransaction;
-    this.signTypedData = params.signTypedData;
   }
 
   static fromWallet(wallet: ethers.Wallet): Core {
     return new Core({
+      getAddress: () => wallet.address,
       signMessage: async (message: string) => {
         const signature = await wallet.signMessage(message);
         return { message, signature };
       },
-      signTransaction: async (data: TransactionLike) => {
-        const signature = await wallet.signTransaction(data);
-        return { transaction: data, signature };
+      signDigest: async (digest: BytesLike) => {
+        const signature = wallet.signingKey.sign(digest);
+        return { digest, signature };
       },
-      getAddress: () => wallet.address,
       signTypedData: async (
         domain: TypedDataDomain,
         types: Record<string, Array<TypedDataField>>,
@@ -105,6 +117,10 @@ export default class Core {
       ) => {
         const signature = await wallet.signTypedData(domain, types, value);
         return { signature };
+      },
+      signTransaction: async (data: TransactionLike) => {
+        const signature = await wallet.signTransaction(data);
+        return { transaction: data, signature };
       },
     });
   }
@@ -125,6 +141,7 @@ export default class Core {
     if (!isValidMnemonic) {
       throw new Error('invalid mnemonic');
     }
+
     const mnemonic = Mnemonic.fromPhrase(phrase);
     const wallet = ethers.HDNodeWallet.fromMnemonic(mnemonic);
     return Core.fromPrivateKey(wallet.privateKey);
