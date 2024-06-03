@@ -7,7 +7,11 @@ import {
   ProtocolV2Versions,
 } from '@arianee/common-types';
 import Core from '@arianee/core';
-import { defaultFetchLike } from '@arianee/utils';
+import {
+  cachedFetchLike,
+  defaultFetchLike,
+  retryFetchLike,
+} from '@arianee/utils';
 
 import { ProtocolDetailsResolver } from './shared/types';
 import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
@@ -27,7 +31,11 @@ export default class ArianeeProtocolClient {
   private arianeeApiClient: ArianeeApiClient;
 
   constructor(private core: Core, options?: ArianeeProtocolClientOptions) {
-    this.fetchLike = options?.fetchLike ?? defaultFetchLike;
+    this.fetchLike =
+      options?.fetchLike ??
+      cachedFetchLike(retryFetchLike(defaultFetchLike, 3), {
+        timeToLive: 5 * 60 * 1000,
+      });
 
     this.arianeeApiClient = new ArianeeApiClient(
       options?.arianeeApiUrl ?? 'https://api.arianee.com',
@@ -44,6 +52,7 @@ export default class ArianeeProtocolClient {
     options?: { httpProvider: string }
   ): Promise<ProtocolClientV1 | ProtocolClientV2> {
     let details: ProtocolDetails;
+
     if (this.protocolDetailsResolver) {
       details = await this.protocolDetailsResolver(slug);
     } else {

@@ -7,7 +7,11 @@ import {
   SmartContractNames,
   UnnestedBlockchainEvent,
 } from '@arianee/common-types';
-import { defaultFetchLike } from '@arianee/utils';
+import {
+  cachedFetchLike,
+  defaultFetchLike,
+  retryFetchLike,
+} from '@arianee/utils';
 
 import { ArianeeEvent } from './types/arianeeEvent';
 import { blockchainEventFilters } from './types/blockchainEventFilters';
@@ -23,7 +27,11 @@ export class ArianeeApiClient {
     private readonly arianeeApiUrl?: string,
     fetchLike?: typeof fetch
   ) {
-    this.fetchLike = fetchLike ?? defaultFetchLike;
+    this.fetchLike =
+      fetchLike ??
+      cachedFetchLike(retryFetchLike(defaultFetchLike, 3), {
+        timeToLive: 5 * 60 * 1000,
+      });
 
     if (!arianeeApiUrl) {
       this.arianeeApiUrl = 'https://api.arianee.com';

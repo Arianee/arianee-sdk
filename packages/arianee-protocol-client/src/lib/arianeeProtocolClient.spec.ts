@@ -2,11 +2,20 @@
 
 import { ProtocolDetailsV1, ProtocolDetailsV2 } from '@arianee/common-types';
 import Core from '@arianee/core';
-import { defaultFetchLike } from '@arianee/utils';
+import * as utils from '@arianee/utils';
 
 import ArianeeProtocolClient from './arianeeProtocolClient';
 import * as ethersProxies from './utils/ethersCustom/ethersCustom';
 import ProtocolClientV1 from './v1/protocolClientV1';
+
+jest.mock('@arianee/utils', () => {
+  const originalUtils = jest.requireActual('@arianee/utils');
+  return {
+    ...originalUtils,
+    retryFetchLike: jest.fn(),
+    cachedFetchLike: jest.fn(),
+  };
+});
 
 jest.mock('@arianee/core');
 jest.mock('./v1/protocolClientV1');
@@ -23,9 +32,25 @@ describe('ArianeeProtocolClient', () => {
   });
 
   describe('constructor', () => {
-    it('should use the defaultFetchLike if no fetch like passed', () => {
+    it('should use a cachedFetchLike and retryFetchLike created with the defaultFetchLike if no fetch like passed', () => {
+      const mockFetchLike = jest.fn();
+
+      (utils.retryFetchLike as jest.Mock).mockReturnValue(
+        mockFetchLike as unknown as typeof utils.defaultFetchLike
+      );
+
+      (utils.cachedFetchLike as jest.Mock).mockReturnValue(mockFetchLike);
+
       const client = new ArianeeProtocolClient(Core.fromRandom());
-      expect(client['fetchLike']).toBe(defaultFetchLike);
+
+      expect(client['fetchLike']).toBe(mockFetchLike);
+      expect(utils.retryFetchLike).toHaveBeenCalledWith(
+        utils.defaultFetchLike,
+        3
+      );
+      expect(utils.cachedFetchLike).toHaveBeenCalledWith(mockFetchLike, {
+        timeToLive: 5 * 60 * 1000,
+      });
     });
 
     it('should use the protocolDetailsResolver if passed', () => {

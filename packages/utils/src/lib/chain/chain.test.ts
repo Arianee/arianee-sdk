@@ -1,5 +1,7 @@
 import { getChainTypeOf, protocolNameToChainId } from './chain';
 
+jest.spyOn(console, 'warn').mockImplementation();
+
 describe('protocolNameToChainId', () => {
   it('should return the correct chain ID for a regular protocol', () => {
     expect(protocolNameToChainId('mainnet')).toBe(99);
