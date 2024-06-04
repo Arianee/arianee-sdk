@@ -1,18 +1,17 @@
-import { transactionWrapper as _transactionWrapper } from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
-
 import {
   BabyJub,
-  MimcSponge,
-  PedersenHash,
-  Poseidon,
   buildBabyjub,
   buildMimcSponge,
   buildPedersenHash,
   buildPoseidon,
+  MimcSponge,
+  PedersenHash,
+  Poseidon,
 } from 'circomlibjs';
-import IssuerProxy from './issuerProxy/issuerProxy';
+
 import CreditNotePool from './creditNotePool/creditNotePool';
+import IssuerProxy from './issuerProxy/issuerProxy';
 
 export type ProverParams = {
   core: Core;

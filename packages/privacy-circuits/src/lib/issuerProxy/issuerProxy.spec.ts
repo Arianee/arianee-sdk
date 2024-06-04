@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Core } from '@arianee/core';
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { ProtocolDetailsV1 } from '@arianee/common-types';
-import { Prover } from '../prover';
+import { Core } from '@arianee/core';
 import { ZeroAddress } from 'ethers';
+
+import { Prover } from '../prover';
 
 describe('issuerProxy', () => {
   let core: Core;
@@ -40,8 +41,10 @@ describe('issuerProxy', () => {
       soulbound: false,
     };
     mockProtocolV1 = new ProtocolClientV1(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       {} as any,
       mockProtocolDetails,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       {} as any
     );
   });

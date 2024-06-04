@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Core } from '@arianee/core';
+/* eslint-disable @typescript-eslint/no-loss-of-precision */
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { ProtocolDetailsV1 } from '@arianee/common-types';
-import { Prover } from '../prover';
+import { Core } from '@arianee/core';
 import { Filter, ZeroAddress } from 'ethers';
+
+import { Prover } from '../prover';
 
 interface MockLog {
   data: string;
@@ -17,8 +19,6 @@ describe('creditNotePool', () => {
   let mockLogs: MockLog[] = [];
   let mockProvider: { getLogs: (filter: Filter) => Promise<MockLog[]> };
   let mockProtocolV1: ProtocolClientV1;
-
-  let purchasedTopic: string;
 
   beforeAll(async () => {
     core = Core.fromPrivateKey(
@@ -55,15 +55,12 @@ describe('creditNotePool', () => {
       soulbound: false,
     };
     mockProtocolV1 = new ProtocolClientV1(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { provider: mockProvider } as any,
       mockProtocolDetails,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       {} as any
     );
-
-    const topicFilter = await mockProtocolV1
-      .arianeeCreditNotePool!.filters.Purchased()
-      .getTopicFilter();
-    purchasedTopic = topicFilter.at(0) as string;
   });
 
   it('should throw if `Prover.init` was not called before using `Prover.creditNotePool`', () => {

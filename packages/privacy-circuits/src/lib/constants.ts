@@ -1,7 +1,7 @@
-import { resolve } from 'path';
-import { readFileSync } from 'fs';
 import { keccak256, toUtf8Bytes } from 'ethers';
 import { Element } from 'fixed-merkle-tree';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 export const FIELD_SIZE = BigInt(
   '21888242871839275222246405745257275088548364400416034343698204186575808495617'

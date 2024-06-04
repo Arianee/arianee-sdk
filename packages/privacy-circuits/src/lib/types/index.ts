@@ -1,2 +1,2 @@
-export * from '../issuerProxy/types';
 export * from '../creditNotePool/types';
+export * from '../issuerProxy/types';

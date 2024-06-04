@@ -1,15 +1,8 @@
-import { hashMessage, solidityPackedKeccak256 } from 'ethers';
-import Prover from '../prover';
-import {
-  IssuerProxyComputeCommitmentParameters as ComputeCommitmentParameters,
-  IssuerProxyComputeCommitmentResult as ComputeCommitmentResult,
-  IssuerProxyComputeIntentParameters as ComputeIntentParameters,
-  IssuerProxyComputeIntentResult as ComputeIntentResult,
-  IssuerProxyGenerateProofParameters as GenerateProofParameters,
-  IssuerProxyGenerateProofResult as GenerateProofResult,
-  IssuerProxyVerifyProofParameters as VerifyProofParameters,
-} from './types';
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
+import { Poseidon } from 'circomlibjs';
+import { hashMessage, solidityPackedKeccak256 } from 'ethers';
+import { groth16 } from 'snarkjs';
+
 import {
   CREDIT_PROOF_SIZE,
   DEFAULT_CREDIT_PROOF,
@@ -21,9 +14,17 @@ import {
   OWNERSHIP_VERIFIER_WASH_PATH,
   SELECTOR_SIZE,
 } from '../constants';
-import { Poseidon } from 'circomlibjs';
-import { groth16 } from 'snarkjs';
+import Prover from '../prover';
 import { toHex } from '../utils';
+import {
+  IssuerProxyComputeCommitmentParameters as ComputeCommitmentParameters,
+  IssuerProxyComputeCommitmentResult as ComputeCommitmentResult,
+  IssuerProxyComputeIntentParameters as ComputeIntentParameters,
+  IssuerProxyComputeIntentResult as ComputeIntentResult,
+  IssuerProxyGenerateProofParameters as GenerateProofParameters,
+  IssuerProxyGenerateProofResult as GenerateProofResult,
+  IssuerProxyVerifyProofParameters as VerifyProofParameters,
+} from './types';
 
 export default class IssuerProxy {
   private readonly poseidon: Poseidon;
@@ -120,7 +121,8 @@ export default class IssuerProxy {
 
   private _computeIntentHash(
     protocolV1: ProtocolClientV1,
-    fragment: any,
+    fragment: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     values: readonly any[],
     needsCreditNoteProof: boolean
   ): string {
@@ -129,7 +131,9 @@ export default class IssuerProxy {
 
     const intentData =
       protocolV1.arianeeIssuerProxy!.interface.encodeFunctionData(
-        fragment,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        fragment as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         fnArgs as any
       );
     const intentDataPart = intentData

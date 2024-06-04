@@ -1,4 +1,18 @@
+import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
+import { BabyJub, MimcSponge, PedersenHash } from 'circomlibjs';
+import { assert } from 'console';
+import { MerkleTree } from 'fixed-merkle-tree';
+import { groth16 } from 'snarkjs';
+
+import {
+  CREDIT_VERIFIER_PROVING_KEY_PATH,
+  CREDIT_VERIFIER_VERIFICATION_KEY,
+  CREDIT_VERIFIER_WASH_PATH,
+  MERKLE_TREE_LEVELS,
+  MERKLE_TREE_ZERO_ELEMENT,
+} from '../constants';
 import Prover from '../prover';
+import { leInt2Buff, randomBigInt, toHex } from '../utils';
 import {
   CreditNotePoolComputeCommitmentParameters as ComputeCommitmentParameters,
   CreditNotePoolComputeCommitmentResult as ComputeCommitmentResult,
@@ -8,19 +22,6 @@ import {
   CreditNotePoolGenerateProofResult as GenerateProofResult,
   CreditNotePoolVerifyProofParameters as VerifyProofParameters,
 } from './types';
-import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
-import {
-  CREDIT_VERIFIER_PROVING_KEY_PATH,
-  CREDIT_VERIFIER_VERIFICATION_KEY,
-  CREDIT_VERIFIER_WASH_PATH,
-  MERKLE_TREE_LEVELS,
-  MERKLE_TREE_ZERO_ELEMENT,
-} from '../constants';
-import { BabyJub, MimcSponge, PedersenHash } from 'circomlibjs';
-import { groth16 } from 'snarkjs';
-import { leInt2Buff, randomBigInt, toHex } from '../utils';
-import { MerkleTree } from 'fixed-merkle-tree';
-import { assert } from 'console';
 
 export default class CreditNotePool {
   private readonly babyJub: BabyJub;
