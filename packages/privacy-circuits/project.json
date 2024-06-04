@@ -30,7 +30,10 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "packages/privacy-circuits/jest.config.ts",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "runInBand": true,
+        "detectOpenHandles": true,
+        "testTimeout": 12000
       },
       "configurations": {
         "ci": {

@@ -1,1 +1,2 @@
-export * from './lib/privacy-circuits';
+export * from './lib/prover';
+export * from './lib/types';

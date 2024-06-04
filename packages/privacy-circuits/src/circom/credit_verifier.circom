@@ -15,14 +15,14 @@ template CommitmentHasher() {
     signal output commitment;
     signal output nullifierHash;
     
-    component commitmentHasher = Pedersen(524); // 248 (nullifier) + 248 (secret) + 8 (creditType) + 20 (issuerProxy)
+    component commitmentHasher = Pedersen(664); // 248 (nullifier) + 248 (secret) + 8 (creditType) + 160 (issuerProxy)
     component nullifierHasher = Pedersen(264); // 248 (nullifier) + 16 (nullifierDerivationIndex)
 
     component nullifierBits = Num2Bits(248);
     component nullifierDerivationIndexBits = Num2Bits(16);
     component secretBits = Num2Bits(248); 
     component creditTypeBits = Num2Bits(8);
-    component issuerProxyBits = Num2Bits(20);
+    component issuerProxyBits = Num2Bits(160);
     nullifierBits.in <== nullifier;
     nullifierDerivationIndexBits.in <== nullifierDerivationIndex;
     secretBits.in <== secret;
@@ -42,7 +42,7 @@ template CommitmentHasher() {
     for (var i = 496; i < 504; i++) {
         commitmentHasher.in[i] <== creditTypeBits.out[i - 496];
     }
-    for (var i = 504; i < 524; i++) {
+    for (var i = 504; i < 664; i++) {
         commitmentHasher.in[i] <== issuerProxyBits.out[i - 504];
     }
 
@@ -100,7 +100,7 @@ template CreditVerifier(levels) {
     hasher.creditType <== pubCreditType;
     hasher.issuerProxy <== pubIssuerProxy;
 
-    // TODO: Remove this once tested with the proving sdk
+    // TODO: Remove this once ready to release
     log("");
     log("NullifierHash input is", pubNullifierHash);
     log("NullifierHasher output is", hasher.nullifierHash);
