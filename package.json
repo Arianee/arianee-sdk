@@ -11,6 +11,7 @@
     "build:utils": "nx build utils",
     "build:creator": "nx build creator",
     "build:arianee-protocol-client": "nx build arianee-protocol-client",
+    "build:privacy-circuits": "nx build privacy-circuits",
     "build:all": "nx run-many --target=build --all",
     "test:wallet": "nx test wallet",
     "test:common-types": "nx test common-types",
