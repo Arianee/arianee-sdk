@@ -12,3 +12,4 @@ export * from './lib/protocol';
 export * from './lib/smartAsset';
 export * from './lib/smartContractNames';
 export * from './lib/tokenAccessType';
+export * from './lib/gasStation/gasStation';

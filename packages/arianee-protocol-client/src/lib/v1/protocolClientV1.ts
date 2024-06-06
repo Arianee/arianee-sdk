@@ -1,9 +1,12 @@
 import { ethers6_v1, ethers6_v1_1 } from '@arianee/arianee-abi';
-import { ProtocolDetailsV1, ProtocolV1Versions } from '@arianee/common-types';
+import {
+  ProtocolDetailsV1,
+  ProtocolV1Versions,
+  GasStation,
+} from '@arianee/common-types';
 import { Signer } from 'ethers';
 
 import { ProtocolClientBase } from '../shared/protocolClientBase';
-import GasStation from '../utils/gasStation/gasStation';
 
 export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetailsV1> {
   public readonly storeContract:

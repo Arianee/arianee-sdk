@@ -1,4 +1,4 @@
-import GasStation from './gasStation';
+import { GasStation } from './gasStation';
 
 it('works', () => {
   expect(true).toBe(true);

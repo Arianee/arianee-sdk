@@ -1,4 +1,4 @@
-import { Protocol } from '@arianee/common-types';
+import { Protocol, GasStation } from '@arianee/common-types';
 import Core from '@arianee/core';
 import {
   JsonRpcProvider,
@@ -10,8 +10,6 @@ import {
   TransactionResponse,
   Wallet,
 } from 'ethers';
-
-import GasStation from '../gasStation/gasStation';
 
 /**
  * Returns an ethers wallet with signTransaction, signMessage and getAddress methods
@@ -51,6 +49,7 @@ export class CoreWallet extends Wallet {
     private gasStation?: GasStation
   ) {
     super(CoreWallet.READ_ONLY_PRIVATE_KEY, provider);
+    console.log('>> CoreWallet', core);
     this.overrideAddress();
   }
 
