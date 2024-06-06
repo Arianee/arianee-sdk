@@ -1,13 +1,13 @@
 import { ethers } from 'ethers';
 
-type GasPrices = {
+export type GasPrices = {
   safeLow: number;
   standard: number;
   fast: number;
   fastest: number;
 };
 
-export default class GasStation {
+export class GasStation {
   constructor(private url: string, private fetchLike: typeof fetch) {}
 
   public async getGasPrice(): Promise<bigint> {

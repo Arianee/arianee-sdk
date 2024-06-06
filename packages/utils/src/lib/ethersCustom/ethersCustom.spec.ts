@@ -1,14 +1,22 @@
 import Core from '@arianee/core';
 import { ethers, TransactionResponse } from 'ethers';
+import { GasStation } from '@arianee/common-types';
 
-import GasStation from '../gasStation/gasStation';
 import {
   CoreWallet,
   ethersWalletFromCore,
   UncheckedJsonRpcProvider,
 } from './ethersCustom';
 
-jest.mock('../gasStation/gasStation');
+jest.mock('@arianee/common-types', () => {
+  const originalCommonTypes = jest.requireActual('@arianee/common-types');
+  return {
+    ...originalCommonTypes,
+    GasStation: jest.fn().mockImplementation(() => {
+      return { getGasPrice: jest.fn() };
+    }),
+  };
+});
 
 const MNEMONIC =
   'icon hawk eight machine ball fold acoustic boring lady jacket silly secret';

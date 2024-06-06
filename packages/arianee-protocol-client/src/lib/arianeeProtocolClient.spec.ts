@@ -5,7 +5,6 @@ import Core from '@arianee/core';
 import * as utils from '@arianee/utils';
 
 import ArianeeProtocolClient from './arianeeProtocolClient';
-import * as ethersProxies from './utils/ethersCustom/ethersCustom';
 import ProtocolClientV1 from './v1/protocolClientV1';
 
 jest.mock('@arianee/utils', () => {
@@ -14,6 +13,7 @@ jest.mock('@arianee/utils', () => {
     ...originalUtils,
     retryFetchLike: jest.fn(),
     cachedFetchLike: jest.fn(),
+    ethersWalletFromCore: jest.fn(),
   };
 });
 
@@ -87,7 +87,7 @@ describe('ArianeeProtocolClient', () => {
       async ({ options, expectedProtocolDetails }) => {
         const mockWallet = {};
         const ethersWalletFromCoreSpy = jest
-          .spyOn(ethersProxies, 'ethersWalletFromCore')
+          .spyOn(utils, 'ethersWalletFromCore')
           .mockReturnValue(mockWallet as any);
 
         const mockProtocolDetails = {
@@ -115,7 +115,7 @@ describe('ArianeeProtocolClient', () => {
     it('should use the protocolDetailsResolver if set', async () => {
       const mockWallet = {};
       jest
-        .spyOn(ethersProxies, 'ethersWalletFromCore')
+        .spyOn(utils, 'ethersWalletFromCore')
         .mockReturnValue(mockWallet as any);
 
       const mockProtocolDetails = {

@@ -5,17 +5,17 @@ import {
   ProtocolDetailsV2,
   ProtocolV1Versions,
   ProtocolV2Versions,
+  GasStation,
 } from '@arianee/common-types';
 import Core from '@arianee/core';
 import {
   cachedFetchLike,
   defaultFetchLike,
   retryFetchLike,
+  ethersWalletFromCore,
 } from '@arianee/utils';
 
 import { ProtocolDetailsResolver } from './shared/types';
-import { ethersWalletFromCore } from './utils/ethersCustom/ethersCustom';
-import GasStation from './utils/gasStation/gasStation';
 import ProtocolClientV1 from './v1/protocolClientV1';
 import ProtocolClientV2 from './v2/protocolClientV2';
 
