@@ -49,7 +49,6 @@ export class CoreWallet extends Wallet {
     private gasStation?: GasStation
   ) {
     super(CoreWallet.READ_ONLY_PRIVATE_KEY, provider);
-    console.log('>> CoreWallet', core);
     this.overrideAddress();
   }
 
