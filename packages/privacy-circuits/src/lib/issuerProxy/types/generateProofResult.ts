@@ -1,7 +1,9 @@
 import { Groth16Proof, PublicSignals } from 'snarkjs';
+import { OwnershipProofCallData } from './ownershipProofCallData';
 
 export type IssuerProxyGenerateProofResult = {
   proof: Groth16Proof;
   publicSignals: PublicSignals;
-  callData: string;
+  callDataAsStr: string;
+  callData: OwnershipProofCallData;
 };

@@ -22,6 +22,7 @@ import {
   CreditNotePoolGenerateProofResult as GenerateProofResult,
   CreditNotePoolVerifyProofParameters as VerifyProofParameters,
 } from './types';
+import { CreditNoteProofCallData } from './types/creditNoteProofCallData';
 
 export default class CreditNotePool {
   private readonly babyJub: BabyJub;
@@ -127,9 +128,15 @@ export default class CreditNotePool {
       CREDIT_VERIFIER_WASH_PATH,
       CREDIT_VERIFIER_PROVING_KEY_PATH
     );
-    const callData = await groth16.exportSolidityCallData(proof, publicSignals);
+    const callDataAsStr = await groth16.exportSolidityCallData(
+      proof,
+      publicSignals
+    );
+    const callData = JSON.parse(
+      `[${callDataAsStr}]`
+    ) as CreditNoteProofCallData;
 
-    return { proof, publicSignals, callData };
+    return { proof, publicSignals, callDataAsStr, callData };
   }
 
   public async verifyProof(params: VerifyProofParameters): Promise<boolean> {

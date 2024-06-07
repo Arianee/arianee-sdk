@@ -25,6 +25,7 @@ import {
   IssuerProxyGenerateProofResult as GenerateProofResult,
   IssuerProxyVerifyProofParameters as VerifyProofParameters,
 } from './types';
+import { OwnershipProofCallData } from './types/ownershipProofCallData';
 
 export default class IssuerProxy {
   private readonly poseidon: Poseidon;
@@ -83,9 +84,13 @@ export default class IssuerProxy {
       OWNERSHIP_VERIFIER_WASH_PATH,
       OWNERSHIP_VERIFIER_PROVING_KEY_PATH
     );
-    const callData = await groth16.exportSolidityCallData(proof, publicSignals);
+    const callDataAsStr = await groth16.exportSolidityCallData(
+      proof,
+      publicSignals
+    );
+    const callData = JSON.parse(`[${callDataAsStr}]`) as OwnershipProofCallData;
 
-    return { proof, publicSignals, callData };
+    return { proof, publicSignals, callDataAsStr, callData };
   }
 
   public async verifyProof(params: VerifyProofParameters): Promise<boolean> {
