@@ -70,7 +70,7 @@ export default class IssuerProxy {
 
     const { r, s, v } = await this._getSignature(protocolV1, tokenId);
     const { commitmentHashAsStr } = this._computeCommitmentHash({ r, s, v });
-    const nonce = Math.floor(Math.random() * 1000000);
+    const nonce = this._getNonce();
 
     const { proof, publicSignals } = await groth16.fullProve(
       {
@@ -178,6 +178,10 @@ export default class IssuerProxy {
     }
     const { signature } = await this.prover.core.signDigest(digest);
     return signature;
+  }
+
+  private _getNonce() {
+    return Math.floor(Math.random() * 1_000_000_000);
   }
 
   private _ensurePrivacySupport(protocolV1: ProtocolClientV1) {
