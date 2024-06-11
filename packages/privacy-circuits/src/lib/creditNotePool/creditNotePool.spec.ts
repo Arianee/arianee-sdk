@@ -89,7 +89,7 @@ describe('creditNotePool', () => {
           nullifier,
           secret,
           protocolV1: mockProtocolV1,
-          creditType: 1,
+          zkCreditType: 1,
           issuerProxy: ZeroAddress,
         });
 
@@ -105,7 +105,7 @@ describe('creditNotePool', () => {
       const commitmentHashRes =
         await prover.creditNotePool.computeCommitmentHash({
           protocolV1: mockProtocolV1,
-          creditType: 1,
+          zkCreditType: 1,
           issuerProxy: ZeroAddress,
         });
 
@@ -140,7 +140,7 @@ describe('creditNotePool', () => {
         BigInt(
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
-      const creditType = 1;
+      const zkCreditType = 1;
       const issuerProxy = ZeroAddress;
 
       const { commitmentHashAsHex } =
@@ -148,7 +148,7 @@ describe('creditNotePool', () => {
           nullifier,
           secret,
           protocolV1: mockProtocolV1,
-          creditType,
+          zkCreditType,
           issuerProxy,
         });
 
@@ -159,7 +159,13 @@ describe('creditNotePool', () => {
         {
           ...(mockProtocolV1.arianeeCreditNotePool?.interface.encodeEventLog(
             'Purchased',
-            [creditType, commitmentHashAsHex, leafIndex, issuerProxy, timestamp]
+            [
+              zkCreditType,
+              commitmentHashAsHex,
+              leafIndex,
+              issuerProxy,
+              timestamp,
+            ]
           ) as unknown as MockLog),
         },
       ];
@@ -169,7 +175,7 @@ describe('creditNotePool', () => {
         nullifier,
         nullifierDerivationIndex,
         secret,
-        creditType,
+        zkCreditType,
         intentHashAsStr,
         issuerProxy,
         performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
@@ -185,7 +191,7 @@ describe('creditNotePool', () => {
           nullifierDerivationIndex,
         });
       expect(proofRes.publicSignals[0]).toBeDefined();
-      expect(Number(proofRes.publicSignals[1])).toBe(creditType);
+      expect(Number(proofRes.publicSignals[1])).toBe(zkCreditType);
       expect(Number(proofRes.publicSignals[2])).toBe(Number(issuerProxy));
       expect(proofRes.publicSignals[3]).toBe(nullifierHashAsStr);
       expect(proofRes.publicSignals[4]).toBe(intentHashAsStr);
@@ -215,7 +221,7 @@ describe('creditNotePool', () => {
         BigInt(
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
-      const creditType = 1;
+      const zkCreditType = 1;
       const issuerProxy = ZeroAddress;
 
       const { proof, publicSignals } =
@@ -224,7 +230,7 @@ describe('creditNotePool', () => {
           nullifier,
           nullifierDerivationIndex,
           secret,
-          creditType,
+          zkCreditType,
           intentHashAsStr,
           issuerProxy,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
@@ -261,7 +267,7 @@ describe('creditNotePool', () => {
         BigInt(
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
-      const creditType = 1;
+      const zkCreditType = 1;
       const issuerProxy = ZeroAddress;
 
       const { proof, publicSignals } =
@@ -270,7 +276,7 @@ describe('creditNotePool', () => {
           nullifier,
           nullifierDerivationIndex,
           secret,
-          creditType,
+          zkCreditType,
           intentHashAsStr,
           issuerProxy,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
