@@ -204,7 +204,7 @@ export default class CreditNotePool {
     performValidation: boolean
   ) {
     const creditNotePool = protocolV1.arianeeCreditNotePool!;
-    const creditNotePoolAddress = creditNotePool.getAddress();
+    const creditNotePoolAddress = await creditNotePool.getAddress();
     const purchasedTopic = await creditNotePool.filters
       .Purchased()
       .getTopicFilter();
