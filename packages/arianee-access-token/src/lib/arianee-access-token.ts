@@ -140,11 +140,11 @@ export class ArianeeAccessToken {
     };
     const jwtGenerator = new JWTGeneric({ signer });
     const nowInSeconds = Math.floor(Date.now() / 1000);
-    const now = Date.now();
+
     const basicPayload: ArianeeAccessTokenPayload = {
       iss: this.core.getAddress(),
       sub: 'wallet',
-      exp: now + 5 * 60, // default to 5 minutes
+      exp: nowInSeconds + 5 * 60, // default to 5 minutes
       iat: nowInSeconds,
       ...payload,
     };
