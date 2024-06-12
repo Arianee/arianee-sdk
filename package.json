@@ -49,7 +49,7 @@
     "@angular/platform-browser-dynamic": "~16.0.0",
     "@angular/router": "~16.0.0",
     "@arianee/0xcert-cert": "^2.0.2",
-    "@arianee/arianee-abi": "0.26.0",
+    "@arianee/arianee-abi": "0.27.0",
     "@arianee/contracts": "^1.0.3",
     "@arianee/permit721-contracts": "^1.0.0",
     "@ethersproject/abstract-signer": "^5.7.0",

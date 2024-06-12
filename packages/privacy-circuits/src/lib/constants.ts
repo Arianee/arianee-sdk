@@ -15,7 +15,7 @@ export const HEX_FLAG_SIZE = 2; // 0x
 const B2H_MUL = 2; // The hex representation of a byte is 2 characters long
 export const SELECTOR_SIZE = 4 * B2H_MUL;
 export const OWNERSHIP_PROOF_SIZE = 352 * B2H_MUL;
-export const CREDIT_PROOF_SIZE = 416 * B2H_MUL;
+export const CREDIT_PROOF_SIZE = 352 * B2H_MUL;
 
 export const DEFAULT_OWNERSHIP_PROOF = {
   _pA: [BigInt(0), BigInt(0)],
@@ -34,7 +34,7 @@ export const DEFAULT_CREDIT_PROOF = {
     [BigInt(0), BigInt(0)],
   ],
   _pC: [BigInt(0), BigInt(0)],
-  _pubSignals: [BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)],
+  _pubSignals: [BigInt(0), BigInt(0), BigInt(0)],
 };
 
 export const OWNERSHIP_VERIFIER_WASH_PATH = resolve(
