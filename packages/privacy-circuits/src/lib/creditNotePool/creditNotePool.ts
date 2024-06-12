@@ -42,18 +42,18 @@ export default class CreditNotePool {
       protocolV1,
       nullifier: _nullifier,
       secret: _secret,
-      creditType: _creditType,
+      zkCreditType: _zkCreditType,
       issuerProxy: _issuerProxy,
     } = params;
     this._ensurePrivacySupport(protocolV1);
 
     const nullifier = _nullifier ? _nullifier : randomBigInt(31);
     const secret = _secret ? _secret : randomBigInt(31);
-    const creditType = BigInt(_creditType);
+    const zkCreditType = BigInt(_zkCreditType);
     const issuerProxy = BigInt(_issuerProxy);
 
     const { commitmentHashAsBuff, commitmentHashAsStr, commitmentHashAsHex } =
-      this._computeCommitmentHash(nullifier, secret, creditType, issuerProxy);
+      this._computeCommitmentHash(nullifier, secret, zkCreditType, issuerProxy);
     return {
       nullifier,
       secret,
@@ -83,20 +83,20 @@ export default class CreditNotePool {
       nullifier,
       nullifierDerivationIndex,
       secret,
-      creditType: _creditType,
+      zkCreditType: _zkCreditType,
       issuerProxy: _issuerProxy,
       intentHashAsStr,
       performValidation,
     } = params;
     this._ensurePrivacySupport(protocolV1);
 
-    const creditType = BigInt(_creditType);
+    const zkCreditType = BigInt(_zkCreditType);
     const issuerProxy = BigInt(_issuerProxy);
 
     const { commitmentHashAsHex } = this._computeCommitmentHash(
       nullifier,
       secret,
-      creditType,
+      zkCreditType,
       issuerProxy
     );
 
@@ -120,7 +120,7 @@ export default class CreditNotePool {
         pathIndices,
         // Public inputs
         pubRoot: root,
-        pubCreditType: creditType,
+        pubCreditType: zkCreditType,
         pubIssuerProxy: issuerProxy,
         pubNullifierHash: nullifierHashAsStr,
         pubIntentHash: intentHashAsStr,
@@ -152,7 +152,7 @@ export default class CreditNotePool {
   private _computeCommitmentHash(
     nullifier: bigint,
     secret: bigint,
-    creditType: bigint,
+    zkCreditType: bigint,
     issuerProxy: bigint
   ): {
     commitmentHashAsBuff: Buffer;
@@ -162,7 +162,7 @@ export default class CreditNotePool {
     const preimage = Buffer.concat([
       leInt2Buff(nullifier, 31),
       leInt2Buff(secret, 31),
-      leInt2Buff(creditType, 1),
+      leInt2Buff(zkCreditType, 1),
       leInt2Buff(issuerProxy, 20),
     ]);
 
@@ -204,7 +204,7 @@ export default class CreditNotePool {
     performValidation: boolean
   ) {
     const creditNotePool = protocolV1.arianeeCreditNotePool!;
-    const creditNotePoolAddress = creditNotePool.getAddress();
+    const creditNotePoolAddress = await creditNotePool.getAddress();
     const purchasedTopic = await creditNotePool.filters
       .Purchased()
       .getTopicFilter();
