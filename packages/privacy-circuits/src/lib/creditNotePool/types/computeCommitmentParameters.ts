@@ -10,5 +10,4 @@ export type CreditNotePoolComputeCommitmentParameters = {
    * Example: If the user wants to purchase a "certificate" credit (type 0), the `zkCreditType` should be 1.
    */
   zkCreditType: 1 | 2 | 3 | 4;
-  issuerProxy: string;
 };

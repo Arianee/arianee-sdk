@@ -43,17 +43,15 @@ export default class CreditNotePool {
       nullifier: _nullifier,
       secret: _secret,
       zkCreditType: _zkCreditType,
-      issuerProxy: _issuerProxy,
     } = params;
     this._ensurePrivacySupport(protocolV1);
 
     const nullifier = _nullifier ? _nullifier : randomBigInt(31);
     const secret = _secret ? _secret : randomBigInt(31);
     const zkCreditType = BigInt(_zkCreditType);
-    const issuerProxy = BigInt(_issuerProxy);
 
     const { commitmentHashAsBuff, commitmentHashAsStr, commitmentHashAsHex } =
-      this._computeCommitmentHash(nullifier, secret, zkCreditType, issuerProxy);
+      this._computeCommitmentHash(nullifier, secret, zkCreditType);
     return {
       nullifier,
       secret,
@@ -84,20 +82,16 @@ export default class CreditNotePool {
       nullifierDerivationIndex,
       secret,
       zkCreditType: _zkCreditType,
-      issuerProxy: _issuerProxy,
-      intentHashAsStr,
       performValidation,
     } = params;
     this._ensurePrivacySupport(protocolV1);
 
     const zkCreditType = BigInt(_zkCreditType);
-    const issuerProxy = BigInt(_issuerProxy);
 
     const { commitmentHashAsHex } = this._computeCommitmentHash(
       nullifier,
       secret,
-      zkCreditType,
-      issuerProxy
+      zkCreditType
     );
 
     const { nullifierHashAsHex, nullifierHashAsStr } =
@@ -121,9 +115,7 @@ export default class CreditNotePool {
         // Public inputs
         pubRoot: root,
         pubCreditType: zkCreditType,
-        pubIssuerProxy: issuerProxy,
         pubNullifierHash: nullifierHashAsStr,
-        pubIntentHash: intentHashAsStr,
       },
       CREDIT_VERIFIER_WASH_PATH,
       CREDIT_VERIFIER_PROVING_KEY_PATH
@@ -152,8 +144,7 @@ export default class CreditNotePool {
   private _computeCommitmentHash(
     nullifier: bigint,
     secret: bigint,
-    zkCreditType: bigint,
-    issuerProxy: bigint
+    zkCreditType: bigint
   ): {
     commitmentHashAsBuff: Buffer;
     commitmentHashAsStr: string;
@@ -163,7 +154,6 @@ export default class CreditNotePool {
       leInt2Buff(nullifier, 31),
       leInt2Buff(secret, 31),
       leInt2Buff(zkCreditType, 1),
-      leInt2Buff(issuerProxy, 20),
     ]);
 
     const commitmentHash = this.babyJub.unpackPoint(
@@ -221,6 +211,7 @@ export default class CreditNotePool {
         log as unknown as { data: string; topics: string[] }
       )
     );
+
     const formattedLogs = parsedLogs.map((parsedLog) => ({
       leafIndex: Number(parsedLog!.args['leafIndex']),
       commitmentHash: parsedLog!.args['commitmentHash'] as string,
