@@ -10,24 +10,21 @@ template CommitmentHasher() {
     signal input nullifierDerivationIndex;
     signal input secret;
     signal input creditType;
-    signal input issuerProxy;
 
     signal output commitment;
     signal output nullifierHash;
     
-    component commitmentHasher = Pedersen(664); // 248 (nullifier) + 248 (secret) + 8 (creditType) + 160 (issuerProxy)
+    component commitmentHasher = Pedersen(504); // 248 (nullifier) + 248 (secret) + 8 (creditType)
     component nullifierHasher = Pedersen(264); // 248 (nullifier) + 16 (nullifierDerivationIndex)
 
     component nullifierBits = Num2Bits(248);
     component nullifierDerivationIndexBits = Num2Bits(16);
     component secretBits = Num2Bits(248); 
     component creditTypeBits = Num2Bits(8);
-    component issuerProxyBits = Num2Bits(160);
     nullifierBits.in <== nullifier;
     nullifierDerivationIndexBits.in <== nullifierDerivationIndex;
     secretBits.in <== secret;
     creditTypeBits.in <== creditType;
-    issuerProxyBits.in <== issuerProxy;
 
     for (var i = 0; i < 248; i++) {
         commitmentHasher.in[i] <== nullifierBits.out[i];
@@ -41,9 +38,6 @@ template CommitmentHasher() {
     }
     for (var i = 496; i < 504; i++) {
         commitmentHasher.in[i] <== creditTypeBits.out[i - 496];
-    }
-    for (var i = 504; i < 664; i++) {
-        commitmentHasher.in[i] <== issuerProxyBits.out[i - 504];
     }
 
     commitment <== commitmentHasher.out[0];
@@ -62,9 +56,7 @@ template CreditVerifier(levels) {
     // Public inputs
     signal input pubRoot;
     signal input pubCreditType;
-    signal input pubIssuerProxy;
     signal input pubNullifierHash;
-    signal input pubIntentHash;
 
     // Ensure that nullifierDerivationIndex is in range 1-1000
     // One nullifier can have up to 1000 different nullifierHashes
@@ -92,13 +84,12 @@ template CreditVerifier(levels) {
 
     // Output pubNullifierHash and commitment
     // pubNullifierHash = H(nullifier, nullifierDerivationIndex), where nullifierDerivationIndex is 1-1000, allowing for 1000 different nullifierHashes per nullifier
-    // commitment = H(nullifier, secret, pubCreditType, pubIssuerProxy), where pubCreditType is 1-4, pubCreditType is public
+    // commitment = H(nullifier, secret, pubCreditType), where pubCreditType is 1-4, pubCreditType is public
     component hasher = CommitmentHasher();
     hasher.nullifier <== nullifier;
     hasher.nullifierDerivationIndex <== nullifierDerivationIndex;
     hasher.secret <== secret;
     hasher.creditType <== pubCreditType;
-    hasher.issuerProxy <== pubIssuerProxy;
 
     // TODO: Remove this once ready to release
     log("");
@@ -117,14 +108,9 @@ template CreditVerifier(levels) {
         tree.pathElements[i] <== pathElements[i];
         tree.pathIndices[i] <== pathIndices[i];
     }
-
-    // Dummy squares to prevent tampering pubIntentHash value
-    signal pubIntentHashSquared;
-
-    pubIntentHashSquared <== pubIntentHash * pubIntentHash;
 }
 
-component main { public [pubRoot, pubCreditType, pubIssuerProxy, pubNullifierHash, pubIntentHash] } = CreditVerifier(30);
+component main { public [pubRoot, pubCreditType, pubNullifierHash] } = CreditVerifier(30);
 
 // N = 2^30 = 1 073 741 824
 // C = N * 1000 = 1 073 741 824 000

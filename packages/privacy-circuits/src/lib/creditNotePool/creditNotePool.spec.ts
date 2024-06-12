@@ -3,7 +3,7 @@
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { ProtocolDetailsV1 } from '@arianee/common-types';
 import { Core } from '@arianee/core';
-import { Filter, ZeroAddress } from 'ethers';
+import { Filter } from 'ethers';
 
 import { Prover } from '../prover';
 
@@ -90,14 +90,13 @@ describe('creditNotePool', () => {
           secret,
           protocolV1: mockProtocolV1,
           zkCreditType: 1,
-          issuerProxy: ZeroAddress,
         });
 
       expect(commitmentHashRes).toBeDefined();
       expect(commitmentHashRes.nullifier).toBe(nullifier);
       expect(commitmentHashRes.secret).toBe(secret);
       expect(commitmentHashRes.commitmentHashAsStr).toBe(
-        '5832339015184359478215187071172511832509829872380202138561005740931628655900'
+        '18163511981545431966505150157484283755531043651767905659314402461098507861000'
       );
     });
 
@@ -106,7 +105,6 @@ describe('creditNotePool', () => {
         await prover.creditNotePool.computeCommitmentHash({
           protocolV1: mockProtocolV1,
           zkCreditType: 1,
-          issuerProxy: ZeroAddress,
         });
 
       expect(commitmentHashRes).toBeDefined();
@@ -117,20 +115,6 @@ describe('creditNotePool', () => {
     });
 
     it('should generate a proof', async () => {
-      const { intentHashAsStr } = await prover.issuerProxy.computeIntentHash({
-        protocolV1: mockProtocolV1,
-        fragment: 'createEvent',
-        values: [
-          ZeroAddress,
-          123,
-          456,
-          `0x${'00'.repeat(32)}`,
-          'https://example.com',
-          ZeroAddress,
-        ],
-        needsCreditNoteProof: true,
-      });
-
       const nullifier =
         BigInt(
           225419600084372919177771477098581908777493546797331974371994161892969007965
@@ -141,7 +125,6 @@ describe('creditNotePool', () => {
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
       const zkCreditType = 1;
-      const issuerProxy = ZeroAddress;
 
       const { commitmentHashAsHex } =
         await prover.creditNotePool.computeCommitmentHash({
@@ -149,7 +132,6 @@ describe('creditNotePool', () => {
           secret,
           protocolV1: mockProtocolV1,
           zkCreditType,
-          issuerProxy,
         });
 
       // Mock the logs so the sdk can reconstruct the merkle tree
@@ -159,13 +141,7 @@ describe('creditNotePool', () => {
         {
           ...(mockProtocolV1.arianeeCreditNotePool?.interface.encodeEventLog(
             'Purchased',
-            [
-              zkCreditType,
-              commitmentHashAsHex,
-              leafIndex,
-              issuerProxy,
-              timestamp,
-            ]
+            [zkCreditType, commitmentHashAsHex, leafIndex, timestamp]
           ) as unknown as MockLog),
         },
       ];
@@ -176,8 +152,6 @@ describe('creditNotePool', () => {
         nullifierDerivationIndex,
         secret,
         zkCreditType,
-        intentHashAsStr,
-        issuerProxy,
         performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
       });
       expect(proofRes).toBeDefined();
@@ -192,26 +166,10 @@ describe('creditNotePool', () => {
         });
       expect(proofRes.publicSignals[0]).toBeDefined();
       expect(Number(proofRes.publicSignals[1])).toBe(zkCreditType);
-      expect(Number(proofRes.publicSignals[2])).toBe(Number(issuerProxy));
-      expect(proofRes.publicSignals[3]).toBe(nullifierHashAsStr);
-      expect(proofRes.publicSignals[4]).toBe(intentHashAsStr);
+      expect(proofRes.publicSignals[2]).toBe(nullifierHashAsStr);
     });
 
     it('should mark a valid proof as valid', async () => {
-      const { intentHashAsStr } = await prover.issuerProxy.computeIntentHash({
-        protocolV1: mockProtocolV1,
-        fragment: 'createEvent',
-        values: [
-          ZeroAddress,
-          123,
-          456,
-          `0x${'00'.repeat(32)}`,
-          'https://example.com',
-          ZeroAddress,
-        ],
-        needsCreditNoteProof: true,
-      });
-
       const nullifier =
         BigInt(
           225419600084372919177771477098581908777493546797331974371994161892969007965
@@ -222,7 +180,6 @@ describe('creditNotePool', () => {
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
       const zkCreditType = 1;
-      const issuerProxy = ZeroAddress;
 
       const { proof, publicSignals } =
         await prover.creditNotePool.generateProof({
@@ -231,8 +188,6 @@ describe('creditNotePool', () => {
           nullifierDerivationIndex,
           secret,
           zkCreditType,
-          intentHashAsStr,
-          issuerProxy,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
         });
 
@@ -244,20 +199,6 @@ describe('creditNotePool', () => {
     });
 
     it('should not mark an invalid proof as valid', async () => {
-      const { intentHashAsStr } = await prover.issuerProxy.computeIntentHash({
-        protocolV1: mockProtocolV1,
-        fragment: 'createEvent',
-        values: [
-          ZeroAddress,
-          123,
-          456,
-          `0x${'00'.repeat(32)}`,
-          'https://example.com',
-          ZeroAddress,
-        ],
-        needsCreditNoteProof: true,
-      });
-
       const nullifier =
         BigInt(
           225419600084372919177771477098581908777493546797331974371994161892969007965
@@ -268,7 +209,6 @@ describe('creditNotePool', () => {
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
       const zkCreditType = 1;
-      const issuerProxy = ZeroAddress;
 
       const { proof, publicSignals } =
         await prover.creditNotePool.generateProof({
@@ -277,8 +217,6 @@ describe('creditNotePool', () => {
           nullifierDerivationIndex,
           secret,
           zkCreditType,
-          intentHashAsStr,
-          issuerProxy,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
         });
       // Modify the proof
