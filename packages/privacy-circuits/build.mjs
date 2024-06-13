@@ -18,7 +18,10 @@ const args = argv(process.argv.slice(2))();
 
 const circuitFile = args.circuit;
 const circuitPath = `${CIRCOM_SRC_DIR}/${circuitFile}`;
-const circuitName = circuitFile.split('.')[0];
+let circuitName = circuitFile.split('.')[0];
+if (circuitName.includes('/')) {
+  circuitName = circuitName.split('/').pop();
+}
 
 const outDir = `${CIRCOM_BUILD_DIR}/${circuitName}`;
 
