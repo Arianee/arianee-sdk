@@ -90,6 +90,7 @@ describe('creditNotePool', () => {
           secret,
           protocolV1: mockProtocolV1,
           zkCreditType: 1,
+          withRegistrationProof: true,
         });
 
       expect(commitmentHashRes).toBeDefined();
@@ -98,6 +99,7 @@ describe('creditNotePool', () => {
       expect(commitmentHashRes.commitmentHashAsStr).toBe(
         '18163511981545431966505150157484283755531043651767905659314402461098507861000'
       );
+      expect(commitmentHashRes.registrationProofResult).toBeDefined();
     });
 
     it('should compute a commitment hash without pre-defined nullifier and commitment', async () => {

@@ -145,8 +145,6 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
           this.protocolDetails.contractAdresses.issuerProxy,
           this.signer
         );
-    } else {
-      console.warn('No `issuerProxy` contract address found for this protocol');
     }
 
     if (this.protocolDetails.contractAdresses.creditNotePool) {
@@ -155,10 +153,6 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
           this.protocolDetails.contractAdresses.creditNotePool,
           this.signer
         );
-    } else {
-      console.warn(
-        'No `creditNotePool` contract address found for this protocol'
-      );
     }
 
     // If issuerProxy is defined, we consider this version of the protocol as privacy enabled

@@ -24,8 +24,8 @@ import {
   IssuerProxyGenerateProofParameters as GenerateProofParameters,
   IssuerProxyGenerateProofResult as GenerateProofResult,
   IssuerProxyVerifyProofParameters as VerifyProofParameters,
+  OwnershipProofCallData,
 } from './types';
-import { OwnershipProofCallData } from './types/ownershipProofCallData';
 
 export default class IssuerProxy {
   private readonly poseidon: Poseidon;

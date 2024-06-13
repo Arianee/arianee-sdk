@@ -39,31 +39,47 @@ export const DEFAULT_CREDIT_PROOF = {
 
 export const OWNERSHIP_VERIFIER_WASH_PATH = resolve(
   __dirname,
-  '../../build/ownership_verifier/wasm/ownership_verifier_js/ownership_verifier.wasm'
+  '../../build/ownershipVerifier/wasm/ownershipVerifier_js/ownershipVerifier.wasm'
 );
 export const OWNERSHIP_VERIFIER_PROVING_KEY_PATH = resolve(
   __dirname,
-  '../../build/ownership_verifier/keys/proving_key.zkey'
+  '../../build/ownershipVerifier/keys/proving_key.zkey'
 );
 const OWNERSHIP_VERIFIER_VERIFICATION_KEY_PATH = resolve(
   __dirname,
-  '../../build/ownership_verifier/keys/verification_key.json'
+  '../../build/ownershipVerifier/keys/verification_key.json'
 );
 export const OWNERSHIP_VERIFIER_VERIFICATION_KEY = JSON.parse(
   readFileSync(OWNERSHIP_VERIFIER_VERIFICATION_KEY_PATH, 'utf-8')
 );
 
+export const CREDIT_REGISTER_WASH_PATH = resolve(
+  __dirname,
+  '../../build/creditRegister/wasm/creditRegister_js/creditRegister.wasm'
+);
+export const CREDIT_REGISTER_PROVING_KEY_PATH = resolve(
+  __dirname,
+  '../../build/creditRegister/keys/proving_key.zkey'
+);
+const CREDIT_REGISTER_VERIFICATION_KEY_PATH = resolve(
+  __dirname,
+  '../../build/creditRegister/keys/verification_key.json'
+);
+export const CREDIT_REGISTER_VERIFICATION_KEY = JSON.parse(
+  readFileSync(CREDIT_REGISTER_VERIFICATION_KEY_PATH, 'utf-8')
+);
+
 export const CREDIT_VERIFIER_WASH_PATH = resolve(
   __dirname,
-  '../../build/credit_verifier/wasm/credit_verifier_js/credit_verifier.wasm'
+  '../../build/creditVerifier/wasm/creditVerifier_js/creditVerifier.wasm'
 );
 export const CREDIT_VERIFIER_PROVING_KEY_PATH = resolve(
   __dirname,
-  '../../build/credit_verifier/keys/proving_key.zkey'
+  '../../build/creditVerifier/keys/proving_key.zkey'
 );
 const CREDIT_VERIFIER_VERIFICATION_KEY_PATH = resolve(
   __dirname,
-  '../../build/credit_verifier/keys/verification_key.json'
+  '../../build/creditVerifier/keys/verification_key.json'
 );
 export const CREDIT_VERIFIER_VERIFICATION_KEY = JSON.parse(
   readFileSync(CREDIT_VERIFIER_VERIFICATION_KEY_PATH, 'utf-8')

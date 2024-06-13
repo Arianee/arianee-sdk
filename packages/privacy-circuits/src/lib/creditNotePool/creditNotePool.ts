@@ -2,9 +2,11 @@ import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { BabyJub, MimcSponge, PedersenHash } from 'circomlibjs';
 import { assert } from 'console';
 import { MerkleTree } from 'fixed-merkle-tree';
-import { groth16 } from 'snarkjs';
+import { Groth16Proof, PublicSignals, groth16 } from 'snarkjs';
 
 import {
+  CREDIT_REGISTER_PROVING_KEY_PATH,
+  CREDIT_REGISTER_WASH_PATH,
   CREDIT_VERIFIER_PROVING_KEY_PATH,
   CREDIT_VERIFIER_VERIFICATION_KEY,
   CREDIT_VERIFIER_WASH_PATH,
@@ -21,8 +23,10 @@ import {
   CreditNotePoolGenerateProofParameters as GenerateProofParameters,
   CreditNotePoolGenerateProofResult as GenerateProofResult,
   CreditNotePoolVerifyProofParameters as VerifyProofParameters,
+  CreditNoteProofCallData,
+  CreditNoteRegistrationProofCallData,
 } from './types';
-import { CreditNoteProofCallData } from './types/creditNoteProofCallData';
+import { RegistrationProofResult } from './types/registrationProofResult';
 
 export default class CreditNotePool {
   private readonly babyJub: BabyJub;
@@ -43,6 +47,7 @@ export default class CreditNotePool {
       nullifier: _nullifier,
       secret: _secret,
       zkCreditType: _zkCreditType,
+      withRegistrationProof: _withRegistrationProof,
     } = params;
     this._ensurePrivacySupport(protocolV1);
 
@@ -52,12 +57,27 @@ export default class CreditNotePool {
 
     const { commitmentHashAsBuff, commitmentHashAsStr, commitmentHashAsHex } =
       this._computeCommitmentHash(nullifier, secret, zkCreditType);
+
+    const withRegistrationProof =
+      _withRegistrationProof !== undefined ? _withRegistrationProof : true;
+
+    let registrationProofResult: RegistrationProofResult | undefined;
+    if (withRegistrationProof) {
+      registrationProofResult = await this._generateRegistrationProof(
+        nullifier,
+        secret,
+        commitmentHashAsStr,
+        zkCreditType
+      );
+    }
+
     return {
       nullifier,
       secret,
       commitmentHashAsBuff,
       commitmentHashAsStr,
       commitmentHashAsHex,
+      registrationProofResult,
     };
   }
 
@@ -139,6 +159,40 @@ export default class CreditNotePool {
       proof
     );
     return isValid;
+  }
+
+  private async _generateRegistrationProof(
+    nullifier: bigint,
+    secret: bigint,
+    commitmentHashAsStr: string,
+    zkCreditType: bigint
+  ): Promise<{
+    proof: Groth16Proof;
+    publicSignals: PublicSignals;
+    callDataAsStr: string;
+    callData: CreditNoteRegistrationProofCallData;
+  }> {
+    const { proof, publicSignals } = await groth16.fullProve(
+      {
+        // Private inputs
+        nullifier,
+        secret,
+        // Public inputs
+        pubCommitmentHash: commitmentHashAsStr,
+        pubCreditType: zkCreditType,
+      },
+      CREDIT_REGISTER_WASH_PATH,
+      CREDIT_REGISTER_PROVING_KEY_PATH
+    );
+    const callDataAsStr = await groth16.exportSolidityCallData(
+      proof,
+      publicSignals
+    );
+    const callData = JSON.parse(
+      `[${callDataAsStr}]`
+    ) as CreditNoteRegistrationProofCallData;
+
+    return { proof, publicSignals, callDataAsStr, callData };
   }
 
   private _computeCommitmentHash(

@@ -55,14 +55,14 @@ You can build the circuits by running the following command (Note: Make sure you
 nx build-circom privacy-circuits --circuit=<circuit-file-name> --ptau=<ptau-file-name>
 ```
 
-For example, to build the `ownership_verifier.circom` circuit, you can run the following command:
+For example, to build the `ownershipVerifier.circom` circuit, you can run the following command:
 
 ```bash
-nx build-circom privacy-circuits --circuit=ownership_verifier.circom --ptau=powersOfTau28_hez_final_12.ptau
+nx build-circom privacy-circuits --circuit=ownershipVerifier.circom --ptau=powersOfTau28_hez_final_12.ptau
 ```
 
 The previous command will generate the `build` directory in the `privacy-circuits` directory.
-This directory contains another directory with the name of the circuit file (e.g., `ownership_verifier`). Inside this directory, you can find the following:
+This directory contains another directory with the name of the circuit file (e.g., `ownershipVerifier`). Inside this directory, you can find the following:
 
 - A `keys` directory that contains the proving and verifying keys.
 - An `r1cs` directory that contains the R1CS file.
