@@ -16,6 +16,8 @@ export interface EventData {
   blockHash: string;
   blockNumber: number;
   address: string;
+  removed: boolean;
+  id: string;
 }
 
 export interface BlockchainEvent {
