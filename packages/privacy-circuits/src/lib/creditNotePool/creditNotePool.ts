@@ -1,6 +1,5 @@
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { BabyJub, MimcSponge, PedersenHash } from 'circomlibjs';
-import { assert } from 'console';
 import { MerkleTree } from 'fixed-merkle-tree';
 import { Groth16Proof, PublicSignals, groth16 } from 'snarkjs';
 
@@ -281,16 +280,17 @@ export default class CreditNotePool {
     const leaf = formattedLogs.find(
       (log) => log.commitmentHash === commitmentHashAsHex
     );
+
     const leafIndex = leaf ? leaf.leafIndex : -1;
+    if (leafIndex < 0)
+      throw new Error('The commitment hash is not found in the tree');
 
     if (performValidation) {
-      assert(leafIndex >= 0, 'The commitment hash is not found in the tree');
-
       const isValidRoot = await creditNotePool.isKnownRoot(toHex(tree.root));
-      assert(isValidRoot === true, 'Merkle tree is corrupted');
+      if (!isValidRoot) throw new Error('Merkle tree is corrupted');
 
       const isSpent = await creditNotePool.isSpent(nullifierHashAsHex);
-      assert(isSpent === false, 'The note is already spent');
+      if (isSpent) throw new Error('The note is already spent');
     }
 
     const { pathElements, pathIndices } = tree.path(leafIndex);

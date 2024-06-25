@@ -17,6 +17,9 @@ import {
   CreateMessageParameters,
   CreditType,
 } from '../types';
+import { ethers } from 'ethers';
+import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
+import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 
 export default class Messages<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -95,18 +98,49 @@ export default class Messages<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (protocolV1) => {
-          await checkCreditsBalance(
-            this.creator.utils,
-            CreditType.message,
-            BigInt(1)
-          );
-          return protocolV1.storeContract.createMessage(
-            messageId,
-            smartAssetId,
-            imprint,
-            this.creator.creatorAddress,
-            overrides
-          );
+          if (!this.creator.privacyMode) {
+            await checkCreditsBalance(
+              this.creator.utils,
+              CreditType.message,
+              BigInt(1)
+            );
+            return protocolV1.storeContract.createMessage(
+              messageId,
+              smartAssetId,
+              imprint,
+              this.creator.creatorAddress,
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we create the message through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'createMessage'; // Fragment: createMessage(_ownershipProof, _creditNoteProof, _creditNotePool, _messageId, _tokenId, _imprint)
+            const creditNotePool = ethers.ZeroAddress;
+            const _values = [creditNotePool, messageId, smartAssetId, imprint];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: true,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: String(smartAssetId),
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.createMessage(
+              getOwnershipProofStruct(callData),
+              DEFAULT_CREDIT_PROOF,
+              creditNotePool,
+              messageId,
+              smartAssetId,
+              imprint
+            );
+          }
         },
         protocolV2Action: async (protocolV2) => {
           await checkCreditsBalance(

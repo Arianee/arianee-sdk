@@ -11,6 +11,8 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "paths": {
+      "path": ["./node_modules/path-browserify"],
+      "fs": ["./node_modules/browserify-fs"],
       "crypto": ["./node_modules/crypto-browserify"],
       "stream": ["./node_modules/stream-browserify"],
       "assert": ["./node_modules/assert"],
@@ -40,7 +42,8 @@
         "packages/arianee-protocol-client/src/index.ts"
       ],
       "@arianee/creator": ["packages/creator/src/index.ts"],
-      "@arianee/permit721-sdk": ["packages/permit721-sdk/src/index.ts"]
+      "@arianee/permit721-sdk": ["packages/permit721-sdk/src/index.ts"],
+      "@arianee/privacy-circuits": ["packages/privacy-circuits/src/index.ts"]
     }
   },
   "files": [],

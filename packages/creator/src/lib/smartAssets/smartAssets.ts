@@ -33,6 +33,11 @@ import {
   LinkObject,
   TokenAccess,
 } from '../types';
+import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
+import {
+  DEFAULT_CREDIT_PROOF,
+  DEFAULT_OWNERSHIP_PROOF,
+} from '@arianee/privacy-circuits';
 
 export default class SmartAssets<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -57,19 +62,35 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (protocolV1) => {
-          if (!skipCheck) {
-            await checkCreditsBalance(
-              this.creator.utils,
-              CreditType.smartAsset,
-              BigInt(1)
+          if (!this.creator.privacyMode) {
+            if (!skipCheck) {
+              await checkCreditsBalance(
+                this.creator.utils,
+                CreditType.smartAsset,
+                BigInt(1)
+              );
+            }
+
+            return protocolV1.storeContract.reserveToken(
+              _id,
+              this.creator.core.getAddress(),
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we reserve the token through the "ArianeeIssuerProxy" contract
+
+            const { commitmentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeCommitmentHash({
+                protocolV1,
+                tokenId: String(_id),
+              });
+
+            return protocolV1.arianeeIssuerProxy!.reserveToken(
+              commitmentHashAsStr,
+              _id,
+              overrides
             );
           }
-
-          return protocolV1.storeContract.reserveToken(
-            _id,
-            this.creator.core.getAddress(),
-            overrides
-          );
         },
         protocolV2Action: async (protocolV2) =>
           protocolV2.smartAssetBaseContract.reserveToken(
@@ -94,15 +115,48 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (v1) => {
-          return v1.smartAssetContract[
-            'safeTransferFrom(address,address,uint256)'
-          ](
-            this.creator.core.getAddress(),
-            '0x000000000000000000000000000000000000dead',
-            id,
-            overrides
-          );
+        protocolV1Action: async (protocolV1) => {
+          if (!this.creator.privacyMode) {
+            return protocolV1.smartAssetContract[
+              'safeTransferFrom(address,address,uint256)'
+            ](
+              this.creator.core.getAddress(),
+              '0x000000000000000000000000000000000000dead',
+              id,
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we destroy the token through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'safeTransferFrom'; // Fragment: safeTransferFrom(_ownershipProof, _from, _to, _tokenId, _data)
+            const from = await protocolV1.arianeeIssuerProxy!.getAddress();
+            const to = '0x000000000000000000000000000000000000dead';
+            const data = '0x';
+            const _values = [from, to, id, data];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: id,
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.safeTransferFrom(
+              getOwnershipProofStruct(callData),
+              from,
+              to,
+              id,
+              data,
+              overrides
+            );
+          }
         },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
@@ -121,20 +175,54 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     id: string,
     overrides: NonPayableOverrides = {}
   ) {
-    await assertSmartAssetIssuedBy(
-      {
-        smartAssetId: id,
-        expectedIssuer: this.creator.core.getAddress(),
-      },
-      this.creator.utils
-    );
+    // If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    if (!this.creator.privacyMode) {
+      await assertSmartAssetIssuedBy(
+        {
+          smartAssetId: id,
+          expectedIssuer: this.creator.core.getAddress(),
+        },
+        this.creator.utils
+      );
+    }
 
     return this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.smartAssetContract.recoverTokenToIssuer(id, overrides),
+        protocolV1Action: async (protocolV1) => {
+          if (!this.creator.privacyMode) {
+            return protocolV1.smartAssetContract.recoverTokenToIssuer(
+              id,
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we recover the token through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'recoverTokenToIssuer'; // Fragment: recoverTokenToIssuer(_ownershipProof, _tokenId)
+            const _values = [id];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: id,
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.recoverTokenToIssuer(
+              getOwnershipProofStruct(callData),
+              id,
+              overrides
+            );
+          }
+        },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
         },
@@ -199,13 +287,16 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
   ): Promise<{ imprint: string }> {
     await getCreatorIdentity(this.creator); // assert has identity
 
-    await assertSmartAssetIssuedBy(
-      {
-        smartAssetId,
-        expectedIssuer: this.creator.core.getAddress(),
-      },
-      this.creator.utils
-    );
+    // If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    if (!this.creator.privacyMode) {
+      await assertSmartAssetIssuedBy(
+        {
+          smartAssetId,
+          expectedIssuer: this.creator.core.getAddress(),
+        },
+        this.creator.utils
+      );
+    }
 
     const imprint = await this.creator.utils.calculateImprint(content);
 
@@ -214,17 +305,53 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (protocolV1) => {
-          await checkCreditsBalance(
-            this.creator.utils,
-            CreditType.update,
-            BigInt(1)
-          );
-          return protocolV1.storeContract.updateSmartAsset(
-            smartAssetId,
-            imprint,
-            this.creator.creatorAddress,
-            overrides
-          );
+          if (!this.creator.privacyMode) {
+            await checkCreditsBalance(
+              this.creator.utils,
+              CreditType.update,
+              BigInt(1)
+            );
+            return protocolV1.storeContract.updateSmartAsset(
+              smartAssetId,
+              imprint,
+              this.creator.creatorAddress,
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we update the token through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'updateSmartAsset'; // Fragment: updateSmartAsset(_ownershipProof, _creditNoteProof, _creditNotePool, _tokenId, _imprint, _interfaceProvider)
+            const creditNotePool = ethers.ZeroAddress;
+            const _values = [
+              creditNotePool,
+              smartAssetId,
+              imprint,
+              this.creator.creatorAddress,
+            ];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: true,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: smartAssetId,
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.updateSmartAsset(
+              getOwnershipProofStruct(callData),
+              DEFAULT_CREDIT_PROOF,
+              creditNotePool,
+              smartAssetId,
+              imprint,
+              this.creator.creatorAddress
+            );
+          }
         },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
@@ -267,14 +394,44 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.smartAssetContract.addTokenAccess(
-            smartAssetId,
-            publicKey,
-            true,
-            tokenAccessType,
-            overrides
-          ),
+        protocolV1Action: async (protocolV1) => {
+          if (!this.creator.privacyMode) {
+            return protocolV1.smartAssetContract.addTokenAccess(
+              smartAssetId,
+              publicKey,
+              true,
+              tokenAccessType,
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we add the token access through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'addTokenAccess'; // Fragment: addTokenAccess(_ownershipProof, _tokenId, _key, _enable, _tokenType)
+            const _values = [smartAssetId, publicKey, true, tokenAccessType];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: smartAssetId,
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.addTokenAccess(
+              getOwnershipProofStruct(callData),
+              smartAssetId,
+              publicKey,
+              true,
+              tokenAccessType
+            );
+          }
+        },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
         },
@@ -305,13 +462,16 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     uri: string,
     overrides: NonPayableOverrides = {}
   ): Promise<void> {
-    await assertSmartAssetIssuedBy(
-      {
-        smartAssetId,
-        expectedIssuer: this.creator.core.getAddress(),
-      },
-      this.creator.utils
-    );
+    // If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    if (!this.creator.privacyMode) {
+      await assertSmartAssetIssuedBy(
+        {
+          smartAssetId,
+          expectedIssuer: this.creator.core.getAddress(),
+        },
+        this.creator.utils
+      );
+    }
 
     await getContentFromURI(uri, this.creator.fetchLike);
 
@@ -319,12 +479,40 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: async (protocolV1) =>
-          protocolV1.smartAssetContract.updateTokenURI(
-            smartAssetId,
-            uri,
-            overrides
-          ),
+        protocolV1Action: async (protocolV1) => {
+          if (!this.creator.privacyMode) {
+            return protocolV1.smartAssetContract.updateTokenURI(
+              smartAssetId,
+              uri,
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we update the token URI through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'updateTokenURI'; // Fragment: updateTokenURI(_ownershipProof, _tokenId, _uri)
+            const _values = [smartAssetId, uri];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: smartAssetId,
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.updateTokenURI(
+              getOwnershipProofStruct(callData),
+              smartAssetId,
+              uri
+            );
+          }
+        },
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented');
         },
@@ -366,22 +554,85 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (protocolV1) => {
-          await checkCreditsBalance(
-            this.creator.utils,
-            CreditType.smartAsset,
-            BigInt(1)
-          );
+          if (!this.creator.privacyMode) {
+            await checkCreditsBalance(
+              this.creator.utils,
+              CreditType.smartAsset,
+              BigInt(1)
+            );
 
-          return protocolV1.storeContract.hydrateToken(
-            smartAssetId,
-            imprint,
-            uri,
-            publicKey,
-            tokenRecoveryTimestamp,
-            initialKeyIsRequestKey,
-            this.creator.creatorAddress,
-            overrides
-          );
+            return protocolV1.storeContract.hydrateToken(
+              smartAssetId,
+              imprint,
+              uri,
+              publicKey,
+              tokenRecoveryTimestamp,
+              initialKeyIsRequestKey,
+              this.creator.creatorAddress,
+              overrides
+            );
+          } else {
+            // If privacy mode is enabled, we hydrate the token through the "ArianeeIssuerProxy" contract
+
+            // We first check if the token is already reserved
+            const commitmentHash =
+              await protocolV1.arianeeIssuerProxy!.commitmentHashes(
+                smartAssetId
+              );
+            const isAlreadyReserved = commitmentHash !== BigInt(0);
+
+            // We prepare the parameters for the hydrateToken function
+            const creditNotePool = ethers.ZeroAddress;
+
+            // If the token is already reserved, we need a proof of ownership to hydrate it
+            let ownershipProofStruct = null;
+            if (isAlreadyReserved) {
+              const fragment = 'hydrateToken'; // Fragment: hydrateToken(_ownershipProof, _creditNoteProof, _creditNotePool, _commitmentHash,
+              // _tokenId, _imprint, _uri, _encryptedInitialKey, _tokenRecoveryTimestamp, _initialKeyIsRequestKey, _interfaceProvider)
+              const _values = [
+                creditNotePool,
+                commitmentHash,
+                smartAssetId,
+                imprint,
+                uri,
+                publicKey,
+                tokenRecoveryTimestamp,
+                initialKeyIsRequestKey,
+                this.creator.creatorAddress,
+              ];
+
+              const { intentHashAsStr } =
+                await this.creator.prover!.issuerProxy.computeIntentHash({
+                  protocolV1,
+                  fragment,
+                  values: _values,
+                  needsCreditNoteProof: true,
+                });
+
+              const { callData } =
+                await this.creator.prover!.issuerProxy.generateProof({
+                  protocolV1,
+                  tokenId: String(smartAssetId),
+                  intentHashAsStr,
+                });
+              ownershipProofStruct = getOwnershipProofStruct(callData);
+            }
+
+            return protocolV1.arianeeIssuerProxy!.hydrateToken(
+              ownershipProofStruct ?? DEFAULT_OWNERSHIP_PROOF,
+              DEFAULT_CREDIT_PROOF,
+              creditNotePool,
+              commitmentHash,
+              smartAssetId,
+              imprint,
+              uri,
+              publicKey,
+              tokenRecoveryTimestamp,
+              initialKeyIsRequestKey,
+              this.creator.creatorAddress,
+              overrides
+            );
+          }
         },
         protocolV2Action: async (protocolV2) => {
           return protocolV2.smartAssetBaseContract.hydrateToken(
