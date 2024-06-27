@@ -107,7 +107,7 @@ export class ArianeeAccessToken {
     const jwt = jwtGenerator.setToken(arianeeAccessToken);
     const iss = jwt.decode().payload.iss;
 
-    const expBeforeExpiration = ignoreExpiration ? 0 : -1;
+    const expBeforeExpiration = ignoreExpiration ? -1 : 10;
     return jwt.verify(iss, expBeforeExpiration);
   }
 
