@@ -125,7 +125,6 @@ export class JWTGeneric {
     if (payload.nbf) {
       const nbfInMS = payload.nbf * 1000;
       const isBefore = new Date(nbfInMS).getTime() > Date.now();
-      console.log(isBefore);
       if (isBefore) {
         return false;
       }
