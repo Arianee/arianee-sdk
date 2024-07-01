@@ -163,7 +163,7 @@ describe('LostAndStolen', () => {
       });
     });
     describe('unsetStolenStatus', () => {
-      it.only('should unset stolen status if not already set', async () => {
+      it('should unset stolen status if not already set', async () => {
         const smartAssetId = '123';
         mockIsStolen.mockResolvedValue(true);
 
@@ -179,7 +179,7 @@ describe('LostAndStolen', () => {
         });
       });
 
-      it.only('should throw error if missing status is already set as requested', async () => {
+      it('should throw error if missing status is already set as requested', async () => {
         const smartAssetId = '123';
         mockIsStolen.mockResolvedValue(false);
 

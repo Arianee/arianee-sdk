@@ -7,6 +7,7 @@ import { SmartAsset } from '@arianee/common-types';
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
 import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
+import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 
 export default class LostAndStolen<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -66,13 +67,16 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
     missingStatus: boolean;
     smartAssetId: SmartAsset['certificateId'];
   }> {
-    await assertSmartAssetIssuedBy(
-      {
-        smartAssetId,
-        expectedIssuer: this.creator.core.getAddress(),
-      },
-      this.creator.utils
-    );
+    // If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    if (!this.creator.privacyMode) {
+      await assertSmartAssetIssuedBy(
+        {
+          smartAssetId,
+          expectedIssuer: this.creator.core.getAddress(),
+        },
+        this.creator.utils
+      );
+    }
 
     await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
@@ -82,21 +86,58 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
           const isMissingOnChain = await protocolV1.arianeeLost.isMissing(
             smartAssetId
           );
-          console.log('is missing', isMissing);
+
           if (isMissing === isMissingOnChain) {
             throw new Error(`Missing status is already set as ${isMissing}`);
           }
 
-          if (isMissing === true) {
-            return protocolV1.arianeeLost.setMissingStatus(
-              smartAssetId,
-              overrides
-            );
+          if (!this.creator.privacyMode) {
+            if (isMissing === true) {
+              return protocolV1.arianeeLost.setMissingStatus(
+                smartAssetId,
+                overrides
+              );
+            } else {
+              return protocolV1.arianeeLost.unsetMissingStatus(
+                smartAssetId,
+                overrides
+              );
+            }
           } else {
-            return protocolV1.arianeeLost.unsetMissingStatus(
-              smartAssetId,
-              overrides
-            );
+            // If privacy mode is enabled, we set or unset the missing status through the "ArianeeIssuerProxy" contract
+
+            const fragment = isMissing
+              ? 'setMissingStatus'
+              : 'unsetMissingStatus';
+            // ^ Fragment: setMissingStatus(_ownershipProof, _tokenId) || unsetMissingStatus(_ownershipProof, _tokenId)
+            const _values = [smartAssetId];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: smartAssetId,
+                intentHashAsStr,
+              });
+
+            if (isMissing === true) {
+              return protocolV1.arianeeIssuerProxy!.setMissingStatus(
+                getOwnershipProofStruct(callData),
+                smartAssetId
+              );
+            } else {
+              return protocolV1.arianeeIssuerProxy!.unsetMissingStatus(
+                getOwnershipProofStruct(callData),
+                smartAssetId
+              );
+            }
           }
         },
         protocolV2Action: async (protocolV2) => {
@@ -121,13 +162,16 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
     stolenStatus: boolean;
     smartAssetId: SmartAsset['certificateId'];
   }> {
-    await assertSmartAssetIssuedBy(
-      {
-        smartAssetId,
-        expectedIssuer: this.creator.core.getAddress(),
-      },
-      this.creator.utils
-    );
+    // If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    if (!this.creator.privacyMode) {
+      await assertSmartAssetIssuedBy(
+        {
+          smartAssetId,
+          expectedIssuer: this.creator.core.getAddress(),
+        },
+        this.creator.utils
+      );
+    }
 
     await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
@@ -141,16 +185,51 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
             throw new Error(`Stolen status is already set as ${isStolen}`);
           }
 
-          if (isStolen === true) {
-            return protocolV1.arianeeLost.setStolenStatus(
-              smartAssetId,
-              overrides
-            );
+          if (!this.creator.privacyMode) {
+            if (isStolen === true) {
+              return protocolV1.arianeeLost.setStolenStatus(
+                smartAssetId,
+                overrides
+              );
+            } else {
+              return protocolV1.arianeeLost.unsetStolenStatus(
+                smartAssetId,
+                overrides
+              );
+            }
           } else {
-            return protocolV1.arianeeLost.unsetStolenStatus(
-              smartAssetId,
-              overrides
-            );
+            // If privacy mode is enabled, we set or unset the stolen status through the "ArianeeIssuerProxy" contract
+
+            const fragment = isStolen ? 'setStolenStatus' : 'unsetStolenStatus';
+            // ^ Fragment: setStolenStatus(_ownershipProof, _tokenId) || unsetStolenStatus(_ownershipProof, _tokenId)
+            const _values = [smartAssetId];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: smartAssetId,
+                intentHashAsStr,
+              });
+
+            if (isStolen === true) {
+              return protocolV1.arianeeIssuerProxy!.setStolenStatus(
+                getOwnershipProofStruct(callData),
+                smartAssetId
+              );
+            } else {
+              return protocolV1.arianeeIssuerProxy!.unsetStolenStatus(
+                getOwnershipProofStruct(callData),
+                smartAssetId
+              );
+            }
           }
         },
         protocolV2Action: async (protocolV2) => {

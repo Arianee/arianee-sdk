@@ -1,3 +1,7 @@
+import {
+  ArianeeCreditNotePool,
+  ArianeeIssuerProxy,
+} from '@arianee/arianee-abi/dist/ethers6/v1_1';
 import { keccak256, toUtf8Bytes } from 'ethers';
 import { Element } from 'fixed-merkle-tree';
 import { readFileSync } from 'fs';
@@ -17,25 +21,27 @@ export const SELECTOR_SIZE = 4 * B2H_MUL;
 export const OWNERSHIP_PROOF_SIZE = 352 * B2H_MUL;
 export const CREDIT_PROOF_SIZE = 352 * B2H_MUL;
 
-export const DEFAULT_OWNERSHIP_PROOF = {
-  _pA: [BigInt(0), BigInt(0)],
-  _pB: [
-    [BigInt(0), BigInt(0)],
-    [BigInt(0), BigInt(0)],
-  ],
-  _pC: [BigInt(0), BigInt(0)],
-  _pubSignals: [BigInt(0), BigInt(0), BigInt(0)],
-};
+export const DEFAULT_OWNERSHIP_PROOF: ArianeeIssuerProxy.OwnershipProofStruct =
+  {
+    _pA: [BigInt(0), BigInt(0)],
+    _pB: [
+      [BigInt(0), BigInt(0)],
+      [BigInt(0), BigInt(0)],
+    ],
+    _pC: [BigInt(0), BigInt(0)],
+    _pubSignals: [BigInt(0), BigInt(0), BigInt(0)],
+  };
 
-export const DEFAULT_CREDIT_PROOF = {
-  _pA: [BigInt(0), BigInt(0)],
-  _pB: [
-    [BigInt(0), BigInt(0)],
-    [BigInt(0), BigInt(0)],
-  ],
-  _pC: [BigInt(0), BigInt(0)],
-  _pubSignals: [BigInt(0), BigInt(0), BigInt(0)],
-};
+export const DEFAULT_CREDIT_PROOF: ArianeeCreditNotePool.CreditNoteProofStruct =
+  {
+    _pA: [BigInt(0), BigInt(0)],
+    _pB: [
+      [BigInt(0), BigInt(0)],
+      [BigInt(0), BigInt(0)],
+    ],
+    _pC: [BigInt(0), BigInt(0)],
+    _pubSignals: [BigInt(0), BigInt(0), BigInt(0)],
+  };
 
 export const OWNERSHIP_VERIFIER_WASH_PATH = resolve(
   __dirname,

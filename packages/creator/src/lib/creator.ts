@@ -9,6 +9,7 @@ import ArianeeProtocolClient, {
 import Core from '@arianee/core';
 import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
 import { cachedFetchLike } from '@arianee/utils';
+import { Prover } from '@arianee/privacy-circuits';
 import { ContractTransactionReceipt } from 'ethers';
 import { ContractTransactionResponse } from 'ethers/lib.esm';
 
@@ -29,6 +30,7 @@ export type CreatorParams<T extends TransactionStrategy> = {
   creatorAddress: string;
   core: Core;
   transactionStrategy: T;
+  privacyMode?: boolean;
   fetchLike?: typeof fetch;
   protocolDetailsResolver?: ProtocolDetailsResolver;
   arianeeApiUrl?: string;
@@ -40,6 +42,9 @@ export default class Creator<Strategy extends TransactionStrategy> {
   public readonly fetchLike: typeof fetch;
 
   public readonly arianeeProtocolClient: ArianeeProtocolClient;
+
+  public readonly privacyMode: boolean;
+  public readonly prover: Prover | null = null;
 
   private _slug: string | null = null;
   private _connectedProtocolClient: ProtocolClientV1 | ProtocolClientV2 | null =
@@ -77,10 +82,17 @@ export default class Creator<Strategy extends TransactionStrategy> {
   public readonly lostAndStolen: LostAndStolen<Strategy>;
 
   constructor(params: CreatorParams<Strategy>) {
-    const { fetchLike, core, creatorAddress } = params;
+    const { fetchLike, core, creatorAddress, privacyMode } = params;
 
     this.core = core;
     this.creatorAddress = creatorAddress;
+
+    this.privacyMode = privacyMode ?? false;
+    if (this.privacyMode) {
+      // We don't use the "ArianeeCreditNotePool" yet
+      this.prover = new Prover({ core, useCreditNotePool: false });
+    }
+
     this.fetchLike =
       fetchLike ?? cachedFetchLike(retryFetchLike(defaultFetchLike));
 
