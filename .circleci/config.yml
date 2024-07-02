@@ -3,10 +3,14 @@ version: 2.1
 orbs:
   node: circleci/node@5.1.0
 
+executors:
+    node-executor:
+        docker:
+        - image: cimg/node:18.16.0
+
 jobs:
   build:
-    docker:
-      - image: cimg/node:18.16.0
+    executor: node-executor
     steps:
       - checkout
       - node/install-packages
@@ -14,8 +18,7 @@ jobs:
           name: Build
           command: npm run build:all
   lint:
-    docker:
-      - image: cimg/node:18.16.0
+    executor: node-executor
     steps:
       - checkout
       - node/install-packages
@@ -23,14 +26,40 @@ jobs:
           name: Run lint
           command: npm run lint:all
   test-libraries:
-    docker:
-      - image: cimg/node:18.16.0
+    executor: node-executor
     steps:
       - checkout
       - node/install-packages
       - run:
           name: Run tests
           command: npm run test:all -- --runInBand
+  publish_on_npm:
+    executor: node-executor
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Auth With NPM
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+      - run:
+          name: Publish on NMP
+          command: |
+            version=$(./scripts/bump.sh | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n 1)
+            git checkout -b "release/$version"
+            npm run build:all
+
+            git config user.name "Deploy in production bot"
+            git config user.email "tech@arianee.org"
+
+            git add --all
+            git commit -m "[SKIP CI]chore: bump to version $version"
+            git tag -a "$version" -m ""
+            git push origin "release/$version"
+            ./scripts/publish.sh
+            git checkout main
+            git reset --hard origin/main
+            git rebase -X theirs "release/$version"
+            git push origin main --dry-run
 
 workflows:
   test:
@@ -38,3 +67,16 @@ workflows:
       - lint
       - test-libraries
       - build
+      - publish_approval:
+          type: approval
+          requires:
+            - test-libraries
+            - lint
+            - build
+          filters:
+            branches:
+              only:
+                - main
+      - publish_on_npm:
+          requires:
+            - publish_approval
