@@ -6,8 +6,8 @@ import { SmartAsset } from '@arianee/common-types';
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
-import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
+import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 
 export default class LostAndStolen<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}

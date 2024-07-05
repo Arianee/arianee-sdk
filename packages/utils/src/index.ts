@@ -1,4 +1,5 @@
 export * from './lib/chain/chain';
+export * from './lib/ethersCustom/ethersCustom';
 export * from './lib/fetchLike/cachedFetchLike/cachedFetchLike';
 export * from './lib/fetchLike/defaultFetchLike';
 export * from './lib/fetchLike/retryFetchLike/retryFetchLike';
@@ -11,4 +12,3 @@ export * from './lib/passphrase/randomPassphrase';
 export * from './lib/slug/slug';
 export * from './lib/storage/memoryStorage';
 export * from './lib/tx/tx';
-export * from './lib/ethersCustom/ethersCustom';

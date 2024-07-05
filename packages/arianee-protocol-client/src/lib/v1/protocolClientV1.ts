@@ -1,8 +1,8 @@
 import { ethers6_v1, ethers6_v1_1 } from '@arianee/arianee-abi';
 import {
+  GasStation,
   ProtocolDetailsV1,
   ProtocolV1Versions,
-  GasStation,
 } from '@arianee/common-types';
 import { Signer } from 'ethers';
 

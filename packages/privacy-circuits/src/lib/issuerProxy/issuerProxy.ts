@@ -1,6 +1,8 @@
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { Poseidon } from 'circomlibjs';
 import { hashMessage, solidityPackedKeccak256 } from 'ethers';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { groth16 } from 'snarkjs';
 
 import {
@@ -26,8 +28,6 @@ import {
   IssuerProxyVerifyProofParameters as VerifyProofParameters,
   OwnershipProofCallData,
 } from './types';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 export default class IssuerProxy {
   private readonly poseidon: Poseidon;

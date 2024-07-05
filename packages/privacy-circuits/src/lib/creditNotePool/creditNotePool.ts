@@ -1,7 +1,9 @@
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { BabyJub, MimcSponge, PedersenHash } from 'circomlibjs';
 import { MerkleTree } from 'fixed-merkle-tree';
-import { Groth16Proof, PublicSignals, groth16 } from 'snarkjs';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { groth16, Groth16Proof, PublicSignals } from 'snarkjs';
 
 import {
   CREDIT_REGISTER_PROVING_KEY_RELATIVE_PATH,
@@ -26,8 +28,6 @@ import {
   CreditNoteRegistrationProofCallData,
 } from './types';
 import { RegistrationProofResult } from './types/registrationProofResult';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 export default class CreditNotePool {
   private readonly babyJub: BabyJub;

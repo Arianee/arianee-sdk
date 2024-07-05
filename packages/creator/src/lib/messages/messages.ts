@@ -1,6 +1,8 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import { ArianeeMessageI18N } from '@arianee/common-types';
+import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
+import { ethers } from 'ethers';
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
@@ -9,6 +11,7 @@ import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
 import { getCreatorIdentity } from '../helpers/identity/getIdentity';
 import { checkCreateMessageParameters } from '../helpers/message/checkCreateMessageParameters';
 import { getCreateMessageParams } from '../helpers/message/getCreateMessageParams';
+import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreMessageParameters,
@@ -17,9 +20,6 @@ import {
   CreateMessageParameters,
   CreditType,
 } from '../types';
-import { ethers } from 'ethers';
-import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
-import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 
 export default class Messages<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}

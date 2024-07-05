@@ -8,7 +8,7 @@ import {
 } from '@arianee/common-types';
 import Core from '@arianee/core';
 import Creator from '@arianee/creator';
-import { Wallet, computeAddress } from 'ethers';
+import { computeAddress, Wallet } from 'ethers';
 
 // NOTE: Below are default private keys for localnet testing, safe to commit
 const DEPLOYER_PRIVATE_KEY =
@@ -69,7 +69,7 @@ const setupProtocol = async () => {
 
   // Add some credit for the ArianeeIssuerProxy
   // We don't check anything that is credit related in this test file, we just need to have some credit to be able to perform some actions
-  const creditTypeQuantityEach: bigint = BigInt(100);
+  const creditTypeQuantityEach = BigInt(100);
 
   const creditTypeCertPrice =
     await deployerProtocolClientV1.storeContract.getCreditPrice(

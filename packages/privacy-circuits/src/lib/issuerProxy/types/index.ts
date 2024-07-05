@@ -4,6 +4,5 @@ export { IssuerProxyComputeIntentParameters } from './computeIntentParameters';
 export { IssuerProxyComputeIntentResult } from './computeIntentResult';
 export { IssuerProxyGenerateProofParameters } from './generateProofParameters';
 export { IssuerProxyGenerateProofResult } from './generateProofResult';
-export { IssuerProxyVerifyProofParameters } from './verifyProofParameters';
-
 export { OwnershipProofCallData } from './ownershipProofCallData';
+export { IssuerProxyVerifyProofParameters } from './verifyProofParameters';

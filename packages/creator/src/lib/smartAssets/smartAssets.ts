@@ -5,6 +5,10 @@ import {
   SmartAsset,
   TokenAccessType,
 } from '@arianee/common-types';
+import {
+  DEFAULT_CREDIT_PROOF,
+  DEFAULT_OWNERSHIP_PROOF,
+} from '@arianee/privacy-circuits';
 import { createLink } from '@arianee/utils';
 import {
   ContractTransactionReceipt,
@@ -21,6 +25,7 @@ import {
 import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
 import { getTokenAccessParams } from '../helpers/getTokenAccessParams/getTokenAccessParams';
 import { getCreatorIdentity } from '../helpers/identity/getIdentity';
+import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 import { checkCreateSmartAssetParameters } from '../helpers/smartAsset/checkCreateSmartAssetParameters';
 import { getCreateSmartAssetParams } from '../helpers/smartAsset/getCreateSmartAssetParams';
@@ -33,11 +38,6 @@ import {
   LinkObject,
   TokenAccess,
 } from '../types';
-import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
-import {
-  DEFAULT_CREDIT_PROOF,
-  DEFAULT_OWNERSHIP_PROOF,
-} from '@arianee/privacy-circuits';
 
 export default class SmartAssets<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}

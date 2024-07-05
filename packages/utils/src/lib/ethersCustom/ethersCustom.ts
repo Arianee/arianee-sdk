@@ -1,4 +1,4 @@
-import { Protocol, GasStation } from '@arianee/common-types';
+import { GasStation, Protocol } from '@arianee/common-types';
 import Core from '@arianee/core';
 import {
   JsonRpcProvider,

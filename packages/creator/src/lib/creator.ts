@@ -7,9 +7,9 @@ import ArianeeProtocolClient, {
   transactionWrapper as _transactionWrapper,
 } from '@arianee/arianee-protocol-client';
 import Core from '@arianee/core';
+import { Prover } from '@arianee/privacy-circuits';
 import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
 import { cachedFetchLike } from '@arianee/utils';
-import { Prover } from '@arianee/privacy-circuits';
 import { ContractTransactionReceipt } from 'ethers';
 import { ContractTransactionResponse } from 'ethers/lib.esm';
 
