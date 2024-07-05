@@ -1,18 +1,18 @@
 import { ArianeeApiClient } from '@arianee/arianee-api-client';
 import {
+  GasStation,
   ProtocolDetails,
   ProtocolDetailsV1,
   ProtocolDetailsV2,
   ProtocolV1Versions,
   ProtocolV2Versions,
-  GasStation,
 } from '@arianee/common-types';
 import Core from '@arianee/core';
 import {
   cachedFetchLike,
   defaultFetchLike,
-  retryFetchLike,
   ethersWalletFromCore,
+  retryFetchLike,
 } from '@arianee/utils';
 
 import { ProtocolDetailsResolver } from './shared/types';

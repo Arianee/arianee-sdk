@@ -1,6 +1,6 @@
+import { GasStation } from '@arianee/common-types';
 import Core from '@arianee/core';
 import { ethers, TransactionResponse } from 'ethers';
-import { GasStation } from '@arianee/common-types';
 
 import {
   CoreWallet,

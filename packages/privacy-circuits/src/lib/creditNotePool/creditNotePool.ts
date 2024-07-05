@@ -1,14 +1,16 @@
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { BabyJub, MimcSponge, PedersenHash } from 'circomlibjs';
 import { MerkleTree } from 'fixed-merkle-tree';
-import { Groth16Proof, PublicSignals, groth16 } from 'snarkjs';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { groth16, Groth16Proof, PublicSignals } from 'snarkjs';
 
 import {
-  CREDIT_REGISTER_PROVING_KEY_PATH,
-  CREDIT_REGISTER_WASH_PATH,
-  CREDIT_VERIFIER_PROVING_KEY_PATH,
-  CREDIT_VERIFIER_VERIFICATION_KEY,
-  CREDIT_VERIFIER_WASH_PATH,
+  CREDIT_REGISTER_PROVING_KEY_RELATIVE_PATH,
+  CREDIT_REGISTER_WASM_RELATIVE_PATH,
+  CREDIT_VERIFIER_PROVING_KEY_RELATIVE_PATH,
+  CREDIT_VERIFIER_VERIFICATION_KEY_RELATIVE_PATH,
+  CREDIT_VERIFIER_WASM_RELATIVE_PATH,
   MERKLE_TREE_LEVELS,
   MERKLE_TREE_ZERO_ELEMENT,
 } from '../constants';
@@ -123,6 +125,15 @@ export default class CreditNotePool {
       performValidation !== undefined ? performValidation : true
     );
 
+    const creditVerifierWasmPath = resolve(
+      this.prover.circuitsBuildPath,
+      CREDIT_VERIFIER_WASM_RELATIVE_PATH
+    );
+    const creditVerifierProvingKeyPath = resolve(
+      this.prover.circuitsBuildPath,
+      CREDIT_VERIFIER_PROVING_KEY_RELATIVE_PATH
+    );
+
     const { proof, publicSignals } = await groth16.fullProve(
       {
         // Private inputs
@@ -136,8 +147,8 @@ export default class CreditNotePool {
         pubCreditType: zkCreditType,
         pubNullifierHash: nullifierHashAsStr,
       },
-      CREDIT_VERIFIER_WASH_PATH,
-      CREDIT_VERIFIER_PROVING_KEY_PATH
+      creditVerifierWasmPath,
+      creditVerifierProvingKeyPath
     );
     const callDataAsStr = await groth16.exportSolidityCallData(
       proof,
@@ -152,8 +163,17 @@ export default class CreditNotePool {
 
   public async verifyProof(params: VerifyProofParameters): Promise<boolean> {
     const { publicSignals, proof } = params;
+
+    const creditVerifierVerificationKeyPath = resolve(
+      this.prover.circuitsBuildPath,
+      CREDIT_VERIFIER_VERIFICATION_KEY_RELATIVE_PATH
+    );
+    const creditVerifierVerificationKey = JSON.parse(
+      readFileSync(creditVerifierVerificationKeyPath, 'utf-8')
+    );
+
     const isValid = await groth16.verify(
-      CREDIT_VERIFIER_VERIFICATION_KEY,
+      creditVerifierVerificationKey,
       publicSignals,
       proof
     );
@@ -171,6 +191,15 @@ export default class CreditNotePool {
     callDataAsStr: string;
     callData: CreditNoteRegistrationProofCallData;
   }> {
+    const creditRegisterWasmPath = resolve(
+      this.prover.circuitsBuildPath,
+      CREDIT_REGISTER_WASM_RELATIVE_PATH
+    );
+    const creditRegisterProvingKeyPath = resolve(
+      this.prover.circuitsBuildPath,
+      CREDIT_REGISTER_PROVING_KEY_RELATIVE_PATH
+    );
+
     const { proof, publicSignals } = await groth16.fullProve(
       {
         // Private inputs
@@ -180,8 +209,8 @@ export default class CreditNotePool {
         pubCommitmentHash: commitmentHashAsStr,
         pubCreditType: zkCreditType,
       },
-      CREDIT_REGISTER_WASH_PATH,
-      CREDIT_REGISTER_PROVING_KEY_PATH
+      creditRegisterWasmPath,
+      creditRegisterProvingKeyPath
     );
     const callDataAsStr = await groth16.exportSolidityCallData(
       proof,

@@ -1,6 +1,8 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import { ArianeeMessageI18N } from '@arianee/common-types';
+import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
+import { ethers } from 'ethers';
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
@@ -9,6 +11,7 @@ import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
 import { getCreatorIdentity } from '../helpers/identity/getIdentity';
 import { checkCreateMessageParameters } from '../helpers/message/checkCreateMessageParameters';
 import { getCreateMessageParams } from '../helpers/message/getCreateMessageParams';
+import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreMessageParameters,
@@ -17,9 +20,6 @@ import {
   CreateMessageParameters,
   CreditType,
 } from '../types';
-import { ethers } from 'ethers';
-import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
-import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 
 export default class Messages<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -112,11 +112,17 @@ export default class Messages<Strategy extends TransactionStrategy> {
               overrides
             );
           } else {
-            // If privacy mode is enabled, we create the message through the "ArianeeIssuerProxy" contract
+            // INFO: If privacy mode is enabled, we create the message through the "ArianeeIssuerProxy" contract
 
             const fragment = 'createMessage'; // Fragment: createMessage(_ownershipProof, _creditNoteProof, _creditNotePool, _messageId, _tokenId, _imprint)
             const creditNotePool = ethers.ZeroAddress;
-            const _values = [creditNotePool, messageId, smartAssetId, imprint];
+            const _values = [
+              creditNotePool,
+              messageId,
+              smartAssetId,
+              imprint,
+              this.creator.creatorAddress,
+            ];
 
             const { intentHashAsStr } =
               await this.creator.prover!.issuerProxy.computeIntentHash({
@@ -138,7 +144,8 @@ export default class Messages<Strategy extends TransactionStrategy> {
               creditNotePool,
               messageId,
               smartAssetId,
-              imprint
+              imprint,
+              this.creator.creatorAddress
             );
           }
         },

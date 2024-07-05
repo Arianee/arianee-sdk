@@ -4,6 +4,7 @@ import {
   NonPayableOverrides,
 } from '@arianee/arianee-protocol-client';
 import { ArianeeEventI18N } from '@arianee/common-types';
+import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
 import { ethers } from 'ethers';
 
 import Creator, { TransactionStrategy } from '../creator';
@@ -17,6 +18,7 @@ import {
   getIdentity,
   IdentityWithRpcEndpoint,
 } from '../helpers/identity/getIdentity';
+import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreEventParameters,
@@ -25,8 +27,6 @@ import {
   CreateEventParameters,
   CreditType,
 } from '../types';
-import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
-import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
 
 export default class Events<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -192,7 +192,7 @@ export default class Events<Strategy extends TransactionStrategy> {
               overrides
             );
           } else {
-            // If privacy mode is enabled, we create the event through the "ArianeeIssuerProxy" contract
+            // INFO: If privacy mode is enabled, we create the event through the "ArianeeIssuerProxy" contract
 
             const fragment = 'createEvent'; // Fragment: createEvent(_ownershipProof, _creditNoteProof, _creditNotePool, _tokenId, _eventId, _imprint, _uri, _interfaceProvider)
             const creditNotePool = ethers.ZeroAddress;

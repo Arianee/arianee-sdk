@@ -1,7 +1,7 @@
 import {
+  GasStation,
   ProtocolDetailsV2,
   ProtocolV2Versions,
-  GasStation,
 } from '@arianee/common-types';
 import {
   CreditManager,

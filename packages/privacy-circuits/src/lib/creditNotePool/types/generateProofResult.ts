@@ -1,4 +1,5 @@
 import { Groth16Proof, PublicSignals } from 'snarkjs';
+
 import { CreditNoteProofCallData } from './creditNoteProofCallData';
 
 export type CreditNotePoolGenerateProofResult = {

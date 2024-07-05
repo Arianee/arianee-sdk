@@ -15,12 +15,14 @@ import IssuerProxy from './issuerProxy/issuerProxy';
 
 export type ProverParams = {
   core: Core;
+  circuitsBuildPath: string;
   useCreditNotePool?: boolean;
   // TODO: Check if it's really relevant to add a `brandUniqueSalt` to be used in IssuerProxy.computeCommitment()
 };
 
 export default class Prover {
   public readonly core: Core;
+  public readonly circuitsBuildPath: string;
   public readonly useCreditNotePool: boolean;
 
   private isInit;
@@ -68,8 +70,15 @@ export default class Prover {
   }
 
   constructor(params: ProverParams) {
-    const { core, useCreditNotePool } = params;
+    const { core, circuitsBuildPath, useCreditNotePool } = params;
+
     this.core = core;
+    this.circuitsBuildPath = circuitsBuildPath;
+    if (!this.circuitsBuildPath || this.circuitsBuildPath === '') {
+      throw new Error(
+        'Prover constructor: You must provide a valid `circuitsBuildPath` argument'
+      );
+    }
     this.useCreditNotePool = useCreditNotePool || false;
 
     this.isInit = false;

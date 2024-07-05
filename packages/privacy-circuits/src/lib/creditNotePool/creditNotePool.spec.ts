@@ -7,6 +7,8 @@ import { Filter } from 'ethers';
 
 import { Prover } from '../prover';
 
+const CIRCUITS_BUILD_PATH = 'packages/privacy-circuits/build';
+
 interface MockLog {
   data: string;
   topics: string[];
@@ -24,7 +26,11 @@ describe('creditNotePool', () => {
     core = Core.fromPrivateKey(
       '0x56cbf37399c2b170e098f12f6720ecf66e87a25feb20ccb9891f3145e7b5f0e0'
     );
-    prover = new Prover({ core, useCreditNotePool: true });
+    prover = new Prover({
+      core,
+      circuitsBuildPath: CIRCUITS_BUILD_PATH,
+      useCreditNotePool: true,
+    });
 
     mockProvider = {
       getLogs: async () => {
