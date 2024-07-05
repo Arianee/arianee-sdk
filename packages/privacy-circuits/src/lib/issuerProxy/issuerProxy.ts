@@ -9,9 +9,9 @@ import {
   DEFAULT_OWNERSHIP_PROOF,
   HEX_FLAG_SIZE,
   OWNERSHIP_PROOF_SIZE,
-  OWNERSHIP_VERIFIER_PROVING_KEY_PATH,
-  OWNERSHIP_VERIFIER_VERIFICATION_KEY,
-  OWNERSHIP_VERIFIER_WASH_PATH,
+  OWNERSHIP_VERIFIER_PROVING_KEY_RELATIVE_PATH,
+  OWNERSHIP_VERIFIER_VERIFICATION_KEY_RELATIVE_PATH,
+  OWNERSHIP_VERIFIER_WASM_RELATIVE_PATH,
   SELECTOR_SIZE,
 } from '../constants';
 import Prover from '../prover';
@@ -26,6 +26,8 @@ import {
   IssuerProxyVerifyProofParameters as VerifyProofParameters,
   OwnershipProofCallData,
 } from './types';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 export default class IssuerProxy {
   private readonly poseidon: Poseidon;
@@ -72,6 +74,15 @@ export default class IssuerProxy {
     const { commitmentHashAsStr } = this._computeCommitmentHash({ r, s, v });
     const nonce = this._getNonce();
 
+    const ownershipVerifierWasmPath = resolve(
+      this.prover.circuitsBuildPath,
+      OWNERSHIP_VERIFIER_WASM_RELATIVE_PATH
+    );
+    const ownershipVerifierProvingKeyPath = resolve(
+      this.prover.circuitsBuildPath,
+      OWNERSHIP_VERIFIER_PROVING_KEY_RELATIVE_PATH
+    );
+
     const { proof, publicSignals } = await groth16.fullProve(
       {
         // Private inputs
@@ -81,8 +92,8 @@ export default class IssuerProxy {
         pubIntentHash: intentHashAsStr,
         pubNonce: nonce,
       },
-      OWNERSHIP_VERIFIER_WASH_PATH,
-      OWNERSHIP_VERIFIER_PROVING_KEY_PATH
+      ownershipVerifierWasmPath,
+      ownershipVerifierProvingKeyPath
     );
     const callDataAsStr = await groth16.exportSolidityCallData(
       proof,
@@ -96,8 +107,16 @@ export default class IssuerProxy {
   public async verifyProof(params: VerifyProofParameters): Promise<boolean> {
     const { publicSignals, proof } = params;
 
+    const ownershipVerifierVerificationKeyPath = resolve(
+      this.prover.circuitsBuildPath,
+      OWNERSHIP_VERIFIER_VERIFICATION_KEY_RELATIVE_PATH
+    );
+    const ownershipVerifierVerificationKey = JSON.parse(
+      readFileSync(ownershipVerifierVerificationKeyPath, 'utf-8')
+    );
+
     const isValid = await groth16.verify(
-      OWNERSHIP_VERIFIER_VERIFICATION_KEY,
+      ownershipVerifierVerificationKey,
       publicSignals,
       proof
     );

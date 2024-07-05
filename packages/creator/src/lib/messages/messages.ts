@@ -112,11 +112,17 @@ export default class Messages<Strategy extends TransactionStrategy> {
               overrides
             );
           } else {
-            // If privacy mode is enabled, we create the message through the "ArianeeIssuerProxy" contract
+            // INFO: If privacy mode is enabled, we create the message through the "ArianeeIssuerProxy" contract
 
             const fragment = 'createMessage'; // Fragment: createMessage(_ownershipProof, _creditNoteProof, _creditNotePool, _messageId, _tokenId, _imprint)
             const creditNotePool = ethers.ZeroAddress;
-            const _values = [creditNotePool, messageId, smartAssetId, imprint];
+            const _values = [
+              creditNotePool,
+              messageId,
+              smartAssetId,
+              imprint,
+              this.creator.creatorAddress,
+            ];
 
             const { intentHashAsStr } =
               await this.creator.prover!.issuerProxy.computeIntentHash({
@@ -138,7 +144,8 @@ export default class Messages<Strategy extends TransactionStrategy> {
               creditNotePool,
               messageId,
               smartAssetId,
-              imprint
+              imprint,
+              this.creator.creatorAddress
             );
           }
         },

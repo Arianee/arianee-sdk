@@ -67,7 +67,7 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
     missingStatus: boolean;
     smartAssetId: SmartAsset['certificateId'];
   }> {
-    // If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    // INFO: If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
     if (!this.creator.privacyMode) {
       await assertSmartAssetIssuedBy(
         {
@@ -104,7 +104,7 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
               );
             }
           } else {
-            // If privacy mode is enabled, we set or unset the missing status through the "ArianeeIssuerProxy" contract
+            // INFO: If privacy mode is enabled, we set or unset the missing status through the "ArianeeIssuerProxy" contract
 
             const fragment = isMissing
               ? 'setMissingStatus'
@@ -162,7 +162,7 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
     stolenStatus: boolean;
     smartAssetId: SmartAsset['certificateId'];
   }> {
-    // If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    // INFO: If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
     if (!this.creator.privacyMode) {
       await assertSmartAssetIssuedBy(
         {
@@ -198,7 +198,7 @@ export default class LostAndStolen<Strategy extends TransactionStrategy> {
               );
             }
           } else {
-            // If privacy mode is enabled, we set or unset the stolen status through the "ArianeeIssuerProxy" contract
+            // INFO: If privacy mode is enabled, we set or unset the stolen status through the "ArianeeIssuerProxy" contract
 
             const fragment = isStolen ? 'setStolenStatus' : 'unsetStolenStatus';
             // ^ Fragment: setStolenStatus(_ownershipProof, _tokenId) || unsetStolenStatus(_ownershipProof, _tokenId)

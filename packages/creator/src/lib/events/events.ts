@@ -192,7 +192,7 @@ export default class Events<Strategy extends TransactionStrategy> {
               overrides
             );
           } else {
-            // If privacy mode is enabled, we create the event through the "ArianeeIssuerProxy" contract
+            // INFO: If privacy mode is enabled, we create the event through the "ArianeeIssuerProxy" contract
 
             const fragment = 'createEvent'; // Fragment: createEvent(_ownershipProof, _creditNoteProof, _creditNotePool, _tokenId, _eventId, _imprint, _uri, _interfaceProvider)
             const creditNotePool = ethers.ZeroAddress;

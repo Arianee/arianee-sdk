@@ -6,6 +6,8 @@ import { ZeroAddress } from 'ethers';
 
 import { Prover } from '../prover';
 
+const CIRCUITS_BUILD_PATH = 'packages/privacy-circuits/build';
+
 describe('issuerProxy', () => {
   let core: Core;
   let prover: Prover;
@@ -16,7 +18,11 @@ describe('issuerProxy', () => {
     core = Core.fromPrivateKey(
       '0x56cbf37399c2b170e098f12f6720ecf66e87a25feb20ccb9891f3145e7b5f0e0'
     );
-    prover = new Prover({ core, useCreditNotePool: false });
+    prover = new Prover({
+      core,
+      circuitsBuildPath: CIRCUITS_BUILD_PATH,
+      useCreditNotePool: false,
+    });
 
     const mockProtocolDetails: ProtocolDetailsV1 = {
       protocolVersion: '1.0',
@@ -90,13 +96,13 @@ describe('issuerProxy', () => {
       const intentHashRes = await prover.issuerProxy.computeIntentHash({
         protocolV1: mockProtocolV1,
         fragment: 'createMessage',
-        values: [ZeroAddress, 789, 123, `0x${'00'.repeat(32)}`],
+        values: [ZeroAddress, 789, 123, `0x${'00'.repeat(32)}`, ZeroAddress],
         needsCreditNoteProof: true,
       });
 
       expect(intentHashRes).toBeDefined();
       expect(intentHashRes.intentHashAsStr).toBe(
-        '20906233059032000477416693345147302226173014334549097275189782287655475634837'
+        '3530813506073841721213843109007012799770028279613284392167793403479855814098'
       );
     });
 

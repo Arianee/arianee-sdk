@@ -31,6 +31,8 @@ export type CreatorParams<T extends TransactionStrategy> = {
   core: Core;
   transactionStrategy: T;
   privacyMode?: boolean;
+  // INFO: If you want to use the privacy mode, you need to pass a `circuitsBuildPath` that will be forwarded to the Prover
+  circuitsBuildPath?: string;
   fetchLike?: typeof fetch;
   protocolDetailsResolver?: ProtocolDetailsResolver;
   arianeeApiUrl?: string;
@@ -82,7 +84,8 @@ export default class Creator<Strategy extends TransactionStrategy> {
   public readonly lostAndStolen: LostAndStolen<Strategy>;
 
   constructor(params: CreatorParams<Strategy>) {
-    const { fetchLike, core, creatorAddress, privacyMode } = params;
+    const { fetchLike, core, creatorAddress, privacyMode, circuitsBuildPath } =
+      params;
 
     this.core = core;
     this.creatorAddress = creatorAddress;
@@ -90,7 +93,11 @@ export default class Creator<Strategy extends TransactionStrategy> {
     this.privacyMode = privacyMode ?? false;
     if (this.privacyMode) {
       // We don't use the "ArianeeCreditNotePool" yet
-      this.prover = new Prover({ core, useCreditNotePool: false });
+      this.prover = new Prover({
+        core,
+        circuitsBuildPath: circuitsBuildPath ?? '', // Will throw an error if empty
+        useCreditNotePool: false,
+      });
     }
 
     this.fetchLike =
@@ -126,6 +133,8 @@ export default class Creator<Strategy extends TransactionStrategy> {
       this._slug = slug;
       this._connectOptions = options;
       this._connectedProtocolClient = protocol;
+
+      if (this.privacyMode) await this.prover!.init();
     } catch (error) {
       console.error(error);
       throw new Error(

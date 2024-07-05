@@ -4,8 +4,6 @@ import {
 } from '@arianee/arianee-abi/dist/ethers6/v1_1';
 import { keccak256, toUtf8Bytes } from 'ethers';
 import { Element } from 'fixed-merkle-tree';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 export const FIELD_SIZE = BigInt(
   '21888242871839275222246405745257275088548364400416034343698204186575808495617'
@@ -43,50 +41,23 @@ export const DEFAULT_CREDIT_PROOF: ArianeeCreditNotePool.CreditNoteProofStruct =
     _pubSignals: [BigInt(0), BigInt(0), BigInt(0)],
   };
 
-export const OWNERSHIP_VERIFIER_WASH_PATH = resolve(
-  __dirname,
-  '../../build/ownershipVerifier/wasm/ownershipVerifier_js/ownershipVerifier.wasm'
-);
-export const OWNERSHIP_VERIFIER_PROVING_KEY_PATH = resolve(
-  __dirname,
-  '../../build/ownershipVerifier/keys/proving_key.zkey'
-);
-const OWNERSHIP_VERIFIER_VERIFICATION_KEY_PATH = resolve(
-  __dirname,
-  '../../build/ownershipVerifier/keys/verification_key.json'
-);
-export const OWNERSHIP_VERIFIER_VERIFICATION_KEY = JSON.parse(
-  readFileSync(OWNERSHIP_VERIFIER_VERIFICATION_KEY_PATH, 'utf-8')
-);
+export const OWNERSHIP_VERIFIER_WASM_RELATIVE_PATH =
+  'ownershipVerifier/wasm/ownershipVerifier_js/ownershipVerifier.wasm';
+export const OWNERSHIP_VERIFIER_PROVING_KEY_RELATIVE_PATH =
+  'ownershipVerifier/keys/proving_key.zkey';
+export const OWNERSHIP_VERIFIER_VERIFICATION_KEY_RELATIVE_PATH =
+  'ownershipVerifier/keys/verification_key.json';
 
-export const CREDIT_REGISTER_WASH_PATH = resolve(
-  __dirname,
-  '../../build/creditRegister/wasm/creditRegister_js/creditRegister.wasm'
-);
-export const CREDIT_REGISTER_PROVING_KEY_PATH = resolve(
-  __dirname,
-  '../../build/creditRegister/keys/proving_key.zkey'
-);
-const CREDIT_REGISTER_VERIFICATION_KEY_PATH = resolve(
-  __dirname,
-  '../../build/creditRegister/keys/verification_key.json'
-);
-export const CREDIT_REGISTER_VERIFICATION_KEY = JSON.parse(
-  readFileSync(CREDIT_REGISTER_VERIFICATION_KEY_PATH, 'utf-8')
-);
+export const CREDIT_REGISTER_WASM_RELATIVE_PATH =
+  'creditRegister/wasm/creditRegister_js/creditRegister.wasm';
+export const CREDIT_REGISTER_PROVING_KEY_RELATIVE_PATH =
+  'creditRegister/keys/proving_key.zkey';
+export const CREDIT_REGISTER_VERIFICATION_KEY_RELATIVE_PATH =
+  'creditRegister/keys/verification_key.json';
 
-export const CREDIT_VERIFIER_WASH_PATH = resolve(
-  __dirname,
-  '../../build/creditVerifier/wasm/creditVerifier_js/creditVerifier.wasm'
-);
-export const CREDIT_VERIFIER_PROVING_KEY_PATH = resolve(
-  __dirname,
-  '../../build/creditVerifier/keys/proving_key.zkey'
-);
-const CREDIT_VERIFIER_VERIFICATION_KEY_PATH = resolve(
-  __dirname,
-  '../../build/creditVerifier/keys/verification_key.json'
-);
-export const CREDIT_VERIFIER_VERIFICATION_KEY = JSON.parse(
-  readFileSync(CREDIT_VERIFIER_VERIFICATION_KEY_PATH, 'utf-8')
-);
+export const CREDIT_VERIFIER_WASM_RELATIVE_PATH =
+  'creditVerifier/wasm/creditVerifier_js/creditVerifier.wasm';
+export const CREDIT_VERIFIER_PROVING_KEY_RELATIVE_PATH =
+  'creditVerifier/keys/proving_key.zkey';
+export const CREDIT_VERIFIER_VERIFICATION_KEY_RELATIVE_PATH =
+  'creditVerifier/keys/verification_key.json';
