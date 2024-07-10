@@ -71,7 +71,11 @@
     "snarkjs": "0.7.4",
     "ts-invariant": "^0.10.3",
     "tslib": "^2.3.0",
-    "zone.js": "~0.13.0"
+    "zone.js": "~0.13.0",
+    "circomlib": "2.0.5",
+    "circomlibjs": "0.1.7",
+    "change-case": "^5.4.4",
+    "process.argv": "^0.6.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~16.0.0",
@@ -102,9 +106,6 @@
     "@types/snarkjs": "0.7.4",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
     "@typescript-eslint/parser": "^5.36.1",
-    "change-case": "^5.4.4",
-    "circomlib": "2.0.5",
-    "circomlibjs": "0.1.7",
     "esbuild": "^0.17.5",
     "eslint": "~8.15.0",
     "eslint-config-prettier": "^8.1.0",
@@ -117,7 +118,6 @@
     "jest-preset-angular": "~13.1.0",
     "nx": "16.1.1",
     "prettier": "^2.6.2",
-    "process.argv": "^0.6.1",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
     "typescript": "~5.0.2"
