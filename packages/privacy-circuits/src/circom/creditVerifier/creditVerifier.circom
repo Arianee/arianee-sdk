@@ -34,20 +34,15 @@ template CreditVerifier(levels) {
     nulDerIdxLeqt.in[1] <== 1000;
     nulDerIdxLeqt.out === 1;
 
-    // Ensure that pubCreditType is in range 1-4
-    component creTypGeqt = GreaterEqThan(8);
-    creTypGeqt.in[0] <== pubCreditType;
-    creTypGeqt.in[1] <== 1;
-    creTypGeqt.out === 1;
-
+    // Ensure that pubCreditType is in range [0, 3]
     component creTypLeqt = LessEqThan(8);
     creTypLeqt.in[0] <== pubCreditType;
-    creTypLeqt.in[1] <== 4;
+    creTypLeqt.in[1] <== 3;
     creTypLeqt.out === 1;
 
     // Output pubNullifierHash and commitment
     // pubNullifierHash = H(nullifier, nullifierDerivationIndex), where nullifierDerivationIndex is 1-1000, allowing for 1000 different nullifierHashes per nullifier
-    // commitment = H(nullifier, secret, pubCreditType), where pubCreditType is 1-4, pubCreditType is public
+    // commitment = H(nullifier, secret, pubCreditType), where pubCreditType is 0-3, pubCreditType is public
     component commitmentHasher = CommitmentHasher();
     commitmentHasher.nullifier <== nullifier;
     commitmentHasher.secret <== secret;

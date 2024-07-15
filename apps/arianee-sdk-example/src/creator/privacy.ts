@@ -16,8 +16,6 @@ const DEPLOYER_PRIVATE_KEY =
 const RELAYER_PRIVATE_KEY =
   '0x829e924fdf021ba3dbbc4225edfece9aca04b929d6e75613329ca6f1d31c0bb4';
 
-// NOTE: Credit type are 0-indexed in Arianee historical contracts but 1-indexed in the "Full Privacy" extension contracts
-// /!\ Bellow are the 0-indexed credit types /!\
 const CREDIT_TYPE_CERTIFICATE = 0;
 const CREDIT_TYPE_MESSAGE = 1;
 const CREDIT_TYPE_EVENT = 2;

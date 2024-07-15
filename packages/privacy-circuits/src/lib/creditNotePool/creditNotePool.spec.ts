@@ -95,7 +95,7 @@ describe('creditNotePool', () => {
           nullifier,
           secret,
           protocolV1: mockProtocolV1,
-          zkCreditType: 1,
+          creditType: 0,
           withRegistrationProof: true,
         });
 
@@ -103,7 +103,7 @@ describe('creditNotePool', () => {
       expect(commitmentHashRes.nullifier).toBe(nullifier);
       expect(commitmentHashRes.secret).toBe(secret);
       expect(commitmentHashRes.commitmentHashAsStr).toBe(
-        '18163511981545431966505150157484283755531043651767905659314402461098507861000'
+        '14830206611993736239317900659926164503010402533222104087143587283133707408593'
       );
       expect(commitmentHashRes.registrationProofResult).toBeDefined();
     });
@@ -112,7 +112,7 @@ describe('creditNotePool', () => {
       const commitmentHashRes =
         await prover.creditNotePool.computeCommitmentHash({
           protocolV1: mockProtocolV1,
-          zkCreditType: 1,
+          creditType: 0,
         });
 
       expect(commitmentHashRes).toBeDefined();
@@ -132,14 +132,14 @@ describe('creditNotePool', () => {
         BigInt(
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
-      const zkCreditType = 1;
+      const creditType = 0;
 
       const { commitmentHashAsHex } =
         await prover.creditNotePool.computeCommitmentHash({
           nullifier,
           secret,
           protocolV1: mockProtocolV1,
-          zkCreditType,
+          creditType,
         });
 
       // Mock the logs so the sdk can reconstruct the merkle tree
@@ -149,7 +149,7 @@ describe('creditNotePool', () => {
         {
           ...(mockProtocolV1.arianeeCreditNotePool?.interface.encodeEventLog(
             'Purchased',
-            [zkCreditType, commitmentHashAsHex, leafIndex, timestamp]
+            [creditType, commitmentHashAsHex, leafIndex, timestamp]
           ) as unknown as MockLog),
         },
       ];
@@ -159,7 +159,7 @@ describe('creditNotePool', () => {
         nullifier,
         nullifierDerivationIndex,
         secret,
-        zkCreditType,
+        creditType,
         performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
       });
       expect(proofRes).toBeDefined();
@@ -173,7 +173,7 @@ describe('creditNotePool', () => {
           nullifierDerivationIndex,
         });
       expect(proofRes.publicSignals[0]).toBeDefined();
-      expect(Number(proofRes.publicSignals[1])).toBe(zkCreditType);
+      expect(Number(proofRes.publicSignals[1])).toBe(creditType);
       expect(proofRes.publicSignals[2]).toBe(nullifierHashAsStr);
     });
 
@@ -187,7 +187,7 @@ describe('creditNotePool', () => {
         BigInt(
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
-      const zkCreditType = 1;
+      const creditType = 0;
 
       const { proof, publicSignals } =
         await prover.creditNotePool.generateProof({
@@ -195,7 +195,7 @@ describe('creditNotePool', () => {
           nullifier,
           nullifierDerivationIndex,
           secret,
-          zkCreditType,
+          creditType,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
         });
 
@@ -216,7 +216,7 @@ describe('creditNotePool', () => {
         BigInt(
           2629704292272696733357979480643425354687872034244798833018070660373019489
         );
-      const zkCreditType = 1;
+      const creditType = 0;
 
       const { proof, publicSignals } =
         await prover.creditNotePool.generateProof({
@@ -224,7 +224,7 @@ describe('creditNotePool', () => {
           nullifier,
           nullifierDerivationIndex,
           secret,
-          zkCreditType,
+          creditType,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
         });
       // Modify the proof
