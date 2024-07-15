@@ -8,7 +8,7 @@ include "nullifierHasher.circom";
 include "merkleTree.circom";
 
 // Verifies that commitment corresponds to H(nullifier, secret, pubCreditType) and nullifier is included in the merkle tree of deposits
-template CreditVerifier(levels) {
+template CreditVerifier(levels, zeroLeafCommitment) {
     // Private inputs
     signal input nullifier;
     signal input nullifierDerivationIndex;
@@ -53,6 +53,12 @@ template CreditVerifier(levels) {
     commitmentHasher.secret <== secret;
     commitmentHasher.creditType <== pubCreditType;
 
+    // Assert that commitment is not zeroLeafCommitment
+    component equalZeroLeaf = IsEqual();
+    equalZeroLeaf.in[0] <== commitmentHasher.commitment;
+    equalZeroLeaf.in[1] <== zeroLeafCommitment;
+    equalZeroLeaf.out === 0;
+
     component nullifierHasher = NullifierHasher();
     nullifierHasher.nullifier <== nullifier;
     nullifierHasher.nullifierDerivationIndex <== nullifierDerivationIndex;
@@ -76,7 +82,7 @@ template CreditVerifier(levels) {
     }
 }
 
-component main { public [pubRoot, pubCreditType, pubNullifierHash] } = CreditVerifier(30);
+component main { public [pubRoot, pubCreditType, pubNullifierHash] } = CreditVerifier(30, 1091521254540046781950077156238538356348959033991108648556163547643491462897);
 
 // N = 2^30 = 1 073 741 824
 // C = N * 1000 = 1 073 741 824 000
