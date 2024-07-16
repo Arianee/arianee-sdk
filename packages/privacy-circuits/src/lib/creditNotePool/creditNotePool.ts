@@ -103,6 +103,7 @@ export default class CreditNotePool {
       nullifierDerivationIndex,
       secret,
       creditType: _creditType,
+      intentHashAsStr,
       performValidation,
     } = params;
     this._ensurePrivacySupport(protocolV1);
@@ -146,6 +147,7 @@ export default class CreditNotePool {
         pubRoot: root,
         pubCreditType: creditType,
         pubNullifierHash: nullifierHashAsStr,
+        pubIntentHash: intentHashAsStr,
       },
       creditVerifierWasmPath,
       creditVerifierProvingKeyPath

@@ -6,5 +6,6 @@ export type CreditNotePoolGenerateProofParameters = {
   nullifierDerivationIndex: bigint;
   secret: bigint;
   creditType: 0 | 1 | 2 | 3;
+  intentHashAsStr: string;
   performValidation?: boolean;
 };
