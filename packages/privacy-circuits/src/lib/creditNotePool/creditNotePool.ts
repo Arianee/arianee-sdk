@@ -47,17 +47,17 @@ export default class CreditNotePool {
       protocolV1,
       nullifier: _nullifier,
       secret: _secret,
-      zkCreditType: _zkCreditType,
+      creditType: _creditType,
       withRegistrationProof: _withRegistrationProof,
     } = params;
     this._ensurePrivacySupport(protocolV1);
 
     const nullifier = _nullifier ? _nullifier : randomBigInt(31);
     const secret = _secret ? _secret : randomBigInt(31);
-    const zkCreditType = BigInt(_zkCreditType);
+    const creditType = BigInt(_creditType);
 
     const { commitmentHashAsBuff, commitmentHashAsStr, commitmentHashAsHex } =
-      this._computeCommitmentHash(nullifier, secret, zkCreditType);
+      this._computeCommitmentHash(nullifier, secret, creditType);
 
     const withRegistrationProof =
       _withRegistrationProof !== undefined ? _withRegistrationProof : true;
@@ -68,7 +68,7 @@ export default class CreditNotePool {
         nullifier,
         secret,
         commitmentHashAsStr,
-        zkCreditType
+        creditType
       );
     }
 
@@ -102,17 +102,17 @@ export default class CreditNotePool {
       nullifier,
       nullifierDerivationIndex,
       secret,
-      zkCreditType: _zkCreditType,
+      creditType: _creditType,
       performValidation,
     } = params;
     this._ensurePrivacySupport(protocolV1);
 
-    const zkCreditType = BigInt(_zkCreditType);
+    const creditType = BigInt(_creditType);
 
     const { commitmentHashAsHex } = this._computeCommitmentHash(
       nullifier,
       secret,
-      zkCreditType
+      creditType
     );
 
     const { nullifierHashAsHex, nullifierHashAsStr } =
@@ -144,7 +144,7 @@ export default class CreditNotePool {
         pathIndices,
         // Public inputs
         pubRoot: root,
-        pubCreditType: zkCreditType,
+        pubCreditType: creditType,
         pubNullifierHash: nullifierHashAsStr,
       },
       creditVerifierWasmPath,
@@ -184,7 +184,7 @@ export default class CreditNotePool {
     nullifier: bigint,
     secret: bigint,
     commitmentHashAsStr: string,
-    zkCreditType: bigint
+    creditType: bigint
   ): Promise<{
     proof: Groth16Proof;
     publicSignals: PublicSignals;
@@ -207,7 +207,7 @@ export default class CreditNotePool {
         secret,
         // Public inputs
         pubCommitmentHash: commitmentHashAsStr,
-        pubCreditType: zkCreditType,
+        pubCreditType: creditType,
       },
       creditRegisterWasmPath,
       creditRegisterProvingKeyPath
@@ -226,7 +226,7 @@ export default class CreditNotePool {
   private _computeCommitmentHash(
     nullifier: bigint,
     secret: bigint,
-    zkCreditType: bigint
+    creditType: bigint
   ): {
     commitmentHashAsBuff: Buffer;
     commitmentHashAsStr: string;
@@ -235,7 +235,7 @@ export default class CreditNotePool {
     const preimage = Buffer.concat([
       leInt2Buff(nullifier, 31),
       leInt2Buff(secret, 31),
-      leInt2Buff(zkCreditType, 1),
+      leInt2Buff(creditType, 1),
     ]);
 
     const commitmentHash = this.babyJub.unpackPoint(

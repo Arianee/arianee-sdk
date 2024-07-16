@@ -58,7 +58,7 @@ nx build-circom privacy-circuits --circuit=<circuit-file-name> --ptau=<ptau-file
 For example, to build the `ownershipVerifier.circom` circuit, you can run the following command:
 
 ```bash
-nx build-circom privacy-circuits --circuit=ownershipVerifier.circom --ptau=powersOfTau28_hez_final_12.ptau
+nx build-circom privacy-circuits --circuit=ownershipVerifier/ownershipVerifier.circom --ptau=powersOfTau_final_12.ptau
 ```
 
 The previous command will generate the `build` directory in the `privacy-circuits` directory.
