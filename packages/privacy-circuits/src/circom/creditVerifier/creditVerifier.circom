@@ -22,17 +22,12 @@ template CreditVerifier(levels, zeroLeafCommitment) {
     signal input pubNullifierHash;
     signal input pubIntentHash;
 
-    // Ensure that nullifierDerivationIndex is in range 1-1000
+    // Ensure that nullifierDerivationIndex is in range [0, 999]
     // One nullifier can have up to 1000 different nullifierHashes
     // In others words, one CreditNote can be spent up to 1000 times
-    component nulDerIdxGeqt = GreaterEqThan(16);
-    nulDerIdxGeqt.in[0] <== nullifierDerivationIndex;
-    nulDerIdxGeqt.in[1] <== 1;
-    nulDerIdxGeqt.out === 1;
-
     component nulDerIdxLeqt = LessEqThan(16);
     nulDerIdxLeqt.in[0] <== nullifierDerivationIndex;
-    nulDerIdxLeqt.in[1] <== 1000;
+    nulDerIdxLeqt.in[1] <== 999;
     nulDerIdxLeqt.out === 1;
 
     // Ensure that pubCreditType is in range [0, 3]
@@ -42,7 +37,7 @@ template CreditVerifier(levels, zeroLeafCommitment) {
     creTypLeqt.out === 1;
 
     // Output pubNullifierHash and commitment
-    // pubNullifierHash = H(nullifier, nullifierDerivationIndex), where nullifierDerivationIndex is 1-1000, allowing for 1000 different nullifierHashes per nullifier
+    // pubNullifierHash = H(nullifier, nullifierDerivationIndex), where nullifierDerivationIndex is 0-999, allowing for 1000 different nullifierHashes per nullifier
     // commitment = H(nullifier, secret, pubCreditType), where pubCreditType is 0-3, pubCreditType is public
     component commitmentHasher = CommitmentHasher();
     commitmentHasher.nullifier <== nullifier;
