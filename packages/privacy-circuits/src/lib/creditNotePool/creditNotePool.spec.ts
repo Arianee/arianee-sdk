@@ -3,7 +3,7 @@
 import { ProtocolClientV1 } from '@arianee/arianee-protocol-client';
 import { ProtocolDetailsV1 } from '@arianee/common-types';
 import { Core } from '@arianee/core';
-import { Filter } from 'ethers';
+import { Filter, ZeroAddress } from 'ethers';
 
 import { Prover } from '../prover';
 
@@ -154,12 +154,27 @@ describe('creditNotePool', () => {
         },
       ];
 
+      const { intentHashAsStr } = await prover.issuerProxy.computeIntentHash({
+        protocolV1: mockProtocolV1,
+        fragment: 'createEvent',
+        values: [
+          ZeroAddress,
+          123,
+          456,
+          `0x${'00'.repeat(32)}`,
+          'https://example.com',
+          ZeroAddress,
+        ],
+        needsCreditNoteProof: true,
+      });
+
       const proofRes = await prover.creditNotePool.generateProof({
         protocolV1: mockProtocolV1,
         nullifier,
         nullifierDerivationIndex,
         secret,
         creditType,
+        intentHashAsStr,
         performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
       });
       expect(proofRes).toBeDefined();
@@ -175,6 +190,7 @@ describe('creditNotePool', () => {
       expect(proofRes.publicSignals[0]).toBeDefined();
       expect(Number(proofRes.publicSignals[1])).toBe(creditType);
       expect(proofRes.publicSignals[2]).toBe(nullifierHashAsStr);
+      expect(proofRes.publicSignals[3]).toBe(intentHashAsStr);
     });
 
     it('should mark a valid proof as valid', async () => {
@@ -189,6 +205,20 @@ describe('creditNotePool', () => {
         );
       const creditType = 0;
 
+      const { intentHashAsStr } = await prover.issuerProxy.computeIntentHash({
+        protocolV1: mockProtocolV1,
+        fragment: 'createEvent',
+        values: [
+          ZeroAddress,
+          123,
+          456,
+          `0x${'00'.repeat(32)}`,
+          'https://example.com',
+          ZeroAddress,
+        ],
+        needsCreditNoteProof: true,
+      });
+
       const { proof, publicSignals } =
         await prover.creditNotePool.generateProof({
           protocolV1: mockProtocolV1,
@@ -196,6 +226,7 @@ describe('creditNotePool', () => {
           nullifierDerivationIndex,
           secret,
           creditType,
+          intentHashAsStr,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
         });
 
@@ -218,6 +249,20 @@ describe('creditNotePool', () => {
         );
       const creditType = 0;
 
+      const { intentHashAsStr } = await prover.issuerProxy.computeIntentHash({
+        protocolV1: mockProtocolV1,
+        fragment: 'createEvent',
+        values: [
+          ZeroAddress,
+          123,
+          456,
+          `0x${'00'.repeat(32)}`,
+          'https://example.com',
+          ZeroAddress,
+        ],
+        needsCreditNoteProof: true,
+      });
+
       const { proof, publicSignals } =
         await prover.creditNotePool.generateProof({
           protocolV1: mockProtocolV1,
@@ -225,6 +270,7 @@ describe('creditNotePool', () => {
           nullifierDerivationIndex,
           secret,
           creditType,
+          intentHashAsStr,
           performValidation: false, // NOTE: We don't perform any validation here (neither on-chain nor off-chain)
         });
       // Modify the proof

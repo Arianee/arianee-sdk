@@ -20,6 +20,7 @@ template CreditVerifier(levels, zeroLeafCommitment) {
     signal input pubRoot;
     signal input pubCreditType;
     signal input pubNullifierHash;
+    signal input pubIntentHash;
 
     // Ensure that nullifierDerivationIndex is in range 1-1000
     // One nullifier can have up to 1000 different nullifierHashes
@@ -75,9 +76,14 @@ template CreditVerifier(levels, zeroLeafCommitment) {
         tree.pathElements[i] <== pathElements[i];
         tree.pathIndices[i] <== pathIndices[i];
     }
+
+    // Dummy square to prevent tampering pubIntentHashSquared
+    signal pubIntentHashSquared;
+
+    pubIntentHashSquared <== pubIntentHash * pubIntentHash;
 }
 
-component main { public [pubRoot, pubCreditType, pubNullifierHash] } = CreditVerifier(30, 1091521254540046781950077156238538356348959033991108648556163547643491462897);
+component main { public [pubRoot, pubCreditType, pubNullifierHash, pubIntentHash] } = CreditVerifier(30, 1091521254540046781950077156238538356348959033991108648556163547643491462897);
 
 // N = 2^30 = 1 073 741 824
 // C = N * 1000 = 1 073 741 824 000

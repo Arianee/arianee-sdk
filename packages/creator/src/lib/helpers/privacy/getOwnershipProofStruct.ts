@@ -31,6 +31,11 @@ export const getCreditNoteProofStruct = (
       [callData[1][1][0], callData[1][1][1]],
     ],
     _pC: [callData[2][0], callData[2][1]],
-    _pubSignals: [callData[3][0], callData[3][1], callData[3][2]],
+    _pubSignals: [
+      callData[3][0],
+      callData[3][1],
+      callData[3][2],
+      callData[3][3],
+    ],
   };
 };
