@@ -6,6 +6,15 @@ The two main parts of this repository are the following:
 - The circuits that are written in the circom language, they are used to generate the proofs under the hood.
 - A TypeScript library that is a friendly interface to interact with the circuits in order to generate and verify the proofs.
 
+## Security & Audits
+
+In July 2024, a comprehensive audit of the circuits was conducted by [Veridise](https://veridise.com) to ensure the security and integrity of our privacy protocol. The full audit report is available in the repository for detailed insights and findings.
+
+You can access the reports by following the links below:
+
+- [VAR_Arianee_Circuits-Final](https://github.com/Arianee/arianee-sdk/blob/main/packages/privacy-circuits/VAR_Arianee_Circuits-Final.pdf)
+- [VAR_Arianee_Contracts-Final](https://github.com/Arianee/ArianeeMaster/blob/1.5/VAR_Arianee_Contracts-Final.pdf)
+
 ## Installation
 
 You need several dependencies to build the circuits.
