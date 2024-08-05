@@ -26,6 +26,8 @@ export default class WalletApiClient<T extends ChainType>
   private apiURL: string;
   private httpClient: HttpClient;
 
+  private forcedIdentity?: string;
+
   constructor(
     private chainType: T,
     private core: Core,
@@ -34,6 +36,7 @@ export default class WalletApiClient<T extends ChainType>
       httpClient?: HttpClient;
       arianeeAccessToken?: ArianeeAccessToken;
       arianeeAccessTokenPrefix?: string;
+      forcedIdentity?: string;
     },
     fetchLike?: typeof fetch
   ) {
@@ -52,6 +55,8 @@ export default class WalletApiClient<T extends ChainType>
         arianeeAccessToken,
         options?.arianeeAccessTokenPrefix
       );
+
+    this.forcedIdentity = options?.forcedIdentity;
   }
 
   private getAuthorizationType(
@@ -85,6 +90,7 @@ export default class WalletApiClient<T extends ChainType>
       languages: preferredLanguages,
       filterOutBridgedEvents: params?.filterOutBridgedEvents ?? true,
       acceptCachedValue: params?.acceptCachedValue,
+      forcedIdentity: this.forcedIdentity,
     });
 
     try {
@@ -122,6 +128,7 @@ export default class WalletApiClient<T extends ChainType>
 
     const query = generateQueryString({
       languages: preferredLanguages,
+      forcedIdentity: this.forcedIdentity,
     });
 
     try {
@@ -163,6 +170,7 @@ export default class WalletApiClient<T extends ChainType>
 
     const query = generateQueryString({
       languages: preferredLanguages,
+      forcedIdentity: this.forcedIdentity,
     });
 
     try {
@@ -204,6 +212,7 @@ export default class WalletApiClient<T extends ChainType>
 
     const query = generateQueryString({
       languages: preferredLanguages,
+      forcedIdentity: this.forcedIdentity,
     });
 
     try {
@@ -242,6 +251,7 @@ export default class WalletApiClient<T extends ChainType>
       brands: onlyFromBrands,
       languages: preferredLanguages,
       filterOutBridgedEvents: params?.filterOutBridgedEvents ?? true,
+      forcedIdentity: this.forcedIdentity,
     });
 
     try {
@@ -275,6 +285,7 @@ export default class WalletApiClient<T extends ChainType>
 
     const query = generateQueryString({
       languages: preferredLanguages,
+      forcedIdentity: this.forcedIdentity,
     });
 
     try {
@@ -302,6 +313,7 @@ export default class WalletApiClient<T extends ChainType>
 
     const query = generateQueryString({
       languages: preferredLanguages,
+      forcedIdentity: this.forcedIdentity,
     });
 
     try {
