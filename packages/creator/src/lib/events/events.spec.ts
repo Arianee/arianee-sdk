@@ -10,7 +10,10 @@ import * as checkCreateEventParametersModule from '../helpers/event/checkCreateE
 import * as getCreateEventParamsModule from '../helpers/event/getCreateEventParams';
 import * as getIdentityModule from '../helpers/identity/getIdentity';
 import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
+import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
 import { CreditType } from '../types';
+import { getEventIssuerSignatureMsg } from '../helpers/privacy/injectSignature';
+import { ProtocolDetailsV1 } from '@arianee/common-types';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
@@ -20,6 +23,18 @@ describe('Events', () => {
   const core = Core.fromRandom();
   const creatorAddress = `0x${'a'.repeat(40)}`;
   let creator: Creator<'WAIT_TRANSACTION_RECEIPT'>;
+
+  const mockProtocolDetails: Partial<
+    Omit<ProtocolDetailsV1, 'contractAdresses'> & {
+      contractAdresses: { smartAsset: string };
+    }
+  > = {
+    protocolVersion: '1.0',
+    chainId: 77,
+    contractAdresses: {
+      smartAsset: '0x512C1FCF401133680f373a386F3f752b98070BC5',
+    },
+  };
 
   beforeEach(() => {
     creator = new Creator({
@@ -99,7 +114,7 @@ describe('Events', () => {
   });
 
   describe('createEventCommon', () => {
-    it('should call the v1 contract with correct params and return the id and imprint', async () => {
+    it('should call the v1 contract with correct params and return the id, imprint and content', async () => {
       const content = {
         $schema: 'test',
       };
@@ -187,9 +202,9 @@ describe('Events', () => {
       });
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
-      expect(afterTransactionSpy).toHaveBeenCalledWith(123, 456);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(123, 456, content);
     });
-    it('should call the v2 contract with correct params and return the id and imprint', async () => {
+    it('should call the v2 contract with correct params and return the id, imprint and content', async () => {
       const content = {
         $schema: 'test',
       };
@@ -283,7 +298,98 @@ describe('Events', () => {
       });
 
       expect(calculateImprintSpy).toHaveBeenCalledWith(content);
-      expect(afterTransactionSpy).toHaveBeenCalledWith(123, 456);
+      expect(afterTransactionSpy).toHaveBeenCalledWith(123, 456, content);
+    });
+    it('should inject a valid `issuer_signature` in content and return the id, imprint and modified content if privacyMode is enabled', async () => {
+      jest.spyOn(creator, 'privacyMode', 'get').mockReturnValue(true);
+
+      const content = {
+        $schema: 'test',
+      };
+
+      const getCreateEventParamsSpy = jest
+        .spyOn(getCreateEventParamsModule as any, 'getCreateEventParams')
+        .mockResolvedValue({
+          smartAssetId: 123,
+          eventId: 456,
+          content,
+          uri: '',
+        });
+
+      jest
+        .spyOn(
+          checkCreateEventParametersModule as any,
+          'checkCreateEventParameters'
+        )
+        .mockImplementation();
+
+      jest
+        .spyOn(checkCreditsModule, 'checkCreditsBalance')
+        .mockImplementation();
+
+      jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue(
+          '0x0000000000000000000000000000000000000000000000000000000000000111'
+        );
+
+      const afterTransactionSpy = jest.fn();
+
+      jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation(async (_, __, actions) => {
+          await actions.protocolV1Action({
+            arianeeIssuerProxy: {
+              createEvent: jest.fn(),
+            },
+          } as any);
+
+          return null as any;
+        });
+
+      jest
+        .spyOn(creator, 'connectedProtocolClient', 'get')
+        .mockReturnValue({ protocolDetails: mockProtocolDetails } as any);
+
+      jest.spyOn(creator, 'prover', 'get').mockReturnValue({
+        issuerProxy: {
+          computeIntentHash: jest
+            .fn()
+            .mockResolvedValue({ intentHashAsStr: 'mock' }),
+          generateProof: jest.fn().mockResolvedValue({ callData: 'mock' }),
+        },
+      } as any);
+
+      jest
+        .spyOn(getOwnershipProofStructModule, 'getOwnershipProofStruct')
+        .mockImplementation();
+
+      await creator.events['createEventCommon'](
+        {
+          content,
+          smartAssetId: 123,
+          eventId: 456,
+        },
+        afterTransactionSpy
+      );
+
+      expect(getCreateEventParamsSpy).toHaveBeenCalledWith(creator['utils'], {
+        content,
+        smartAssetId: 123,
+        eventId: 456,
+      });
+
+      const expectedIssuerSignature = await core.signMessage(
+        getEventIssuerSignatureMsg(
+          mockProtocolDetails as ProtocolDetailsV1,
+          456
+        )
+      );
+
+      expect(afterTransactionSpy).toHaveBeenCalledWith(123, 456, {
+        ...content,
+        issuer_signature: expectedIssuerSignature.signature,
+      });
     });
   });
 

@@ -38,6 +38,7 @@ import {
   LinkObject,
   TokenAccess,
 } from '../types';
+import { injectProductIssuerSignature } from '../helpers/privacy/injectSignature';
 
 export default class SmartAssets<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -264,8 +265,8 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
 
     return this.createSmartAssetCommon(
       params,
-      async (smartAssetId) => {
-        await this.storeSmartAsset(smartAssetId, params.content);
+      async (smartAssetId, content) => {
+        await this.storeSmartAsset(smartAssetId, content);
       },
       overrides
     );
@@ -295,6 +296,15 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
           expectedIssuer: this.creator.core.getAddress(),
         },
         this.creator.utils
+      );
+    }
+
+    if (this.creator.privacyMode && !content.issuer_signature) {
+      content = await injectProductIssuerSignature(
+        this.creator.core,
+        this.creator.connectedProtocolClient!.protocolDetails,
+        parseInt(smartAssetId),
+        content
       );
     }
 
@@ -371,6 +381,15 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     content: SmartAsset['content'],
     overrides: NonPayableOverrides = {}
   ) {
+    if (this.creator.privacyMode && !content.issuer_signature) {
+      content = await injectProductIssuerSignature(
+        this.creator.core,
+        this.creator.connectedProtocolClient!.protocolDetails,
+        parseInt(smartAssetId),
+        content
+      );
+    }
+
     const { imprint } = await this.updateSmartAsset(
       smartAssetId,
       content,
@@ -528,7 +547,8 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       | ((
           smartAssetId: NonNullable<
             CreateSmartAssetCommonParameters['smartAssetId']
-          >
+          >,
+          content: CreateAndStoreSmartAssetParameters['content']
         ) => Promise<void>)
       | null,
     overrides: NonPayableOverrides = {}
@@ -551,7 +571,17 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       });
     }
 
-    const imprint = await this.creator.utils.calculateImprint(params.content);
+    let content = params.content;
+    if (this.creator.privacyMode) {
+      content = await injectProductIssuerSignature(
+        this.creator.core,
+        this.creator.connectedProtocolClient!.protocolDetails,
+        smartAssetId,
+        params.content
+      );
+    }
+
+    const imprint = await this.creator.utils.calculateImprint(content);
 
     await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
@@ -669,7 +699,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       this.creator.connectOptions
     );
 
-    if (afterTransaction) await afterTransaction(smartAssetId);
+    if (afterTransaction) await afterTransaction(smartAssetId, content);
 
     return this.createLinkObject(smartAssetId, passphrase);
   }

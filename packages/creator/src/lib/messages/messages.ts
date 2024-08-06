@@ -20,6 +20,7 @@ import {
   CreateMessageParameters,
   CreditType,
 } from '../types';
+import { injectMessageIssuerSignature } from '../helpers/privacy/injectSignature';
 
 export default class Messages<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -33,8 +34,8 @@ export default class Messages<Strategy extends TransactionStrategy> {
 
     return this.createMessageCommon(
       params,
-      async (messageId) => {
-        await this.storeMessage(messageId, params.content);
+      async (messageId, content) => {
+        await this.storeMessage(messageId, content);
       },
       overrides
     );
@@ -73,7 +74,8 @@ export default class Messages<Strategy extends TransactionStrategy> {
     params: CreateMessageCommonParameters,
     afterTransaction:
       | ((
-          messageId: NonNullable<CreateMessageCommonParameters['messageId']>
+          messageId: NonNullable<CreateMessageCommonParameters['messageId']>,
+          content: CreateAndStoreMessageParameters['content']
         ) => Promise<void>)
       | null,
 
@@ -84,6 +86,16 @@ export default class Messages<Strategy extends TransactionStrategy> {
       params
     );
 
+    let content = params.content;
+    if (this.creator.privacyMode) {
+      content = await injectMessageIssuerSignature(
+        this.creator.core,
+        this.creator.connectedProtocolClient!.protocolDetails,
+        messageId,
+        params.content
+      );
+    }
+
     await checkCreateMessageParameters(this.creator, {
       ...params,
       smartAssetId,
@@ -91,7 +103,7 @@ export default class Messages<Strategy extends TransactionStrategy> {
       uri,
     });
 
-    const imprint = await this.creator.utils.calculateImprint(params.content);
+    const imprint = await this.creator.utils.calculateImprint(content);
 
     await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
@@ -168,7 +180,7 @@ export default class Messages<Strategy extends TransactionStrategy> {
       this.creator.connectOptions
     );
 
-    if (afterTransaction) await afterTransaction(messageId);
+    if (afterTransaction) await afterTransaction(messageId, content);
 
     return {
       id: messageId,
