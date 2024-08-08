@@ -42,6 +42,12 @@ export type WalletParams<T extends ChainType, S extends TransactionStrategy> = {
   walletRewards?: WalletRewards;
   storage?: Storage;
   transactionStrategy?: S;
+  /**
+   * This parameter is used in a "Full Privacy" context.
+   * It allows to force the issuer identity (of all the wallet owned smart assets) to a specific address.
+   * If the wallet owns smart assets from different issuers, the ones that was not issued by the forcedIdentity will not be available.
+   */
+  forcedIdentity?: string;
 };
 
 export default class Wallet<
@@ -112,6 +118,7 @@ export default class Wallet<
         {
           arianeeAccessToken: this.arianeeAccessToken,
           arianeeAccessTokenPrefix: this.arianeeAccessTokenPrefix,
+          forcedIdentity: params?.forcedIdentity,
         },
         this.fetchLike
       );

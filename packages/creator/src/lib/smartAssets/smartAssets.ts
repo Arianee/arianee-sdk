@@ -542,10 +542,14 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       uri,
     } = await getCreateSmartAssetParams(this.creator.utils, params);
 
-    await checkCreateSmartAssetParameters(this.creator.utils, {
-      ...params,
-      smartAssetId,
-    });
+    // INFO: If privacy mode is enabled, we don't need to check the issuer (because the issuer of the token is the ArianeeIssuerProxy contract)
+    // To improve this, we could instead only check if the imprint is empty instead of skipping the entire check (but it's not a big deal)
+    if (!this.creator.privacyMode) {
+      await checkCreateSmartAssetParameters(this.creator.utils, {
+        ...params,
+        smartAssetId,
+      });
+    }
 
     const imprint = await this.creator.utils.calculateImprint(params.content);
 
