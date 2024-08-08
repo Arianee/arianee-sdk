@@ -1,3 +1,4 @@
+import { ArianeeApiClient } from '@arianee/arianee-api-client';
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import {
   callWrapper,
@@ -5,7 +6,11 @@ import {
 } from '@arianee/arianee-protocol-client';
 import { ArianeeEventI18N } from '@arianee/common-types';
 import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
-import { ethers } from 'ethers';
+import {
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+  ethers,
+} from 'ethers';
 
 import Creator, { TransactionStrategy } from '../creator';
 import { requiresConnection } from '../decorators/requiresConnection';
@@ -25,6 +30,7 @@ import {
   CreatedEvent,
   CreateEventCommonParameters,
   CreateEventParameters,
+  CreateEventParametersBase,
   CreditType,
 } from '../types';
 
@@ -133,6 +139,90 @@ export default class Events<Strategy extends TransactionStrategy> {
       },
       null,
       overrides
+    );
+  }
+
+  private isEventAccepted = async (
+    eventId: CreateEventParametersBase['eventId']
+  ) => {
+    const arianeeApiClient = new ArianeeApiClient();
+    const event = await arianeeApiClient.network.getArianeeEvent(
+      'testnet',
+      eventId!.toString()
+    );
+    return event.accepted;
+  };
+
+  @requiresConnection()
+  public async destroyEvent(
+    eventId: CreateEventParametersBase['eventId'],
+    overrides: NonPayableOverrides = {}
+  ): Promise<ContractTransactionReceipt | ContractTransactionResponse> {
+    if (!eventId) {
+      throw new Error('eventId is required');
+    }
+    const isEventAccepted = await this.isEventAccepted(eventId);
+
+    return this.creator.transactionWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (v1) => {
+          if (!isEventAccepted) {
+            return v1.eventContract.refuse(
+              eventId,
+              this.creator.creatorAddress,
+              overrides
+            );
+          } else {
+            return v1.eventContract.destroy(eventId, overrides);
+          }
+        },
+        protocolV2Action: async (protocolV2) => {
+          if (!isEventAccepted) {
+            return protocolV2.eventHubContract.refuseEvent(
+              protocolV2.protocolDetails.contractAdresses.nft,
+              eventId
+            );
+          } else {
+            return protocolV2.eventHubContract.destroyEvent(
+              protocolV2.protocolDetails.contractAdresses.nft,
+              eventId
+            );
+          }
+        },
+      }
+    );
+  }
+
+  @requiresConnection()
+  public async acceptEvent(
+    eventId: CreateEventParametersBase['eventId'],
+    overrides: NonPayableOverrides = {}
+  ): Promise<ContractTransactionReceipt | ContractTransactionResponse> {
+    if (!eventId) {
+      throw new Error('eventId is required');
+    }
+
+    return this.creator.transactionWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (v1) => {
+          return v1.eventContract.accept(
+            eventId,
+            this.creator.creatorAddress,
+            overrides
+          );
+        },
+        protocolV2Action: async (protocolV2) => {
+          return protocolV2.eventHubContract.acceptEvent(
+            protocolV2.protocolDetails.contractAdresses.nft,
+            eventId,
+            this.creator.creatorAddress
+          );
+        },
+      }
     );
   }
 
