@@ -768,7 +768,7 @@ describe('SmartAssets', () => {
 
       const updateSmartAssetSpy = jest.fn();
 
-      const transactionWrapperSpy = jest
+      jest
         .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
         .mockImplementation(async (_, __, actions) => {
           await actions.protocolV1Action({
@@ -814,9 +814,26 @@ describe('SmartAssets', () => {
         $schema: 'mock',
       };
 
-      const updateSmartAssetSpy = jest
-        .spyOn(creator.smartAssets, 'updateSmartAsset')
-        .mockImplementation(async () => ({ imprint: 'mockImprint' }));
+      const updateSmartAssetSpy = jest.spyOn(
+        creator.smartAssets,
+        'updateSmartAsset'
+      );
+
+      jest
+        .spyOn(getCreatorIdentityModule, 'getCreatorIdentity')
+        .mockImplementation();
+
+      jest
+        .spyOn(creator.utils, 'calculateImprint')
+        .mockResolvedValue('mockImprint');
+
+      jest
+        .spyOn(assertSmartAssetIssuedByModule, 'assertSmartAssetIssuedBy')
+        .mockImplementation();
+
+      jest
+        .spyOn(arianeeProtocolClientModule, 'transactionWrapper')
+        .mockImplementation();
 
       const updateSmartAssetContentSpy = jest
         .spyOn(creator.smartAssets as any, 'updateSmartAssetContent')
@@ -828,7 +845,12 @@ describe('SmartAssets', () => {
       );
 
       expect(updateSmartAssetContentSpy).toHaveBeenCalledWith(123, content);
-      expect(updateSmartAssetSpy).toHaveBeenCalledWith('123', content, {});
+      expect(updateSmartAssetSpy).toHaveBeenCalledWith(
+        '123',
+        content,
+        {},
+        expect.any(Function)
+      );
       expect(imprint).toEqual('mockImprint');
     });
   });

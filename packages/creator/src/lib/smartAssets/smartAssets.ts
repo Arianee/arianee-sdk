@@ -284,13 +284,13 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
   public async updateSmartAsset(
     smartAssetId: SmartAsset['certificateId'],
     content: SmartAsset['content'],
-    afterTransaction:
+    overrides: NonPayableOverrides = {},
+    afterTransaction?:
       | ((
           smartAssetId: NonNullable<SmartAsset['certificateId']>,
           content: SmartAsset['content']
         ) => Promise<void>)
-      | null,
-    overrides: NonPayableOverrides = {}
+      | null
   ): Promise<{ imprint: string }> {
     await getCreatorIdentity(this.creator); // assert has identity
 
@@ -392,10 +392,10 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     const { imprint } = await this.updateSmartAsset(
       smartAssetId,
       content,
+      overrides,
       async (smartAssetId, content) => {
         await this.updateSmartAssetContent(parseInt(smartAssetId), content);
-      },
-      overrides
+      }
     );
 
     return { imprint };
