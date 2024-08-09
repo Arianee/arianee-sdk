@@ -33,6 +33,7 @@ import {
   CreateEventParametersBase,
   CreditType,
 } from '../types';
+import { injectEventIssuerSignature } from '../helpers/privacy/injectSignature';
 
 export default class Events<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -44,11 +45,11 @@ export default class Events<Strategy extends TransactionStrategy> {
   ): Promise<CreatedEvent> {
     return this.createEventCommon(
       params,
-      async (smartAssetId, eventId) => {
+      async (smartAssetId, eventId, content) => {
         await this.storeEvent(
           smartAssetId,
           eventId,
-          params.content,
+          content,
           params.useSmartAssetIssuerPrivacyGateway
         );
       },
@@ -242,7 +243,8 @@ export default class Events<Strategy extends TransactionStrategy> {
           smartAssetId: NonNullable<
             CreateEventCommonParameters['smartAssetId']
           >,
-          eventId: NonNullable<CreateEventCommonParameters['eventId']>
+          eventId: NonNullable<CreateEventCommonParameters['eventId']>,
+          content: CreateAndStoreEventParameters['content']
         ) => Promise<void>)
       | null,
 
@@ -253,6 +255,16 @@ export default class Events<Strategy extends TransactionStrategy> {
       params
     );
 
+    let content = params.content;
+    if (this.creator.privacyMode) {
+      content = await injectEventIssuerSignature(
+        this.creator.core,
+        this.creator.connectedProtocolClient!.protocolDetails,
+        eventId,
+        params.content
+      );
+    }
+
     await checkCreateEventParameters(this.creator, {
       ...params,
       smartAssetId,
@@ -260,7 +272,7 @@ export default class Events<Strategy extends TransactionStrategy> {
       uri,
     });
 
-    const imprint = await this.creator.utils.calculateImprint(params.content);
+    const imprint = await this.creator.utils.calculateImprint(content);
 
     await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
@@ -341,7 +353,8 @@ export default class Events<Strategy extends TransactionStrategy> {
       this.creator.connectOptions
     );
 
-    if (afterTransaction) await afterTransaction(smartAssetId, eventId);
+    if (afterTransaction)
+      await afterTransaction(smartAssetId, eventId, content);
 
     return {
       id: eventId,

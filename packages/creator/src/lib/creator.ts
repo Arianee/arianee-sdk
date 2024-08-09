@@ -45,8 +45,8 @@ export default class Creator<Strategy extends TransactionStrategy> {
 
   public readonly arianeeProtocolClient: ArianeeProtocolClient;
 
-  public readonly privacyMode: boolean;
-  public readonly prover: Prover | null = null;
+  public readonly _privacyMode: boolean;
+  public readonly _prover: Prover | null = null;
 
   private _slug: string | null = null;
   private _connectedProtocolClient: ProtocolClientV1 | ProtocolClientV2 | null =
@@ -76,6 +76,14 @@ export default class Creator<Strategy extends TransactionStrategy> {
     return this._connectOptions;
   }
 
+  public get privacyMode(): boolean {
+    return this._privacyMode;
+  }
+
+  public get prover(): Prover | null {
+    return this._prover;
+  }
+
   public readonly utils: Utils<Strategy>;
   public readonly smartAssets: SmartAssets<Strategy>;
   public readonly messages: Messages<Strategy>;
@@ -90,10 +98,10 @@ export default class Creator<Strategy extends TransactionStrategy> {
     this.core = core;
     this.creatorAddress = creatorAddress;
 
-    this.privacyMode = privacyMode ?? false;
+    this._privacyMode = privacyMode ?? false;
     if (this.privacyMode) {
       // We don't use the "ArianeeCreditNotePool" yet
-      this.prover = new Prover({
+      this._prover = new Prover({
         core,
         circuitsBuildPath: circuitsBuildPath ?? '', // Will throw an error if empty
         useCreditNotePool: false,
