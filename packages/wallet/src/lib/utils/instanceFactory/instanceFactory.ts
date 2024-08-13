@@ -1,10 +1,17 @@
 import { ChainType } from '@arianee/common-types';
-import { calculateImprint } from '@arianee/utils';
+import {
+  calculateImprint,
+  getIssuerSigTemplate__Event,
+  getIssuerSigTemplate__Message,
+  getIssuerSigTemplate__SmartAsset,
+} from '@arianee/utils';
 
 import MessageInstance from '../../services/message/instances/messageInstance';
 import ArianeeEventInstance from '../../services/smartAsset/instances/arianeeEventInstance';
 import SmartAssetInstance from '../../services/smartAsset/instances/smartAssetInstance';
 import { TransactionStrategy } from '../../wallet';
+import { ZeroAddress, verifyMessage } from 'ethers';
+import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 
 type SupportedClass<T extends ChainType, S extends TransactionStrategy> =
   | typeof SmartAssetInstance<T, S>
@@ -23,10 +30,77 @@ export const instanceFactory = async <
 >(
   supportedClass: I,
   params: ConstructorParameters<I>,
-  fetchLike: typeof fetch
+  fetchLike: typeof fetch,
+  protocolClient: ArianeeProtocolClient
 ): Promise<InstanceType<I>> => {
   const instance = new (supportedClass as any)(...params);
 
+  // override instance issuer (or sender) if signature is present in the content
+  if (
+    instance instanceof ArianeeEventInstance &&
+    instance.rawContent.issuer_signature
+  ) {
+    try {
+      const protocolName = instance.protocol.name;
+      const { protocolDetails } = await protocolClient.connect(protocolName);
+      const message = getIssuerSigTemplate__Event(
+        protocolDetails,
+        parseInt(instance.id)
+      );
+      const sig = instance.rawContent.issuer_signature;
+      const issuerAddress = verifyMessage(message, sig);
+
+      Object.assign(instance, {
+        sender: issuerAddress,
+      });
+    } catch (e) {
+      console.error('Error while recovering issuer address from signature', e);
+      Object.assign(instance, {
+        sender: ZeroAddress,
+      });
+    }
+  } else if (
+    (instance instanceof SmartAssetInstance ||
+      instance instanceof MessageInstance) &&
+    instance.data.rawContent.issuer_signature
+  ) {
+    try {
+      const protocolName = instance.data.protocol.name;
+      console.log('protocolClient', protocolClient);
+      const { protocolDetails } = await protocolClient.connect(protocolName);
+      console.log('Protocol details', protocolDetails);
+
+      let message: string;
+      if (instance instanceof SmartAssetInstance) {
+        message = getIssuerSigTemplate__SmartAsset(
+          protocolDetails,
+          parseInt(instance.data.certificateId)
+        );
+      } else {
+        message = getIssuerSigTemplate__Message(
+          protocolDetails,
+          parseInt(instance.data.id)
+        );
+      }
+      const sig = instance.data.rawContent.issuer_signature;
+      const issuerAddress = verifyMessage(message, sig);
+
+      if (instance instanceof SmartAssetInstance) {
+        instance.data.issuer = issuerAddress;
+      } else {
+        instance.data.sender = issuerAddress;
+      }
+    } catch (e) {
+      console.error('Error while recovering issuer address from signature', e);
+      if (instance instanceof SmartAssetInstance) {
+        instance.data.issuer = ZeroAddress;
+      } else {
+        instance.data.sender = ZeroAddress;
+      }
+    }
+  }
+
+  // assert that the imprint is correct
   if (instance instanceof ArianeeEventInstance) {
     try {
       const calculatedImprint = await calculateImprint(

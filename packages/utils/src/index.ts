@@ -12,3 +12,4 @@ export * from './lib/passphrase/randomPassphrase';
 export * from './lib/slug/slug';
 export * from './lib/storage/memoryStorage';
 export * from './lib/tx/tx';
+export * from './lib/privacy/getIssuerSigTemplate';

@@ -129,7 +129,8 @@ export default class SmartAssetService<
         instanceFactory<T, S, typeof ArianeeEventInstance<T, S>>(
           ArianeeEventInstance,
           [this, this.isOwnerOf(_smartAsset), event],
-          this.wallet.fetchLike
+          this.wallet.fetchLike,
+          this.arianeeProtocolClient
         )
       )
     );
@@ -146,7 +147,8 @@ export default class SmartAssetService<
           passphrase: smartAsset.passphrase,
         },
       ],
-      this.wallet.fetchLike
+      this.wallet.fetchLike,
+      this.arianeeProtocolClient
     );
   }
 
@@ -176,7 +178,8 @@ export default class SmartAssetService<
         instanceFactory<T, S, typeof ArianeeEventInstance<T, S>>(
           ArianeeEventInstance,
           [this, this.isOwnerOf(_smartAsset), event],
-          this.wallet.fetchLike
+          this.wallet.fetchLike,
+          this.arianeeProtocolClient
         )
       )
     );
@@ -190,7 +193,8 @@ export default class SmartAssetService<
           arianeeEvents: arianeeEventInstances,
         },
       ],
-      this.wallet.fetchLike
+      this.wallet.fetchLike,
+      this.arianeeProtocolClient
     );
   }
 
@@ -236,7 +240,8 @@ export default class SmartAssetService<
             instanceFactory<T, S, typeof ArianeeEventInstance<T, S>>(
               ArianeeEventInstance,
               [this, this.isOwnerOf(smartAsset), event],
-              this.wallet.fetchLike
+              this.wallet.fetchLike,
+              this.arianeeProtocolClient
             )
           )
         );
@@ -250,7 +255,8 @@ export default class SmartAssetService<
               arianeeEvents: arianeeEventInstances,
             },
           ],
-          this.wallet.fetchLike
+          this.wallet.fetchLike,
+          this.arianeeProtocolClient
         );
       })
     );

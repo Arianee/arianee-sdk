@@ -12,7 +12,7 @@ import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
 import { CreditType } from '../types';
 import { ProtocolDetailsV1 } from '@arianee/common-types';
-import { getMessageIssuerSignatureMsg } from '../helpers/privacy/injectSignature';
+import { getIssuerSigTemplate__Message } from '@arianee/utils';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
@@ -376,7 +376,7 @@ describe('Messages', () => {
       });
 
       const expectedIssuerSignature = await core.signMessage(
-        getMessageIssuerSignatureMsg(
+        getIssuerSigTemplate__Message(
           mockProtocolDetails as ProtocolDetailsV1,
           456
         )

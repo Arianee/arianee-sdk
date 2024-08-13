@@ -20,7 +20,7 @@ import {
   CreateMessageParameters,
   CreditType,
 } from '../types';
-import { injectMessageIssuerSignature } from '../helpers/privacy/injectSignature';
+import { injectIssuerSig__Message } from '../helpers/privacy/injectIssuerSig';
 
 export default class Messages<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -88,7 +88,7 @@ export default class Messages<Strategy extends TransactionStrategy> {
 
     let content = params.content;
     if (this.creator.privacyMode) {
-      content = await injectMessageIssuerSignature(
+      content = await injectIssuerSig__Message(
         this.creator.core,
         this.creator.connectedProtocolClient!.protocolDetails,
         messageId,

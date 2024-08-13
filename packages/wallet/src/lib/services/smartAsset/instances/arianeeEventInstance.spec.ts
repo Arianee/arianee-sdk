@@ -2,6 +2,9 @@ import { Event } from '@arianee/common-types';
 
 import SmartAssetService from '../smartAsset';
 import ArianeeEventInstance from './arianeeEventInstance';
+import Core from '@arianee/core';
+import { getIssuerSigTemplate__Event } from '@arianee/utils';
+import { instanceFactory } from '../../../utils/instanceFactory/instanceFactory';
 jest.mock('../smartAsset');
 
 describe('ArianeeEventInstance', () => {
@@ -36,6 +39,54 @@ describe('ArianeeEventInstance', () => {
       await expect(instance.refuseEvent()).rejects.toThrow(
         /User needs to be owner/gi
       );
+    });
+  });
+
+  describe('instanceFactory', () => {
+    it('should override eventInstance.sender if a signature is present', async () => {
+      const mockProtocolDetails: any = {
+        chainId: 666,
+        contractAdresses: {
+          smartAsset:
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
+        },
+      };
+
+      const core = Core.fromRandom();
+      const { signature: issuerSig } = await core.signMessage(
+        getIssuerSigTemplate__Event(mockProtocolDetails, 456)
+      );
+
+      const mockEvent: Partial<Event> = {
+        certificateId: '123',
+        id: '456',
+        sender: 'mockSender',
+        imprint: 'mockImprint',
+        rawContent: {
+          $schema: 'mockSchema',
+          issuer_signature: issuerSig,
+        },
+        protocol: {
+          chainId: 666,
+          name: 'mockProtocolName',
+        },
+      };
+
+      const mockProtocolClient = {
+        connect: jest.fn().mockResolvedValue({
+          protocolDetails: mockProtocolDetails,
+        }),
+      };
+
+      const eventInstance = await instanceFactory(
+        ArianeeEventInstance,
+        [smartAssetService, false, mockEvent as any],
+        {} as any,
+        mockProtocolClient as any
+      );
+
+      expect(eventInstance.rawContent.issuer_signature).toBe(issuerSig);
+      expect(eventInstance.sender).toBe(core.getAddress());
     });
   });
 });
