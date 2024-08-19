@@ -33,7 +33,7 @@ import {
   CreateEventParametersBase,
   CreditType,
 } from '../types';
-import { injectEventIssuerSignature } from '../helpers/privacy/injectSignature';
+import { injectIssuerSig__Event } from '../helpers/privacy/injectIssuerSig';
 
 export default class Events<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -257,7 +257,7 @@ export default class Events<Strategy extends TransactionStrategy> {
 
     let content = params.content;
     if (this.creator.privacyMode) {
-      content = await injectEventIssuerSignature(
+      content = await injectIssuerSig__Event(
         this.creator.core,
         this.creator.connectedProtocolClient!.protocolDetails,
         eventId,

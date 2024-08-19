@@ -87,7 +87,8 @@ export default class MessageService<
     return instanceFactory<T, S, typeof MessageInstance<T, S>>(
       MessageInstance,
       [this, message],
-      this.wallet.fetchLike
+      this.wallet.fetchLike,
+      this.arianeeProtocolClient
     );
   }
 
@@ -113,7 +114,8 @@ export default class MessageService<
         instanceFactory<T, S, typeof MessageInstance<T, S>>(
           MessageInstance,
           [this, message],
-          this.wallet.fetchLike
+          this.wallet.fetchLike,
+          this.arianeeProtocolClient
         )
       )
     );

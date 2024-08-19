@@ -13,7 +13,8 @@ import * as getCreateSmartAssetParamsModule from '../helpers/smartAsset/getCreat
 import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
 import { CreditType } from '../types';
-import { getProductIssuerSignatureMsg } from '../helpers/privacy/injectSignature';
+import { getIssuerSigTemplate__SmartAsset } from '@arianee/utils';
+
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
 jest.spyOn(console, 'error').mockImplementation();
@@ -628,7 +629,7 @@ describe('SmartAssets', () => {
       });
 
       const expectedIssuerSignature = await core.signMessage(
-        getProductIssuerSignatureMsg(
+        getIssuerSigTemplate__SmartAsset(
           mockProtocolDetails as ProtocolDetailsV1,
           123
         )

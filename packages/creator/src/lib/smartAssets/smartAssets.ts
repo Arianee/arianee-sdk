@@ -38,7 +38,7 @@ import {
   LinkObject,
   TokenAccess,
 } from '../types';
-import { injectProductIssuerSignature } from '../helpers/privacy/injectSignature';
+import { injectIssuerSig__SmartAsset } from '../helpers/privacy/injectIssuerSig';
 
 export default class SmartAssets<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -306,7 +306,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     }
 
     if (this.creator.privacyMode && !content.issuer_signature) {
-      content = await injectProductIssuerSignature(
+      content = await injectIssuerSig__SmartAsset(
         this.creator.core,
         this.creator.connectedProtocolClient!.protocolDetails,
         parseInt(smartAssetId),
@@ -574,7 +574,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
 
     let content = params.content;
     if (this.creator.privacyMode) {
-      content = await injectProductIssuerSignature(
+      content = await injectIssuerSig__SmartAsset(
         this.creator.core,
         this.creator.connectedProtocolClient!.protocolDetails,
         smartAssetId,

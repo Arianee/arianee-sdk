@@ -5,6 +5,10 @@ import WalletApiClient from '@arianee/wallet-api-client';
 import Wallet from '../../wallet';
 import EventManager from '../eventManager/eventManager';
 import MessageService from './message';
+import { getIssuerSigTemplate__Message } from '@arianee/utils';
+import { DecentralizedMessage } from '@arianee/common-types';
+import { instanceFactory } from '../../utils/instanceFactory/instanceFactory';
+import MessageInstance from './instances/messageInstance';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');
@@ -448,6 +452,54 @@ describe('MessageService', () => {
 
         expect(isBlacklisted).toBeTruthy();
       });
+    });
+  });
+
+  describe('instanceFactory', () => {
+    it('should override messageInstance.data.sender if a signature is present', async () => {
+      const mockProtocolDetails: any = {
+        chainId: 666,
+        contractAdresses: {
+          smartAsset:
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
+        },
+      };
+
+      const core = Core.fromRandom();
+      const { signature: issuerSig } = await core.signMessage(
+        getIssuerSigTemplate__Message(mockProtocolDetails, 456)
+      );
+
+      const mockMessage: Partial<DecentralizedMessage> = {
+        certificateId: '123',
+        id: '456',
+        sender: 'mockSender',
+        imprint: 'mockImprint',
+        rawContent: {
+          $schema: 'mockSchema',
+          issuer_signature: issuerSig,
+        },
+        protocol: {
+          chainId: 666,
+          name: 'mockProtocolName',
+        },
+      };
+
+      const mockProtocolClient = {
+        connect: jest.fn().mockResolvedValue({
+          protocolDetails: mockProtocolDetails,
+        }),
+      };
+
+      const messageInstance = await instanceFactory(
+        MessageInstance,
+        [messageService, mockMessage as any],
+        {} as any,
+        mockProtocolClient as any
+      );
+
+      expect(messageInstance.data.rawContent.issuer_signature).toBe(issuerSig);
+      expect(messageInstance.data.sender).toBe(core.getAddress());
     });
   });
 });
