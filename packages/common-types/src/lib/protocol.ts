@@ -13,6 +13,7 @@ export enum ProtocolName {
   tezostestnet = 'tezostestnet',
   richemontsupernet = 'richemontsupernet',
   supernettestnet = 'supernettestnet',
+  etherlinktestnet = 'etherlinktestnet',
 }
 
 export type Protocol = { name: string; chainId: number };
