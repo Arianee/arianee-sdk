@@ -648,6 +648,26 @@ The method can throw:
 - `InsufficientEventCreditsError` if the core address does not have enough event credits
 - `UnavailableEventIdError` if the event id is not available
 
+#### `storeEvent`
+
+_⚠️ Requires the core address to have an identity URI if not using true for `useSmartAssetIssuerPrivacyGateway`_.
+
+Store content of the event in the Arianee Privacy Gateway set in the smart issuer's identity (or the core address's identity if `useSmartAssetIssuerPrivacyGateway` set to false).
+
+```typescript
+public async storeEvent(
+  smartAssetId: number,
+  eventId: number,
+  content: CreateAndStoreEventParameters['content'],
+  useSmartAssetIssuerPrivacyGateway = true
+)
+```
+
+The method can throw:
+
+- `NoIdentityError` if the core or issuer address does not have an identity URI
+- `ArianeePrivacyGatewayError` if an error occurred while interacting with the Arianee privacy gateway
+
 ### <u>Identities</u>
 
 #### `updateIdentity`

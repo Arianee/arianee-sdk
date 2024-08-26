@@ -24,6 +24,7 @@ import {
   IdentityWithRpcEndpoint,
 } from '../helpers/identity/getIdentity';
 import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
+import { injectIssuerSig__Event } from '../helpers/privacy/injectIssuerSig';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreEventParameters,
@@ -33,7 +34,6 @@ import {
   CreateEventParametersBase,
   CreditType,
 } from '../types';
-import { injectIssuerSig__Event } from '../helpers/privacy/injectIssuerSig';
 
 export default class Events<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -57,8 +57,16 @@ export default class Events<Strategy extends TransactionStrategy> {
     );
   }
 
+  /**
+   * Store an event on the Arianee Privacy Gateway, make sure that Arianee Privacy Gateway is setup in a way
+   * that allows storing content without checking the imprint onchain if you want to store it prior to the event creation
+   * @param smartAssetId id of the smart asset
+   * @param eventId id of the event
+   * @param content content of the event
+   * @param useSmartAssetIssuerPrivacyGateway if true, the privacy gateway of the smart asset's issuer will be used to store the event, otherwise the creator will be used
+   */
   @requiresConnection()
-  private async storeEvent(
+  public async storeEvent(
     smartAssetId: number,
     eventId: number,
     content: CreateAndStoreEventParameters['content'],
