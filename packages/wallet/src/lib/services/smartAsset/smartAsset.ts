@@ -300,7 +300,7 @@ export default class SmartAssetService<
       );
     } catch (e) {
       throw new Error(
-        'Could not retrieve a smart asset from this link: ' + link
+        `Could not retrieve a smart asset from this link: ${link}\nDetails: ${e}`
       );
     }
   }
