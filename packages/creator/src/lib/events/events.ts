@@ -156,7 +156,7 @@ export default class Events<Strategy extends TransactionStrategy> {
   ) => {
     const arianeeApiClient = new ArianeeApiClient();
     const event = await arianeeApiClient.network.getArianeeEvent(
-      'testnet',
+      this.creator.slug!,
       eventId!.toString()
     );
     return event.accepted;

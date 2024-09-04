@@ -2,18 +2,18 @@ import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-cl
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { ProtocolDetailsV1, TokenAccessType } from '@arianee/common-types';
 import Core from '@arianee/core';
+import { getIssuerSigTemplate__SmartAsset } from '@arianee/utils';
 
 import Creator from '../creator';
 import { ArianeePrivacyGatewayError } from '../errors';
 import * as checkCreditsModule from '../helpers/checkCredits/checkCredits';
 import * as getCreatorIdentityModule from '../helpers/identity/getIdentity';
+import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
 import * as assertSmartAssetIssuedByModule from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 import * as checkCreateSmartAssetParametersModule from '../helpers/smartAsset/checkCreateSmartAssetParameters';
 import * as getCreateSmartAssetParamsModule from '../helpers/smartAsset/getCreateSmartAssetParams';
 import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
-import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
 import { CreditType } from '../types';
-import { getIssuerSigTemplate__SmartAsset } from '@arianee/utils';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');

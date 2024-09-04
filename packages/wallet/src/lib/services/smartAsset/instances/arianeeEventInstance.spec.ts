@@ -1,10 +1,10 @@
 import { Event } from '@arianee/common-types';
-
-import SmartAssetService from '../smartAsset';
-import ArianeeEventInstance from './arianeeEventInstance';
 import Core from '@arianee/core';
 import { getIssuerSigTemplate__Event } from '@arianee/utils';
+
 import { instanceFactory } from '../../../utils/instanceFactory/instanceFactory';
+import SmartAssetService from '../smartAsset';
+import ArianeeEventInstance from './arianeeEventInstance';
 jest.mock('../smartAsset');
 
 describe('ArianeeEventInstance', () => {
