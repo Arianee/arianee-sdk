@@ -1,14 +1,10 @@
 import { SmartAsset } from '@arianee/common-types';
+import Core from '@arianee/core';
+import { getIssuerSigTemplate__SmartAsset } from '@arianee/utils';
 
+import { instanceFactory } from '../../../utils/instanceFactory/instanceFactory';
 import SmartAssetService from '../smartAsset';
 import SmartAssetInstance from './smartAssetInstance';
-import { instanceFactory } from '../../../utils/instanceFactory/instanceFactory';
-import Core from '@arianee/core';
-import {
-  getIssuerSigTemplate__Message,
-  getIssuerSigTemplate__SmartAsset,
-} from '@arianee/utils';
-import MessageInstance from '../../message/instances/messageInstance';
 
 jest.mock('../smartAsset');
 

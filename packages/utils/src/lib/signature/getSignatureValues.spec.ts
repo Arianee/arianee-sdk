@@ -1,4 +1,5 @@
-import { Wallet, hashMessage } from 'ethers';
+import { hashMessage, Wallet } from 'ethers';
+
 import { getSignatureValues } from './getSignatureValues';
 
 describe('getSignatureValues', () => {

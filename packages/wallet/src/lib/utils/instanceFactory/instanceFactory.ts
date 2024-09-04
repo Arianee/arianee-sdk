@@ -1,3 +1,4 @@
+import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 import { ChainType } from '@arianee/common-types';
 import {
   calculateImprint,
@@ -5,13 +6,12 @@ import {
   getIssuerSigTemplate__Message,
   getIssuerSigTemplate__SmartAsset,
 } from '@arianee/utils';
+import { verifyMessage, ZeroAddress } from 'ethers';
 
 import MessageInstance from '../../services/message/instances/messageInstance';
 import ArianeeEventInstance from '../../services/smartAsset/instances/arianeeEventInstance';
 import SmartAssetInstance from '../../services/smartAsset/instances/smartAssetInstance';
 import { TransactionStrategy } from '../../wallet';
-import { ZeroAddress, verifyMessage } from 'ethers';
-import ArianeeProtocolClient from '@arianee/arianee-protocol-client';
 
 type SupportedClass<T extends ChainType, S extends TransactionStrategy> =
   | typeof SmartAssetInstance<T, S>

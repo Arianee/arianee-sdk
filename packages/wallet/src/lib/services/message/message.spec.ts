@@ -1,14 +1,14 @@
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import { DecentralizedMessage } from '@arianee/common-types';
 import { Core } from '@arianee/core';
+import { getIssuerSigTemplate__Message } from '@arianee/utils';
 import WalletApiClient from '@arianee/wallet-api-client';
 
+import { instanceFactory } from '../../utils/instanceFactory/instanceFactory';
 import Wallet from '../../wallet';
 import EventManager from '../eventManager/eventManager';
-import MessageService from './message';
-import { getIssuerSigTemplate__Message } from '@arianee/utils';
-import { DecentralizedMessage } from '@arianee/common-types';
-import { instanceFactory } from '../../utils/instanceFactory/instanceFactory';
 import MessageInstance from './instances/messageInstance';
+import MessageService from './message';
 
 jest.mock('@arianee/wallet-api-client');
 jest.mock('../eventManager/eventManager');

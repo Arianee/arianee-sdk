@@ -26,6 +26,7 @@ import { checkCreditsBalance } from '../helpers/checkCredits/checkCredits';
 import { getTokenAccessParams } from '../helpers/getTokenAccessParams/getTokenAccessParams';
 import { getCreatorIdentity } from '../helpers/identity/getIdentity';
 import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
+import { injectIssuerSig__SmartAsset } from '../helpers/privacy/injectIssuerSig';
 import { assertSmartAssetIssuedBy } from '../helpers/smartAsset/assertSmartAssetIssuedBy';
 import { checkCreateSmartAssetParameters } from '../helpers/smartAsset/checkCreateSmartAssetParameters';
 import { getCreateSmartAssetParams } from '../helpers/smartAsset/getCreateSmartAssetParams';
@@ -38,7 +39,6 @@ import {
   LinkObject,
   TokenAccess,
 } from '../types';
-import { injectIssuerSig__SmartAsset } from '../helpers/privacy/injectIssuerSig';
 
 export default class SmartAssets<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}

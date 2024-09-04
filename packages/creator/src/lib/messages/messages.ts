@@ -12,6 +12,7 @@ import { getCreatorIdentity } from '../helpers/identity/getIdentity';
 import { checkCreateMessageParameters } from '../helpers/message/checkCreateMessageParameters';
 import { getCreateMessageParams } from '../helpers/message/getCreateMessageParams';
 import { getOwnershipProofStruct } from '../helpers/privacy/getOwnershipProofStruct';
+import { injectIssuerSig__Message } from '../helpers/privacy/injectIssuerSig';
 import { getContentFromURI } from '../helpers/uri/getContentFromURI';
 import {
   CreateAndStoreMessageParameters,
@@ -20,7 +21,6 @@ import {
   CreateMessageParameters,
   CreditType,
 } from '../types';
-import { injectIssuerSig__Message } from '../helpers/privacy/injectIssuerSig';
 
 export default class Messages<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}

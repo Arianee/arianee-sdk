@@ -1,6 +1,8 @@
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
+import { ProtocolDetailsV1 } from '@arianee/common-types';
 import Core from '@arianee/core';
+import { getIssuerSigTemplate__Message } from '@arianee/utils';
 
 import Creator from '../creator';
 import { ArianeePrivacyGatewayError } from '../errors';
@@ -8,11 +10,9 @@ import * as checkCreditsModule from '../helpers/checkCredits/checkCredits';
 import * as getCreatorIdentityModule from '../helpers/identity/getIdentity';
 import * as checkCreateMessageParametersModule from '../helpers/message/checkCreateMessageParameters';
 import * as getCreateMessageParamsModule from '../helpers/message/getCreateMessageParams';
-import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
+import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import { CreditType } from '../types';
-import { ProtocolDetailsV1 } from '@arianee/common-types';
-import { getIssuerSigTemplate__Message } from '@arianee/utils';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
