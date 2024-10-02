@@ -189,7 +189,7 @@ export default class Messages<Strategy extends TransactionStrategy> {
   }
 
   @requiresConnection()
-  private async storeMessage(
+  public async storeMessage(
     messageId: number,
     content: CreateAndStoreMessageParameters['content']
   ) {

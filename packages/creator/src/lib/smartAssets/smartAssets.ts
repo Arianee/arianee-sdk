@@ -706,7 +706,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
   }
 
   @requiresConnection()
-  private async storeSmartAsset(
+  public async storeSmartAsset(
     smartAssetId: number,
     content: CreateAndStoreSmartAssetParameters['content']
   ) {
