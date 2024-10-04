@@ -59,7 +59,7 @@ jobs:
             git checkout main
             git reset --hard origin/main
             git rebase -X theirs "release/$version"
-            git push origin main --dry-run
+            git push origin main --force
 
 workflows:
   test:
