@@ -4,9 +4,9 @@ orbs:
   node: circleci/node@5.1.0
 
 executors:
-    node-executor:
-        docker:
-        - image: cimg/node:18.16.0
+  node-executor:
+    docker:
+      - image: cimg/node:18.16.0
 
 jobs:
   build:
@@ -40,7 +40,7 @@ jobs:
       - node/install-packages
       - run:
           name: Auth With NPM
-          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+          command: npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
       - run:
           name: Publish on NMP
           command: |
