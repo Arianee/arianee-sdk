@@ -56,13 +56,12 @@ template CreditVerifier(levels, zeroLeafCommitment) {
 
     nullifierHasher.nullifierHash === pubNullifierHash;
 
-    // TODO: Remove this once ready to release
-    log("");
-    log("CommitmentHasher output is", commitmentHasher.commitment);
+    // log("");
+    // log("CommitmentHasher output is", commitmentHasher.commitment);
 
-    log("");
-    log("NullifierHash input is", pubNullifierHash);
-    log("NullifierHasher output is", nullifierHasher.nullifierHash);
+    // log("");
+    // log("NullifierHash input is", pubNullifierHash);
+    // log("NullifierHasher output is", nullifierHasher.nullifierHash);
 
     component tree = MerkleTreeChecker(levels);
     tree.leaf <== commitmentHasher.commitment;

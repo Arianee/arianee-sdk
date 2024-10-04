@@ -30,9 +30,9 @@ template CreditRegister() {
     commitmentHasher.creditType <== pubCreditType;
 
     // TODO: Remove this once ready to release
-    log("");
-    log("CommitmentHash input is", pubCommitmentHash);
-    log("CommitmentHasher output is", commitmentHasher.commitment);
+    // log("");
+    // log("CommitmentHash input is", pubCommitmentHash);
+    // log("CommitmentHasher output is", commitmentHasher.commitment);
 
     commitmentHasher.commitment === pubCommitmentHash;
 }

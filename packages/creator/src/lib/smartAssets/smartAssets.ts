@@ -615,45 +615,8 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
                 smartAssetId
               );
             const isAlreadyReserved = commitmentHash !== BigInt(0);
-
-            // We prepare the parameters for the hydrateToken function
-            const creditNotePool = ethers.ZeroAddress;
-
-            let ownershipProofStruct = null;
-            if (isAlreadyReserved) {
-              // If the token is already reserved, we need a proof of ownership to hydrate it
-
-              const fragment = 'hydrateToken'; // Fragment: hydrateToken(_ownershipProof, _creditNoteProof, _creditNotePool, _commitmentHash,
-              // _tokenId, _imprint, _uri, _encryptedInitialKey, _tokenRecoveryTimestamp, _initialKeyIsRequestKey, _interfaceProvider)
-              const _values = [
-                creditNotePool,
-                commitmentHash,
-                smartAssetId,
-                imprint,
-                uri,
-                publicKey,
-                tokenRecoveryTimestamp,
-                initialKeyIsRequestKey,
-                this.creator.creatorAddress,
-              ];
-
-              const { intentHashAsStr } =
-                await this.creator.prover!.issuerProxy.computeIntentHash({
-                  protocolV1,
-                  fragment,
-                  values: _values,
-                  needsCreditNoteProof: true,
-                });
-
-              const { callData } =
-                await this.creator.prover!.issuerProxy.generateProof({
-                  protocolV1,
-                  tokenId: String(smartAssetId),
-                  intentHashAsStr,
-                });
-              ownershipProofStruct = getOwnershipProofStruct(callData);
-            } else {
-              // If the token is not yet reserved, we need a commitment hash to hydrate it
+            if (!isAlreadyReserved) {
+              // If the token is not yet reserved, we need a new commitment hash to hydrate it
               const { commitmentHashAsStr } =
                 await this.creator.prover!.issuerProxy.computeCommitmentHash({
                   protocolV1,
@@ -662,8 +625,41 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
               commitmentHash = BigInt(commitmentHashAsStr);
             }
 
+            // We prepare the others parameters for the hydrateToken function
+            const creditNotePool = ethers.ZeroAddress;
+
+            const fragment = 'hydrateToken'; // Fragment: hydrateToken(_ownershipProof, _creditNoteProof, _creditNotePool, _commitmentHash,
+            // _tokenId, _imprint, _uri, _encryptedInitialKey, _tokenRecoveryTimestamp, _initialKeyIsRequestKey, _interfaceProvider)
+            const _values = [
+              creditNotePool,
+              commitmentHash,
+              smartAssetId,
+              imprint,
+              uri,
+              publicKey,
+              tokenRecoveryTimestamp,
+              initialKeyIsRequestKey,
+              this.creator.creatorAddress,
+            ];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: true,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: String(smartAssetId),
+                intentHashAsStr,
+              });
+            const ownershipProofStruct = getOwnershipProofStruct(callData);
+
             return protocolV1.arianeeIssuerProxy!.hydrateToken(
-              ownershipProofStruct ?? DEFAULT_OWNERSHIP_PROOF,
+              ownershipProofStruct,
               DEFAULT_CREDIT_PROOF,
               creditNotePool,
               commitmentHash,
