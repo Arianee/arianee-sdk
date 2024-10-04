@@ -66,9 +66,7 @@ export const instanceFactory = async <
   ) {
     try {
       const protocolName = instance.data.protocol.name;
-      console.log('protocolClient', protocolClient);
       const { protocolDetails } = await protocolClient.connect(protocolName);
-      console.log('Protocol details', protocolDetails);
 
       let message: string;
       if (instance instanceof SmartAssetInstance) {

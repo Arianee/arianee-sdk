@@ -297,8 +297,8 @@ export default class CreditNotePool {
     );
 
     const formattedLogs = parsedLogs.map((parsedLog) => ({
-      leafIndex: Number(parsedLog!.args['leafIndex']),
-      commitmentHash: parsedLog!.args['commitmentHash'] as string,
+      leafIndex: Number(parsedLog!.args['_leafIndex']),
+      commitmentHash: parsedLog!.args['_commitmentHash'] as string,
     }));
 
     const leaves = formattedLogs.map((log) => log.commitmentHash);
