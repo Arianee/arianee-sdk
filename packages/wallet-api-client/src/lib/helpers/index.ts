@@ -8,7 +8,10 @@ export const generateQueryString = (
   Object.entries(params).forEach(([key, value]) => {
     if (!value) return;
 
-    searchParams.append(key, JSON.stringify(value));
+    searchParams.append(
+      key,
+      typeof value === 'string' ? value : JSON.stringify(value)
+    );
   });
 
   return searchParams.toString().length > 0
