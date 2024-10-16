@@ -12,5 +12,6 @@ export * from './lib/passphrase/randomPassphrase';
 export * from './lib/privacy/getIssuerSigTemplate';
 export * from './lib/signature/getSignatureValues';
 export * from './lib/slug/slug';
+export * from './lib/specialAddress/specialAddress';
 export * from './lib/storage/memoryStorage';
 export * from './lib/tx/tx';
