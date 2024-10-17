@@ -1,20 +1,15 @@
 import { ArianeeEventI18N } from '@arianee/common-types';
+import { EventParametersBase } from './eventParametersBase';
 
-export type CreateEventParametersBase = {
-  eventId?: number;
-  smartAssetId: number;
-};
-
-export interface CreateAndStoreEventParameters
-  extends CreateEventParametersBase {
+export interface CreateAndStoreEventParameters extends EventParametersBase {
   content: ArianeeEventI18N;
   useSmartAssetIssuerPrivacyGateway?: boolean;
 }
 
-export interface CreateEventParameters extends CreateEventParametersBase {
+export interface CreateEventParameters extends EventParametersBase {
   uri: string;
 }
 
-export interface CreateEventCommonParameters extends CreateEventParametersBase {
+export interface CreateEventCommonParameters extends EventParametersBase {
   content: ArianeeEventI18N;
 }

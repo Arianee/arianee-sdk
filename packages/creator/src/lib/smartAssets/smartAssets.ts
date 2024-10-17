@@ -753,6 +753,125 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
     }
   }
 
+  @requiresConnection()
+  public async safeTransferFrom(
+    smartAssetId: string,
+    to: string,
+    overrides: NonPayableOverrides = {}
+  ) {
+    return this.creator.transactionWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (protocolV1) => {
+          if (!this.creator.privacyMode) {
+            return protocolV1.smartAssetContract[
+              'safeTransferFrom(address,address,uint256)'
+            ](this.creator.core.getAddress(), to, smartAssetId, overrides);
+          } else {
+            // INFO: If privacy mode is enabled, we transfer the token through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'safeTransferFrom'; // Fragment: safeTransferFrom(_ownershipProof, _from, _to, _tokenId, _data)
+            const from = await protocolV1.arianeeIssuerProxy!.getAddress();
+            const data = '0x';
+            const _values = [from, to, smartAssetId, data];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: smartAssetId,
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.safeTransferFrom(
+              getOwnershipProofStruct(callData),
+              from,
+              to,
+              smartAssetId,
+              data,
+              overrides
+            );
+          }
+        },
+        protocolV2Action: async (_protocolV2) => {
+          throw new Error('not yet implemented');
+        },
+      },
+      this.creator.connectOptions
+    ) as Promise<
+      Strategy extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
+  }
+
+  @requiresConnection()
+  public async transfer(
+    smartAssetId: string,
+    to: string,
+    overrides: NonPayableOverrides = {}
+  ) {
+    return this.creator.transactionWrapper(
+      this.creator.arianeeProtocolClient,
+      this.creator.slug!,
+      {
+        protocolV1Action: async (protocolV1) => {
+          if (!this.creator.privacyMode) {
+            return protocolV1.smartAssetContract.transferFrom(
+              this.creator.core.getAddress(),
+              to,
+              smartAssetId,
+              overrides
+            );
+          } else {
+            // INFO: If privacy mode is enabled, we transfer the token through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'transferFrom'; // Fragment: transferFrom(_ownershipProof, _from, _to, _tokenId)
+            const from = await protocolV1.arianeeIssuerProxy!.getAddress();
+            const _values = [from, to, smartAssetId];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1,
+                tokenId: smartAssetId,
+                intentHashAsStr,
+              });
+            return protocolV1.arianeeIssuerProxy!.transferFrom(
+              getOwnershipProofStruct(callData),
+              from,
+              to,
+              smartAssetId,
+              overrides
+            );
+          }
+        },
+        protocolV2Action: async (_protocolV2) => {
+          throw new Error('not yet implemented');
+        },
+      },
+      this.creator.connectOptions
+    ) as Promise<
+      Strategy extends 'WAIT_TRANSACTION_RECEIPT'
+        ? ContractTransactionReceipt
+        : ContractTransactionResponse
+    >;
+  }
+
   private createLinkObject(
     smartAssetId: number | string,
     passphrase?: string
