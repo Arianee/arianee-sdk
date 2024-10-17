@@ -31,8 +31,8 @@ import {
   CreatedEvent,
   CreateEventCommonParameters,
   CreateEventParameters,
-  CreateEventParametersBase,
   CreditType,
+  EventParametersBase,
 } from '../types';
 
 export default class Events<Strategy extends TransactionStrategy> {
@@ -151,9 +151,7 @@ export default class Events<Strategy extends TransactionStrategy> {
     );
   }
 
-  private isEventAccepted = async (
-    eventId: CreateEventParametersBase['eventId']
-  ) => {
+  private isEventAccepted = async (eventId: EventParametersBase['eventId']) => {
     const arianeeApiClient = new ArianeeApiClient();
     const event = await arianeeApiClient.network.getArianeeEvent(
       this.creator.slug!,
@@ -164,11 +162,15 @@ export default class Events<Strategy extends TransactionStrategy> {
 
   @requiresConnection()
   public async destroyEvent(
-    eventId: CreateEventParametersBase['eventId'],
+    params: EventParametersBase,
     overrides: NonPayableOverrides = {}
   ): Promise<ContractTransactionReceipt | ContractTransactionResponse> {
+    const { eventId, smartAssetId } = params;
     if (!eventId) {
       throw new Error('eventId is required');
+    }
+    if (this.creator.privacyMode && !smartAssetId) {
+      throw new Error('smartAssetId is required in privacy mode');
     }
     const isEventAccepted = await this.isEventAccepted(eventId);
 
@@ -177,14 +179,55 @@ export default class Events<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (v1) => {
-          if (!isEventAccepted) {
-            return v1.eventContract.refuse(
-              eventId,
-              this.creator.creatorAddress,
-              overrides
-            );
+          if (!this.creator.privacyMode) {
+            if (!isEventAccepted) {
+              return v1.eventContract.refuse(
+                eventId,
+                this.creator.creatorAddress,
+                overrides
+              );
+            } else {
+              return v1.eventContract.destroy(eventId, overrides);
+            }
           } else {
-            return v1.eventContract.destroy(eventId, overrides);
+            // INFO: If privacy mode is enabled, we destroy or refuse the event through the "ArianeeIssuerProxy" contract
+
+            let fragment = 'destroyEvent'; // Fragment: destroyEvent(_ownershipProof, _tokenId, _eventId)
+            const _values: any[] = [smartAssetId, eventId];
+            if (!isEventAccepted) {
+              fragment = 'refuseEvent'; // Fragment: refuseEvent(_ownershipProof, _tokenId, _eventId, _interfaceProvider)
+              _values.push(this.creator.creatorAddress);
+            }
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1: v1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1: v1,
+                tokenId: String(smartAssetId),
+                intentHashAsStr,
+              });
+
+            if (isEventAccepted) {
+              return v1.arianeeIssuerProxy!.destroyEvent(
+                getOwnershipProofStruct(callData),
+                smartAssetId!,
+                eventId
+              );
+            } else {
+              return v1.arianeeIssuerProxy!.refuseEvent(
+                getOwnershipProofStruct(callData),
+                smartAssetId!,
+                eventId,
+                this.creator.creatorAddress
+              );
+            }
           }
         },
         protocolV2Action: async (protocolV2) => {
@@ -206,11 +249,15 @@ export default class Events<Strategy extends TransactionStrategy> {
 
   @requiresConnection()
   public async acceptEvent(
-    eventId: CreateEventParametersBase['eventId'],
+    params: EventParametersBase,
     overrides: NonPayableOverrides = {}
   ): Promise<ContractTransactionReceipt | ContractTransactionResponse> {
+    const { eventId, smartAssetId } = params;
     if (!eventId) {
       throw new Error('eventId is required');
+    }
+    if (this.creator.privacyMode && !smartAssetId) {
+      throw new Error('smartAssetId is required in privacy mode');
     }
 
     return this.creator.transactionWrapper(
@@ -218,11 +265,40 @@ export default class Events<Strategy extends TransactionStrategy> {
       this.creator.slug!,
       {
         protocolV1Action: async (v1) => {
-          return v1.eventContract.accept(
-            eventId,
-            this.creator.creatorAddress,
-            overrides
-          );
+          if (!this.creator.privacyMode) {
+            return v1.eventContract.accept(
+              eventId,
+              this.creator.creatorAddress,
+              overrides
+            );
+          } else {
+            // INFO: If privacy mode is enabled, we accept the event through the "ArianeeIssuerProxy" contract
+
+            const fragment = 'acceptEvent'; // Fragment: acceptEvent(_ownershipProof, _tokenId, _eventId, _interfaceProvider)
+            const interfaceProvider = this.creator.creatorAddress;
+            const _values = [smartAssetId, eventId, interfaceProvider];
+
+            const { intentHashAsStr } =
+              await this.creator.prover!.issuerProxy.computeIntentHash({
+                protocolV1: v1,
+                fragment,
+                values: _values,
+                needsCreditNoteProof: false,
+              });
+
+            const { callData } =
+              await this.creator.prover!.issuerProxy.generateProof({
+                protocolV1: v1,
+                tokenId: String(smartAssetId),
+                intentHashAsStr,
+              });
+            return v1.arianeeIssuerProxy!.acceptEvent(
+              getOwnershipProofStruct(callData),
+              smartAssetId!,
+              eventId,
+              interfaceProvider
+            );
+          }
         },
         protocolV2Action: async (protocolV2) => {
           return protocolV2.eventHubContract.acceptEvent(
@@ -262,6 +338,9 @@ export default class Events<Strategy extends TransactionStrategy> {
       this.creator.utils,
       params
     );
+    if (!smartAssetId) {
+      throw new Error('smartAssetId is required');
+    }
 
     let content = params.content;
     if (this.creator.privacyMode) {

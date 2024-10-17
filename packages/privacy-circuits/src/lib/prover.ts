@@ -17,7 +17,6 @@ export type ProverParams = {
   core: Core;
   circuitsBuildPath: string;
   useCreditNotePool?: boolean;
-  // TODO: Check if it's really relevant to add a `brandUniqueSalt` to be used in IssuerProxy.computeCommitment()
 };
 
 export default class Prover {

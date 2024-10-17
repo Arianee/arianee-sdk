@@ -1,12 +1,12 @@
 import Creator, { TransactionStrategy } from '../../creator';
 import { UnavailableEventIdError } from '../../errors';
-import { CreateEventParameters, CreateEventParametersBase } from '../../types';
+import { CreateEventParameters, EventParametersBase } from '../../types';
 
 export const checkCreateEventParameters = async <
   Strategy extends TransactionStrategy
 >(
   creator: Creator<Strategy>,
-  params: CreateEventParametersBase | CreateEventParameters
+  params: EventParametersBase | CreateEventParameters
 ) => {
   if (!params.smartAssetId) throw new Error('Smart asset id required');
   if (!params.eventId) throw new Error('Event id required');

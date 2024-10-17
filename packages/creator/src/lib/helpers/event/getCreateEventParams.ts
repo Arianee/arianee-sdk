@@ -1,12 +1,12 @@
 import { TransactionStrategy } from '../../creator';
-import { CreateEventParameters, CreateEventParametersBase } from '../../types';
+import { CreateEventParameters, EventParametersBase } from '../../types';
 import Utils from '../../utils/utils';
 
 export const getCreateEventParams = async <
   Strategy extends TransactionStrategy
 >(
   utils: Utils<Strategy>,
-  params: CreateEventParametersBase | CreateEventParameters
+  params: EventParametersBase | CreateEventParameters
 ) => {
   const eventId = params.eventId ?? (await utils.getAvailableEventId());
 

@@ -1,10 +1,10 @@
 import { CreatedEvent } from './createdEvent';
 import { CreatedMessage } from './createdMessage';
+import { EventParametersBase } from './eventParametersBase';
 import {
   CreateAndStoreEventParameters,
   CreateEventCommonParameters,
   CreateEventParameters,
-  CreateEventParametersBase,
 } from './createEventParameters';
 import {
   CreateAndStoreMessageParameters,
@@ -29,8 +29,8 @@ export {
   CreatedEvent,
   CreatedMessage,
   CreateEventCommonParameters,
+  EventParametersBase,
   CreateEventParameters,
-  CreateEventParametersBase,
   CreateMessageCommonParameters,
   CreateMessageParameters,
   CreateMessageParametersBase,

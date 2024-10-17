@@ -82,13 +82,13 @@ describe('issuerProxy', () => {
       const intentHashRes = await prover.issuerProxy.computeIntentHash({
         protocolV1: mockProtocolV1,
         fragment: 'acceptEvent',
-        values: [456, ZeroAddress],
+        values: [123, 456, ZeroAddress],
         needsCreditNoteProof: false,
       });
 
       expect(intentHashRes).toBeDefined();
       expect(intentHashRes.intentHashAsStr).toBe(
-        '9201098343524139513634960756263607417331964026843972394706360022151153323406'
+        '16782451019615065797058747755779469371540027867135286079182943015832570480659'
       );
     });
 
