@@ -1,4 +1,5 @@
 import { ArianeeEventI18N } from '@arianee/common-types';
+
 import { EventParametersBase } from './eventParametersBase';
 
 export interface CreateAndStoreEventParameters extends EventParametersBase {

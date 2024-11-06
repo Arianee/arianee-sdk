@@ -5,10 +5,7 @@ import {
   SmartAsset,
   TokenAccessType,
 } from '@arianee/common-types';
-import {
-  DEFAULT_CREDIT_PROOF,
-  DEFAULT_OWNERSHIP_PROOF,
-} from '@arianee/privacy-circuits';
+import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
 import { createLink } from '@arianee/utils';
 import {
   ContractTransactionReceipt,

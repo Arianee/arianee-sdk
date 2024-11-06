@@ -91,7 +91,9 @@ describe('Creator', () => {
 
   describe('isSmartAssetIdAvailable', () => {
     it('should call the v1 contract with correct params and return true if available', async () => {
-      const ownerOfSpy = jest.fn().mockRejectedValue(new Error('owned by 0x0'));
+      const ownerOfSpy = jest
+        .fn()
+        .mockRejectedValue({ code: 'CALL_EXCEPTION' });
 
       const callWrapperSpy = jest
         .spyOn(arianeeProtocolClientModule, 'callWrapper')

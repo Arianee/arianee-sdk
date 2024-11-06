@@ -36,8 +36,12 @@ export default class Utils<Strategy extends TransactionStrategy> {
           // See https://raw.githubusercontent.com/0xcert/framework/master/packages/0xcert-ethereum-erc721-contracts/src/contracts/nf-token-metadata-enumerable.sol
           try {
             await protocolV1.smartAssetContract.ownerOf(id);
-          } catch {
-            isFree = true;
+          } catch (err: any) {
+            if (err.code === 'CALL_EXCEPTION') {
+              isFree = true;
+            } else {
+              throw err;
+            }
           }
 
           return '';
