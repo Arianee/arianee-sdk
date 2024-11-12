@@ -1,6 +1,5 @@
 import { CreatedEvent } from './createdEvent';
 import { CreatedMessage } from './createdMessage';
-import { EventParametersBase } from './eventParametersBase';
 import {
   CreateAndStoreEventParameters,
   CreateEventCommonParameters,
@@ -19,6 +18,7 @@ import {
   CreateSmartAssetParametersBase,
 } from './createSmartAssetParameters';
 import { CreditType } from './credit';
+import { EventParametersBase } from './eventParametersBase';
 import { LinkObject } from './linkObject';
 import { TokenAccess } from './tokenAccess';
 
@@ -29,7 +29,6 @@ export {
   CreatedEvent,
   CreatedMessage,
   CreateEventCommonParameters,
-  EventParametersBase,
   CreateEventParameters,
   CreateMessageCommonParameters,
   CreateMessageParameters,
@@ -38,6 +37,7 @@ export {
   CreateSmartAssetParameters,
   CreateSmartAssetParametersBase,
   CreditType,
+  EventParametersBase,
   LinkObject,
   TokenAccess,
 };
