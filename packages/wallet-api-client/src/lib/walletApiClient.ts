@@ -80,10 +80,11 @@ export default class WalletApiClient<T extends ChainType>
       preferredLanguages?: string[];
       filterOutBridgedEvents?: boolean;
       acceptCachedValue?: boolean;
+      forcedRpcEndpoint?: string;
     }
   ): Promise<SmartAsset> {
     const { id, passphrase } = smartAsset;
-    const { preferredLanguages } = params || {};
+    const { preferredLanguages, forcedRpcEndpoint } = params || {};
     const authorizationType = this.getAuthorizationType(id, passphrase);
 
     const query = generateQueryString({
@@ -91,6 +92,7 @@ export default class WalletApiClient<T extends ChainType>
       filterOutBridgedEvents: params?.filterOutBridgedEvents ?? true,
       acceptCachedValue: params?.acceptCachedValue,
       forcedIdentity: this.forcedIdentity,
+      forcedRpcEndpoint,
     });
 
     try {
@@ -162,15 +164,17 @@ export default class WalletApiClient<T extends ChainType>
     },
     params?: {
       preferredLanguages?: string[];
+      forcedRpcEndpoint?: string;
     }
   ): Promise<Event[]> {
     const { id, passphrase } = smartAsset;
-    const { preferredLanguages } = params || {};
+    const { preferredLanguages, forcedRpcEndpoint } = params || {};
     const authorizationType = this.getAuthorizationType(id, passphrase);
 
     const query = generateQueryString({
       languages: preferredLanguages,
       forcedIdentity: this.forcedIdentity,
+      forcedRpcEndpoint,
     });
 
     try {

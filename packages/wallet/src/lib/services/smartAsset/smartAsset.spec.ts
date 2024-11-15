@@ -150,14 +150,6 @@ describe('SmartAssetService', () => {
               'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
           },
         } as any);
-        getSmartAssetSpy.mockResolvedValue({
-          imprint:
-            '0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a',
-          rawContent: {
-            $schema:
-              'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
-          },
-        } as any);
 
         await smartAssetService.get(protocolName, smartAsset, {
           i18nStrategy,
@@ -180,6 +172,42 @@ describe('SmartAssetService', () => {
         );
       }
     );
+
+    it('should call getSmartAsset + getSmartAssetEvents with the forcedRpcEndpoint', async () => {
+      const protocolName = 'mockProtocol';
+
+      const smartAsset = {
+        id: '1',
+        passphrase: 'mock',
+      };
+
+      getSmartAssetSpy.mockResolvedValue({
+        imprint:
+          '0x89e013482d6d267b99f6d1573755ca02067c04f01e6be972aa40c5de2cde601a',
+        rawContent: {
+          $schema:
+            'https://cert.arianee.org/version5/ArianeeProductCertificate-i18n.json',
+        },
+      } as any);
+
+      await smartAssetService.get(protocolName, smartAsset, {
+        forcedRpcEndpoint: 'https://rpc.com/',
+      });
+
+      expect(getSmartAssetSpy).toHaveBeenCalledWith(protocolName, smartAsset, {
+        forcedRpcEndpoint: 'https://rpc.com/',
+        preferredLanguages: defaultI18nStrategy.useLanguages,
+      });
+
+      expect(getSmartAssetEventsSpy).toHaveBeenCalledWith(
+        protocolName,
+        smartAsset,
+        {
+          forcedRpcEndpoint: 'https://rpc.com/',
+          preferredLanguages: defaultI18nStrategy.useLanguages,
+        }
+      );
+    });
   });
 
   describe('getOwned', () => {

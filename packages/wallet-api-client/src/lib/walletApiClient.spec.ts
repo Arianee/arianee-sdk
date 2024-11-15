@@ -86,7 +86,8 @@ describe('WalletApiClient', () => {
 
     it.each([
       {
-        expectedUrl: `https://mock/arianee/smartAsset/testnet/123456?filterOutBridgedEvents=true`,
+        expectedUrl: `https://mock/arianee/smartAsset/testnet/123456?filterOutBridgedEvents=true&forcedRpcEndpoint=https://rpc.com/`,
+        forcedRpcEndpoint: 'https://rpc.com/',
         preferredLanguages: undefined,
       },
       {
@@ -95,13 +96,13 @@ describe('WalletApiClient', () => {
       },
     ])(
       'should call the api with the right url and return the json (case %#)',
-      async ({ expectedUrl, preferredLanguages }) => {
+      async ({ expectedUrl, preferredLanguages, forcedRpcEndpoint }) => {
         const res = await walletApiClient.getSmartAsset(
           'testnet',
           {
             id: '123456',
           },
-          { preferredLanguages }
+          { preferredLanguages, forcedRpcEndpoint }
         );
 
         expect(mockedHttpClient.authorizedGet).toHaveBeenCalledWith({
@@ -153,7 +154,8 @@ describe('WalletApiClient', () => {
 
     it.each([
       {
-        expectedUrl: `https://mock/arianee/events/testnet/123456`,
+        expectedUrl: `https://mock/arianee/events/testnet/123456?forcedRpcEndpoint=https://rpc.com/`,
+        forcedRpcEndpoint: 'https://rpc.com/',
         preferredLanguages: undefined,
       },
       {
@@ -162,13 +164,13 @@ describe('WalletApiClient', () => {
       },
     ])(
       'should call the api with the right url and return the json (case %#)',
-      async ({ expectedUrl, preferredLanguages }) => {
+      async ({ expectedUrl, preferredLanguages, forcedRpcEndpoint }) => {
         const res = await walletApiClient.getSmartAssetEvents(
           'testnet',
           {
             id: '123456',
           },
-          { preferredLanguages }
+          { preferredLanguages, forcedRpcEndpoint }
         );
 
         expect(mockedHttpClient.authorizedGet).toHaveBeenCalledWith({

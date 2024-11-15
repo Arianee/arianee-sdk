@@ -18,6 +18,7 @@ export interface WalletAbstraction {
       preferredLanguages?: string[];
       filterOutBridgedEvents?: boolean;
       acceptCachedValue?: boolean;
+      forcedRpcEndpoint?: string;
     }
   ): SmartAsset | Promise<SmartAsset>;
 
@@ -36,6 +37,7 @@ export interface WalletAbstraction {
     },
     params?: {
       preferredLanguages?: string[];
+      forcedRpcEndpoint?: string;
     }
   ): Event[] | Promise<Event[]>;
 
