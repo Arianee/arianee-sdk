@@ -106,6 +106,7 @@ export default class SmartAssetService<
       i18nStrategy?: I18NStrategy;
       filterOutBridgedEvents?: boolean;
       acceptCachedValue?: boolean;
+      forcedRpcEndpoint?: string;
     }
   ): Promise<SmartAssetInstance<T, S>> {
     const preferredLanguages = getPreferredLanguages(
@@ -117,10 +118,12 @@ export default class SmartAssetService<
         preferredLanguages,
         filterOutBridgedEvents: params?.filterOutBridgedEvents,
         acceptCachedValue: params?.acceptCachedValue,
+        forcedRpcEndpoint: params?.forcedRpcEndpoint,
       }),
 
       this.walletAbstraction.getSmartAssetEvents(protocolName, smartAsset, {
         preferredLanguages,
+        forcedRpcEndpoint: params?.forcedRpcEndpoint,
       }),
     ]);
 
