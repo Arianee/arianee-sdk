@@ -6,7 +6,8 @@
 // import protocolClient from './arianee-protocol-client';
 // import protocolClientV2 from './arianee-protocol-client/protocolClientV2';
 // import createAndStore from './creator/createAndStore';
-import privacyMode from './creator/privacy';
+// import privacyMode from './creator/privacy';
+import { example as arianeeAccessTokenExample } from './arianee-access-token/example';
 
 (async () => {
   // console.log('Uncomment the code you want to run');
@@ -21,5 +22,6 @@ import privacyMode from './creator/privacy';
   // await protocolClient();
   // await createAndStore();
   // await protocolClientV2();
-  await privacyMode();
+  // await privacyMode();
+  await arianeeAccessTokenExample();
 })();

@@ -99,7 +99,7 @@ export class ServiceProvider {
        * If the SST was generated using the @arianee/token-provider, the SST expiration will be the same as the AAT one.
        * We do this to return a more accurate error message.
        */
-      const isValidAAT = ArianeeAccessToken.isArianeeAccessTokenValid(
+      const isValidAAT = await ArianeeAccessToken.isArianeeAccessTokenValid(
         sst,
         true
       );
@@ -107,7 +107,7 @@ export class ServiceProvider {
         throw new Error('SST is not a valid AAT');
       }
 
-      const parsedSST = ServiceProvider.parseSST(sst);
+      const parsedSST = await ServiceProvider.parseSST(sst);
       // Some deeps checks on the SST, guess would be useful for brands debugging
       if (!parsedSST || !parsedSST.payload) {
         throw new Error('Could not parse SST');
@@ -306,12 +306,12 @@ export class ServiceProvider {
     );
   }
 
-  public static parseSST(sst: string): {
+  public static async parseSST(sst: string): Promise<{
     header: JwtHeaderInterface;
     payload: SmartAssetSharingTokenPayload;
     signature: string;
-  } {
-    const parsedSST = ArianeeAccessToken.decodeJwt(sst, true);
+  }> {
+    const parsedSST = await ArianeeAccessToken.decodeJwt(sst, true);
     return {
       header: parsedSST.header,
       payload: parsedSST.payload as SmartAssetSharingTokenPayload,

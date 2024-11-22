@@ -1,6 +1,6 @@
 import { Core } from '@arianee/core';
 import { MemoryStorage } from '@arianee/utils';
-import { ethers } from 'ethers';
+import { ethers, JsonRpcProvider } from 'ethers';
 
 import { JWTGeneric } from './helpers/jwtGeneric';
 import { ArianeeAccessTokenPayload } from './types/ArianeeAccessTokenPayload';
@@ -11,6 +11,8 @@ export interface PayloadOverride {
   iat?: number;
   [key: string]: string | number | object | undefined;
 }
+
+const ETHEREUM_PROVIDER = 'https://ethereum.arianee.net/';
 
 export class ArianeeAccessToken {
   private storage: Storage;
@@ -97,29 +99,46 @@ export class ArianeeAccessToken {
     return urlObject.toString();
   }
 
-  static isArianeeAccessTokenValid(
+  static async isArianeeAccessTokenValid(
     arianeeAccessToken: string,
-    ignoreExpiration = false
-  ): boolean {
+    ignoreExpiration = false,
+    options?: { ethereumProvider?: string }
+  ): Promise<boolean> {
     const recover = (message: string, signature: string): string =>
       ethers.verifyMessage(message, signature);
     const jwtGenerator = new JWTGeneric({ recover });
     const jwt = jwtGenerator.setToken(arianeeAccessToken);
     const iss = jwt.decode().payload.iss;
 
+    let resolvedIss: string | null = null;
+    if (ethers.isAddress(iss) === false) {
+      try {
+        resolvedIss = await ethers.resolveAddress(
+          iss,
+          new JsonRpcProvider(options?.ethereumProvider ?? ETHEREUM_PROVIDER)
+        );
+      } catch (e) {
+        if (e instanceof Error && e.message.match(/unconfigured name/gi))
+          throw new Error('Unconfigured ENS name: ' + iss);
+        else throw e;
+      }
+    }
+
+    console.log('iss', iss, 'resolvedIss', resolvedIss);
+
     const expBeforeExpiration = ignoreExpiration ? -1 : 10;
-    return jwt.verify(iss, expBeforeExpiration);
+    return jwt.verify(resolvedIss ?? iss, expBeforeExpiration);
   }
 
-  static decodeJwt(
+  static async decodeJwt(
     arianeeAccessToken: string,
     ignoreExpiration = false
-  ): {
+  ): Promise<{
     header: JwtHeaderInterface;
     payload: ArianeeAccessTokenPayload;
     signature: string;
-  } {
-    const isAatValid = ArianeeAccessToken.isArianeeAccessTokenValid(
+  }> {
+    const isAatValid = await ArianeeAccessToken.isArianeeAccessTokenValid(
       arianeeAccessToken,
       ignoreExpiration
     );
