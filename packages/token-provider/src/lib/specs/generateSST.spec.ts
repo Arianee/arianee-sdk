@@ -41,7 +41,7 @@ describe('generateSST', () => {
       nonce: 123456789,
     });
 
-    const payload = ArianeeAccessToken.decodeJwt(sst)
+    const payload = (await ArianeeAccessToken.decodeJwt(sst))
       .payload as unknown as Required<SmartAssetSharingTokenPayload>;
 
     expect(payload.iss).toEqual('0xD75f91b003D53ACf804049ead52661a28868bcCE');

@@ -37,8 +37,9 @@ function SmartAssetFromSST({
           return;
         }
 
-        const { network, subId: tokenId } =
-          ArianeeAccessToken.decodeJwt(sst).payload;
+        const { network, subId: tokenId } = (
+          await ArianeeAccessToken.decodeJwt(sst)
+        ).payload;
         const _smartAsset = await serviceProvider.getSmartAssetFromSST({ sst });
 
         if (isCurrent) {

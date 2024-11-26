@@ -122,7 +122,7 @@ export default class WalletApiClient<T extends ChainType>
   ): Promise<SmartAsset> {
     const { preferredLanguages } = params || {};
 
-    const { payload } = ArianeeAccessToken.decodeJwt(arianeeAccessToken);
+    const { payload } = await ArianeeAccessToken.decodeJwt(arianeeAccessToken);
 
     if (payload?.sub !== 'certificate') {
       throw new Error(`Arianee Access Token should be certificate scoped`);
@@ -208,7 +208,7 @@ export default class WalletApiClient<T extends ChainType>
   ): Promise<Event[]> {
     const { preferredLanguages } = params || {};
 
-    const { payload } = ArianeeAccessToken.decodeJwt(arianeeAccessToken);
+    const { payload } = await ArianeeAccessToken.decodeJwt(arianeeAccessToken);
 
     if (payload?.sub !== 'certificate') {
       throw new Error(`Arianee Access Token should be certificate scoped`);

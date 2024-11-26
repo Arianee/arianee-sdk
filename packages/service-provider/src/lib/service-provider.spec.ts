@@ -115,7 +115,7 @@ describe('ServiceProvider', () => {
       sst: VALID_SST,
     });
 
-    const parsedSST = ServiceProvider.parseSST(VALID_SST);
+    const parsedSST = await ServiceProvider.parseSST(VALID_SST);
 
     expect(mockSmartAssetService.get).toHaveBeenCalledWith(
       parsedSST.payload.network,

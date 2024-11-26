@@ -4,9 +4,24 @@ import { MemoryStorage } from '@arianee/utils';
 
 import { ArianeeAccessToken } from './arianee-access-token';
 
+const mockResolvedAddress = jest.fn();
+
+jest.mock('ethers', () => {
+  const originalEthers = jest.requireActual('ethers');
+
+  return {
+    ...originalEthers,
+    ethers: {
+      ...originalEthers.ethers,
+      resolveAddress: () => mockResolvedAddress(),
+    },
+  };
+});
+
 describe('arianeeAccessToken', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockResolvedAddress.mockResolvedValue(null);
   });
 
   const pk =
@@ -61,7 +76,7 @@ describe('arianeeAccessToken', () => {
     // this aat has a long exp date
     const aat =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFVEgifQ==.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzY29wZSI6ImFsbCIsImV4cCI6NjAxNjgyMjQwNzQxOTg4LCJpYXQiOjE2ODIyNDA3NDE5ODgsImNoYWluIjoidGVzdG5ldCIsInN1YiI6IndhbGxldCJ9.0x7bfc70360ed7809d2b0c9e348930c10917ebcabfee5cfa0dc608719e8eaae812492c497a388fce5ff61ef5fb9a1c13ac4ef33075249e8c63adc95e05603188b21b';
-    const aatValidity = ArianeeAccessToken.isArianeeAccessTokenValid(aat);
+    const aatValidity = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
     expect(aatValidity).toEqual(true);
   });
 
@@ -69,7 +84,33 @@ describe('arianeeAccessToken', () => {
     // this aat has a long exp date
     const prefixedAat =
       'Please sign this arianee access token\neyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjYwMTY4MjI0MDc0MTk4OCwiaWF0IjoxNjg2MzAzNzg1NzE0fQ==.0x034fdc0cef784787bbc085adc73c1f9adb59e6045bfcb3aab7caeeb5e939e26d266e6eb84956df6c0517b4c61d623e6e3ab5c84d13fb3d9c7a27dba811168ac81c';
-    const isValid = ArianeeAccessToken.isArianeeAccessTokenValid(prefixedAat);
+    const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(
+      prefixedAat
+    );
+    expect(isValid).toEqual(true);
+  });
+
+  it('should verify an aat issued by a domain (arianeetest.org)', async () => {
+    // this aat has a long exp date and is issued by arianeetest.org
+    const aat =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiJhcmlhbmVldGVzdC5vcmciLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjIyMDUwNzI0MTAsImlhdCI6MTczMjAzMjQwOX0=.0x5f057aa915d37b33c0b2dea62361a58450443beb9fba64d1d871e1dd286039dc7c61863eda9c799f6b76186d7d461adab8bebd2c49efb99f135d8dc6b7f1935d1b';
+
+    mockResolvedAddress.mockResolvedValue(
+      '0x0CB31d262256788b3e09F3E161047dB76D558BEf'
+    );
+    const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
+    expect(isValid).toEqual(true);
+  });
+
+  it('should verify an aat issued by an ENS name (arianeetest.eth)', async () => {
+    // this aat has a long exp date and is issued by arianeetest.eth
+    const aat =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiJhcmlhbmVldGVzdC5ldGgiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjIyMDUwNzI0ODksImlhdCI6MTczMjAzMjQ4OH0=.0xb2a26456a96921aced70cb41f348bfe2ec50397344ebb191e66ac490d006c20d740cc7c58bbfcfc369c83d17570f9409f82ac5df301fb92ed89ec5306597059d1c';
+
+    mockResolvedAddress.mockResolvedValue(
+      '0xb7e4614c7E4D4a3e6559CaBF592f7dEe0604cdDE'
+    );
+    const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
     expect(isValid).toEqual(true);
   });
 
@@ -78,7 +119,7 @@ describe('arianeeAccessToken', () => {
     const prefixedAat =
       'Please sign this arianee access token\neyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjIwMDE2NjM5NjkwOTUsImlhdCI6MTY4NjMwMzk2OTA5NX0=.0x3d7a5471eb857cf5b0f0893e4d78ec7dbcfc0b3670a4a366b049abd7e4517b3a2ebc04b6b4661e75762c3d324ec274718fb1ca49203d0fb01e4d71a4c9a5c2e51c';
 
-    const decoded = ArianeeAccessToken.decodeJwt(prefixedAat);
+    const decoded = await ArianeeAccessToken.decodeJwt(prefixedAat);
 
     expect(decoded.payload).toMatchObject({
       iss: '0x7691e0705C2E8eD79366B067d5fCAFa89AA07F88',
@@ -91,14 +132,14 @@ describe('arianeeAccessToken', () => {
   it('should create a validate an aat', async () => {
     const aatGenerator = new ArianeeAccessToken(core);
     const aat = await aatGenerator['generateAAT']();
-    const aatValidity = ArianeeAccessToken.isArianeeAccessTokenValid(aat);
+    const aatValidity = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
     expect(aatValidity).toEqual(true);
   });
 
   it('should create a validate an aat', async () => {
     const aatGenerator = new ArianeeAccessToken(core);
     const aat = await aatGenerator['generateAAT']();
-    const decoded = ArianeeAccessToken.decodeJwt(aat);
+    const decoded = await ArianeeAccessToken.decodeJwt(aat);
     expect(decoded.payload.iss).toEqual(core.getAddress());
   });
 
