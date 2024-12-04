@@ -124,8 +124,6 @@ export class ArianeeAccessToken {
       }
     }
 
-    console.log('iss', iss, 'resolvedIss', resolvedIss);
-
     const expBeforeExpiration = ignoreExpiration ? -1 : 10;
     return jwt.verify(resolvedIss ?? iss, expBeforeExpiration);
   }
