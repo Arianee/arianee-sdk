@@ -2,10 +2,6 @@
 import { Core } from '@arianee/core';
 import { MemoryStorage } from '@arianee/utils';
 
-import { ArianeeAccessToken } from './arianee-access-token';
-
-const mockResolvedAddress = jest.fn();
-
 jest.mock('ethers', () => {
   const originalEthers = jest.requireActual('ethers');
 
@@ -17,6 +13,10 @@ jest.mock('ethers', () => {
     },
   };
 });
+
+import { ArianeeAccessToken } from './arianee-access-token';
+
+const mockResolvedAddress = jest.fn();
 
 describe('arianeeAccessToken', () => {
   beforeEach(() => {
@@ -76,7 +76,11 @@ describe('arianeeAccessToken', () => {
     // this aat has a long exp date
     const aat =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFVEgifQ==.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzY29wZSI6ImFsbCIsImV4cCI6NjAxNjgyMjQwNzQxOTg4LCJpYXQiOjE2ODIyNDA3NDE5ODgsImNoYWluIjoidGVzdG5ldCIsInN1YiI6IndhbGxldCJ9.0x7bfc70360ed7809d2b0c9e348930c10917ebcabfee5cfa0dc608719e8eaae812492c497a388fce5ff61ef5fb9a1c13ac4ef33075249e8c63adc95e05603188b21b';
-    const aatValidity = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
+    const aatValidity = await ArianeeAccessToken.isArianeeAccessTokenValid(
+      aat,
+      false,
+      { disableENSResolverCache: true }
+    );
     expect(aatValidity).toEqual(true);
   });
 
@@ -85,7 +89,9 @@ describe('arianeeAccessToken', () => {
     const prefixedAat =
       'Please sign this arianee access token\neyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjYwMTY4MjI0MDc0MTk4OCwiaWF0IjoxNjg2MzAzNzg1NzE0fQ==.0x034fdc0cef784787bbc085adc73c1f9adb59e6045bfcb3aab7caeeb5e939e26d266e6eb84956df6c0517b4c61d623e6e3ab5c84d13fb3d9c7a27dba811168ac81c';
     const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(
-      prefixedAat
+      prefixedAat,
+      false,
+      { disableENSResolverCache: true }
     );
     expect(isValid).toEqual(true);
   });
@@ -98,7 +104,11 @@ describe('arianeeAccessToken', () => {
     mockResolvedAddress.mockResolvedValue(
       '0x0CB31d262256788b3e09F3E161047dB76D558BEf'
     );
-    const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
+    const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(
+      aat,
+      false,
+      { disableENSResolverCache: true }
+    );
     expect(isValid).toEqual(true);
   });
 
@@ -110,7 +120,11 @@ describe('arianeeAccessToken', () => {
     mockResolvedAddress.mockResolvedValue(
       '0xb7e4614c7E4D4a3e6559CaBF592f7dEe0604cdDE'
     );
-    const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
+    const isValid = await ArianeeAccessToken.isArianeeAccessTokenValid(
+      aat,
+      false,
+      { disableENSResolverCache: true }
+    );
     expect(isValid).toEqual(true);
   });
 
@@ -132,7 +146,11 @@ describe('arianeeAccessToken', () => {
   it('should create a validate an aat', async () => {
     const aatGenerator = new ArianeeAccessToken(core);
     const aat = await aatGenerator['generateAAT']();
-    const aatValidity = await ArianeeAccessToken.isArianeeAccessTokenValid(aat);
+    const aatValidity = await ArianeeAccessToken.isArianeeAccessTokenValid(
+      aat,
+      false,
+      { disableENSResolverCache: true }
+    );
     expect(aatValidity).toEqual(true);
   });
 

@@ -58,6 +58,8 @@ You can use the following static methods. These methods will automatically detec
 
 This static method checks if an Arianee Access Token (AAT) is valid. It takes an `arianeeAccessToken` parameter as a `string` and returns a `boolean` indicating whether the AAT is valid or not.
 
+It supports access tokens issued by ENS names and by addresses. For ENS names, there is a cache mechanism to avoid querying the ENS registry every time, it can be disabled by setting the option `disableENSResolverCache` parameter to `true`.
+
 ### `static decodeJwt(arianeeAccessToken: string): {header: JwtHeaderInterface, payload: ArianeeAccessTokenPayload, signature: string}`
 
 This static method decodes an Arianee Access Token (AAT). It takes an `arianeeAccessToken` parameter as a `string` and returns an object with the decoded AAT, containing the header, payload, and signature.

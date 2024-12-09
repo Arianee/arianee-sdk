@@ -1,23 +1,30 @@
 import { Core } from '@arianee/core';
 import { MemoryStorage } from '@arianee/utils';
 import { ethers, JsonRpcProvider } from 'ethers';
+import memoizee from 'memoizee';
 
 import { JWTGeneric } from './helpers/jwtGeneric';
 import { ArianeeAccessTokenPayload } from './types/ArianeeAccessTokenPayload';
 import { JwtHeaderInterface } from './types/JwtHeaderInterface';
-
 export interface PayloadOverride {
   exp?: number;
   iat?: number;
   [key: string]: string | number | object | undefined;
 }
 
-const ETHEREUM_PROVIDER = 'https://ethereum.arianee.net/';
+const JSON_RPC_PROVIDER = new JsonRpcProvider(
+  'https://eth-mainnet.public.blastapi.io'
+);
 
 export class ArianeeAccessToken {
   private storage: Storage;
 
   private static readonly LAST_AAT_KEY = 'arianee__lastAAT';
+
+  private static memoizedResolveAddress = memoizee(ethers.resolveAddress, {
+    promise: true,
+    maxAge: 1000 * 60 * 60 * 4, // cache the resolved address for up to 4 hours
+  });
 
   constructor(
     private core: Core,
@@ -102,7 +109,11 @@ export class ArianeeAccessToken {
   static async isArianeeAccessTokenValid(
     arianeeAccessToken: string,
     ignoreExpiration = false,
-    options?: { ethereumProvider?: string }
+    options?: {
+      ethereumProvider?: ethers.Provider;
+      /** resolved addresses are cached by default, disable cache to always resolve ENS names */
+      disableENSResolverCache?: boolean;
+    }
   ): Promise<boolean> {
     const recover = (message: string, signature: string): string =>
       ethers.verifyMessage(message, signature);
@@ -113,9 +124,13 @@ export class ArianeeAccessToken {
     let resolvedIss: string | null = null;
     if (ethers.isAddress(iss) === false) {
       try {
-        resolvedIss = await ethers.resolveAddress(
+        const addressResolver = options?.disableENSResolverCache
+          ? ethers.resolveAddress
+          : ArianeeAccessToken.memoizedResolveAddress;
+
+        resolvedIss = await addressResolver(
           iss,
-          new JsonRpcProvider(options?.ethereumProvider ?? ETHEREUM_PROVIDER)
+          options?.ethereumProvider ?? JSON_RPC_PROVIDER
         );
       } catch (e) {
         if (e instanceof Error && e.message.match(/unconfigured name/gi))
@@ -125,6 +140,7 @@ export class ArianeeAccessToken {
     }
 
     const expBeforeExpiration = ignoreExpiration ? -1 : 10;
+
     return jwt.verify(resolvedIss ?? iss, expBeforeExpiration);
   }
 
