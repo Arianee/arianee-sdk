@@ -75,6 +75,7 @@ export default class ArianeeProtocolClient {
       '1.0': null,
       '1.1': null,
       '1.5': null,
+      '1.6': null,
     };
 
     const versions2: Record<ProtocolV2Versions, null> = {

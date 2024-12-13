@@ -1,7 +1,7 @@
 import {
   ArianeeCreditNotePool,
   ArianeeIssuerProxy,
-} from '@arianee/arianee-abi/dist/ethers6/v1_1';
+} from '@arianee/arianee-abi/dist/ethers6/v1_5';
 import { keccak256, toUtf8Bytes } from 'ethers';
 import { Element } from 'fixed-merkle-tree';
 

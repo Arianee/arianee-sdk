@@ -8,7 +8,7 @@ export default async () => {
     'sunset setup moral spoil stomach flush document expand rent siege perfect gauge'
   );
 
-  const slug = 'newsokol';
+  const slug = 'testnet';
 
   const client = new ArianeeProtocolClient(core);
   const protocol = await client.connect(slug);
@@ -51,7 +51,9 @@ export default async () => {
       ),
       protocol.storeContract.creditPriceUSD(0),
       protocol.updateSmartAssetContract.getUpdatedImprint(58824256),
-      protocol.whitelistContract.addressToAbility(
+      protocol.whitelistContract.isAuthorized(
+        1,
+        '0x305051e9a023fe881EE21cA43fd90c460B427Caa',
         '0x305051e9a023fe881EE21cA43fd90c460B427Caa'
       ),
       protocol.userActionContract.addAddressToWhitelist(
@@ -101,7 +103,7 @@ export default async () => {
         updatedImprint
     );
     console.log(
-      '9) WhitelistContract\n\taddressToAbility("0x305051e9a023fe881EE21cA43fd90c460B427Caa")\n\t> ' +
+      '9) WhitelistContract\n\tisAuthorized(1, "0x305051e9a023fe881EE21cA43fd90c460B427Caa", "0x305051e9a023fe881EE21cA43fd90c460B427Caa")\n\t> ' +
         addressToAbility
     );
     console.log(
