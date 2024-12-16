@@ -384,6 +384,7 @@ describe('SmartAssets', () => {
         storeContract: {
           hydrateToken: hydrateTokenSpy,
         },
+        protocolDetails: mockProtocolDetails,
       } as any);
 
       expect(hydrateTokenSpy).toHaveBeenCalledWith(
@@ -659,6 +660,7 @@ describe('SmartAssets', () => {
       await protocolV1Action({
         smartAssetContract: {
           addTokenAccess: addTokenAccessSpy,
+          protocolDetails: mockProtocolDetails,
         },
       } as any);
 
