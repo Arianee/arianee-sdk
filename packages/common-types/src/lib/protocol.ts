@@ -30,7 +30,7 @@ export type ProtocolDetailsBase = {
 };
 
 export type ProtocolVersion = ProtocolV1Versions | ProtocolV2Versions;
-export type ProtocolV1Versions = '1' | '1.0' | '1.1' | '1.5';
+export type ProtocolV1Versions = '1' | '1.0' | '1.1' | '1.5' | '1.6';
 export type ProtocolV2Versions = '2.0';
 
 export interface ProtocolDetailsV1 extends ProtocolDetailsBase {
