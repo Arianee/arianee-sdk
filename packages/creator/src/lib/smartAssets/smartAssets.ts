@@ -594,35 +594,16 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
               BigInt(1)
             );
 
-            // soulbound interface support for 1.6
-            if (protocolV1.protocolDetails.protocolVersion === '1.6') {
-              return (
-                protocolV1['storeContract'] as ethers6_v1_6.ArianeeStore
-              ).hydrateToken(
-                smartAssetId,
-                imprint,
-                uri,
-                publicKey,
-                tokenRecoveryTimestamp,
-                initialKeyIsRequestKey,
-                this.creator.creatorAddress,
-                false,
-                overrides
-              );
-            } else {
-              return (
-                protocolV1['storeContract'] as ethers6_v1_5.ArianeeStore
-              ).hydrateToken(
-                smartAssetId,
-                imprint,
-                uri,
-                publicKey,
-                tokenRecoveryTimestamp,
-                initialKeyIsRequestKey,
-                this.creator.creatorAddress,
-                overrides
-              );
-            }
+            return protocolV1.storeContract.hydrateToken(
+              smartAssetId,
+              imprint,
+              uri,
+              publicKey,
+              tokenRecoveryTimestamp,
+              initialKeyIsRequestKey,
+              this.creator.creatorAddress,
+              overrides
+            );
           } else {
             // INFO: If privacy mode is enabled, we hydrate the token through the "ArianeeIssuerProxy" contract
 

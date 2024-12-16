@@ -156,11 +156,10 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
     );
 
     if (this.protocolDetails.contractAdresses.issuerProxy) {
-      this.arianeeIssuerProxy =
-        ethers6_v1_5.ArianeeIssuerProxy__factory.connect(
-          this.protocolDetails.contractAdresses.issuerProxy,
-          this.signer
-        );
+      this.arianeeIssuerProxy = getIssuerProxyFactory(protocolVersion).connect(
+        this.protocolDetails.contractAdresses.issuerProxy,
+        this.signer
+      );
     }
 
     if (this.protocolDetails.contractAdresses.creditNotePool) {
@@ -215,6 +214,17 @@ const getUserActionFactory = (protocolVersion: ProtocolVersion) => {
     case '1.5':
     case '1.6':
       return ethers6_v1_5.ArianeeUserAction__factory;
+    default:
+      throw new Error('Unsupported protocol version');
+  }
+};
+
+const getIssuerProxyFactory = (protocolVersion: ProtocolVersion) => {
+  switch (protocolVersion) {
+    case '1.5':
+      return ethers6_v1_5.ArianeeIssuerProxy__factory;
+    case '1.6':
+      return ethers6_v1_6.ArianeeIssuerProxy__factory;
     default:
       throw new Error('Unsupported protocol version');
   }
