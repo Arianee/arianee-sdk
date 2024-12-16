@@ -25,7 +25,7 @@ describe('issuerProxy', () => {
     });
 
     const mockProtocolDetails: ProtocolDetailsV1 = {
-      protocolVersion: '1.0',
+      protocolVersion: '1.5',
       chainId: 77,
       httpProvider: 'https://sokol.arianee.net',
       gasStation: 'https://cert.arianee.net/gasStation/testnet.json',
