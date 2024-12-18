@@ -47,16 +47,12 @@ describe('EventManager', () => {
         caseName: 'parameterized interval',
         interval: 2000,
       },
-      {
-        caseName: 'default interval (5000)',
-        interval: undefined,
-      },
     ])(
       'should call setInterval with the pull method (interval: $caseName)',
       ({ interval }) => {
         jest.clearAllMocks();
 
-        const expectedInterval = interval ?? 5000;
+        const expectedInterval = interval ?? -1;
 
         expect(setIntervalSpy).not.toHaveBeenCalled();
 
@@ -70,6 +66,18 @@ describe('EventManager', () => {
         );
       }
     );
+
+    it('should not call setInterval with the pull method (interval: default interval (-1))', () => {
+      jest.clearAllMocks();
+
+      expect(setIntervalSpy).not.toHaveBeenCalled();
+
+      new EventManager(chainType, walletApiClient, userAddress, jest.fn(), {
+        pullInterval: -1,
+      });
+
+      expect(setIntervalSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('pull', () => {

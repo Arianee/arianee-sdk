@@ -176,7 +176,8 @@ wallet.authenticate(); // force generate a wallet scoped arianee access token, u
 
 The wallet emits events that can be listened to. It uses a pull mechanism under the hood, the pull interval can be passed to the constructor under the `eventManagerParams.pullInterval` key. Events will be pulled every `pullInterval` milliseconds if and only if there is at least one listener.
 
-Default pull interval is 5 seconds.
+Default pull interval is -1 (disabled), to enable it, pass any value above 0 (e.g. 5000 for 5 seconds).
+If you use this feature, make sure to call `wallet.close()` when you are done with the wallet to stop the event manager and associated interval / listeners.
 
 ```typescript
 // pull events every 2 seconds
@@ -197,6 +198,9 @@ wallet.smartAsset.received.removeListener(listener);
 
 // remove all listeners
 wallet.smartAsset.received.removeAllListeners();
+
+// once you are done with the wallet, make sure to close it to stop the event manager (if you enabled it / set pull interval > 0)
+wallet.close();
 ```
 
 ### Proofs
