@@ -181,7 +181,7 @@ export default class Events<Strategy extends TransactionStrategy> {
         protocolV1Action: async (v1) => {
           if (!this.creator.privacyMode) {
             if (!isEventAccepted) {
-              return v1.eventContract.refuse(
+              return v1.storeContract.refuseEvent(
                 eventId,
                 this.creator.creatorAddress,
                 overrides
@@ -266,7 +266,7 @@ export default class Events<Strategy extends TransactionStrategy> {
       {
         protocolV1Action: async (v1) => {
           if (!this.creator.privacyMode) {
-            return v1.eventContract.accept(
+            return v1.storeContract.acceptEvent(
               eventId,
               this.creator.creatorAddress,
               overrides
