@@ -1,6 +1,6 @@
 import { BrandIdentity } from '@arianee/common-types';
 
-import { createLink } from './createLink';
+import { createLink, createResolverLink } from './createLink';
 
 const getTestBrandIdentity = (
   customDomain: string
@@ -112,4 +112,69 @@ describe('createLink', () => {
       ).toEqual(expectedLink);
     }
   );
+});
+
+describe('createResolverLink', () => {
+  it.each([
+    {
+      identityAddress: '0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+      tokenId: '23864720',
+      passphrase: 'l4o8ju71796i',
+      slug: 'testnet',
+      resolverBaseURL: 'http://localhost:3000/',
+      suffix: '/proof',
+      expectedLink:
+        'http://localhost:3000/proof/23864720,l4o8ju71796i,testnet,0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+    },
+    {
+      identityAddress: '0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+      tokenId: '23864720',
+      passphrase: 'l4o8ju71796i',
+      slug: 'testnet',
+      resolverBaseURL: 'http://localhost:3000/',
+      expectedLink:
+        'http://localhost:3000/23864720,l4o8ju71796i,testnet,0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+    },
+    {
+      identityAddress: '0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+      tokenId: '23864720',
+      passphrase: 'l4o8ju71796i',
+      slug: 'testnet',
+      expectedLink:
+        'https://q.arianee.net/23864720,l4o8ju71796i,testnet,0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+    },
+  ])(
+    'should return a valid resolver link',
+    ({
+      slug,
+      suffix,
+      tokenId,
+      passphrase,
+      expectedLink,
+      identityAddress,
+      resolverBaseURL,
+    }) => {
+      expect(
+        createResolverLink({
+          slug,
+          suffix,
+          tokenId,
+          passphrase,
+          identityAddress,
+          resolverBaseURL,
+        })
+      ).toEqual(expectedLink);
+    }
+  );
+
+  it('should throw if identityAddress is not a valid address', () => {
+    expect(() =>
+      createResolverLink({
+        slug: 'testnet',
+        tokenId: '23864720',
+        passphrase: 'l4o8ju71796i',
+        identityAddress: 'invalidAddress',
+      })
+    ).toThrow(/invalid identity address/gi);
+  });
 });
