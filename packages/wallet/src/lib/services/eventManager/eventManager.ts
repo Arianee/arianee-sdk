@@ -20,8 +20,8 @@ type WrappedEventEmitters = {
 
 export type EventManagerParams = {
   /**
-   * Interval between each pull in ms
-   * @default 5000
+   * Interval between each pull in ms, -1 to disable (default), any value > 0 to enable
+   * @default -1
    */
   pullInterval?: number;
   arianeeApiUrl?: string;
@@ -33,6 +33,8 @@ export default class EventManager<T extends ChainType>
   private pullInterval: number;
   private pullAfter!: Date;
   private arianeeApiClient: ArianeeApiClient;
+
+  private timer: ReturnType<typeof setInterval> | null = null;
 
   private userTokenIds: SmartAsset['certificateId'][] = [];
   private userTokenIssuers: BrandIdentity['address'][] = [];
@@ -46,7 +48,10 @@ export default class EventManager<T extends ChainType>
     private fetchLike: typeof fetch,
     params?: EventManagerParams
   ) {
-    this.pullInterval = params?.pullInterval ?? 5000;
+    this.pullInterval = params?.pullInterval ?? -1;
+
+    if (this.pullInterval === 0)
+      throw new Error('Pull interval must be greater than 0, or -1 to disable');
 
     this.arianeeApiClient = new ArianeeApiClient(
       params?.arianeeApiUrl ?? 'https://api.arianee.com',
@@ -56,7 +61,16 @@ export default class EventManager<T extends ChainType>
     this.updatePullAfter();
 
     if (this.pullInterval > 0)
-      setInterval(this.pull.bind(this), this.pullInterval);
+      this.timer = setInterval(this.pull.bind(this), this.pullInterval);
+  }
+
+  /** Remove all listeners and interval */
+  public kill() {
+    if (this.timer) clearInterval(this.timer);
+
+    this.arianee.removeAllListeners();
+
+    this.timer = null;
   }
 
   private readonly arianee: EventEmitter = new EventEmitter();

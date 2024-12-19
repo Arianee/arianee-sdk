@@ -31,6 +31,9 @@ export class WalletService {
         walletAbstraction: new WalletApiClient('mainnet', core, {
           apiURL,
         }),
+        eventManagerParams: {
+          pullInterval: 5000,
+        },
       }),
       testnet: new Wallet({
         chainType: 'testnet',
@@ -38,6 +41,9 @@ export class WalletService {
         walletAbstraction: new WalletApiClient('testnet', core, {
           apiURL,
         }),
+        eventManagerParams: {
+          pullInterval: 5000,
+        },
       }),
     };
 

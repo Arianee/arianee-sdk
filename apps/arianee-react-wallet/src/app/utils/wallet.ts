@@ -31,6 +31,9 @@ export const getWallet = (chainType: ChainType, walletApiUrl: string) => {
     chainType,
     arianeeAccessToken,
     arianeeAccessTokenPrefix: prefix,
+    eventManagerParams: {
+      pullInterval: 5000,
+    },
   });
 
   return wallet;

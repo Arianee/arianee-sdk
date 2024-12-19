@@ -205,6 +205,13 @@ export default class Wallet<
   }
 
   /**
+   * Close all connections and stop all listeners should be called when the wallet instance won't be used anymore
+   */
+  public close() {
+    this.eventManager.kill();
+  }
+
+  /**
    * Use this to force trigger an authentication signature if
    * you use a wallet provider such as Metamask or WalletConnect
    * @param sessionDuration duration of the session in seconds
