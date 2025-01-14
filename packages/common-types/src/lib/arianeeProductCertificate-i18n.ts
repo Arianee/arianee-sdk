@@ -30,6 +30,7 @@ export interface ArianeeProductCertificateI18N {
   materials?: ProductMaterial[];
   size?: ProductSize[];
   manufacturingCountry?: string;
+  manufacturer?: string;
   facilityId?: string;
   productCertification?: ProductCertification[];
   transparencyItems?: ProductTransparencyItem[];
@@ -43,7 +44,39 @@ export interface ArianeeProductCertificateI18N {
   youtube_url?: string;
   thread?: Thread;
   issuer_signature?: string;
+  EAN?: string;
+  technicalReference?: string;
+  commercialReference?: string;
+  postSaleManufacturerWarrantyPeriod?: ValueUnit;
+  weight?: ValueUnit;
+  reparabilityIndex?: ValueYear;
+  energyConsumption?: ValueUnit;
+  waterConsumption?: ValueUnit;
+  energyClass?: ValueYear;
+  dangerousSubstance?: boolean;
+  recyclabilityMention?: string;
+  preciousOrCriticalMetals?: boolean;
+  recycledContent?: boolean;
+  ecoModulation?: string;
+  services?: LinkItem[];
+  externalContent?: LinkItem[];
 }
+
+export type ValueUnit = {
+  value: string;
+  unit: string;
+};
+
+export type ValueYear = {
+  value: string;
+  indexDefinitionYear: string;
+};
+
+export type LinkItem = {
+  title: string;
+  icon: string;
+  url: string;
+};
 
 export type ProductLanguageCode =
   | 'fr-FR'
@@ -92,7 +125,12 @@ export type ProductMaterialEnum =
   | 'denim-jeans'
   | 'gold'
   | 'silver';
-export type ProductSizeTypeEnum = 'height' | 'width' | 'depth' | 'size';
+export type ProductSizeTypeEnum =
+  | 'weight'
+  | 'height'
+  | 'width'
+  | 'depth'
+  | 'size';
 export type ProductUnitEnum = 'in' | 'cm' | 'mm' | 'eu' | 'uk' | 'us';
 export type ProductCertificationEnum = 'fairtrade' | 'wwf';
 
