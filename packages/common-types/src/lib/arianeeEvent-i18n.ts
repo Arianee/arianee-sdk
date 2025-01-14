@@ -12,6 +12,7 @@ export interface ArianeeEventI18N {
   currencyPrice?: EventCurrency;
   location?: string;
   issuer_signature?: string;
+  eventDate?: string;
 }
 
 export type EventLanguageCode =
