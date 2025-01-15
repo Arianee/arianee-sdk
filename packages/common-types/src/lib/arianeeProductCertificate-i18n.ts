@@ -48,7 +48,6 @@ export interface ArianeeProductCertificateI18N {
   technicalReference?: string;
   commercialReference?: string;
   postSaleManufacturerWarrantyPeriod?: ValueUnit;
-  weight?: ValueUnit;
   reparabilityIndex?: ValueYear;
   energyConsumption?: ValueUnit;
   waterConsumption?: ValueUnit;
@@ -131,7 +130,15 @@ export type ProductSizeTypeEnum =
   | 'width'
   | 'depth'
   | 'size';
-export type ProductUnitEnum = 'in' | 'cm' | 'mm' | 'eu' | 'uk' | 'us';
+export type ProductUnitEnum =
+  | 'in'
+  | 'cm'
+  | 'mm'
+  | 'eu'
+  | 'uk'
+  | 'us'
+  | 'kg'
+  | 'lb';
 export type ProductCertificationEnum = 'fairtrade' | 'wwf';
 
 export interface ProductMedia {
