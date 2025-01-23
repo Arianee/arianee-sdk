@@ -59,6 +59,20 @@ export interface ArianeeProductCertificateI18N {
   ecoModulation?: string;
   services?: LinkItem[];
   externalContent?: LinkItem[];
+  ecosystem?: Ecosystem;
+}
+
+export interface TypeEquipementNiveau {
+  id: string;
+  label: string;
+}
+export interface Ecosystem {
+  categorieReglementaire: string;
+  secteur: string;
+  fluxNiveau1: string;
+  fluxNiveau2: string;
+  typeEquipementNiveau1: TypeEquipementNiveau;
+  typeEquipementNiveau2: TypeEquipementNiveau;
 }
 
 export type ValueUnit = {
