@@ -59,7 +59,7 @@ export interface ArianeeProductCertificateI18N {
   ecoModulation?: string;
   services?: LinkItem[];
   externalContent?: LinkItem[];
-  ecosystem: Ecosystem;
+  ecosystem?: Ecosystem;
 }
 
 export interface TypeEquipementNiveau {
