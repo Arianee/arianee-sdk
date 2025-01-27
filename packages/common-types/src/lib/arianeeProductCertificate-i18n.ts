@@ -49,7 +49,7 @@ export interface ArianeeProductCertificateI18N {
   commercialReference?: string;
   postSaleManufacturerWarrantyPeriod?: ValueUnit;
   reparabilityIndex?: ValueYear;
-  energyConsumption?: ValueUnit;
+  energyConsumption?: ValueUnitWithLabel;
   waterConsumption?: ValueUnit;
   energyClass?: ValueYear;
   dangerousSubstance?: boolean;
@@ -78,6 +78,12 @@ export interface Ecosystem {
 export type ValueUnit = {
   value: string;
   unit: string;
+};
+
+export type ValueUnitWithLabel = {
+  value: string;
+  unit: string;
+  label?: string;
 };
 
 export type ValueYear = {
