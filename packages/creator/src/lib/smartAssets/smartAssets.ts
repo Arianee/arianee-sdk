@@ -1,4 +1,3 @@
-import { ethers6_v1_5, ethers6_v1_6 } from '@arianee/arianee-abi';
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
 import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import {
