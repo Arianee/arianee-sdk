@@ -7,11 +7,12 @@
 // import protocolClientV2 from './arianee-protocol-client/protocolClientV2';
 // import createAndStore from './creator/createAndStore';
 // import privacyMode from './creator/privacy';
-import { example as arianeeAccessTokenExample } from './arianee-access-token/example';
+// import { example as arianeeAccessTokenExample } from './arianee-access-token/example';
+import cycleLifecycleSimulator from './cycle-cost-estimate/lifecycle-simulator';
+import cycleCostCalculator from './cycle-cost-estimate/cost-calculator';
 
 (async () => {
   // console.log('Uncomment the code you want to run');
-
   // await certificateRead();
   // await walletApiLanding();
   // await walletApiWallet();
@@ -23,5 +24,7 @@ import { example as arianeeAccessTokenExample } from './arianee-access-token/exa
   // await createAndStore();
   // await protocolClientV2();
   // await privacyMode();
-  await arianeeAccessTokenExample();
+  // await arianeeAccessTokenExample();
+  // await cycleLifecycleSimulator();
+  await cycleCostCalculator();
 })();

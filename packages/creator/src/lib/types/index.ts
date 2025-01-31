@@ -21,6 +21,7 @@ import { CreditType } from './credit';
 import { EventParametersBase } from './eventParametersBase';
 import { LinkObject } from './linkObject';
 import { TokenAccess } from './tokenAccess';
+import { TxInfos } from './txInfos';
 
 export {
   CreateAndStoreEventParameters,
@@ -40,4 +41,5 @@ export {
   EventParametersBase,
   LinkObject,
   TokenAccess,
+  TxInfos,
 };

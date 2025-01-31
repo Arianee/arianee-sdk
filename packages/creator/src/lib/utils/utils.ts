@@ -18,7 +18,7 @@ import { requiresConnection } from '../decorators/requiresConnection';
 import { ProtocolCompatibilityError } from '../errors';
 import { MissingCreditContractAddressError } from '../errors/MissingCreditTypeContractAddressError';
 import { MissingCreditTypeError } from '../errors/MissingCreditTypeError';
-import { CreditType } from '../types/credit';
+import { TxInfos, CreditType } from '../types';
 
 export default class Utils<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -400,6 +400,23 @@ export default class Utils<Strategy extends TransactionStrategy> {
       },
       this.creator.connectOptions
     );
+  }
+
+  public getTxInfos(
+    txRes: ContractTransactionResponse | ContractTransactionReceipt
+  ): TxInfos {
+    const txInfos: TxInfos = {
+      txHash: txRes.hash,
+    };
+    if (txRes instanceof ContractTransactionReceipt) {
+      txInfos.gasUsed = txRes.gasUsed;
+      txInfos.gasPrice = txRes.gasPrice;
+      txInfos.blobGasPrice = txRes.blobGasPrice;
+      txInfos.blobGasUsed = txRes.blobGasUsed;
+      txInfos.cumulativeGasUsed = txRes.cumulativeGasUsed;
+      txInfos.fee = txRes.fee;
+    }
+    return txInfos;
   }
 }
 
