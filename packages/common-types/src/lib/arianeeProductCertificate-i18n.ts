@@ -211,7 +211,8 @@ export type ProductExternalContentTypeEnum =
   | 'transparency'
   | 'arianeeAccessTokenAuthLink'
   | 'youtube'
-  | 'authRedirectTo';
+  | 'authRedirectTo'
+  | 'userManual';
 
 export interface ProductTransparencyMedia extends Omit<ProductMedia, 'type'> {
   type: ProductTransparencyMediaTypeEnum;
