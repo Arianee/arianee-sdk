@@ -33,7 +33,8 @@ export type EventType =
   | 'warranty'
   | 'resell'
   | 'repair'
-  | 'experience';
+  | 'experience'
+  | 'transfer';
 
 export type EventExternalContentType = 'website' | 'eshop' | 'other';
 
