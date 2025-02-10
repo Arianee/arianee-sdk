@@ -60,7 +60,10 @@ export default class ArianeeProtocolClient {
     }
 
     const httpProvider = options?.httpProvider ?? details.httpProvider;
-    const gasStation = new GasStation(details.gasStation, this.fetchLike);
+    let gasStation: GasStation | undefined = undefined;
+    if (details.gasStation && details.gasStation !== '') {
+      gasStation = new GasStation(details.gasStation, this.fetchLike);
+    }
 
     const wallet = ethersWalletFromCore({
       core: this.core,

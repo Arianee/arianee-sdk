@@ -75,7 +75,7 @@ export default class ProtocolClientV1 extends ProtocolClientBase<ProtocolDetails
   constructor(
     signer: Signer,
     protocolDetails: ProtocolDetailsV1,
-    gasStation: GasStation
+    gasStation: GasStation | undefined
   ) {
     super(signer, protocolDetails, gasStation);
 

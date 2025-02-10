@@ -7,7 +7,7 @@ interface LogFileAction extends TxInfos {
 interface LogFile {
   startTime: number;
   lastUpdateTime: number;
-  lifecycleCount: number; // Each lifecycle is composed of a SmartAsset hydration, an event creation and a message creation
+  lifecycleCount: number; // Each lifecycle is composed of a SmartAsset hydration, an event creation and a message creation (3 transactions)
   lifecycleAvgTime: number;
   errorCount: number;
   actions?: LogFileAction[];
@@ -17,10 +17,13 @@ interface SettlementBatch {
   id: number;
   timestamp: number;
   txHash: string;
+  compressedTxCount: number;
+  gasUsed: bigint;
   gasCost: bigint;
   etherPrice: number;
   usdCost: number;
-  compressedTxCount: number;
+  arbitrumUsdCost?: number;
+  arbitrumNovaUsdCost?: number;
 }
 
 interface MsgPayForBlobs {

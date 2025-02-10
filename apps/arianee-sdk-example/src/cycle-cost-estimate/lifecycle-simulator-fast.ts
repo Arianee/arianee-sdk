@@ -15,7 +15,12 @@ import { waitFor } from './utils';
 // Wallet that will buy credits for the ArianeeIssuerProxy and add the relayer as a credit free sender (if needed)
 const ADMIN_PRIVATE_KEY = '123';
 // Wallet that will relay the intents (actions) to the ArianeeIssuerProxy. Its also the intents issuer here for simplicity
-const RELAYER_PRIVATE_KEY = '123';
+const RELAYERS_PRIVATE_KEYS = ['123', '123', '123'];
+const RELAYERS_ADDRESSES = RELAYERS_PRIVATE_KEYS.map((privateKey) =>
+  computeAddress(privateKey)
+);
+
+const TOTAL_LIFECYCLE_PER_RELAYER = 1000;
 
 const CREDIT_TYPE_CERTIFICATE = 0;
 const CREDIT_TYPE_MESSAGE = 1;
@@ -51,57 +56,26 @@ const protocolDetailsResolver: ProtocolDetailsResolver = (_slug: string) => {
   return Promise.resolve(CYCLE_PROTOCOL_DETAILS);
 };
 
-const setupTest = async () => {
-  const adminProtocolClient = new ArianeeProtocolClient(
-    Core.fromPrivateKey(ADMIN_PRIVATE_KEY),
-    { protocolDetailsResolver }
-  );
-  const adminProtocolClientV1 = (await adminProtocolClient.connect(
-    'cycle'
-  )) as ProtocolClientV1;
-  await waitFor(1000);
-
-  const adminAddress = computeAddress(ADMIN_PRIVATE_KEY);
-  const relayerAddress = computeAddress(RELAYER_PRIVATE_KEY);
-
-  if (PRIVACY_MODE) {
-    console.log(`Checking if ${relayerAddress} is a credit free sender...`);
-    const isACreditFreeSender =
-      await adminProtocolClientV1.arianeeIssuerProxy!.creditFreeSenders(
-        relayerAddress
-      );
-    console.log(
-      `> creditFreeSenders(${relayerAddress}): ${isACreditFreeSender}`
-    );
-
-    if (!isACreditFreeSender) {
-      console.log(`Adding ${relayerAddress} as a credit free sender...`);
-      const addCreditFreeSenderRes =
-        await adminProtocolClientV1.arianeeIssuerProxy!.addCreditFreeSender(
-          relayerAddress
-        );
-      console.log(`Done: ${addCreditFreeSenderRes.hash}`);
-      await waitFor(1000);
-    }
-  }
-
-  const creditTypeQuantityEach = BigInt(1000);
-  const buyCreditFor = PRIVACY_MODE
-    ? CYCLE_PROTOCOL_DETAILS.contractAdresses.issuerProxy!
-    : relayerAddress;
-
+export const buyCredit = async (
+  to: string,
+  adminProtocolClientV1: ProtocolClientV1,
+  adminAddress: string
+) => {
+  const creditTypeQuantityEach =
+    BigInt(TOTAL_LIFECYCLE_PER_RELAYER) *
+    (PRIVACY_MODE ? BigInt(RELAYERS_ADDRESSES.length) : BigInt(1));
   console.log(
-    `Checking if ${creditTypeQuantityEach} credits of each type are available for ${buyCreditFor} to use...`
+    `Checking if ${creditTypeQuantityEach} credits of each type are available for ${to} to use...`
   );
   const creditTypeCertBalance =
     await adminProtocolClientV1.creditHistoryContract.balanceOf(
-      buyCreditFor,
+      to,
       CREDIT_TYPE_CERTIFICATE
     );
   const needToBuyCreditTypeCert =
     creditTypeCertBalance < creditTypeQuantityEach;
   console.log(
-    `> balanceOf(${buyCreditFor}, ${CREDIT_TYPE_CERTIFICATE}): ${creditTypeCertBalance}`
+    `> balanceOf(${to}, ${CREDIT_TYPE_CERTIFICATE}): ${creditTypeCertBalance}`
   );
   let creditTypeCertAriaAmount = BigInt(0);
   let creditTypeCertToBuy = BigInt(0);
@@ -116,13 +90,13 @@ const setupTest = async () => {
 
   const creditTypeMessageBalance =
     await adminProtocolClientV1.creditHistoryContract.balanceOf(
-      buyCreditFor,
+      to,
       CREDIT_TYPE_MESSAGE
     );
   const needToBuyCreditTypeMessage =
     creditTypeMessageBalance < creditTypeQuantityEach;
   console.log(
-    `> balanceOf(${buyCreditFor}, ${CREDIT_TYPE_MESSAGE}): ${creditTypeMessageBalance}`
+    `> balanceOf(${to}, ${CREDIT_TYPE_MESSAGE}): ${creditTypeMessageBalance}`
   );
   let creditTypeMessageAriaAmount = BigInt(0);
   let creditTypeMessageToBuy = BigInt(0);
@@ -138,13 +112,13 @@ const setupTest = async () => {
 
   const creditTypeEventBalance =
     await adminProtocolClientV1.creditHistoryContract.balanceOf(
-      buyCreditFor,
+      to,
       CREDIT_TYPE_EVENT
     );
   const needToBuyCreditTypeEvent =
     creditTypeEventBalance < creditTypeQuantityEach;
   console.log(
-    `> balanceOf(${buyCreditFor}, ${CREDIT_TYPE_EVENT}): ${creditTypeEventBalance}`
+    `> balanceOf(${to}, ${CREDIT_TYPE_EVENT}): ${creditTypeEventBalance}`
   );
   let creditTypeEventAriaAmount = BigInt(0);
   let creditTypeEventToBuy = BigInt(0);
@@ -159,13 +133,13 @@ const setupTest = async () => {
 
   const creditTypeUpdateBalance =
     await adminProtocolClientV1.creditHistoryContract.balanceOf(
-      buyCreditFor,
+      to,
       CREDIT_TYPE_UPDATE
     );
   const needToBuyCreditTypeUpdate =
     creditTypeUpdateBalance < creditTypeQuantityEach;
   console.log(
-    `> balanceOf(${buyCreditFor}, ${CREDIT_TYPE_UPDATE}): ${creditTypeUpdateBalance}`
+    `> balanceOf(${to}, ${CREDIT_TYPE_UPDATE}): ${creditTypeUpdateBalance}`
   );
   let creditTypeUpdateAriaAmount = BigInt(0);
   let creditTypeUpdateToBuy = BigInt(0);
@@ -214,12 +188,12 @@ const setupTest = async () => {
 
     if (creditTypeCertToBuy > 0) {
       console.log(
-        `Buying ${creditTypeCertToBuy} certificate credits for ${buyCreditFor}...`
+        `Buying ${creditTypeCertToBuy} certificate credits for ${to}...`
       );
       const buyCredit0Res = await adminProtocolClientV1.storeContract.buyCredit(
         CREDIT_TYPE_CERTIFICATE,
         creditTypeCertToBuy,
-        buyCreditFor
+        to
       );
       console.log(`Done: ${buyCredit0Res.hash}`);
       await waitFor(1000);
@@ -227,25 +201,23 @@ const setupTest = async () => {
 
     if (creditTypeMessageToBuy > 0) {
       console.log(
-        `Buying ${creditTypeMessageToBuy} message credits for ${buyCreditFor}...`
+        `Buying ${creditTypeMessageToBuy} message credits for ${to}...`
       );
       const buyCredit1Res = await adminProtocolClientV1.storeContract.buyCredit(
         CREDIT_TYPE_MESSAGE,
         creditTypeMessageToBuy,
-        buyCreditFor
+        to
       );
       console.log(`Done: ${buyCredit1Res.hash}`);
       await waitFor(1000);
     }
 
     if (creditTypeEventToBuy > 0) {
-      console.log(
-        `Buying ${creditTypeEventToBuy} event credits for ${buyCreditFor}...`
-      );
+      console.log(`Buying ${creditTypeEventToBuy} event credits for ${to}...`);
       const buyCredit2Res = await adminProtocolClientV1.storeContract.buyCredit(
         CREDIT_TYPE_EVENT,
         creditTypeEventToBuy,
-        buyCreditFor
+        to
       );
       console.log(`Done: ${buyCredit2Res.hash}`);
       await waitFor(1000);
@@ -253,15 +225,64 @@ const setupTest = async () => {
 
     if (creditTypeUpdateToBuy > 0) {
       console.log(
-        `Buying ${creditTypeUpdateToBuy} update credits for ${buyCreditFor}...`
+        `Buying ${creditTypeUpdateToBuy} update credits for ${to}...`
       );
       const buyCredit3Res = await adminProtocolClientV1.storeContract.buyCredit(
         CREDIT_TYPE_UPDATE,
         creditTypeUpdateToBuy,
-        buyCreditFor
+        to
       );
       console.log(`Done: ${buyCredit3Res.hash}`);
       await waitFor(1000);
+    }
+  }
+};
+
+const setupTest = async () => {
+  const adminProtocolClient = new ArianeeProtocolClient(
+    Core.fromPrivateKey(ADMIN_PRIVATE_KEY),
+    { protocolDetailsResolver }
+  );
+  const adminProtocolClientV1 = (await adminProtocolClient.connect(
+    'cycle'
+  )) as ProtocolClientV1;
+  await waitFor(1000);
+
+  if (PRIVACY_MODE) {
+    for (const relayerAddress of RELAYERS_ADDRESSES) {
+      console.log(`Checking if ${relayerAddress} is a credit free sender...`);
+      const isACreditFreeSender =
+        await adminProtocolClientV1.arianeeIssuerProxy!.creditFreeSenders(
+          relayerAddress
+        );
+      console.log(
+        `> creditFreeSenders(${relayerAddress}): ${isACreditFreeSender}`
+      );
+
+      if (!isACreditFreeSender) {
+        console.log(`Adding ${relayerAddress} as a credit free sender...`);
+        const addCreditFreeSenderRes =
+          await adminProtocolClientV1.arianeeIssuerProxy!.addCreditFreeSender(
+            relayerAddress
+          );
+        console.log(`Done: ${addCreditFreeSenderRes.hash}`);
+        await waitFor(1000);
+      }
+    }
+  }
+
+  const adminAddress = computeAddress(ADMIN_PRIVATE_KEY);
+  if (PRIVACY_MODE) {
+    const arianeeIssuerProxyAddress =
+      CYCLE_PROTOCOL_DETAILS.contractAdresses.issuerProxy!;
+    await buyCredit(
+      arianeeIssuerProxyAddress,
+      adminProtocolClientV1,
+      adminAddress
+    );
+  } else {
+    for (const relayerAddress of RELAYERS_ADDRESSES) {
+      await buyCredit(relayerAddress, adminProtocolClientV1, adminAddress);
     }
   }
 };
@@ -270,8 +291,9 @@ const simulateSmartAssetLifecycle = async (
   creator: Creator<'WAIT_TRANSACTION_RECEIPT'>
 ): Promise<LogFileAction[]> => {
   const actions: LogFileAction[] = [];
+  const coreAddress = creator.core.getAddress();
 
-  console.log(`Hydrating a non-reserved SmartAsset...`);
+  console.log(`[${coreAddress}] Hydrating a non-reserved SmartAsset...`);
   const createSmartAssetRawRes = await creator.smartAssets.createSmartAssetRaw({
     tokenAccess: {
       fromPassphrase: '1234',
@@ -283,7 +305,7 @@ const simulateSmartAssetLifecycle = async (
       name: 'hydrate',
     },
   });
-  console.log(`Done: ${createSmartAssetRawRes.txHash}`);
+  console.log(`[${coreAddress}] Done: ${createSmartAssetRawRes.txHash}`);
   actions.push({
     type: 'hydrate',
     time: Date.now(),
@@ -292,7 +314,9 @@ const simulateSmartAssetLifecycle = async (
 
   const smartAssetId = Number(createSmartAssetRawRes.smartAssetId);
 
-  console.log(`Creating an event for SmartAsset ${smartAssetId}...`);
+  console.log(
+    `[${coreAddress}] Creating an event for SmartAsset ${smartAssetId}...`
+  );
   const createEventRawRes = await creator.events.createEventRaw({
     smartAssetId,
     content: {
@@ -300,14 +324,16 @@ const simulateSmartAssetLifecycle = async (
       title: 'event',
     },
   });
-  console.log(`Done: ${createEventRawRes.txHash}`);
+  console.log(`[${coreAddress}] Done: ${createEventRawRes.txHash}`);
   actions.push({
     type: 'event',
     time: Date.now(),
     ...getTxInfos(createEventRawRes),
   });
 
-  console.log(`Creating a message for SmartAsset ${smartAssetId}...`);
+  console.log(
+    `[${coreAddress}] Creating a message for SmartAsset ${smartAssetId}...`
+  );
   const createMessageRawRes = await creator.messages.createMessageRaw({
     smartAssetId,
     content: {
@@ -315,7 +341,7 @@ const simulateSmartAssetLifecycle = async (
       title: 'message',
     },
   });
-  console.log(`Done: ${createMessageRawRes.txHash}`);
+  console.log(`[${coreAddress}] Done: ${createMessageRawRes.txHash}`);
   actions.push({
     type: 'message',
     time: Date.now(),
@@ -342,41 +368,53 @@ export default async () => {
   };
   saveLogFile(logFile);
 
-  const relayerCreator = new Creator({
-    core: Core.fromPrivateKey(RELAYER_PRIVATE_KEY),
-    creatorAddress: Wallet.createRandom().address,
-    transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
-    privacyMode: PRIVACY_MODE,
-    circuitsBuildPath: 'dist/packages/privacy-circuits/build',
-    protocolDetailsResolver,
-  });
-  await relayerCreator.connect('cycle');
+  const relayerCreators: Creator<'WAIT_TRANSACTION_RECEIPT'>[] =
+    await Promise.all(
+      RELAYERS_PRIVATE_KEYS.map(async (privateKey) => {
+        const creator = new Creator({
+          core: Core.fromPrivateKey(privateKey),
+          creatorAddress: Wallet.createRandom().address,
+          transactionStrategy: 'WAIT_TRANSACTION_RECEIPT',
+          privacyMode: PRIVACY_MODE,
+          circuitsBuildPath: 'dist/packages/privacy-circuits/build',
+          protocolDetailsResolver,
+        });
+        await creator.connect('cycle');
+        return creator;
+      })
+    );
 
   let lifecycleCount = 1;
-  let errorCount = 0;
+  let taskErrorCount = 0;
 
   let lifecycleAvgTime = 0;
   let totalExecTime = 0;
 
-  while (true) {
-    await waitFor(1000);
+  while (lifecycleCount <= TOTAL_LIFECYCLE_PER_RELAYER) {
+    const lifecycleSt = Date.now();
+    const tasks = relayerCreators.map((creator) =>
+      simulateSmartAssetLifecycle(creator)
+    );
+    const results = await Promise.allSettled(tasks);
+    const lifecycleStEt = Date.now();
+    const lifecycleExecTime = lifecycleStEt - lifecycleSt;
+    totalExecTime += lifecycleExecTime;
+    lifecycleAvgTime = totalExecTime / lifecycleCount;
 
-    let lifecycleActions: LogFileAction[] = [];
-    try {
-      const lifecycleSt = Date.now();
-      lifecycleActions = await simulateSmartAssetLifecycle(relayerCreator);
-      const lifecycleStEt = Date.now();
-      const lifecycleExecTime = lifecycleStEt - lifecycleSt;
-      totalExecTime += lifecycleExecTime;
-      lifecycleAvgTime = totalExecTime / lifecycleCount;
-      console.log(
-        `- lifecycle(${lifecycleCount}): ${lifecycleExecTime / 1000}s`
-      );
-      console.log(`- lifecycle(avg): ${lifecycleAvgTime / 1000}s`);
-      console.log('\n');
-    } catch (err) {
-      console.error(`- lifecycle(${lifecycleCount}): ${err.message}`);
-      errorCount++;
+    console.log(`- lifecycle(${lifecycleCount}): ${lifecycleExecTime / 1000}s`);
+    console.log(`- lifecycle(avg): ${lifecycleAvgTime / 1000}s`);
+    console.log('\n');
+
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        const lifecycleActions = result.value;
+        logFile.actions = [...(logFile.actions ?? []), ...lifecycleActions];
+      } else {
+        console.error(
+          `- lifecycle(${lifecycleCount}): ${result.reason.message}`
+        );
+        taskErrorCount++;
+      }
     }
 
     logFile = {
@@ -384,8 +422,7 @@ export default async () => {
       lastUpdateTime: Date.now(),
       lifecycleCount,
       lifecycleAvgTime,
-      errorCount,
-      actions: [...(logFile.actions ?? []), ...lifecycleActions],
+      errorCount: taskErrorCount, // Not the same indication as `errorCount` in `lifecycle-simulator.ts`
     };
     saveLogFile(logFile);
     lifecycleCount++;

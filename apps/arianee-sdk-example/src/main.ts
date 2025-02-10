@@ -9,6 +9,7 @@
 // import privacyMode from './creator/privacy';
 // import { example as arianeeAccessTokenExample } from './arianee-access-token/example';
 import cycleLifecycleSimulator from './cycle-cost-estimate/lifecycle-simulator';
+import cycleLifecycleSimulatorFast from './cycle-cost-estimate/lifecycle-simulator-fast';
 import cycleCostCalculator from './cycle-cost-estimate/cost-calculator';
 
 (async () => {
@@ -26,5 +27,6 @@ import cycleCostCalculator from './cycle-cost-estimate/cost-calculator';
   // await privacyMode();
   // await arianeeAccessTokenExample();
   // await cycleLifecycleSimulator();
+  // await cycleLifecycleSimulatorFast();
   await cycleCostCalculator();
 })();
