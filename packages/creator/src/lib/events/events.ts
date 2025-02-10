@@ -33,6 +33,7 @@ import {
   CreateEventParameters,
   CreditType,
   EventParametersBase,
+  TxInfos,
 } from '../types';
 
 export default class Events<Strategy extends TransactionStrategy> {
@@ -315,7 +316,7 @@ export default class Events<Strategy extends TransactionStrategy> {
   public async createEventRaw(
     params: CreateEventCommonParameters,
     overrides: NonPayableOverrides = {}
-  ): Promise<CreatedEvent> {
+  ): Promise<CreatedEvent & TxInfos> {
     return this.createEventCommon(params, null, overrides);
   }
 
@@ -333,7 +334,7 @@ export default class Events<Strategy extends TransactionStrategy> {
       | null,
 
     overrides: NonPayableOverrides = {}
-  ): Promise<CreatedEvent> {
+  ): Promise<CreatedEvent & TxInfos> {
     const { smartAssetId, eventId, uri } = await getCreateEventParams(
       this.creator.utils,
       params
@@ -361,7 +362,7 @@ export default class Events<Strategy extends TransactionStrategy> {
 
     const imprint = await this.creator.utils.calculateImprint(content);
 
-    await this.creator.transactionWrapper(
+    const txRes = await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -446,6 +447,7 @@ export default class Events<Strategy extends TransactionStrategy> {
     return {
       id: eventId,
       imprint,
+      ...this.creator.utils.getTxInfos(txRes),
     };
   }
 }

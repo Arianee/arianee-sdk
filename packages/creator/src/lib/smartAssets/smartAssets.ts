@@ -36,6 +36,7 @@ import {
   LinkObject,
   TokenAccess,
 } from '../types';
+import { TxInfos } from '../types/txInfos';
 
 export default class SmartAssets<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
@@ -273,7 +274,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
   public async createSmartAssetRaw(
     params: CreateSmartAssetCommonParameters,
     overrides: NonPayableOverrides = {}
-  ): Promise<LinkObject> {
+  ): Promise<LinkObject & TxInfos> {
     return this.createSmartAssetCommon(params, null, overrides);
   }
 
@@ -550,7 +551,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
         ) => Promise<void>)
       | null,
     overrides: NonPayableOverrides = {}
-  ): Promise<LinkObject> {
+  ): Promise<LinkObject & TxInfos> {
     const {
       smartAssetId,
       initialKeyIsRequestKey,
@@ -581,7 +582,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
 
     const imprint = await this.creator.utils.calculateImprint(content);
 
-    await this.creator.transactionWrapper(
+    const txRes = await this.creator.transactionWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
@@ -695,7 +696,10 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
 
     if (afterTransaction) await afterTransaction(smartAssetId, content);
 
-    return this.createLinkObject(smartAssetId, passphrase);
+    return {
+      ...this.createLinkObject(smartAssetId, passphrase),
+      ...this.creator.utils.getTxInfos(txRes),
+    };
   }
 
   @requiresConnection()
