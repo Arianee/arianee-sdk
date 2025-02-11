@@ -60,6 +60,7 @@ describe('SmartAssetService', () => {
     poa: '0x0',
     sokol: '0x1',
     polygon: '0x2',
+    supernet: '0x3',
   };
   const eventManager = new EventManager(
     'testnet',

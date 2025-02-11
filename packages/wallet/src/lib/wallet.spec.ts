@@ -283,12 +283,14 @@ describe('Wallet', () => {
           poa: '0x1',
           sokol: '0x2',
           polygon: '0x3',
+          supernet: '0x4',
         },
       });
       expect(wallet['walletRewards']).toEqual({
         poa: '0x1',
         sokol: '0x2',
         polygon: '0x3',
+        supernet: '0x4',
       });
     });
 
@@ -298,6 +300,7 @@ describe('Wallet', () => {
         poa: '0x39da7e30d2D5F2168AE3B8599066ab122680e1ef',
         sokol: '0xC7f2c65E88c98df41f9992a14546Ed2770e5Ac6b',
         polygon: '0x1C47291C40B86802fd42d59B186dE6C978dF8937',
+        supernet: '0xF500eAbE8867B1a4253bD72b72d63B06B50DA996',
       });
     });
   });
