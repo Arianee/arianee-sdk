@@ -42,3 +42,6 @@ Thumbs.db
 .angular
 .nx/cache/
 .npmrc
+
+# Logs
+logs
