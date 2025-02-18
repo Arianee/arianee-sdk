@@ -1,9 +1,10 @@
-import { Protocol } from '@arianee/common-types';
+import { Protocol, ProtocolName } from '@arianee/common-types';
 
 export type WalletRewards = {
   poa: string;
   sokol: string;
   polygon: string;
+  supernet: string;
 };
 
 export const getWalletReward = (
@@ -17,6 +18,9 @@ export const getWalletReward = (
     case 'testnet':
     case 'sokol':
       return walletRewards.sokol;
+    case ProtocolName.richemontsupernet:
+    case ProtocolName.arianeeSupernet:
+      return walletRewards.supernet;
     case 'polygon':
     default:
       return walletRewards.polygon;
