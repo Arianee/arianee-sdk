@@ -9,7 +9,7 @@ export abstract class ProtocolClientBase<T extends ProtocolDetails> {
   constructor(
     protected signer: Signer,
     private _protocolDetails: T,
-    public readonly gasStation: GasStation
+    public readonly gasStation: GasStation | undefined
   ) {
     this.permit721Contract = ethers6_permit721.Permit721__factory.connect(
       PERMIT721_ADDRESS,

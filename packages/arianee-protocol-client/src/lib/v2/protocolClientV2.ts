@@ -50,7 +50,7 @@ export default class ProtocolClientV2 extends ProtocolClientBase<ProtocolDetails
   constructor(
     signer: Signer,
     protocolDetails: ProtocolDetailsV2,
-    gasStation: GasStation
+    gasStation: GasStation | undefined
   ) {
     super(signer, protocolDetails, gasStation);
 
