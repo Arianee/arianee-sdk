@@ -38,7 +38,7 @@ export const instanceFactory = async <
   // override instance issuer (or sender) if signature is present in the content
   if (
     instance instanceof ArianeeEventInstance &&
-    instance.rawContent.issuer_signature
+    instance.rawContent.issuerSignature
   ) {
     try {
       const protocolName = instance.protocol.name;
@@ -47,7 +47,7 @@ export const instanceFactory = async <
         protocolDetails,
         parseInt(instance.id)
       );
-      const sig = instance.rawContent.issuer_signature;
+      const sig = instance.rawContent.issuerSignature;
       const issuerAddress = verifyMessage(message, sig);
 
       Object.assign(instance, {
@@ -62,7 +62,7 @@ export const instanceFactory = async <
   } else if (
     (instance instanceof SmartAssetInstance ||
       instance instanceof MessageInstance) &&
-    instance.data.rawContent.issuer_signature
+    instance.data.rawContent.issuerSignature
   ) {
     try {
       const protocolName = instance.data.protocol.name;
@@ -80,7 +80,7 @@ export const instanceFactory = async <
           parseInt(instance.data.id)
         );
       }
-      const sig = instance.data.rawContent.issuer_signature;
+      const sig = instance.data.rawContent.issuerSignature;
       const issuerAddress = verifyMessage(message, sig);
 
       if (instance instanceof SmartAssetInstance) {

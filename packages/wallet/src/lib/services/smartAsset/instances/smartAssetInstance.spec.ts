@@ -188,7 +188,7 @@ describe('SmartAssetInstance', () => {
         imprint: 'mockImprint',
         rawContent: {
           $schema: 'mockSchema',
-          issuer_signature: issuerSig,
+          issuerSignature: issuerSig,
         },
         protocol: {
           chainId: 666,
@@ -209,7 +209,7 @@ describe('SmartAssetInstance', () => {
         mockProtocolClient as any
       );
 
-      expect(smartAssetInstance.data.rawContent.issuer_signature).toBe(
+      expect(smartAssetInstance.data.rawContent.issuerSignature).toBe(
         issuerSig
       );
       expect(smartAssetInstance.data.issuer).toBe(core.getAddress());

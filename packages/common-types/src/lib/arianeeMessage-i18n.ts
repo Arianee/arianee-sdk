@@ -6,7 +6,7 @@ export interface ArianeeMessageI18N {
   i18n?: MessageI18nContent[];
   pictures?: MessageMedia[];
   externalContents?: MessageExternalContent[];
-  issuer_signature?: string;
+  issuerSignature?: string;
 }
 
 export type MessageLanguageCode =

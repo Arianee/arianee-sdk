@@ -43,7 +43,7 @@ export interface ArianeeProductCertificateI18N {
   animation_url?: string;
   youtube_url?: string;
   thread?: Thread;
-  issuer_signature?: string;
+  issuerSignature?: string;
   EAN?: string;
   technicalReference?: string;
   commercialReference?: string;
