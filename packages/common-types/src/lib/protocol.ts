@@ -26,7 +26,7 @@ export type ProtocolDetailsBase = {
   protocolVersion: ProtocolVersion;
   chainId: number;
   httpProvider: string;
-  gasStation: string;
+  gasStation?: string;
 };
 
 export type ProtocolVersion = ProtocolV1Versions | ProtocolV2Versions;
