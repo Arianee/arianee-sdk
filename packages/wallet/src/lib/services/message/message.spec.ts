@@ -478,7 +478,7 @@ describe('MessageService', () => {
         imprint: 'mockImprint',
         rawContent: {
           $schema: 'mockSchema',
-          issuer_signature: issuerSig,
+          issuerSignature: issuerSig,
         },
         protocol: {
           chainId: 666,
@@ -499,7 +499,7 @@ describe('MessageService', () => {
         mockProtocolClient as any
       );
 
-      expect(messageInstance.data.rawContent.issuer_signature).toBe(issuerSig);
+      expect(messageInstance.data.rawContent.issuerSignature).toBe(issuerSig);
       expect(messageInstance.data.sender).toBe(core.getAddress());
     });
   });

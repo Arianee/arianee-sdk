@@ -302,7 +302,7 @@ export default class SmartAssets<Strategy extends TransactionStrategy> {
       );
     }
 
-    if (this.creator.privacyMode && !content.issuer_signature) {
+    if (this.creator.privacyMode && !content.issuerSignature) {
       content = await injectIssuerSig__SmartAsset(
         this.creator.core,
         this.creator.connectedProtocolClient!.protocolDetails,

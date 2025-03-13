@@ -537,7 +537,7 @@ describe('SmartAssets', () => {
 
       expect(afterTransactionSpy).toHaveBeenCalledWith(123, content);
     });
-    it('should inject a valid `issuer_signature` in content and return the id, imprint and modified content if privacyMode is enabled', async () => {
+    it('should inject a valid `issuerSignature` in content and return the id, imprint and modified content if privacyMode is enabled', async () => {
       jest.spyOn(creator, 'privacyMode', 'get').mockReturnValue(true);
 
       const content = {
@@ -638,7 +638,7 @@ describe('SmartAssets', () => {
 
       expect(afterTransactionSpy).toHaveBeenCalledWith(123, {
         ...content,
-        issuer_signature: expectedIssuerSignature.signature,
+        issuerSignature: expectedIssuerSignature.signature,
       });
     });
   });

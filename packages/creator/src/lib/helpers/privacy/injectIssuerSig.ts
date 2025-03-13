@@ -24,7 +24,7 @@ export const injectIssuerSig__SmartAsset = async (
 
   return {
     ...content,
-    issuer_signature: signature,
+    issuerSignature: signature,
   };
 };
 
@@ -40,7 +40,7 @@ export const injectIssuerSig__Message = async (
 
   return {
     ...content,
-    issuer_signature: signature,
+    issuerSignature: signature,
   };
 };
 
@@ -56,6 +56,6 @@ export const injectIssuerSig__Event = async (
 
   return {
     ...content,
-    issuer_signature: signature,
+    issuerSignature: signature,
   };
 };

@@ -64,7 +64,7 @@ describe('ArianeeEventInstance', () => {
         imprint: 'mockImprint',
         rawContent: {
           $schema: 'mockSchema',
-          issuer_signature: issuerSig,
+          issuerSignature: issuerSig,
         },
         protocol: {
           chainId: 666,
@@ -85,7 +85,7 @@ describe('ArianeeEventInstance', () => {
         mockProtocolClient as any
       );
 
-      expect(eventInstance.rawContent.issuer_signature).toBe(issuerSig);
+      expect(eventInstance.rawContent.issuerSignature).toBe(issuerSig);
       expect(eventInstance.sender).toBe(core.getAddress());
     });
   });
