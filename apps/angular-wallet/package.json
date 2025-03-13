@@ -17,7 +17,7 @@
     "zone.js": "~0.13.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~16.0.5",
+    "@angular-devkit/build-angular": "~19.2.3",
     "@angular-devkit/core": "~16.0.0",
     "@angular-devkit/schematics": "~16.0.0",
     "@angular-eslint/eslint-plugin": "~16.0.0",
@@ -37,7 +37,7 @@
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "https-browserify": "^1.0.0",
-    "jest-preset-angular": "~13.1.0",
+    "jest-preset-angular": "~13.1.6",
     "os-browserify": "^0.3.0",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
