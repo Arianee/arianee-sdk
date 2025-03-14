@@ -3,10 +3,10 @@ import { JwtHeaderInterface } from '../types/JwtHeaderInterface';
 
 export class JWTGeneric {
   private static readonly JWT_HEADER_ETH =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFVEgifQ==';
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFVEgifQ';
 
   private static readonly JWT_HEADER_secp256k1 =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==';
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ';
 
   private header = { typ: 'JWT', alg: 'secp256k1' };
   private payload!: ArianeeAccessTokenPayload;
@@ -17,7 +17,7 @@ export class JWTGeneric {
       signer?: (data: string) => Promise<string> | string;
       recover?: (message: string, signature: string) => string;
     }
-  ) {}
+  ) { }
 
   /**
    * Set payload to be signed
@@ -52,12 +52,25 @@ export class JWTGeneric {
     data: ArianeeAccessTokenPayload | JwtHeaderInterface
   ): string {
     const stringified = JSON.stringify(data);
-    const buffer = Buffer.from(stringified);
-    return buffer.toString('base64');
+    // https://datatracker.ietf.org/doc/html/rfc7515#appendix-C
+    return Buffer.from(stringified)
+      .toString('base64')
+      .replace(/[=]/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
   }
 
   private static fromBase64JSONParse(data: string) {
-    const buffer = Buffer.from(data, 'base64');
+    let s = data;
+    s = s.replace(/-/g, '+');
+    s = s.replace(/_/g, '/');
+    switch (s.length % 4) {
+      case 0: break;
+      case 2: s += "=="; break;
+      case 3: s += "="; break;
+      default: throw new Error("Illegal base64url string!");
+    }
+    const buffer = Buffer.from(s, 'base64');
     const string = buffer.toString('utf8');
     return JSON.parse(string);
   }
@@ -78,12 +91,11 @@ export class JWTGeneric {
       throw new Error('You should provide a decoder to verify your token');
     }
 
-    const { prefix, header, payload, signature } = this.decode();
-    const signedMessage = `${prefix}${JWTGeneric.base64Stringified(
-      header
-    )}.${JWTGeneric.base64Stringified(payload)}`;
+    const [header, payload, signature] = this.encodedToken.split('.');
+    const signedMessage = header + '.' + payload;
 
     const decode = this.params.recover(signedMessage, signature);
+
 
     const arePropertyValid = this.arePropertiesValid(timeBeforeExp);
 
@@ -139,13 +151,28 @@ export class JWTGeneric {
     payload: ArianeeAccessTokenPayload;
     signature: string;
   } => {
-    const headerType = this.encodedToken.includes(JWTGeneric.JWT_HEADER_ETH)
+    let headerType = this.encodedToken.includes(JWTGeneric.JWT_HEADER_ETH)
       ? JWTGeneric.JWT_HEADER_ETH
-      : JWTGeneric.JWT_HEADER_secp256k1;
+      : this.encodedToken.includes(JWTGeneric.JWT_HEADER_secp256k1)
+        ? JWTGeneric.JWT_HEADER_secp256k1
+        : null;
 
-    const [prefix, remainder] = this.encodedToken.split(`${headerType}.`);
 
-    const [header, payload, signature] = [headerType, ...remainder.split('.')];
+    // AAT used to not match RFC 7515. But we need to be retro-compatible until fix is used everywhere
+    if (this.encodedToken.includes("==")) {
+      headerType = headerType + '=='
+    }
+
+    let prefix;
+    let remainder;
+    let header, payload, signature;
+    if (headerType) {
+      [prefix, remainder] = this.encodedToken.split(`${headerType}.`);
+      [header, payload, signature] = [headerType, ...remainder.split('.')];
+    } else {
+      remainder = this.encodedToken;
+      [header, payload, signature] = remainder.split('.');
+    }
 
     return {
       prefix: prefix ?? '',
@@ -166,9 +193,9 @@ export class JWTGeneric {
 
     return this.params.signer(
       prefix +
-        JWTGeneric.base64Stringified(this.header) +
-        '.' +
-        JWTGeneric.base64Stringified(this.payload)
+      JWTGeneric.base64Stringified(this.header) +
+      '.' +
+      JWTGeneric.base64Stringified(this.payload)
     );
   }
 }
