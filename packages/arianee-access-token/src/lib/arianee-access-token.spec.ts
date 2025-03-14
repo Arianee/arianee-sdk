@@ -67,9 +67,7 @@ describe('arianeeAccessToken', () => {
   it('should generate a valid aat', async () => {
     const aatGenerator = new ArianeeAccessToken(core);
     const aat = await aatGenerator['generateAAT']({ iat: 0, exp: 0 });
-    expect(aat).toEqual(
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjAsImlhdCI6MH0=.0x6ec31d56cb6ec7ff9cf9c04f16c4bdc75b9b1d1b35d1940f20b3e905e162600b67a1970f537b9ae8c26c1f05a93913d13d599923880f71ed1198b331593bd8f81b'
-    );
+    expect(aat).toMatchSnapshot();
   });
 
   it('should verify aat validity', async () => {
@@ -224,6 +222,19 @@ describe('arianeeAccessToken', () => {
       expect(generatedAat).toMatch(new RegExp(prefix + '(a-zA-Zd.)*', 'gi'));
       expect(createWalletAccessTokenSpy).toHaveBeenCalledTimes(1);
       expect(createWalletAccessTokenSpy).toHaveBeenCalledWith({}, prefix);
+    });
+  });
+
+  describe('decodeJWTWithoutValidation', () => {
+    it('should decode an non aat jwt', async () => {
+      const nonAatJwt =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+      const decoded = await ArianeeAccessToken.decodeJWTWithoutValidation(
+        nonAatJwt
+      );
+
+      expect(decoded).toMatchSnapshot();
     });
   });
 

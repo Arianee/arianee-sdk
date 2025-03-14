@@ -25,7 +25,7 @@ describe('JWTGeneric', function () {
     iat: 0,
   };
   const expectedToken =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ==.eyJpc3MiOiIweDc0RkUwOURiMjNEZjVjMzVkMjk2OUI2NjZmN0FBOTQ2MjFFMTFEMzAiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjAsImlhdCI6MH0=.0x5e6a861198682b3ab59a5be58dfa534affc7d2f7e9e93b0ca7e6c04493d5e9ea2e136d1c07f43b7e951f9d4a52c67ea89f44ceec9ea6a86e14b09eb427a82a591c';
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ.eyJpc3MiOiIweDc0RkUwOURiMjNEZjVjMzVkMjk2OUI2NjZmN0FBOTQ2MjFFMTFEMzAiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjAsImlhdCI6MH0.0x5e6a861198682b3ab59a5be58dfa534affc7d2f7e9e93b0ca7e6c04493d5e9ea2e136d1c07f43b7e951f9d4a52c67ea89f44ceec9ea6a86e14b09eb427a82a591c';
 
   describe('basic methods', () => {
     test('it should create a token', async () => {
