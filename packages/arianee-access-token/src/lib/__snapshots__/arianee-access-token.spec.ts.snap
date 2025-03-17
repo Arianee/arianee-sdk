@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`arianeeAccessToken decodeJWTWithoutValidation should decode an non aat jwt 1`] = `
+{
+  "header": {
+    "alg": "HS256",
+    "typ": "JWT",
+  },
+  "payload": {
+    "iat": 1516239022,
+    "name": "John Doe",
+    "sub": "1234567890",
+  },
+  "prefix": "",
+  "signature": "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+}
+`;
+
+exports[`arianeeAccessToken should decode an non aat jwt 1`] = `
+{
+  "header": {
+    "alg": "HS256",
+    "typ": "JWT",
+  },
+  "payload": {
+    "iat": 1516239022,
+    "name": "John Doe",
+    "sub": "1234567890",
+  },
+  "prefix": "",
+  "signature": "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+}
+`;
+
+exports[`arianeeAccessToken should generate a valid aat 1`] = `"eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ.eyJpc3MiOiIweDc2OTFlMDcwNUMyRThlRDc5MzY2QjA2N2Q1ZkNBRmE4OUFBMDdGODgiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjAsImlhdCI6MH0.0xf872f15ae35e23eb230510e69248da851a66de98957e732c4e314538ce3892e003f188ee7e066c1d914b96bf6c4940624cdfeb5d2ee0c8d9e6f155ab020925f31c"`;
