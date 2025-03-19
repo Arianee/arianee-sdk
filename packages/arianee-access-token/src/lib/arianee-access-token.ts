@@ -164,7 +164,7 @@ export class ArianeeAccessToken {
     return jwt.decode();
   }
 
-  private async generateAAT(
+  public async generateAAT(
     payload: Partial<ArianeeAccessTokenPayload> & PayloadOverride = {},
     prefix?: string
   ): Promise<string> {
