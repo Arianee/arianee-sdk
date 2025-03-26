@@ -63,6 +63,28 @@ describe('createLink', () => {
       brandIdentity: getTestBrandIdentity('domain3.org/'),
       expectedLink: 'https://domain3.org/123,test',
     },
+    {
+      slug: 'customnetwork',
+      suffix: '/proof',
+      tokenId: '123',
+      passphrase: 'test',
+      expectedLink: 'https://customnetwork.arianee.net/proof/123,test',
+    },
+    {
+      slug: 'customnetwork',
+      suffix: '/proof',
+      tokenId: '123',
+      passphrase: 'test',
+      brandIdentity: getTestBrandIdentity('domain3.org/'),
+      expectedLink: 'https://domain3.org/proof/123,test',
+    },
+    {
+      slug: 'anotherNetwork',
+      suffix: undefined,
+      tokenId: '123',
+      passphrase: 'test',
+      expectedLink: 'https://anotherNetwork.arianee.net/123,test',
+    },
   ])(
     'should return a link for protocol v1',
     ({ slug, suffix, tokenId, passphrase, expectedLink, brandIdentity }) => {
