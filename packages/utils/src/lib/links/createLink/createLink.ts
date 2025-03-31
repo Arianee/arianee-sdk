@@ -36,9 +36,11 @@ export const createLink = ({
   if (isProtocolV2FromSlug(slug)) {
     return `https://arian.ee${suffix}/${tokenId},${passphrase},${slug}`;
   } else {
-    return `https://${
-      customDomain ?? getHostnameFromProtocolName(slug)
-    }${suffix}/${tokenId},${passphrase}`;
+    const hostname =
+      customDomain ??
+      getHostnameFromProtocolName(slug) ??
+      `${slug}.arianee.net`;
+    return `https://${hostname}${suffix}/${tokenId},${passphrase}`;
   }
 };
 

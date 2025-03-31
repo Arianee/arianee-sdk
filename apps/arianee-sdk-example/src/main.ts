@@ -7,7 +7,7 @@
 // import protocolClientV2 from './arianee-protocol-client/protocolClientV2';
 // import createAndStore from './creator/createAndStore';
 // import privacyMode from './creator/privacy';
-import { example as arianeeAccessTokenExample } from './arianee-access-token/example';
+import { createLink } from '@arianee/utils';
 
 (async () => {
   // console.log('Uncomment the code you want to run');
@@ -23,5 +23,11 @@ import { example as arianeeAccessTokenExample } from './arianee-access-token/exa
   // await createAndStore();
   // await protocolClientV2();
   // await privacyMode();
-  await arianeeAccessTokenExample();
+  console.log(
+    createLink({
+      slug: 'richemontSupernet',
+      tokenId: '1',
+      passphrase: 'test',
+    })
+  );
 })();
