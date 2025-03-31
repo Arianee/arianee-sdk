@@ -118,10 +118,13 @@ export class ArianeeAccessToken {
     const recover = (message: string, signature: string): string =>
       ethers.verifyMessage(message, signature);
     const jwtGenerator = new JWTGeneric({ recover });
+
     const jwt = jwtGenerator.setToken(arianeeAccessToken);
+
     const iss = jwt.decode().payload.iss;
 
     let resolvedIss: string | null = null;
+
     if (ethers.isAddress(iss) === false) {
       try {
         const addressResolver = options?.disableENSResolverCache
@@ -133,6 +136,7 @@ export class ArianeeAccessToken {
           options?.ethereumProvider ?? JSON_RPC_PROVIDER
         );
       } catch (e) {
+        console.log('e', e);
         if (e instanceof Error && e.message.match(/unconfigured name/gi))
           throw new Error('Unconfigured ENS name: ' + iss);
         else throw e;
@@ -144,6 +148,11 @@ export class ArianeeAccessToken {
     return jwt.verify(resolvedIss ?? iss, expBeforeExpiration);
   }
 
+  public static async decodeJWTWithoutValidation(arianeeAccessToken: string) {
+    const jwtGenerator = new JWTGeneric({});
+    const jwt = jwtGenerator.setToken(arianeeAccessToken);
+    return jwt.decode();
+  }
   static async decodeJwt(
     arianeeAccessToken: string,
     ignoreExpiration = false
@@ -156,6 +165,7 @@ export class ArianeeAccessToken {
       arianeeAccessToken,
       ignoreExpiration
     );
+
     if (!isAatValid) {
       throw new Error('ArianeeAccessToken is not valid');
     }

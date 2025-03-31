@@ -1,6 +1,20 @@
 import { ArianeeAccessToken } from '@arianee/arianee-access-token';
+import { Core } from '@arianee/core';
 
 export const example = async () => {
+  const pk =
+    '0x1fdc1c1014447d770b85ef507c256ffa5a186095948aadb0c28a76688d99d288';
+
+  const core = Core.fromPrivateKey(pk);
+  const arianeeAccessToken = new ArianeeAccessToken(core);
+  const aat = await arianeeAccessToken.getValidWalletAccessToken({
+    id: 'monSecondzefUser',
+  });
+  console.log(aat);
+
+  const decoded = await ArianeeAccessToken.decodeJwt(aat);
+  console.log(decoded);
+
   /*console.time('aatAddress');
   console.log(
     'Verifying validity of AAT issued by an eth address (0xf77e196a1ecfdafa444b7aef0967f973aae0e712)'
@@ -16,24 +30,4 @@ export const example = async () => {
   );
   console.log('valid', valid1);
   console.timeEnd('aatAddress');*/
-
-  console.time('aatDomain');
-  console.log('Verifying validity of AAT issued by arianee.com');
-  console.log(
-    'JWT content',
-    atob(
-      'eyJpc3MiOiJhcmlhbmVlLmNvbSIsInN1YiI6IndhbGxldCIsImV4cCI6MjIwNTEzOTUyOSwiaWF0IjoxNzMyMDk5NTI5fQ=='
-    )
-  );
-
-  for (let i = 0; i < 20; i++) {
-    console.log('wait...');
-    const valid2 = await ArianeeAccessToken.isArianeeAccessTokenValid(
-      'redacted token', // put an ENS issued token here to test
-      false,
-      { disableENSResolverCache: false }
-    );
-    console.log('valid', valid2);
-  }
-  console.timeEnd('aatDomain');
 };

@@ -32,6 +32,7 @@ describe('JWTGeneric', function () {
       const jwt = new JWTGeneric({ signer, recover });
 
       const jwtService = await jwt.setPayload(payload);
+
       const token = await jwtService.sign();
 
       expect(token).toBe(expectedToken);
@@ -59,7 +60,6 @@ describe('JWTGeneric', function () {
       const jwt = new JWTGeneric({ signer, recover });
 
       const isAuthentic = jwt.setToken(expectedToken).verify(pubKey, -1);
-
       expect(isAuthentic).toBeTruthy();
     });
   });
@@ -228,6 +228,38 @@ describe('JWTGeneric', function () {
       const isAuthentic = jwt.setToken(expectedToken).verify(pubKey);
 
       expect(isAuthentic).toBeFalsy();
+    });
+  });
+
+  describe('AAT is a valid JWT', () => {
+    test('it should decode and valid a AAT when it is a valid JWT', async () => {
+      const jwt = new JWTGeneric({ signer, recover });
+
+      // When AAT is used as JWT withtout ==
+      const aatAsJWT =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ.eyJpc3MiOiIweDc0RkUwOURiMjNEZjVjMzVkMjk2OUI2NjZmN0FBOTQ2MjFFMTFEMzAiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjAsImlhdCI6MH0.0xa445c2bd173bb9ff5754e793cc94d0fe5aee66580ff20c15d3ab0ff48121f48a07c3f69bd608faf313681b5f1746acdc9e366dcb700d79fcb59d187b3992e9591c';
+
+      const jwtService = await jwt.setToken(aatAsJWT);
+      const decodedToken = await jwtService.decode();
+
+      const isAuthentic = jwt.setToken(expectedToken).verify(pubKey, -1);
+      expect(isAuthentic).toBeTruthy();
+      expect(decodedToken.payload).toEqual(payload);
+    });
+
+    test('it should decode and valid a AAT when it is a valid JWT with a prefix', async () => {
+      const jwt = new JWTGeneric({ signer, recover });
+
+      // When AAT is used as JWT withtout ==
+      const aatAsJWT =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJzZWNwMjU2azEifQ.eyJpc3MiOiIweDc0RkUwOURiMjNEZjVjMzVkMjk2OUI2NjZmN0FBOTQ2MjFFMTFEMzAiLCJzdWIiOiJ3YWxsZXQiLCJleHAiOjAsImlhdCI6MH0.0xa445c2bd173bb9ff5754e793cc94d0fe5aee66580ff20c15d3ab0ff48121f48a07c3f69bd608faf313681b5f1746acdc9e366dcb700d79fcb59d187b3992e9591c';
+
+      const jwtService = await jwt.setToken(aatAsJWT);
+      const decodedToken = await jwtService.decode();
+
+      const isAuthentic = jwt.setToken(expectedToken).verify(pubKey, -1);
+      expect(isAuthentic).toBeTruthy();
+      expect(decodedToken.payload).toEqual(payload);
     });
   });
 });
