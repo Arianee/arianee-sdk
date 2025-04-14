@@ -10,10 +10,8 @@ export enum ProtocolName {
   testnetSbt = 'testnetSbt',
   arianeeSupernet = 'arianeeSupernet',
   arianeesbt = 'arianeesbt',
-  tezostestnet = 'tezostestnet',
   richemontsupernet = 'richemontsupernet',
   supernettestnet = 'supernettestnet',
-  etherlinktestnet = 'etherlinktestnet',
 }
 
 export type Protocol = { name: string; chainId: number };
