@@ -524,5 +524,127 @@ describe('Events', () => {
         undefined
       );
     });
+
+    it('should store event in both smart asset issuer and event issuer privacy gateways when issuers are different', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      const getIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://smart-asset-issuer.com',
+            } as any)
+        );
+
+      const getCreatorIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://event-issuer.com',
+            } as any)
+        );
+
+      const issuerOfSpy = jest.fn().mockResolvedValueOnce('0x456'); // Different from creator address
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: issuerOfSpy,
+            },
+          } as any)
+        );
+
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
+
+      // Should be called twice - once for each gateway
+      expect(spy).toHaveBeenCalledTimes(2);
+
+      // First call for smart asset issuer gateway
+      expect(spy).toHaveBeenNthCalledWith(1, 'https://smart-asset-issuer.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+
+      // Second call for event issuer gateway
+      expect(spy).toHaveBeenNthCalledWith(2, 'https://event-issuer.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+
+      expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x456');
+      expect(getCreatorIdentitySpy).toHaveBeenCalled();
+      expect(issuerOfSpy).toHaveBeenCalled();
+    });
+
+    it('should store event in single gateway when issuers are the same', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      const getIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://mock.com',
+            } as any)
+        );
+
+      const issuerOfSpy = jest.fn().mockResolvedValueOnce(creatorAddress); // Same as creator address
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: issuerOfSpy,
+            },
+          } as any)
+        );
+
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
+
+      // Should be called only once
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+
+      expect(getIdentitySpy).toHaveBeenCalledWith(creator, creatorAddress);
+      expect(issuerOfSpy).toHaveBeenCalled();
+    });
+
+    it('should store event in single gateway when useSmartAssetIssuerPrivacyGateway is false', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      const getCreatorIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://event-issuer.com',
+            } as any)
+        );
+
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
+
+      // Should be called only once for event issuer gateway
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('https://event-issuer.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+
+      expect(getCreatorIdentitySpy).toHaveBeenCalled();
+    });
   });
 });
