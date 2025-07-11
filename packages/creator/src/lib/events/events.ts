@@ -77,8 +77,8 @@ export default class Events<Strategy extends TransactionStrategy> {
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
       {
-        protocolV1Action: (protocolV1) =>
-          protocolV1.smartAssetContract.issuerOf(smartAssetId),
+        protocolV1Action: async (protocolV1) =>
+          await protocolV1.smartAssetContract.issuerOf(smartAssetId),
         protocolV2Action: async (protocolV2) => {
           throw new Error('not yet implemented getIssuerOf in storeEvent');
         },
@@ -87,30 +87,39 @@ export default class Events<Strategy extends TransactionStrategy> {
     );
 
     // Get the event issuer (creator)
-    const eventIssuer = this.creator.creatorAddress;
+    const eventIssuer = this.creator.core.getAddress();
 
-    // Check if the smart asset issuer is different from the event issuer
-    const isDifferentIssuer =
-      smartAssetIssuer !== ethers.ZeroAddress &&
-      smartAssetIssuer.toLowerCase() !== eventIssuer.toLowerCase();
-
-    if (isDifferentIssuer && useSmartAssetIssuerPrivacyGateway) {
-      // Store in both gateways: smart asset issuer and event issuer
-      await this.storeEventInMultipleGateways(
-        smartAssetId,
-        eventId,
-        content,
-        smartAssetIssuer,
-        eventIssuer
-      );
-    } else {
-      // Store in single gateway (original behavior)
+    // If the smart asset issuer is the zero address, it means it's a reserved NFT, we fallback to the owner address to get the identity (which is the same as the issuer)
+    if (smartAssetIssuer === ethers.ZeroAddress) {
+      // Reserved NFT: fallback to owner logic in single gateway
       await this.storeEventInSingleGateway(
         smartAssetId,
         eventId,
         content,
         useSmartAssetIssuerPrivacyGateway
       );
+    } else {
+      const isDifferentIssuer =
+        smartAssetIssuer.toLowerCase() !== eventIssuer.toLowerCase();
+
+      if (isDifferentIssuer && useSmartAssetIssuerPrivacyGateway) {
+        // Store in both gateways: smart asset issuer and event issuer
+        await this.storeEventInMultipleGateways(
+          smartAssetId,
+          eventId,
+          content,
+          smartAssetIssuer,
+          eventIssuer
+        );
+      } else {
+        // Store in single gateway (original behavior)
+        await this.storeEventInSingleGateway(
+          smartAssetId,
+          eventId,
+          content,
+          useSmartAssetIssuerPrivacyGateway
+        );
+      }
     }
   }
 
@@ -144,7 +153,12 @@ export default class Events<Strategy extends TransactionStrategy> {
 
     const storePromises = [];
 
-    // Store in smart asset issuer's privacy gateway
+    // Store in smart asset issuer's privacy gateway (OBLIGATOIRE)
+    if (!smartAssetIssuerIdentity || !smartAssetIssuerIdentity.rpcEndpoint) {
+      throw new ArianeePrivacyGatewayError(
+        'No privacy gateway available for smart asset issuer'
+      );
+    }
     try {
       storePromises.push(
         client.eventCreate(smartAssetIssuerIdentity.rpcEndpoint, {
@@ -160,23 +174,26 @@ export default class Events<Strategy extends TransactionStrategy> {
       );
     }
 
-    // Store in event issuer's privacy gateway
-    try {
-      storePromises.push(
-        client.eventCreate(eventIssuerIdentity.rpcEndpoint, {
-          eventId: eventId.toString(),
-          content,
-        })
-      );
-    } catch (e) {
-      throw new ArianeePrivacyGatewayError(
-        `Error while storing event on Event Issuer Privacy Gateway\n${
-          e instanceof Error ? e.message : 'unknown reason'
-        }`
-      );
+    // Store in event issuer's privacy gateway (optional)
+    if (eventIssuerIdentity && eventIssuerIdentity.rpcEndpoint) {
+      try {
+        storePromises.push(
+          client.eventCreate(eventIssuerIdentity.rpcEndpoint, {
+            eventId: eventId.toString(),
+            content,
+          })
+        );
+      } catch (e) {
+        throw new ArianeePrivacyGatewayError(
+          `Error while storing event on Event Issuer Privacy Gateway\n${
+            e instanceof Error ? e.message : 'unknown reason'
+          }`
+        );
+      }
+    } else {
+      console.warn('No identity or rpcEndpoint for event issuer');
     }
 
-    // Wait for both operations to complete
     await Promise.all(storePromises);
   }
 
@@ -194,15 +211,15 @@ export default class Events<Strategy extends TransactionStrategy> {
     content: CreateAndStoreEventParameters['content'],
     useSmartAssetIssuerPrivacyGateway: boolean
   ) {
-    let identity: IdentityWithRpcEndpoint;
+    let identity: IdentityWithRpcEndpoint | undefined;
 
     if (useSmartAssetIssuerPrivacyGateway) {
       const issuer = await callWrapper(
         this.creator.arianeeProtocolClient,
         this.creator.slug!,
         {
-          protocolV1Action: (protocolV1) =>
-            protocolV1.smartAssetContract.issuerOf(smartAssetId),
+          protocolV1Action: async (protocolV1) =>
+            await protocolV1.smartAssetContract.issuerOf(smartAssetId),
           protocolV2Action: async (protocolV2) => {
             throw new Error('not yet implemented');
           },
@@ -232,6 +249,13 @@ export default class Events<Strategy extends TransactionStrategy> {
       }
     } else {
       identity = await getCreatorIdentity(this.creator);
+    }
+
+    if (!identity || !identity.rpcEndpoint) {
+      console.warn('No identity or rpcEndpoint for event storage');
+      throw new ArianeePrivacyGatewayError(
+        'No privacy gateway available for event storage'
+      );
     }
 
     const client = new ArianeePrivacyGatewayClient(
