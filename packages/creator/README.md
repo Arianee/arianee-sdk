@@ -654,6 +654,32 @@ _⚠️ Requires the core address to have an identity URI if not using true for 
 
 Store content of the event in the Arianee Privacy Gateway set in the smart issuer's identity (or the core address's identity if `useSmartAssetIssuerPrivacyGateway` set to false).
 
+**🔄 Inter-Issuer Event Sharing**
+
+When an event is created by an issuer different from the smart asset issuer, the event is automatically stored in both privacy gateways:
+
+- **Smart Asset Issuer's Privacy Gateway**: Allows the DPP issuer to access events created on their assets
+- **Event Issuer's Privacy Gateway**: Allows the event creator to access their own events
+
+This ensures both parties have complete access to events created on a DPP, even when created by different actors.
+
+**Example:**
+
+```typescript
+// Darty creates an event on a Beko DPP
+await creator.events.createAndStoreEvent({
+  smartAssetId: 123, // Beko's DPP
+  content: {
+    eventType: 'refurbished',
+    language: 'fr-FR',
+    title: 'Reconditionnement',
+    description: 'Appareil reconditionné par Darty',
+  },
+  useSmartAssetIssuerPrivacyGateway: true, // Default behavior
+});
+// Event is stored in both Beko's and Darty's privacy gateways
+```
+
 ```typescript
 public async storeEvent(
   smartAssetId: number,

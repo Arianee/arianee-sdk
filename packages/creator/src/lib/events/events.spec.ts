@@ -394,6 +394,9 @@ describe('Events', () => {
   });
 
   describe('storeEvent', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
     it('should throw an ArianeePrivacyGatewayError if the rpc call fails', async () => {
       jest
         .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
@@ -401,10 +404,18 @@ describe('Events', () => {
 
       jest.spyOn(getIdentityModule, 'getCreatorIdentity').mockImplementation();
 
-      expect(
-        creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false)
-      ).rejects.toThrow(/Arianee Privacy Gateway/gi);
-      expect(
+      // Mock callWrapper pour retourner creatorAddress comme issuer
+      jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: jest.fn().mockResolvedValue(creatorAddress),
+            },
+          } as any)
+        );
+
+      await expect(
         creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false)
       ).rejects.toThrowError(ArianeePrivacyGatewayError);
     });
@@ -420,6 +431,17 @@ describe('Events', () => {
             rpcEndpoint: 'https://mock.com',
           } as any)
       );
+
+      // Mock callWrapper pour retourner creatorAddress comme issuer
+      jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: jest.fn().mockResolvedValue(creatorAddress),
+            },
+          } as any)
+        );
 
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
 
@@ -443,9 +465,9 @@ describe('Events', () => {
             } as any)
         );
 
+      // Mock callWrapper pour retourner une adresse différente du creator
       const issuerOfSpy = jest.fn().mockResolvedValueOnce('0x123');
-
-      const callWrapperSpy = jest
+      jest
         .spyOn(arianeeProtocolClientModule, 'callWrapper')
         .mockImplementation(async (_, __, actions) =>
           actions.protocolV1Action({
@@ -461,20 +483,70 @@ describe('Events', () => {
         eventId: '123',
         content: { $schema: 'mock' },
       });
-
       expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
-      expect(callWrapperSpy).toHaveBeenCalledWith(
-        creator['arianeeProtocolClient'],
-        creator['slug'],
-        {
-          protocolV1Action: expect.any(Function),
-          protocolV2Action: expect.any(Function),
-        },
-        undefined
-      );
+      expect(issuerOfSpy).toHaveBeenCalled();
     });
 
     it("should call eventCreate and store it in the smart asset owner's identity privacy gateway if the issuer is the zero address (reserved nft case)", async () => {
+      // Spy sur eventCreate
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      // Spy sur getIdentity
+      const getIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getIdentity')
+        .mockImplementation(() => ({ rpcEndpoint: 'https://mock.com' } as any));
+
+      // Prépare trois spies pour issuerOf / ownerOf
+      const issuerOfSpy1 = jest.fn().mockResolvedValueOnce(ethers.ZeroAddress); // outer
+      const issuerOfSpy2 = jest.fn().mockResolvedValueOnce(ethers.ZeroAddress); // inner
+      const ownerOfSpy = jest.fn().mockResolvedValueOnce('0x123'); // fallback
+
+      const callWrapperSpy = jest.spyOn(
+        arianeeProtocolClientModule,
+        'callWrapper'
+      );
+
+      // 1er appel → outer smartAssetIssuer
+      callWrapperSpy.mockImplementationOnce(async (_, __, actions) =>
+        actions.protocolV1Action({
+          smartAssetContract: { issuerOf: issuerOfSpy1, ownerOf: jest.fn() },
+        } as any)
+      );
+
+      // 2ᵉ appel → inner issuerOf (déclenche le fallback interne)
+      callWrapperSpy.mockImplementationOnce(async (_, __, actions) =>
+        actions.protocolV1Action({
+          smartAssetContract: { issuerOf: issuerOfSpy2, ownerOf: jest.fn() },
+        } as any)
+      );
+
+      // 3ᵉ appel → inner ownerOf (fournit enfin l'owner réel)
+      callWrapperSpy.mockImplementationOnce(async (_, __, actions) =>
+        actions.protocolV1Action({
+          smartAssetContract: { issuerOf: jest.fn(), ownerOf: ownerOfSpy },
+        } as any)
+      );
+
+      // Exécution du test
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
+
+      // Assertions
+      expect(issuerOfSpy1).toHaveBeenCalled(); // Outer
+      expect(issuerOfSpy2).toHaveBeenCalled(); // Inner issuer
+      expect(ownerOfSpy).toHaveBeenCalled(); // Fallback owner
+
+      expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
+      expect(spy).toHaveBeenCalledWith('https://mock.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+
+      expect(callWrapperSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it('should store event in both smart asset issuer and event issuer privacy gateways when issuers are different', async () => {
       const spy = jest
         .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
         .mockImplementation();
@@ -484,45 +556,122 @@ describe('Events', () => {
         .mockImplementation(
           () =>
             ({
-              rpcEndpoint: 'https://mock.com',
+              rpcEndpoint: 'https://smart-asset-issuer.com',
             } as any)
         );
 
-      const issuerOfSpy = jest.fn().mockResolvedValueOnce(ethers.ZeroAddress);
-      const ownerOfSpy = jest.fn().mockResolvedValueOnce('0x123');
+      const getCreatorIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://event-issuer.com',
+            } as any)
+        );
 
-      const callWrapperSpy = jest
+      // Mock callWrapper pour retourner une adresse différente du creator
+      const issuerOfSpy = jest.fn().mockResolvedValueOnce('0x456');
+      jest
         .spyOn(arianeeProtocolClientModule, 'callWrapper')
         .mockImplementation(async (_, __, actions) =>
           actions.protocolV1Action({
             smartAssetContract: {
               issuerOf: issuerOfSpy,
-              ownerOf: ownerOfSpy,
             },
           } as any)
         );
 
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
 
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenNthCalledWith(1, 'https://smart-asset-issuer.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+      expect(spy).toHaveBeenNthCalledWith(2, 'https://event-issuer.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+      expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x456');
+      expect(getCreatorIdentitySpy).toHaveBeenCalled();
+      expect(issuerOfSpy).toHaveBeenCalled();
+    });
+
+    it('should store event in single gateway when issuers are the same', async () => {
+      // Spy sur eventCreate
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      // Forcer eventIssuer === creatorAddress via getCreatorIdentity
+      const getCreatorIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://mock.com',
+            } as any)
+        );
+
+      // Mock callWrapper pour retourner creatorAddress comme smartAssetIssuer
+      const issuerOfSpy = jest.fn().mockResolvedValueOnce(creatorAddress);
+      jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: issuerOfSpy,
+            },
+          } as any)
+        );
+
+      // Exécuter avec useSmartAssetIssuerPrivacyGateway = false
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
+
+      // Assertions
+      expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('https://mock.com', {
         eventId: '123',
         content: { $schema: 'mock' },
       });
 
+      expect(getCreatorIdentitySpy).toHaveBeenCalledWith(creator);
       expect(issuerOfSpy).toHaveBeenCalled();
-      expect(ownerOfSpy).toHaveBeenCalled();
-      expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
+    });
 
-      expect(callWrapperSpy).toHaveBeenCalledTimes(2);
-      expect(callWrapperSpy).toHaveBeenCalledWith(
-        creator['arianeeProtocolClient'],
-        creator['slug'],
-        {
-          protocolV1Action: expect.any(Function),
-          protocolV2Action: expect.any(Function),
-        },
-        undefined
-      );
+    it('should store event in single gateway when useSmartAssetIssuerPrivacyGateway is false', async () => {
+      const spy = jest
+        .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
+        .mockImplementation();
+
+      const getCreatorIdentitySpy = jest
+        .spyOn(getIdentityModule, 'getCreatorIdentity')
+        .mockImplementation(
+          () =>
+            ({
+              rpcEndpoint: 'https://event-issuer.com',
+            } as any)
+        );
+
+      // Mock callWrapper pour retourner creatorAddress comme issuer
+      jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) =>
+          actions.protocolV1Action({
+            smartAssetContract: {
+              issuerOf: jest.fn().mockResolvedValue(creatorAddress),
+            },
+          } as any)
+        );
+
+      await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('https://event-issuer.com', {
+        eventId: '123',
+        content: { $schema: 'mock' },
+      });
+      expect(getCreatorIdentitySpy).toHaveBeenCalled();
     });
   });
 });
