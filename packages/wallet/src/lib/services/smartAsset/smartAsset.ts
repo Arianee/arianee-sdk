@@ -4,6 +4,7 @@ import ArianeeProtocolClient, {
 } from '@arianee/arianee-protocol-client';
 import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import {
+  BrandIdentity,
   ChainType,
   Event,
   Protocol,
@@ -32,6 +33,7 @@ import Wallet, { TransactionStrategy } from '../../wallet';
 import EventManager from '../eventManager/eventManager';
 import ArianeeEventInstance from './instances/arianeeEventInstance';
 import SmartAssetInstance from './instances/smartAssetInstance';
+import { IdentityInstance } from '../identity/identity';
 
 export default class SmartAssetService<
   T extends ChainType,
@@ -450,6 +452,7 @@ export default class SmartAssetService<
     params?: {
       passphrase?: string;
       overrides?: NonPayableOverrides;
+      useBrandIdentity?: boolean;
     }
   ): Promise<string> {
     const _passphrase = params?.passphrase ?? generateRandomPassphrase();
@@ -497,11 +500,18 @@ export default class SmartAssetService<
       }
     );
 
+    let brandIdentity: IdentityInstance<BrandIdentity> | undefined;
+
+    if (params?.useBrandIdentity) {
+      brandIdentity = await this.wallet.identity.get(this.core.getAddress());
+    }
+
     return createLink({
       slug: protocolName,
       tokenId,
       passphrase: _passphrase,
       suffix,
+      brandIdentity: brandIdentity?.data,
     });
   }
 
