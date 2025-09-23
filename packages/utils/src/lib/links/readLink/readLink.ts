@@ -9,6 +9,14 @@ export type ReadLink = {
   link: string;
 };
 
+export type ReadArianeeLink = {
+  tokenId: string;
+  passphrase: string;
+  network: string;
+  issuer?: string;
+  link: string;
+};
+
 export const readLink = (link: string): ReadLink => {
   let url: URL;
 
@@ -84,4 +92,28 @@ export const getHostnameFromProtocolName = (protocolName: Protocol['name']) => {
   return Object.entries(WHITELABEL_HOSTNAMES_TO_PROTOCOL_NAME).find(
     ([, value]) => value === protocolName
   )?.[0];
+};
+
+/**
+ * Extracts information from an Arianee link
+ * Format: tokenId,passphrase,network[,issuer]
+ * @param link the Arianee link to parse
+ * @returns parsed link information including tokenId, passphrase, network, optional issuer and original link
+ */
+export const readArianeeLink = (link: string): ReadArianeeLink => {
+  const regex = /^https?:\/\/[^/]+\/([^,]+),([^,]+),([^,]+)(?:,([^,]+))?$/;
+  const match = regex.exec(link);
+  if (!match) {
+    throw new Error(
+      'Invalid Arianee link format. Expected URL with tokenId, passphrase, network[, issuer]'
+    );
+  }
+  const [, tokenId, passphrase, network, issuer] = match;
+  return {
+    tokenId,
+    passphrase,
+    network,
+    issuer: issuer || undefined,
+    link,
+  };
 };
