@@ -166,6 +166,16 @@ describe('readArianeeLink', () => {
         link: 'https://test.arian.ee/983190220,kj1ed3hq3a4y,testnet',
       },
     },
+    {
+      link: 'https://custom.domain.com/blabla/zefzef/123456,abcdef,testnet,0xABCDEF1234567890?queryParams=209834',
+      expected: {
+        tokenId: '123456',
+        passphrase: 'abcdef',
+        network: 'testnet',
+        issuer: '0xABCDEF1234567890',
+        link: 'https://custom.domain.com/blabla/zefzef/123456,abcdef,testnet,0xABCDEF1234567890?queryParams=209834',
+      },
+    },
   ])(
     'should return the expected value from the link (case %#)',
     ({ link, expected }) => {

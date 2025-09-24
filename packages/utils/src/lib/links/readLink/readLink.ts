@@ -101,7 +101,9 @@ export const getHostnameFromProtocolName = (protocolName: Protocol['name']) => {
  * @returns parsed link information including tokenId, passphrase, network, optional issuer and original link
  */
 export const readArianeeLink = (link: string): ReadArianeeLink => {
-  const regex = /^https?:\/\/[^/]+\/([^,]+),([^,]+),([^,]+)(?:,([^,]+))?$/;
+  // Regex qui gère les URLs avec ou sans segments supplémentaires
+  const regex =
+    /^https?:\/\/[^/]+\/(?:.*\/)?([^,]+),([^,]+),([^,]+)(?:,([^,?]+))?/;
   const match = regex.exec(link);
   if (!match) {
     throw new Error(
