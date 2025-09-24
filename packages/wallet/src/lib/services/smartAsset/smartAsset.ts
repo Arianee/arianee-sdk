@@ -31,9 +31,9 @@ import {
 } from '../../utils/walletReward/walletReward';
 import Wallet, { TransactionStrategy } from '../../wallet';
 import EventManager from '../eventManager/eventManager';
+import { IdentityInstance } from '../identity/identity';
 import ArianeeEventInstance from './instances/arianeeEventInstance';
 import SmartAssetInstance from './instances/smartAssetInstance';
-import { IdentityInstance } from '../identity/identity';
 
 export default class SmartAssetService<
   T extends ChainType,
@@ -457,7 +457,6 @@ export default class SmartAssetService<
   ): Promise<string> {
     const _passphrase = params?.passphrase ?? generateRandomPassphrase();
     const passphraseWallet = Core.fromPassPhrase(_passphrase);
-
     const accessType =
       linkType === 'requestOwnership'
         ? TokenAccessType.request
@@ -499,13 +498,11 @@ export default class SmartAssetService<
         },
       }
     );
-
     let brandIdentity: IdentityInstance<BrandIdentity> | undefined;
 
     if (params?.useBrandIdentity) {
       brandIdentity = await this.wallet.identity.get(this.core.getAddress());
     }
-
     return createLink({
       slug: protocolName,
       tokenId,
