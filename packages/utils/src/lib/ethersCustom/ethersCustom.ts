@@ -61,19 +61,27 @@ export class CoreWallet extends Wallet {
   }
 
   override async estimateGas(tx: TransactionRequest): Promise<bigint> {
+    // Clone to avoid mutating caller
+    const cleanTx: TransactionRequest = { ...tx };
+    delete cleanTx.gasPrice;
+    delete cleanTx.gasLimit;
+    delete cleanTx.maxFeePerGas;
+    delete cleanTx.maxPriorityFeePerGas;
+
+    const timeoutMs = 5_000;
+
     try {
-      // delete all reference to gas/gasprice in tx to avoid throw in estimate gas if wallet has no fund. (it should be funded by the protocol anyway)
-      delete tx.gasPrice;
-      delete tx.gasLimit;
-      delete tx.maxFeePerGas;
-      delete tx.maxPriorityFeePerGas;
-      const estimate = await super.estimateGas(tx);
+      const estimate = await Promise.race<bigint>([
+        super.estimateGas(cleanTx),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('estimateGas')), timeoutMs)
+        ),
+      ]);
       return estimate;
-    } catch (e: any) {
-      throw new Error(e);
+    } catch (err: any) {
+      throw err instanceof Error ? err : new Error(String(err));
     }
   }
-
   override async signTransaction(transaction: TransactionLike) {
     if (!this.core.signTransaction)
       throw new Error('signTransaction is not implemented in Core');
