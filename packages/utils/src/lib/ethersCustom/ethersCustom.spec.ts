@@ -160,5 +160,91 @@ describe('ethersWalletFromCore', () => {
 
       expect(getGasPriceSpy).toHaveBeenCalledTimes(1);
     });
+
+    it('should timeout after 5 seconds when estimateGas takes too long', async () => {
+      const core = Core.fromMnemonic(MNEMONIC);
+      const provider = new UncheckedJsonRpcProvider(
+        'https://localhost:8545',
+        1,
+        {
+          batchMaxSize: 1,
+        }
+      );
+      const coreWallet = new CoreWallet(core, provider);
+
+      // Mock estimateGas to never resolve (simulating a hanging call)
+      const estimateGasSpy = jest
+        .spyOn(ethers.Wallet.prototype, 'estimateGas')
+        .mockImplementation(
+          () =>
+            new Promise(() => {
+              return 'not empty';
+            })
+        ); // Never resolves
+
+      const tx = {
+        to: '0x85014957FA3EF8C30B5fDe2592e909469728c9F3',
+        value: BigInt(1000),
+      };
+
+      const startTime = Date.now();
+
+      await expect(coreWallet.estimateGas(tx)).rejects.toThrow('estimateGas');
+
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      // Should timeout after approximately 5 seconds (allow some tolerance)
+      expect(duration).toBeGreaterThanOrEqual(4900); // At least 4.9 seconds
+      expect(duration).toBeLessThan(6000); // Less than 6 seconds
+
+      expect(estimateGasSpy).toHaveBeenCalledWith({
+        to: '0x85014957FA3EF8C30B5fDe2592e909469728c9F3',
+        value: BigInt(1000),
+      });
+    }, 10000); // Increase Jest timeout to 10 seconds
+
+    it('should not mutate the original transaction object', async () => {
+      const core = Core.fromMnemonic(MNEMONIC);
+      const provider = new UncheckedJsonRpcProvider(
+        'https://localhost:8545',
+        1,
+        {
+          batchMaxSize: 1,
+        }
+      );
+      const coreWallet = new CoreWallet(core, provider);
+
+      const estimateGasSpy = jest
+        .spyOn(ethers.Wallet.prototype, 'estimateGas')
+        .mockResolvedValue(BigInt(21000));
+
+      const originalTx = {
+        to: '0x85014957FA3EF8C30B5fDe2592e909469728c9F3',
+        value: BigInt(1000),
+        gasPrice: BigInt(20000000000),
+        gasLimit: BigInt(21000),
+        maxFeePerGas: BigInt(20000000000),
+        maxPriorityFeePerGas: BigInt(1000000000),
+      };
+
+      await coreWallet.estimateGas(originalTx);
+
+      // Original transaction should remain unchanged
+      expect(originalTx).toEqual({
+        to: '0x85014957FA3EF8C30B5fDe2592e909469728c9F3',
+        value: BigInt(1000),
+        gasPrice: BigInt(20000000000),
+        gasLimit: BigInt(21000),
+        maxFeePerGas: BigInt(20000000000),
+        maxPriorityFeePerGas: BigInt(1000000000),
+      });
+
+      // But the cleaned transaction passed to estimateGas should have gas fields removed
+      expect(estimateGasSpy).toHaveBeenCalledWith({
+        to: '0x85014957FA3EF8C30B5fDe2592e909469728c9F3',
+        value: BigInt(1000),
+      });
+    });
   });
 });
