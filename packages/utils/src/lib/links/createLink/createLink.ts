@@ -28,19 +28,59 @@ export const createLink = ({
   passphrase: string;
   brandIdentity?: BrandIdentity;
 }) => {
-  let customDomain: string | undefined;
+  // Determine the base URL and custom domain info
+  let baseUrl: string;
+  let customUrl: URL | null = null;
+
   if (brandIdentity) {
-    customDomain = extractCustomDomainFromBrandIdentity(brandIdentity);
+    const customDomain = extractCustomDomainFromBrandIdentity(brandIdentity);
+    if (customDomain) {
+      try {
+        customUrl = new URL(
+          customDomain.startsWith('http')
+            ? customDomain
+            : `https://${customDomain}`
+        );
+      } catch {
+        // If URL parsing fails, treat as hostname only
+        customUrl = new URL(`https://${customDomain}`);
+      }
+    }
   }
 
-  if (isProtocolV2FromSlug(slug)) {
-    return `https://arian.ee${suffix}/${tokenId},${passphrase},${slug}`;
+  // Set the path: suffix + customPath + tokenId,passphrase
+  let path = suffix;
+  if (customUrl?.pathname) {
+    // Remove leading slash from customPath and trailing slash from suffix
+    const customPath = customUrl.pathname.replace(/^\/+|\/+$/g, '');
+    const cleanSuffix = suffix.replace(/\/+$/, '');
+    path = cleanSuffix + (customPath ? `/${customPath}` : '');
+  }
+
+  // Add the tokenId,passphrase part
+  const tokenPart = isProtocolV2FromSlug(slug)
+    ? `${tokenId},${passphrase},${slug}`
+    : `${tokenId},${passphrase}`;
+
+  const fullPath = `${path}/${tokenPart}`;
+
+  // Build the final URL
+  if (customUrl) {
+    // Use URL constructor for custom domains to handle query parameters properly
+    const url = new URL(customUrl.origin + fullPath);
+    // Ensure we use HTTPS
+    url.protocol = 'https:';
+    if (customUrl.search) {
+      url.search = customUrl.search;
+    }
+    return url.toString();
   } else {
-    const hostname =
-      customDomain ??
-      getHostnameFromProtocolName(slug) ??
-      `${slug}.arianee.net`;
-    return `https://${hostname}${suffix}/${tokenId},${passphrase}`;
+    // For non-custom domains, construct manually to preserve case
+    const hostname = getHostnameFromProtocolName(slug) ?? `${slug}.arianee.net`;
+    const baseUrl = isProtocolV2FromSlug(slug)
+      ? 'https://arian.ee'
+      : `https://${hostname}`;
+    return `${baseUrl}${fullPath}`;
   }
 };
 
@@ -88,26 +128,16 @@ export const createResolverLink = ({
 /**
  * Extracts the custom domain located in brand identity external contents if any
  * @param brandIdentity the brand identity
- * @returns the custom domain or undefined
+ * @returns the custom domain URL or undefined
  */
 const extractCustomDomainFromBrandIdentity = (brandIdentity: BrandIdentity) => {
-  let customDomain: string | undefined;
-
   const deepLinkDomainUrl = brandIdentity?.rawContent?.externalContents?.find(
     (ec) => ec.type === 'deepLinkDomain'
   )?.url;
+
   if (deepLinkDomainUrl && deepLinkDomainUrl?.length > 0) {
-    customDomain = deepLinkDomainUrl;
-    if (customDomain.startsWith('http://')) {
-      customDomain = customDomain.replace('http://', '');
-    }
-    if (customDomain.startsWith('https://')) {
-      customDomain = customDomain.replace('https://', '');
-    }
-    if (customDomain.endsWith('/')) {
-      customDomain = customDomain.slice(0, -1);
-    }
+    return deepLinkDomainUrl;
   }
 
-  return customDomain;
+  return undefined;
 };
