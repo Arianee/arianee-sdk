@@ -85,6 +85,36 @@ describe('createLink', () => {
       passphrase: 'test',
       expectedLink: 'https://anotherNetwork.arianee.net/123,test',
     },
+    {
+      slug: 'customnetwork',
+      suffix: '/proof',
+      tokenId: '123',
+      passphrase: 'test',
+      brandIdentity: getTestBrandIdentity('domain3.org?autoclaim=true'),
+      expectedLink: 'https://domain3.org/proof/123,test?autoclaim=true',
+    },
+    {
+      slug: 'customnetwork',
+      suffix: '/proof2queryParams',
+      tokenId: '123',
+      passphrase: 'test',
+      brandIdentity: getTestBrandIdentity(
+        'domain3.org?autoclaim=true&blipbloup=blapal'
+      ),
+      expectedLink:
+        'https://domain3.org/proof2queryParams/123,test?autoclaim=true&blipbloup=blapal',
+    },
+    {
+      slug: 'customnetwork',
+      suffix: '/proof2queryParamsAnd2Params',
+      tokenId: '123',
+      passphrase: 'test',
+      brandIdentity: getTestBrandIdentity(
+        'domain3.org/param1/param2/?autoclaim=true&blipbloup=blapal'
+      ),
+      expectedLink:
+        'https://domain3.org/proof2queryParamsAnd2Params/param1/param2/123,test?autoclaim=true&blipbloup=blapal',
+    },
   ])(
     'should return a link for protocol v1',
     ({ slug, suffix, tokenId, passphrase, expectedLink, brandIdentity }) => {
