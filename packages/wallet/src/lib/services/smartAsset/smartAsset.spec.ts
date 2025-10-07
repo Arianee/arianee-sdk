@@ -326,7 +326,7 @@ describe('SmartAssetService', () => {
             passphrase: 'abc',
             network: 'testnet',
             method: 'requestOwnership',
-            link: 'https://test.arian.ee/123,abc',
+            link: 'https://test.arian.ee/123,abc,testnet',
           });
 
         const getValidWalletAccessTokenSpy = jest
@@ -652,12 +652,12 @@ describe('SmartAssetService', () => {
     it.each([
       {
         linkType: 'proof',
-        expectedLink: 'https://test.arian.ee/proof/123,twpmfcvwup35',
+        expectedLink: 'https://test.arian.ee/proof/123,twpmfcvwup35,testnet',
         expectedAccessType: 2,
       },
       {
         linkType: 'requestOwnership',
-        expectedLink: 'https://test.arian.ee/123,twpmfcvwup35',
+        expectedLink: 'https://test.arian.ee/123,twpmfcvwup35,testnet',
         expectedAccessType: 1,
       },
     ])(
