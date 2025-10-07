@@ -21,12 +21,14 @@ export const createLink = ({
   tokenId,
   passphrase,
   brandIdentity,
+  identityAddress,
 }: {
   slug: string;
   suffix?: string;
   tokenId: string;
   passphrase: string;
   brandIdentity?: BrandIdentity;
+  identityAddress?: string;
 }) => {
   // Determine the base URL and custom domain info
   let baseUrl: string;
@@ -58,9 +60,9 @@ export const createLink = ({
   }
 
   // Add the tokenId,passphrase part
-  const tokenPart = isProtocolV2FromSlug(slug)
-    ? `${tokenId},${passphrase},${slug}`
-    : `${tokenId},${passphrase}`;
+  const tokenPart = [tokenId, passphrase, slug, identityAddress]
+    .filter(Boolean)
+    .join(',');
 
   const fullPath = `${path}/${tokenPart}`;
 

@@ -23,21 +23,21 @@ describe('createLink', () => {
       suffix: undefined,
       tokenId: '123',
       passphrase: 'test',
-      expectedLink: 'https://arian.ee/123,test',
+      expectedLink: 'https://arian.ee/123,test,mainnet',
     },
     {
       slug: 'mainnet',
       suffix: '/proof',
       tokenId: '123',
       passphrase: 'test',
-      expectedLink: 'https://arian.ee/proof/123,test',
+      expectedLink: 'https://arian.ee/proof/123,test,mainnet',
     },
     {
       slug: 'testnet',
       suffix: '/proof',
       tokenId: '123',
       passphrase: 'test',
-      expectedLink: 'https://test.arian.ee/proof/123,test',
+      expectedLink: 'https://test.arian.ee/proof/123,test,testnet',
     },
     {
       slug: 'testnet',
@@ -45,7 +45,7 @@ describe('createLink', () => {
       tokenId: '123',
       passphrase: 'test',
       brandIdentity: getTestBrandIdentity('http://domain1.com'),
-      expectedLink: 'https://domain1.com/proof/123,test',
+      expectedLink: 'https://domain1.com/proof/123,test,testnet',
     },
     {
       slug: 'testnet',
@@ -53,7 +53,7 @@ describe('createLink', () => {
       tokenId: '123',
       passphrase: 'test',
       brandIdentity: getTestBrandIdentity('https://domain2.com'),
-      expectedLink: 'https://domain2.com/123,test',
+      expectedLink: 'https://domain2.com/123,test,testnet',
     },
     {
       slug: 'testnet',
@@ -61,14 +61,15 @@ describe('createLink', () => {
       tokenId: '123',
       passphrase: 'test',
       brandIdentity: getTestBrandIdentity('domain3.org/'),
-      expectedLink: 'https://domain3.org/123,test',
+      expectedLink: 'https://domain3.org/123,test,testnet',
     },
     {
       slug: 'customnetwork',
       suffix: '/proof',
       tokenId: '123',
       passphrase: 'test',
-      expectedLink: 'https://customnetwork.arianee.net/proof/123,test',
+      expectedLink:
+        'https://customnetwork.arianee.net/proof/123,test,customnetwork',
     },
     {
       slug: 'customnetwork',
@@ -76,14 +77,15 @@ describe('createLink', () => {
       tokenId: '123',
       passphrase: 'test',
       brandIdentity: getTestBrandIdentity('domain3.org/'),
-      expectedLink: 'https://domain3.org/proof/123,test',
+      expectedLink: 'https://domain3.org/proof/123,test,customnetwork',
     },
     {
       slug: 'anotherNetwork',
       suffix: undefined,
       tokenId: '123',
       passphrase: 'test',
-      expectedLink: 'https://anotherNetwork.arianee.net/123,test',
+      expectedLink:
+        'https://anotherNetwork.arianee.net/123,test,anotherNetwork',
     },
     {
       slug: 'customnetwork',
@@ -91,7 +93,8 @@ describe('createLink', () => {
       tokenId: '123',
       passphrase: 'test',
       brandIdentity: getTestBrandIdentity('domain3.org?autoclaim=true'),
-      expectedLink: 'https://domain3.org/proof/123,test?autoclaim=true',
+      expectedLink:
+        'https://domain3.org/proof/123,test,customnetwork?autoclaim=true',
     },
     {
       slug: 'customnetwork',
@@ -102,7 +105,7 @@ describe('createLink', () => {
         'domain3.org?autoclaim=true&blipbloup=blapal'
       ),
       expectedLink:
-        'https://domain3.org/proof2queryParams/123,test?autoclaim=true&blipbloup=blapal',
+        'https://domain3.org/proof2queryParams/123,test,customnetwork?autoclaim=true&blipbloup=blapal',
     },
     {
       slug: 'customnetwork',
@@ -113,11 +116,43 @@ describe('createLink', () => {
         'domain3.org/param1/param2/?autoclaim=true&blipbloup=blapal'
       ),
       expectedLink:
-        'https://domain3.org/proof2queryParamsAnd2Params/param1/param2/123,test?autoclaim=true&blipbloup=blapal',
+        'https://domain3.org/proof2queryParamsAnd2Params/param1/param2/123,test,customnetwork?autoclaim=true&blipbloup=blapal',
+    },
+    {
+      slug: 'customnetwork',
+      suffix: '/proof2queryParamsAnd2Params',
+      tokenId: '123',
+      passphrase: 'test',
+      identityAddress: '0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+      brandIdentity: getTestBrandIdentity(
+        'domain3.org/param1/param2/?autoclaim=true&blipbloup=blapal'
+      ),
+      expectedLink:
+        'https://domain3.org/proof2queryParamsAnd2Params/param1/param2/123,test,customnetwork,0x305051e9a023fe881EE21cA43fd90c460B427Caa?autoclaim=true&blipbloup=blapal',
+    },
+    {
+      slug: 'customnetwork',
+      suffix: '/proof2queryParamsAnd2Params',
+      tokenId: '123',
+      passphrase: 'test',
+      identityAddress: '0x305051e9a023fe881EE21cA43fd90c460B427Caa',
+      brandIdentity: getTestBrandIdentity(
+        'domain3.org/param1/param2/?autoclaim=true&blipbloup=blapal'
+      ),
+      expectedLink:
+        'https://domain3.org/proof2queryParamsAnd2Params/param1/param2/123,test,customnetwork,0x305051e9a023fe881EE21cA43fd90c460B427Caa?autoclaim=true&blipbloup=blapal',
     },
   ])(
     'should return a link for protocol v1',
-    ({ slug, suffix, tokenId, passphrase, expectedLink, brandIdentity }) => {
+    ({
+      slug,
+      suffix,
+      tokenId,
+      passphrase,
+      expectedLink,
+      brandIdentity,
+      identityAddress,
+    }) => {
       expect(
         createLink({
           slug,
@@ -125,6 +160,7 @@ describe('createLink', () => {
           tokenId,
           passphrase,
           brandIdentity: brandIdentity as BrandIdentity,
+          identityAddress,
         })
       ).toEqual(expectedLink);
     }
