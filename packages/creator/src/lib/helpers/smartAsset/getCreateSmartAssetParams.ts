@@ -15,15 +15,13 @@ export const getCreateSmartAssetParams = async <
   const smartAssetId =
     params.smartAssetId ?? (await utils.getAvailableSmartAssetId());
 
+  const defaultTokenRecoveryTimestamp = Math.ceil(
+    new Date(999999999999999).getTime() / 1000
+  );
+
   const tokenRecoveryTimestamp =
-    params.tokenRecoveryTimestamp ??
-    Math.ceil(
-      new Date(new Date().getTime() + 60 * 60 * 24 * 365 * 5 * 1000).getTime() /
-        1000
-    );
-
+    params.tokenRecoveryTimestamp ?? defaultTokenRecoveryTimestamp;
   const initialKeyIsRequestKey = params.sameRequestOwnershipPassphrase ?? true;
-
   const { publicKey, passphrase } = getTokenAccessParams(params.tokenAccess);
 
   const uri = 'uri' in params && params.uri ? params.uri : '';
