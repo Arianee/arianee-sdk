@@ -13,6 +13,7 @@ export interface ArianeeEventI18N {
   location?: string;
   eventDate?: string;
   issuerSignature?: string;
+  deepLinkDomain?: string;
 }
 
 export type EventLanguageCode =
