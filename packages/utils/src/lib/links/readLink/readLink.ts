@@ -65,6 +65,7 @@ const WHITELABEL_HOSTNAMES_TO_PROTOCOL_NAME: Record<string, Protocol['name']> =
     'arialabs.arian.ee': 'mainnet',
     'poa.leclubleaderprice.fr': 'mainnet',
     'iwc-sokol.arianee.net': 'testnet',
+    'sokol.iwc.com': 'testnet',
     'poa.iwc.com': 'mainnet',
     'panerai-sokol.arianee.net': 'testnet',
     'poa.panerai.com': 'mainnet',
