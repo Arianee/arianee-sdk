@@ -67,7 +67,7 @@
     "fixed-merkle-tree": "0.7.3",
     "memoizee": "^0.4.17",
     "node-fetch": "^2.6.12",
-    "react-router-dom": "^6.20.1",
+    "react-router-dom": "^6.30.3",
     "retry": "^0.13.1",
     "rxjs": "~7.8.0",
     "snarkjs": "0.7.4",
