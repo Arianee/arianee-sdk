@@ -12,7 +12,7 @@
     "build:creator": "nx build creator",
     "build:arianee-protocol-client": "nx build arianee-protocol-client",
     "build:privacy-circuits": "nx build privacy-circuits",
-    "build:all": "nx run-many --target=build --all",
+    "build:all": "nx run-many --target=build --all --exclude=angular-wallet,angular-creator,arianee-react-wallet,arianee-sdk-example,poc-sst",
     "test:wallet": "nx test wallet",
     "test:common-types": "nx test common-types",
     "test:apg": "nx test arianee-privacy-gateway-client",
