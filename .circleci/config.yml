@@ -6,14 +6,15 @@ orbs:
 executors:
   node-executor:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/node:18.20.8
 
 jobs:
   build:
     executor: node-executor
     steps:
       - checkout
-      - node/install-packages
+      - node/install-packages:
+          override-ci-command: npm install --legacy-peer-deps
       - run:
           name: Build
           command: npm run build:all
@@ -21,7 +22,8 @@ jobs:
     executor: node-executor
     steps:
       - checkout
-      - node/install-packages
+      - node/install-packages:
+          override-ci-command: npm install --legacy-peer-deps
       - run:
           name: Run lint
           command: npm run lint:all
@@ -29,7 +31,8 @@ jobs:
     executor: node-executor
     steps:
       - checkout
-      - node/install-packages
+      - node/install-packages:
+          override-ci-command: npm install --legacy-peer-deps
       - run:
           name: Run tests
           command: npm run test:all -- --runInBand
@@ -37,7 +40,8 @@ jobs:
     executor: node-executor
     steps:
       - checkout
-      - node/install-packages
+      - node/install-packages:
+          override-ci-command: npm install --legacy-peer-deps
       - run:
           name: Auth With NPM
           command: npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
