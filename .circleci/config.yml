@@ -59,6 +59,7 @@ jobs:
             git commit -m "[SKIP CI]chore: bump to version $version"
             git tag -a "$version" -m ""
             git push origin "release/$version"
+            git push origin "$version"
             ./scripts/publish.sh
             git checkout main
             git reset --hard origin/main
