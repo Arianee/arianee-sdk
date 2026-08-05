@@ -70,7 +70,7 @@
     "node-fetch": "^2.6.12",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-router-dom": "^6.30.3",
+    "react-router-dom": "^6.30.4",
     "retry": "^0.13.1",
     "rxjs": "~7.8.0",
     "snarkjs": "0.7.4",
