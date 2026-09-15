@@ -21,6 +21,14 @@ import { smartAssetInfo } from './types/smartAssetInfo';
 import { contractNameToArianeeApiContractName } from './utils/contracts/contractName';
 import { convertObjectToDotNotation } from './utils/dotNotation/dotNotation';
 
+/** An error raised by the Arianee API, carrying the HTTP status when there was one. */
+export type ArianeeApiError = Error & { status?: number };
+
+const withHttpStatus = (error: Error, status?: number): ArianeeApiError => {
+  if (status !== undefined) (error as ArianeeApiError).status = status;
+  return error;
+};
+
 export class ArianeeApiClient {
   private fetchLike: typeof fetch;
   constructor(
@@ -43,13 +51,22 @@ export class ArianeeApiClient {
       const response = await this.fetchLike(this.arianeeApiUrl + path);
 
       if (!response.ok) {
-        throw new Error(`${response.statusText}`);
+        throw withHttpStatus(
+          new Error(`${response.statusText}`),
+          response.status
+        );
       }
 
       return await response.json();
     } catch (e) {
       const message = errorMessage ?? 'fetch arianee api';
-      throw new Error(`Failed to ${message}: ${(e as Error).message}`);
+      // Carry the HTTP status through the wrapping. Callers need to tell "the
+      // API says this resource does not exist" (404) from "the API did not
+      // answer", because the two do not license the same conclusion.
+      throw withHttpStatus(
+        new Error(`Failed to ${message}: ${(e as Error).message}`),
+        (e as ArianeeApiError).status
+      );
     }
   };
 

@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ArianeeApiClient, smartAssetInfo } from '@arianee/arianee-api-client';
+import {
+  ArianeeApiClient,
+  ArianeeApiError,
+  smartAssetInfo,
+} from '@arianee/arianee-api-client';
 import { defaultFetchLike, retryFetchLike } from '@arianee/utils';
 
 import Creator, { TransactionStrategy } from '../../creator';
@@ -8,8 +12,8 @@ import Creator, { TransactionStrategy } from '../../creator';
  * Deliberately NOT the default client of `ArianeeApiClient`, which wraps its
  * fetch in `cachedFetchLike(..., { timeToLive: 5 min })`. `owner` moves on every
  * transfer and `imprint` on every update, so a five minute old answer would be
- * wrong in exactly the flows that read them. Retries are kept: they cost nothing
- * on a healthy call and cover a blip on the API itself.
+ * wrong in exactly the flows that read them. The HTTP retries are kept: they
+ * cost nothing on a healthy call and cover a blip on the API itself.
  */
 const arianeeApiClient = new ArianeeApiClient(
   undefined,
@@ -17,18 +21,15 @@ const arianeeApiClient = new ArianeeApiClient(
 );
 
 /**
- * Reads a smart asset from the Arianee API instead of the chain.
+ * Reads a smart asset from the Arianee API. This is the only source consulted:
+ * `owner`, `issuer` and `imprint` are all indexed there, and the protocol RPC is
+ * no longer on the path. That gateway is the weak link, a Cloudflare 1101 on the
+ * POA worker was enough to fail a pairing.
  *
- * `owner`, `issuer` and `imprint` are all indexed, so the three reads that used
- * to cost an `ownerOf` / `issuerOf` / `tokenImprint` RPC call each are served by
- * a single HTTP call that does not depend on the protocol's RPC gateway being
- * up. That gateway is the weak link: a Cloudflare 1101 on the POA worker was
- * enough to fail a pairing.
- *
- * Returns `null` when the API does not know the token. That is NOT the same as
- * "the token does not exist on chain": the API is an indexer and lags behind a
- * fresh mint. Callers must treat `null` as "unknown" and fall back to the chain,
- * never as "free".
+ * Returns `null` when, and only when, the API answers 404. A 404 is a statement
+ * ("no such token"); a timeout or a 5xx is not, so those are rethrown. Treating
+ * an unreachable API as "this token is free" would hand out ids over an entire
+ * outage, which is a far worse failure than the one being fixed.
  */
 export const getSmartAssetFromApi = async <
   Strategy extends TransactionStrategy
@@ -41,10 +42,8 @@ export const getSmartAssetFromApi = async <
       creator.slug!,
       smartAssetId.toString()
     );
-  } catch {
-    // The client throws on any non-2xx, 404 included, without exposing the
-    // status. An unknown token and an unreachable API are therefore the same
-    // signal here, and both mean "ask the chain".
-    return null;
+  } catch (e) {
+    if ((e as ArianeeApiError).status === 404) return null;
+    throw e;
   }
 };

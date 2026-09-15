@@ -25,54 +25,23 @@ import { CreditType } from '../types/credit';
 export default class Utils<Strategy extends TransactionStrategy> {
   constructor(private creator: Creator<Strategy>) {}
 
+  /**
+   * Availability is decided by the Arianee API alone, with no RPC call on any
+   * branch. A token the API does not know is treated as free.
+   *
+   * The API is an indexer, so it lags a fresh mint: a token minted seconds ago
+   * can still read as free here and be handed out twice. That window is accepted
+   * knowingly, in exchange for a check that no longer fails when the protocol's
+   * RPC gateway is down. Nothing is silently corrupted when it happens, the mint
+   * transaction reverts on chain.
+   */
   @requiresConnection()
   public async isSmartAssetIdAvailable(id: number): Promise<boolean> {
-    // The API already knows this token, so it exists on chain and the id is
-    // taken. An indexer never invents a token, so this answer needs no
-    // confirmation from the RPC. A record owned by the zero address is the
-    // exception: the contract treats those as invalid, so it is left to the
-    // chain to keep both sides in agreement.
     const fromApi = await getSmartAssetFromApi(this.creator, id);
-    if (fromApi?.owner && fromApi.owner !== ZeroAddress) return false;
 
-    // Unknown to the API: either genuinely free, or minted a moment ago and not
-    // indexed yet. Only the chain separates the two, and answering "free" here
-    // would hand out an id that is already taken.
-    let isFree = false;
-
-    await callWrapper(
-      this.creator.arianeeProtocolClient,
-      this.creator.slug!,
-      {
-        protocolV1Action: async (protocolV1) => {
-          // NFTs assigned to zero address are considered invalid, and queries about them do throw
-          // See https://raw.githubusercontent.com/0xcert/framework/master/packages/0xcert-ethereum-erc721-contracts/src/contracts/nf-token-metadata-enumerable.sol
-          try {
-            await protocolV1.smartAssetContract.ownerOf(id);
-          } catch (err: any) {
-            if (err.code === 'CALL_EXCEPTION') {
-              isFree = true;
-            } else {
-              throw err;
-            }
-          }
-
-          return '';
-        },
-        protocolV2Action: async (protocolV2) => {
-          try {
-            await protocolV2.smartAssetBaseContract.ownerOf(id);
-          } catch {
-            isFree = true;
-          }
-
-          return '';
-        },
-      },
-      this.creator.connectOptions
-    );
-
-    return isFree;
+    // A token owned by the zero address is invalid for the contract, so it does
+    // not make the id taken either.
+    return !fromApi?.owner || fromApi.owner === ZeroAddress;
   }
 
   @requiresConnection()
@@ -124,29 +93,13 @@ export default class Utils<Strategy extends TransactionStrategy> {
       const available = await this.isSmartAssetIdAvailable(smartAssetId);
       if (available) return true;
 
-      // One HTTP call carries both fields, where the chain charged an `ownerOf`
-      // and a `tokenImprint` RPC round trip each.
+      // Not available means the API knows this token, so the record carries both
+      // fields. One HTTP call replaces the `ownerOf` and `tokenImprint` RPC round
+      // trips this used to make.
       const fromApi = await getSmartAssetFromApi(this.creator, smartAssetId);
+      if (!fromApi?.owner) return false;
 
-      const owner =
-        fromApi?.owner ??
-        (await this.getSmartAssetOwner(smartAssetId.toString()));
-
-      const imprint =
-        fromApi?.imprint ??
-        (await callWrapper(
-          this.creator.arianeeProtocolClient,
-          this.creator.slug!,
-          {
-            protocolV1Action: async (protocolV1) => {
-              return protocolV1.smartAssetContract.tokenImprint(smartAssetId);
-            },
-            protocolV2Action: async (protocolV2) => {
-              throw new Error('not yet implemented');
-            },
-          },
-          this.creator.connectOptions
-        ));
+      const { owner, imprint } = fromApi;
 
       const isOwner =
         owner.toLowerCase() === this.creator.core.getAddress().toLowerCase();
@@ -353,23 +306,17 @@ export default class Utils<Strategy extends TransactionStrategy> {
     >;
   }
 
+  /** Served by the Arianee API, with no RPC call. */
   @requiresConnection()
   public async getSmartAssetOwner(id: string): Promise<string> {
     const fromApi = await getSmartAssetFromApi(this.creator, id);
-    if (fromApi?.owner) return fromApi.owner;
 
-    return callWrapper(
-      this.creator.arianeeProtocolClient,
-      this.creator.slug!,
-      {
-        protocolV1Action: async (protocolV1) =>
-          await protocolV1.smartAssetContract.ownerOf(id),
-        protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
-        },
-      },
-      this.creator.connectOptions
-    );
+    if (!fromApi?.owner)
+      throw new Error(
+        `The Arianee API has no owner for smart asset ${id} on ${this.creator.slug}`
+      );
+
+    return fromApi.owner;
   }
 
   public async calculateImprint(
@@ -398,23 +345,16 @@ export default class Utils<Strategy extends TransactionStrategy> {
     return res.ok;
   }
 
+  /**
+   * Served by the Arianee API, with no RPC call. Falls back to the zero address
+   * when the API carries no issuer, which is what `issuerOf` returned on chain
+   * for a reserved NFT and what callers branch on (see `events.ts`).
+   */
   @requiresConnection()
-  public async getSmartAssetIssuer(id: string) {
+  public async getSmartAssetIssuer(id: string): Promise<string> {
     const fromApi = await getSmartAssetFromApi(this.creator, id);
-    if (fromApi?.issuer) return fromApi.issuer;
 
-    return callWrapper(
-      this.creator.arianeeProtocolClient,
-      this.creator.slug!,
-      {
-        protocolV1Action: async (protocolV1) =>
-          await protocolV1.smartAssetContract.issuerOf(id),
-        protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented');
-        },
-      },
-      this.creator.connectOptions
-    );
+    return fromApi?.issuer ?? ZeroAddress;
   }
 }
 
