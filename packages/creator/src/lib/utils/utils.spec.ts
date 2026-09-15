@@ -1,12 +1,19 @@
 import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { ArianeeProductCertificateI18N } from '@arianee/common-types';
 import Core from '@arianee/core';
+import { ZeroAddress } from 'ethers';
 
 import Creator from '../creator';
+import { getSmartAssetFromApi } from '../helpers/smartAsset/getSmartAssetFromApi';
 import { CreditType } from '../types';
 
 jest.mock('@arianee/arianee-protocol-client');
+jest.mock('../helpers/smartAsset/getSmartAssetFromApi');
 jest.spyOn(console, 'error').mockImplementation();
+
+const getSmartAssetFromApiMock = getSmartAssetFromApi as jest.MockedFunction<
+  typeof getSmartAssetFromApi
+>;
 
 describe('Creator', () => {
   const core = Core.fromPrivateKey(
@@ -32,6 +39,9 @@ describe('Creator', () => {
     });
 
     jest.clearAllMocks();
+    // Default: the API does not know the token, so every existing case keeps
+    // exercising the chain fallback. The API path is covered explicitly below.
+    getSmartAssetFromApiMock.mockResolvedValue(null);
   });
 
   describe('getAvailableId', () => {
@@ -177,6 +187,105 @@ describe('Creator', () => {
 
       expect(isSmartAssetIdAvailableSpy).toHaveBeenCalledWith(id);
       expect(canCreate).toBeTruthy();
+    });
+  });
+
+  describe('reads served by the Arianee API instead of the chain', () => {
+    const owner = '0x655F362F23cA6B937a2418F882097Ea3B2b14Ef0';
+    const issuer = '0x42Fbe8eB12a2d99Dd05ca1C11F74aCC1dc9beAce';
+    const emptyImprint = `0x${'0'.repeat(64)}`;
+
+    const apiRecord = (overrides = {}) =>
+      ({
+        tokenId: '123',
+        network: 'testnet',
+        owner,
+        issuer,
+        imprint: emptyImprint,
+        createAt: '',
+        updatedAt: '',
+        ...overrides,
+      } as any);
+
+    it('isSmartAssetIdAvailable answers false from the API without any RPC call', async () => {
+      getSmartAssetFromApiMock.mockResolvedValue(apiRecord());
+
+      const callWrapperSpy = jest.spyOn(
+        arianeeProtocolClientModule,
+        'callWrapper'
+      );
+
+      await expect(creator.utils.isSmartAssetIdAvailable(123)).resolves.toBe(
+        false
+      );
+      expect(callWrapperSpy).not.toHaveBeenCalled();
+    });
+
+    it('isSmartAssetIdAvailable still asks the chain when the API owner is the zero address', async () => {
+      // The contract treats a token owned by the zero address as invalid, so the
+      // two sources must not be allowed to disagree.
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ owner: ZeroAddress })
+      );
+
+      const callWrapperSpy = jest
+        .spyOn(arianeeProtocolClientModule, 'callWrapper')
+        .mockImplementation(async (_, __, actions) => {
+          await actions.protocolV1Action({
+            smartAssetContract: {
+              ownerOf: jest.fn().mockRejectedValue({ code: 'CALL_EXCEPTION' }),
+            },
+          } as any);
+        });
+
+      await expect(creator.utils.isSmartAssetIdAvailable(123)).resolves.toBe(
+        true
+      );
+      expect(callWrapperSpy).toHaveBeenCalled();
+    });
+
+    it('getSmartAssetOwner is served by the API', async () => {
+      getSmartAssetFromApiMock.mockResolvedValue(apiRecord());
+
+      const callWrapperSpy = jest.spyOn(
+        arianeeProtocolClientModule,
+        'callWrapper'
+      );
+
+      await expect(creator.utils.getSmartAssetOwner('123')).resolves.toEqual(
+        owner
+      );
+      expect(callWrapperSpy).not.toHaveBeenCalled();
+    });
+
+    it('getSmartAssetIssuer is served by the API', async () => {
+      getSmartAssetFromApiMock.mockResolvedValue(apiRecord());
+
+      const callWrapperSpy = jest.spyOn(
+        arianeeProtocolClientModule,
+        'callWrapper'
+      );
+
+      await expect(creator.utils.getSmartAssetIssuer('123')).resolves.toEqual(
+        issuer
+      );
+      expect(callWrapperSpy).not.toHaveBeenCalled();
+    });
+
+    it('canCreateSmartAsset resolves a reserved token with no RPC call at all', async () => {
+      // Reserved = owned by us with an empty imprint. That used to cost three
+      // RPC reads (ownerOf via isSmartAssetIdAvailable, ownerOf, tokenImprint).
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ owner: publicKey })
+      );
+
+      const callWrapperSpy = jest.spyOn(
+        arianeeProtocolClientModule,
+        'callWrapper'
+      );
+
+      await expect(creator.utils.canCreateSmartAsset(123)).resolves.toBe(true);
+      expect(callWrapperSpy).not.toHaveBeenCalled();
     });
   });
 

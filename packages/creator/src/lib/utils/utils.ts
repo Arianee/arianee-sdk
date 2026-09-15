@@ -11,6 +11,7 @@ import {
   BigNumberish,
   ContractTransactionReceipt,
   ContractTransactionResponse,
+  ZeroAddress,
 } from 'ethers';
 
 import Creator, { TransactionStrategy } from '../creator';
@@ -18,6 +19,7 @@ import { requiresConnection } from '../decorators/requiresConnection';
 import { ProtocolCompatibilityError } from '../errors';
 import { MissingCreditContractAddressError } from '../errors/MissingCreditTypeContractAddressError';
 import { MissingCreditTypeError } from '../errors/MissingCreditTypeError';
+import { getSmartAssetFromApi } from '../helpers/smartAsset/getSmartAssetFromApi';
 import { CreditType } from '../types/credit';
 
 export default class Utils<Strategy extends TransactionStrategy> {
@@ -25,6 +27,17 @@ export default class Utils<Strategy extends TransactionStrategy> {
 
   @requiresConnection()
   public async isSmartAssetIdAvailable(id: number): Promise<boolean> {
+    // The API already knows this token, so it exists on chain and the id is
+    // taken. An indexer never invents a token, so this answer needs no
+    // confirmation from the RPC. A record owned by the zero address is the
+    // exception: the contract treats those as invalid, so it is left to the
+    // chain to keep both sides in agreement.
+    const fromApi = await getSmartAssetFromApi(this.creator, id);
+    if (fromApi?.owner && fromApi.owner !== ZeroAddress) return false;
+
+    // Unknown to the API: either genuinely free, or minted a moment ago and not
+    // indexed yet. Only the chain separates the two, and answering "free" here
+    // would hand out an id that is already taken.
     let isFree = false;
 
     await callWrapper(
@@ -111,33 +124,29 @@ export default class Utils<Strategy extends TransactionStrategy> {
       const available = await this.isSmartAssetIdAvailable(smartAssetId);
       if (available) return true;
 
-      const owner = await callWrapper(
-        this.creator.arianeeProtocolClient,
-        this.creator.slug!,
-        {
-          protocolV1Action: async (protocolV1) => {
-            return protocolV1.smartAssetContract.ownerOf(smartAssetId);
-          },
-          protocolV2Action: async (protocolV2) => {
-            throw new Error('not yet implemented');
-          },
-        },
-        this.creator.connectOptions
-      );
+      // One HTTP call carries both fields, where the chain charged an `ownerOf`
+      // and a `tokenImprint` RPC round trip each.
+      const fromApi = await getSmartAssetFromApi(this.creator, smartAssetId);
 
-      const imprint = await callWrapper(
-        this.creator.arianeeProtocolClient,
-        this.creator.slug!,
-        {
-          protocolV1Action: async (protocolV1) => {
-            return protocolV1.smartAssetContract.tokenImprint(smartAssetId);
+      const owner =
+        fromApi?.owner ??
+        (await this.getSmartAssetOwner(smartAssetId.toString()));
+
+      const imprint =
+        fromApi?.imprint ??
+        (await callWrapper(
+          this.creator.arianeeProtocolClient,
+          this.creator.slug!,
+          {
+            protocolV1Action: async (protocolV1) => {
+              return protocolV1.smartAssetContract.tokenImprint(smartAssetId);
+            },
+            protocolV2Action: async (protocolV2) => {
+              throw new Error('not yet implemented');
+            },
           },
-          protocolV2Action: async (protocolV2) => {
-            throw new Error('not yet implemented');
-          },
-        },
-        this.creator.connectOptions
-      );
+          this.creator.connectOptions
+        ));
 
       const isOwner =
         owner.toLowerCase() === this.creator.core.getAddress().toLowerCase();
@@ -346,6 +355,9 @@ export default class Utils<Strategy extends TransactionStrategy> {
 
   @requiresConnection()
   public async getSmartAssetOwner(id: string): Promise<string> {
+    const fromApi = await getSmartAssetFromApi(this.creator, id);
+    if (fromApi?.owner) return fromApi.owner;
+
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,
@@ -388,6 +400,9 @@ export default class Utils<Strategy extends TransactionStrategy> {
 
   @requiresConnection()
   public async getSmartAssetIssuer(id: string) {
+    const fromApi = await getSmartAssetFromApi(this.creator, id);
+    if (fromApi?.issuer) return fromApi.issuer;
+
     return callWrapper(
       this.creator.arianeeProtocolClient,
       this.creator.slug!,

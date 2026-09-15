@@ -12,11 +12,13 @@ import * as checkCreateEventParametersModule from '../helpers/event/checkCreateE
 import * as getCreateEventParamsModule from '../helpers/event/getCreateEventParams';
 import * as getIdentityModule from '../helpers/identity/getIdentity';
 import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
+import { getSmartAssetFromApi } from '../helpers/smartAsset/getSmartAssetFromApi';
 import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import { CreditType } from '../types';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
+jest.mock('../helpers/smartAsset/getSmartAssetFromApi');
 jest.spyOn(console, 'error').mockImplementation();
 
 describe('Events', () => {
@@ -52,6 +54,11 @@ describe('Events', () => {
     });
 
     jest.clearAllMocks();
+    // The API is not expected to know these fixtures, so issuer/owner keep being
+    // resolved on chain and the callWrapper expectations below stay meaningful.
+    (
+      getSmartAssetFromApi as jest.MockedFunction<typeof getSmartAssetFromApi>
+    ).mockResolvedValue(null);
   });
 
   describe('createAndStoreEvent', () => {
