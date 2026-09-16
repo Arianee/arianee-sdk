@@ -3,7 +3,6 @@ import * as arianeeProtocolClientModule from '@arianee/arianee-protocol-client';
 import { ProtocolDetailsV1 } from '@arianee/common-types';
 import Core from '@arianee/core';
 import { getIssuerSigTemplate__Event } from '@arianee/utils';
-import { ethers } from 'ethers';
 
 import Creator from '../creator';
 import { ArianeePrivacyGatewayError } from '../errors';
@@ -12,11 +11,27 @@ import * as checkCreateEventParametersModule from '../helpers/event/checkCreateE
 import * as getCreateEventParamsModule from '../helpers/event/getCreateEventParams';
 import * as getIdentityModule from '../helpers/identity/getIdentity';
 import * as getOwnershipProofStructModule from '../helpers/privacy/getOwnershipProofStruct';
+import { getSmartAssetFromApi } from '../helpers/smartAsset/getSmartAssetFromApi';
 import * as getContentFromURIModule from '../helpers/uri/getContentFromURI';
 import { CreditType } from '../types';
 
 jest.mock('@arianee/arianee-protocol-client');
 jest.mock('@arianee/arianee-privacy-gateway-client');
+jest.mock('../helpers/smartAsset/getSmartAssetFromApi');
+
+const getSmartAssetFromApiMock = getSmartAssetFromApi as jest.MockedFunction<
+  typeof getSmartAssetFromApi
+>;
+
+/** A record as the Arianee API serves it; issuer/owner drive the branches here. */
+const apiRecord = (overrides: Record<string, unknown> = {}) =>
+  ({
+    tokenId: '1',
+    network: 'testnet',
+    createAt: '',
+    updatedAt: '',
+    ...overrides,
+  } as any);
 jest.spyOn(console, 'error').mockImplementation();
 
 describe('Events', () => {
@@ -52,6 +67,9 @@ describe('Events', () => {
     });
 
     jest.clearAllMocks();
+    // The API is not expected to know these fixtures, so issuer/owner keep being
+    // resolved on chain and the callWrapper expectations below stay meaningful.
+    getSmartAssetFromApiMock.mockResolvedValue(null);
   });
 
   describe('createAndStoreEvent', () => {
@@ -404,16 +422,10 @@ describe('Events', () => {
 
       jest.spyOn(getIdentityModule, 'getCreatorIdentity').mockImplementation();
 
-      // Mock callWrapper pour retourner creatorAddress comme issuer
-      jest
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) =>
-          actions.protocolV1Action({
-            smartAssetContract: {
-              issuerOf: jest.fn().mockResolvedValue(creatorAddress),
-            },
-          } as any)
-        );
+      // The API carries the smart asset issuer; no RPC call is involved.
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ issuer: creatorAddress })
+      );
 
       await expect(
         creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false)
@@ -432,16 +444,10 @@ describe('Events', () => {
           } as any)
       );
 
-      // Mock callWrapper pour retourner creatorAddress comme issuer
-      jest
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) =>
-          actions.protocolV1Action({
-            smartAssetContract: {
-              issuerOf: jest.fn().mockResolvedValue(creatorAddress),
-            },
-          } as any)
-        );
+      // The API carries the smart asset issuer; no RPC call is involved.
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ issuer: creatorAddress })
+      );
 
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
 
@@ -465,17 +471,10 @@ describe('Events', () => {
             } as any)
         );
 
-      // Mock callWrapper pour retourner une adresse différente du creator
-      const issuerOfSpy = jest.fn().mockResolvedValueOnce('0x123');
-      jest
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) =>
-          actions.protocolV1Action({
-            smartAssetContract: {
-              issuerOf: issuerOfSpy,
-            },
-          } as any)
-        );
+      // An issuer different from the creator, served by the API.
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ issuer: '0x123' })
+      );
 
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
 
@@ -484,66 +483,37 @@ describe('Events', () => {
         content: { $schema: 'mock' },
       });
       expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
-      expect(issuerOfSpy).toHaveBeenCalled();
+      expect(getSmartAssetFromApiMock).toHaveBeenCalled();
     });
 
     it("should call eventCreate and store it in the smart asset owner's identity privacy gateway if the issuer is the zero address (reserved nft case)", async () => {
-      // Spy sur eventCreate
       const spy = jest
         .spyOn(ArianeePrivacyGatewayClient.prototype, 'eventCreate')
         .mockImplementation();
 
-      // Spy sur getIdentity
       const getIdentitySpy = jest
         .spyOn(getIdentityModule, 'getIdentity')
         .mockImplementation(() => ({ rpcEndpoint: 'https://mock.com' } as any));
 
-      // Prépare trois spies pour issuerOf / ownerOf
-      const issuerOfSpy1 = jest.fn().mockResolvedValueOnce(ethers.ZeroAddress); // outer
-      const issuerOfSpy2 = jest.fn().mockResolvedValueOnce(ethers.ZeroAddress); // inner
-      const ownerOfSpy = jest.fn().mockResolvedValueOnce('0x123'); // fallback
-
+      // A reserved NFT: the API record carries no issuer, so getSmartAssetIssuer
+      // reports the zero address and the flow falls back to the owner. One
+      // record answers both questions, where the chain needed three reads.
       const callWrapperSpy = jest.spyOn(
         arianeeProtocolClientModule,
         'callWrapper'
       );
-
-      // 1er appel → outer smartAssetIssuer
-      callWrapperSpy.mockImplementationOnce(async (_, __, actions) =>
-        actions.protocolV1Action({
-          smartAssetContract: { issuerOf: issuerOfSpy1, ownerOf: jest.fn() },
-        } as any)
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ issuer: undefined, owner: '0x123' })
       );
 
-      // 2ᵉ appel → inner issuerOf (déclenche le fallback interne)
-      callWrapperSpy.mockImplementationOnce(async (_, __, actions) =>
-        actions.protocolV1Action({
-          smartAssetContract: { issuerOf: issuerOfSpy2, ownerOf: jest.fn() },
-        } as any)
-      );
-
-      // 3ᵉ appel → inner ownerOf (fournit enfin l'owner réel)
-      callWrapperSpy.mockImplementationOnce(async (_, __, actions) =>
-        actions.protocolV1Action({
-          smartAssetContract: { issuerOf: jest.fn(), ownerOf: ownerOfSpy },
-        } as any)
-      );
-
-      // Exécution du test
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
-
-      // Assertions
-      expect(issuerOfSpy1).toHaveBeenCalled(); // Outer
-      expect(issuerOfSpy2).toHaveBeenCalled(); // Inner issuer
-      expect(ownerOfSpy).toHaveBeenCalled(); // Fallback owner
 
       expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x123');
       expect(spy).toHaveBeenCalledWith('https://mock.com', {
         eventId: '123',
         content: { $schema: 'mock' },
       });
-
-      expect(callWrapperSpy).toHaveBeenCalledTimes(3);
+      expect(callWrapperSpy).not.toHaveBeenCalled();
     });
 
     it('should store event in both smart asset issuer and event issuer privacy gateways when issuers are different', async () => {
@@ -569,17 +539,9 @@ describe('Events', () => {
             } as any)
         );
 
-      // Mock callWrapper pour retourner une adresse différente du creator
-      const issuerOfSpy = jest.fn().mockResolvedValueOnce('0x456');
-      jest
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) =>
-          actions.protocolV1Action({
-            smartAssetContract: {
-              issuerOf: issuerOfSpy,
-            },
-          } as any)
-        );
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ issuer: '0x456' })
+      );
 
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, true);
 
@@ -594,7 +556,6 @@ describe('Events', () => {
       });
       expect(getIdentitySpy).toHaveBeenCalledWith(creator, '0x456');
       expect(getCreatorIdentitySpy).toHaveBeenCalled();
-      expect(issuerOfSpy).toHaveBeenCalled();
     });
 
     it('should store event in single gateway when issuers are the same', async () => {
@@ -613,17 +574,9 @@ describe('Events', () => {
             } as any)
         );
 
-      // Mock callWrapper pour retourner creatorAddress comme smartAssetIssuer
-      const issuerOfSpy = jest.fn().mockResolvedValueOnce(creatorAddress);
-      jest
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) =>
-          actions.protocolV1Action({
-            smartAssetContract: {
-              issuerOf: issuerOfSpy,
-            },
-          } as any)
-        );
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ issuer: creatorAddress })
+      );
 
       // Exécuter avec useSmartAssetIssuerPrivacyGateway = false
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
@@ -636,7 +589,7 @@ describe('Events', () => {
       });
 
       expect(getCreatorIdentitySpy).toHaveBeenCalledWith(creator);
-      expect(issuerOfSpy).toHaveBeenCalled();
+      expect(getSmartAssetFromApiMock).toHaveBeenCalled();
     });
 
     it('should store event in single gateway when useSmartAssetIssuerPrivacyGateway is false', async () => {
@@ -653,16 +606,10 @@ describe('Events', () => {
             } as any)
         );
 
-      // Mock callWrapper pour retourner creatorAddress comme issuer
-      jest
-        .spyOn(arianeeProtocolClientModule, 'callWrapper')
-        .mockImplementation(async (_, __, actions) =>
-          actions.protocolV1Action({
-            smartAssetContract: {
-              issuerOf: jest.fn().mockResolvedValue(creatorAddress),
-            },
-          } as any)
-        );
+      // The API carries the smart asset issuer; no RPC call is involved.
+      getSmartAssetFromApiMock.mockResolvedValue(
+        apiRecord({ issuer: creatorAddress })
+      );
 
       await creator.events['storeEvent'](1, 123, { $schema: 'mock' }, false);
 

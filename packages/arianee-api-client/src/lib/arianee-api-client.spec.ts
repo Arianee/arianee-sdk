@@ -77,6 +77,42 @@ describe('ArianeeApiClient', () => {
     }
   });
 
+  it('should carry the HTTP status on the thrown error', async () => {
+    // Callers must be able to tell "this resource does not exist" from "the API
+    // did not answer": only the first licenses concluding anything.
+    const apiClient = new ArianeeApiClient(
+      'https://api.arianee.com',
+      fetchMock
+    );
+
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      json: () => ({}),
+    });
+
+    await expect(apiClient['fetchArianeeApi']('path')).rejects.toMatchObject({
+      status: 404,
+    });
+  });
+
+  it('should leave the status undefined when the fetch itself failed', async () => {
+    const apiClient = new ArianeeApiClient(
+      'https://api.arianee.com',
+      fetchMock
+    );
+
+    fetchMock.mockRejectedValueOnce({ message: 'network down' });
+
+    const error = await apiClient['fetchArianeeApi']('path').catch(
+      (e: unknown) => e
+    );
+
+    expect(error).toBeInstanceOf(Error);
+    expect((error as { status?: number }).status).toBeUndefined();
+  });
+
   it('should get owned NFTs from the API', async () => {
     const apiClient = new ArianeeApiClient(
       'https://api.arianee.com',

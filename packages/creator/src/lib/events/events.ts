@@ -1,9 +1,6 @@
 import { ArianeeApiClient } from '@arianee/arianee-api-client';
 import { ArianeePrivacyGatewayClient } from '@arianee/arianee-privacy-gateway-client';
-import {
-  callWrapper,
-  NonPayableOverrides,
-} from '@arianee/arianee-protocol-client';
+import { NonPayableOverrides } from '@arianee/arianee-protocol-client';
 import { ArianeeEventI18N } from '@arianee/common-types';
 import { DEFAULT_CREDIT_PROOF } from '@arianee/privacy-circuits';
 import {
@@ -72,18 +69,9 @@ export default class Events<Strategy extends TransactionStrategy> {
     content: CreateAndStoreEventParameters['content'],
     useSmartAssetIssuerPrivacyGateway = true
   ) {
-    // Get the smart asset issuer
-    const smartAssetIssuer = await callWrapper(
-      this.creator.arianeeProtocolClient,
-      this.creator.slug!,
-      {
-        protocolV1Action: async (protocolV1) =>
-          await protocolV1.smartAssetContract.issuerOf(smartAssetId),
-        protocolV2Action: async (protocolV2) => {
-          throw new Error('not yet implemented getIssuerOf in storeEvent');
-        },
-      },
-      this.creator.connectOptions
+    // Get the smart asset issuer (Arianee API, chain as fallback)
+    const smartAssetIssuer = await this.creator.utils.getSmartAssetIssuer(
+      smartAssetId.toString()
     );
 
     // Get the event issuer (creator)
@@ -214,17 +202,8 @@ export default class Events<Strategy extends TransactionStrategy> {
     let identity: IdentityWithRpcEndpoint | undefined;
 
     if (useSmartAssetIssuerPrivacyGateway) {
-      const issuer = await callWrapper(
-        this.creator.arianeeProtocolClient,
-        this.creator.slug!,
-        {
-          protocolV1Action: async (protocolV1) =>
-            await protocolV1.smartAssetContract.issuerOf(smartAssetId),
-          protocolV2Action: async (protocolV2) => {
-            throw new Error('not yet implemented');
-          },
-        },
-        this.creator.connectOptions
+      const issuer = await this.creator.utils.getSmartAssetIssuer(
+        smartAssetId.toString()
       );
 
       // if the issuer address is defined (not the zero address)
@@ -232,17 +211,8 @@ export default class Events<Strategy extends TransactionStrategy> {
         identity = await getIdentity(this.creator, issuer);
       } else {
         // otherwise, this is likely a reserved nft, we fallback to the owner address to get the identity (which is the same as the issuer)
-        const owner = await callWrapper(
-          this.creator.arianeeProtocolClient,
-          this.creator.slug!,
-          {
-            protocolV1Action: (protocolV1) =>
-              protocolV1.smartAssetContract.ownerOf(smartAssetId),
-            protocolV2Action: async (protocolV2) => {
-              throw new Error('not yet implemented');
-            },
-          },
-          this.creator.connectOptions
+        const owner = await this.creator.utils.getSmartAssetOwner(
+          smartAssetId.toString()
         );
 
         identity = await getIdentity(this.creator, owner);
