@@ -97,8 +97,12 @@ export class JWTGeneric {
       throw new Error('You should provide a decoder to verify your token');
     }
 
-    const [header, payload, signature] = this.encodedToken.split('.');
-    const signedMessage = header + '.' + payload;
+    // The signature is always the last segment; everything before it
+    // (`${prefix}${header}.${payload}`) is the signed message. Splitting on
+    // every '.' would break when the prefix itself contains dots.
+    const lastDotIndex = this.encodedToken.lastIndexOf('.');
+    const signedMessage = this.encodedToken.slice(0, lastDotIndex);
+    const signature = this.encodedToken.slice(lastDotIndex + 1);
     const decode = this.params.recover(signedMessage, signature);
 
     const arePropertyValid = this.arePropertiesValid(timeBeforeExp);

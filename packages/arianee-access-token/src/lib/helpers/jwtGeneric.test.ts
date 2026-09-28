@@ -262,4 +262,33 @@ describe('JWTGeneric', function () {
       expect(decodedToken.payload).toEqual(payload);
     });
   });
+
+  describe('prefixed AAT', () => {
+    const prefixWithDots =
+      "By signing this message, you give access to the list of NFTs in your Wallet. We can't have the right to modify your Wallet\n\n\n\n\n\nThis signed token allows us to access your Arianee assets without requesting your signature for each read operation, during a given amount of time. Write operations will always require your signature:\n";
+
+    test.each([
+      ['without dots', 'Please sign this arianee access token\n'],
+      ['with dots', prefixWithDots],
+    ])('should verify an AAT with a prefix %s', async (_, prefix) => {
+      const jwt = new JWTGeneric({ signer, recover });
+      await jwt.setPayload(payload);
+      const token = await jwt.sign(prefix);
+
+      const verifier = new JWTGeneric({ recover });
+      expect(verifier.setToken(token).verify(pubKey, -1)).toBeTruthy();
+      expect(verifier.setToken(token).decode().prefix).toEqual(prefix);
+    });
+
+    test('should not verify a prefixed AAT whose prefix was tampered with', async () => {
+      const jwt = new JWTGeneric({ signer, recover });
+      await jwt.setPayload(payload);
+      const token = await jwt.sign(prefixWithDots);
+
+      const tampered = token.replace('We can', 'We can now');
+
+      const verifier = new JWTGeneric({ recover });
+      expect(verifier.setToken(tampered).verify(pubKey, -1)).toBeFalsy();
+    });
+  });
 });
