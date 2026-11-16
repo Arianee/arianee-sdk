@@ -17,6 +17,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 0
+    # nx cannot be bumped alone: its 20 @nx/* / @nrwl/* plugins must move with
+    # it (`nx migrate`). A lone nx major broke lint + build on main (#456).
+    # The nx alerts stay open in the Security tab; do not dismiss them.
+    ignore:
+      - dependency-name: "nx"
+        update-types: ["version-update:semver-major"]
     groups:
       security:
         applies-to: security-updates
