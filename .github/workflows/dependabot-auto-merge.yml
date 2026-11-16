@@ -1,0 +1,99 @@
+name: Dependabot auto-merge
+
+# ARI-3925. Turns on GitHub auto-merge for Dependabot patch/minor PRs.
+# It never merges anything itself and lowers no protection: GitHub still waits
+# for every required status check and every required review. Auto-merge is
+# pinned to the head commit that was checked, so a later push cancels it.
+#
+# Fail-closed guards — any of these and the PR is left to a human:
+# - the PR is not from Dependabot, someone else pushed to it, or one of its
+#   commits is not a verified Dependabot commit (auto-merge is switched off);
+# - one updated package is a major bump, a 0.x minor bump (breaking by semver),
+#   a 0.0.x bump, or of unknown type;
+# - the ecosystem is not npm or pip (no Docker, no GitHub Actions);
+# - the package changed maintainers in this release (a takeover signal), or the
+#   PR body was truncated so that signal may be missing;
+# - the base branch has no required status check (no CI = no auto-merge,
+#   otherwise GitHub would merge without waiting for anything);
+# - auto-merge is not allowed in the repository settings.
+#
+# Deliberately `pull_request`, never `pull_request_target`.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+
+jobs:
+  auto-merge:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      REPO: ${{ github.repository }}
+      BASE: ${{ github.event.pull_request.base.ref }}
+    steps:
+      - name: Someone else pushed to this PR, leave it to a human
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          if [ "$(gh pr view "$PR_URL" --json autoMergeRequest --jq '.autoMergeRequest != null')" = "true" ]; then
+            gh pr merge --disable-auto "$PR_URL"
+          fi
+
+      - name: Read the Dependabot metadata
+        id: meta
+        if: github.actor == 'dependabot[bot]'
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Enable auto-merge
+        if: >-
+          github.actor == 'dependabot[bot]'
+          && (steps.meta.outputs.update-type == 'version-update:semver-patch'
+            || steps.meta.outputs.update-type == 'version-update:semver-minor')
+          && (steps.meta.outputs.package-ecosystem == 'npm_and_yarn'
+            || steps.meta.outputs.package-ecosystem == 'pip')
+          && steps.meta.outputs.maintainer-changes != 'true'
+        env:
+          DEPS: ${{ steps.meta.outputs.updated-dependencies-json }}
+        run: |
+          set -euo pipefail
+          skip() { echo "::notice::$1: not enabling auto-merge."; exit 0; }
+
+          # update-type is the max over the group and skips unknown entries:
+          # re-check every package. 0.x minors break by semver.
+          risky=$(jq '[.[] | select(
+              (.updateType != "version-update:semver-patch" and .updateType != "version-update:semver-minor")
+              or ((.prevVersion // "") == "")
+              or ((.prevVersion | startswith("0.")) and .updateType != "version-update:semver-patch")
+              or (.prevVersion | startswith("0.0."))
+            )] | length' <<<"$DEPS")
+          [ "$risky" -eq 0 ] || skip "$risky package(s) with a major, 0.x or unknown bump"
+          [ "$(jq 'length' <<<"$DEPS")" -gt 0 ] || skip "No updated package listed"
+
+          foreign=$(gh api "repos/$REPO/pulls/$PR_NUMBER/commits" --paginate \
+            --jq '.[] | select(.author.login != "dependabot[bot]" or (.commit.verification.verified | not)) | .sha' | wc -l)
+          [ "$foreign" -eq 0 ] || skip "$foreign commit(s) not from Dependabot"
+
+          # Dependabot cuts the body at 65536 chars, which can drop "Maintainer changes".
+          [ "$(gh pr view "$PR_URL" --json body --jq '.body | length')" -lt 65000 ] || skip "PR body truncated"
+
+          classic=$(gh api "repos/$REPO/branches/$BASE" --jq '.protection.required_status_checks.contexts // [] | length')
+          rules=$(gh api "repos/$REPO/rules/branches/$BASE" \
+            --jq '[.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[]] | length')
+          [ "$classic" -gt 0 ] || [ "$rules" -gt 0 ] || skip "No required status check on $BASE"
+
+          [ "$(gh api "repos/$REPO" --jq '.allow_auto_merge')" = "true" ] || skip "Auto-merge is not allowed in the repository settings"
+
+          method=$(gh api "repos/$REPO" --jq 'if .allow_squash_merge then "--squash" elif .allow_merge_commit then "--merge" else "--rebase" end')
+          gh pr merge --auto "$method" --match-head-commit "$HEAD_SHA" "$PR_URL"
