@@ -47,7 +47,7 @@
     "@angular/forms": "~16.0.0",
     "@angular/platform-browser": "~16.0.0",
     "@angular/platform-browser-dynamic": "~16.0.0",
-    "@angular/router": "~16.0.0",
+    "@angular/router": "~22.2.6",
     "@arianee/0xcert-cert": "^2.0.2",
     "@arianee/arianee-abi": "0.37.2",
     "@arianee/contracts": "^1.0.3",
